@@ -1,0 +1,56 @@
+---
+/**
+ * PricingBlock — transparent starting price. See 02 §5.1 and 11 §2.
+ *
+ * Nobody else in this SERP publishes pricing; doing so is a differentiator, an
+ * AEO win ("how much does a performance marketing agency cost in India" has no
+ * good Indian answer to cite), and it filters inbound. Performance marketing and
+ * SEO start at ₹25,000/month — a confirmed real floor (11 §2). Never publish a
+ * price you won't honour (CLAUDE.md §15 / 11 §2).
+ *
+ * The number renders as real text in the HTML (CLAUDE.md §10). Register-agnostic.
+ */
+export interface Props {
+  price: string; // "₹25,000/month"
+  lede?: string; // one line on what the price depends on
+  factors: string[]; // "what moves the number"
+  note?: string; // e.g. ad spend is separate and never marked up
+  class?: string;
+}
+
+const { price, lede, factors, note, class: className = '' } = Astro.props;
+---
+
+<div
+  data-pricing-block
+  class:list={[
+    'flex flex-col gap-[var(--space-4)] rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-5)]',
+    className,
+  ]}
+>
+  <p class="display-type text-[var(--text-data-sm)] font-semibold leading-none text-[var(--fg)]" data-num>
+    {price}
+  </p>
+
+  {lede && <p class="max-w-[54ch] text-[var(--text-body)] text-[var(--fg)]">{lede}</p>}
+
+  <div class="flex flex-col gap-[var(--space-2)]">
+    <h3 class="text-[var(--text-small)] font-semibold text-[var(--fg-muted)]">
+      What moves the number
+    </h3>
+    <ul class="flex flex-col gap-[var(--space-1)]">
+      {factors.map((f) => (
+        <li class="flex gap-[var(--space-2)] text-[var(--text-small)] text-[var(--fg)]">
+          <span aria-hidden="true" class="text-[var(--accent-text)]">—</span>
+          <span>{f}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  {note && (
+    <p class="border-t border-[var(--rule-c)] pt-[var(--space-3)] text-[var(--text-small)] text-[var(--fg-muted)]">
+      {note}
+    </p>
+  )}
+</div>

@@ -1,0 +1,49 @@
+---
+/**
+ * Annotation — the site motif. See 08-DESIGN-BRIEF.md §3.
+ *
+ * A thin vertical rule with a tag, exactly like the annotation you drop on an
+ * ads dashboard at the point you changed something. It is the one device that
+ * is unmistakably ours: functional, native to the work, and not in use by
+ * anyone else in this market.
+ *
+ * Use it to mark a turning point on a case study chart, label a dashboard
+ * screenshot, call out a moment in the Benchmark data, or tag a section.
+ *
+ * Do NOT decorate with it. If the annotation is not pointing at something
+ * specific and real, it does not belong on the page.
+ */
+export interface Props {
+  label: string;           // "Creative refresh"
+  date?: string;           // "14 Apr 2026"
+  align?: 'left' | 'right';
+  emphasis?: boolean;      // accent-coloured rule instead of hairline
+  class?: string;
+}
+
+const { label, date, align = 'left', emphasis = false, class: className = '' } = Astro.props;
+---
+
+<div
+  class:list={[
+    'flex gap-[0.7rem] items-stretch',
+    align === 'right' && 'flex-row-reverse text-right',
+    className,
+  ]}
+  data-annotation
+>
+  <div
+    class="w-px shrink-0 self-stretch"
+    style={`background: var(--${emphasis ? 'accent' : 'rule-c'})`}
+    aria-hidden="true"
+  ></div>
+
+  <div class="py-[0.15rem]">
+    <div class="text-[var(--text-small)] leading-snug display-type">{label}</div>
+    {date && (
+      <div class="text-[var(--text-label)] text-[var(--fg-muted)] mt-[0.15rem]" data-num>
+        {date}
+      </div>
+    )}
+  </div>
+</div>

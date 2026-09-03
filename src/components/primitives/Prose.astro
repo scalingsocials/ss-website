@@ -1,0 +1,24 @@
+---
+/**
+ * Prose — the ONLY thing that applies the serif. See 08-DESIGN-BRIEF.md §5.
+ *
+ * Source Serif 4 is scoped to long-form reading: blog posts, case study
+ * narrative, guides, and service body copy. Everything else — UI, nav, buttons,
+ * labels, data — stays on Anek Latin (the body default). Wrap reading copy in
+ * <Prose>; never put the serif on `body` or on a component.
+ *
+ * The `.prose` class (theme.css) sets the serif family, 18px, generous leading,
+ * a 68ch measure, and vertical rhythm between children. This component is just
+ * the semantic wrapper so the rule is impossible to forget.
+ */
+export interface Props {
+  as?: 'div' | 'article' | 'section';
+  class?: string;
+}
+
+const { as: Tag = 'div', class: className = '' } = Astro.props;
+---
+
+<Tag class:list={['prose', className]}>
+  <slot />
+</Tag>

@@ -1,0 +1,43 @@
+---
+/**
+ * ProcessSteps — the five numbered engagement phases. See 02 §3 and §5.1.
+ *
+ * This is the ONLY place numbered markers appear on the site (08 §7), because
+ * the engagement genuinely is a sequence. Do not reuse numbered markers for
+ * decoration — if it is not a real ordered sequence, it does not get numbers.
+ *
+ * Numerals are Anek Latin, tabular. Register-agnostic.
+ */
+export interface Step {
+  title: string;
+  body: string;
+}
+
+export interface Props {
+  steps: Step[];
+  class?: string;
+}
+
+const { steps, class: className = '' } = Astro.props;
+---
+
+<ol data-process-steps class:list={['flex flex-col', className]}>
+  {steps.map((step, i) => (
+    <li
+      class:list={[
+        'grid grid-cols-[auto_1fr] gap-x-[var(--space-4)] gap-y-[var(--space-1)] py-[var(--space-4)]',
+        i > 0 && 'border-t border-[var(--rule-c)]',
+      ]}
+    >
+      <span
+        class="row-span-2 display-type text-[var(--text-data-sm)] font-semibold leading-none text-[var(--accent-text)]"
+        data-num
+        aria-hidden="true"
+      >
+        {String(i + 1).padStart(2, '0')}
+      </span>
+      <h3 class="self-center text-[var(--text-h4)] font-semibold text-[var(--fg)]">{step.title}</h3>
+      <p class="max-w-[54ch] text-[var(--text-small)] leading-relaxed text-[var(--fg-muted)]">{step.body}</p>
+    </li>
+  ))}
+</ol>

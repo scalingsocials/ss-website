@@ -1,0 +1,31 @@
+---
+/**
+ * ClientVoice — founder problems in the first person. See 08-DESIGN-BRIEF.md §7.
+ *
+ * "I'm frustrated that my agency doesn't bring fresh ideas." The actual words a
+ * D2C founder uses about the pain, not a marketing paraphrase. These are
+ * archetypal objections (voice-of-customer), not attributed client testimonials
+ * — so they carry no client name and invent no metric.
+ *
+ * Pass the statements via `problems`. Each renders large, quiet, first-person.
+ */
+export interface Props {
+  problems: string[];
+  class?: string;
+}
+
+const { problems, class: className = '' } = Astro.props;
+---
+
+<ul data-client-voice class:list={['flex flex-col', className]}>
+  {problems.map((problem, i) => (
+    <li
+      class:list={[
+        'py-[var(--space-4)] text-[var(--text-h3)] leading-snug text-[var(--fg)]',
+        i > 0 && 'border-t border-[var(--rule-c)]',
+      ]}
+    >
+      <span class="text-[var(--accent-text)]">“</span>{problem}<span class="text-[var(--accent-text)]">”</span>
+    </li>
+  ))}
+</ul>

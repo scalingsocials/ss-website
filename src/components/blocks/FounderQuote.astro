@@ -1,0 +1,65 @@
+---
+/**
+ * FounderQuote — a named human. See 08-DESIGN-BRIEF.md §7.
+ *
+ * Photo, quote, name, role, LinkedIn. A real person, attributed — never an
+ * anonymous "our clients say". The quote is the content; the photo and the
+ * LinkedIn link are the credibility.
+ *
+ * Photos are still outstanding (11 §1 TODO), so `photo` is optional: with none,
+ * a neutral initials tile stands in rather than a fake headshot. The quote is
+ * genuine founder copy passed by the page; the styleguide labels its SAMPLE.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+export interface Props {
+  quote: string;
+  name: string;
+  role: string;
+  linkedin?: string;
+  photo?: ImageMetadata;
+  class?: string;
+}
+
+const { quote, name, role, linkedin, photo, class: className = '' } = Astro.props;
+const initials = name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+---
+
+<figure
+  data-founder-quote
+  class:list={['flex flex-col gap-[var(--space-4)] sm:flex-row sm:items-start sm:gap-[var(--space-5)]', className]}
+>
+  <div class="shrink-0">
+    {photo ? (
+      <Image
+        src={photo}
+        alt={`${name}, ${role} at Scaling Socials`}
+        width={96}
+        height={96}
+        loading="lazy"
+        class="h-[96px] w-[96px] rounded-[var(--radius-card)] object-cover"
+      />
+    ) : (
+      <div
+        class="flex h-[96px] w-[96px] items-center justify-center rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] text-[var(--text-h3)] font-semibold text-[var(--fg-muted)]"
+        aria-hidden="true"
+      >
+        {initials}
+      </div>
+    )}
+  </div>
+
+  <div class="flex flex-col gap-[var(--space-3)]">
+    <blockquote class="max-w-[46ch] text-[var(--text-h3)] font-medium leading-snug text-[var(--fg)]">
+      {quote}
+    </blockquote>
+    <figcaption class="flex flex-wrap items-baseline gap-x-[var(--space-2)] text-[var(--text-small)]">
+      <span class="font-semibold text-[var(--fg)]">{name}</span>
+      <span class="text-[var(--fg-muted)]">{role}, Scaling Socials</span>
+      {linkedin && (
+        <a href={linkedin} target="_blank" rel="noopener" class="font-medium text-[var(--accent-text)]">LinkedIn</a>
+      )}
+    </figcaption>
+  </div>
+</figure>

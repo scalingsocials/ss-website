@@ -1,0 +1,72 @@
+---
+/**
+ * Delta — the site's signature component. See 08-DESIGN-BRIEF.md §1.
+ *
+ * A proof point is a STATE CHANGE with a direction and a period. Never a big
+ * number with a small label — that treatment says nothing and every agency
+ * site uses it.
+ *
+ * Attribution is REQUIRED, deliberately. You cannot render a Delta without
+ * naming the client and the period, which structurally forces the honesty
+ * the whole content strategy depends on. Do not add an optional-attribution
+ * escape hatch.
+ *
+ * Renders as real text in the HTML with real values. If it animates, it
+ * animates FROM the value already present — never from a placeholder zero.
+ * (That bug is live on the current site and on intentfarm.com; both show
+ * `0 Cr+` to Google and to every LLM crawler.)
+ */
+export interface Props {
+  metric: string;          // "Return on ad spend"
+  before: string;          // "1.8×"
+  after: string;           // "4.1×"
+  client: string;          // "Timri"
+  period: string;          // "Mar–Aug 2026"
+  channel?: string;        // "Meta Ads"
+  direction?: 'up' | 'down';
+  size?: 'sm' | 'md';
+  href?: string;           // link to the case study
+  animate?: boolean;
+}
+
+const {
+  metric, before, after, client, period, channel,
+  direction = 'up', size = 'md', href, animate = false,
+} = Astro.props;
+
+const valueSize = size === 'md' ? 'text-[var(--text-data)]' : 'text-[var(--text-data-sm)]';
+const meta = [client, channel, period].filter(Boolean).join(', ');
+const Wrapper = href ? 'a' : 'div';
+---
+
+<Wrapper
+  href={href}
+  class:list={[
+    'block no-underline group',
+    href && 'transition-opacity duration-[var(--dur-fast)] hover:opacity-70',
+  ]}
+  data-delta
+  data-animate={animate ? 'true' : undefined}
+>
+  <div class="text-[var(--text-label)] tracking-[0.03em] text-[var(--fg-muted)] mb-[var(--space-1)]">
+    {metric}
+  </div>
+
+  <div class="flex items-baseline gap-[0.55rem] display-type" data-num>
+    <span class="text-[var(--text-h4)] text-[var(--fg-muted)]">{before}</span>
+    <span class="text-[var(--text-small)] text-[var(--rule-c)]" aria-hidden="true">&rarr;</span>
+    <span
+      class:list={[valueSize, 'font-semibold tracking-[-0.025em]']}
+      style={`color: var(--${direction === 'up' ? 'pos' : 'neg'})`}
+      data-delta-value
+    >{after}</span>
+  </div>
+
+  <div class="text-[var(--text-label)] text-[var(--fg-muted)] mt-[0.4rem]">
+    {meta}
+  </div>
+
+  <span class="sr-only">
+    {metric} changed from {before} to {after} for {client} over {period}.
+  </span>
+</Wrapper>

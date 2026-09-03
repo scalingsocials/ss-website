@@ -1,0 +1,123 @@
+---
+/**
+ * Footer — rendered once, ink register. See 02-SITEMAP-AND-PAGE-SPECS.md §6.
+ *
+ * The NAP (name, address, phone) is read from entity.ts, the single source of
+ * truth. It must be character-for-character identical to Google Business Profile
+ * and every directory (03 §1.1) — so it is never hardcoded here. Uses the public
+ * Google-Maps `address`, never `legalAddress` (that is invoices only).
+ *
+ * Footer links distribute authority to the pages we most want ranked (§6): the
+ * service pillars, the proof pages, and the Benchmark Index each get a column.
+ */
+import { Image } from 'astro:assets';
+import lockupWhite from '@/assets/brand/lockup-white.png';
+import { ORG } from '@/lib/schema/entity';
+import { SERVICE_PILLARS } from '@/lib/nav';
+
+const a = ORG.address;
+const year = new Date().getFullYear();
+
+const proof = [
+  { label: 'Case studies', href: '/case-studies/' },
+  { label: 'Creative gallery', href: '/work/' },
+  { label: 'Teardowns', href: '/teardowns/' },
+  { label: 'Benchmark Index', href: '/india-d2c-ad-benchmarks/' },
+];
+const resources = [
+  { label: 'Blog', href: '/blog/' },
+  { label: 'Guides', href: '/guides/' },
+  { label: 'Tools', href: '/tools/' },
+  { label: 'Glossary', href: '/glossary/' },
+];
+const company = [
+  { label: 'About', href: '/about/' },
+  { label: 'Team', href: '/team/' },
+  { label: 'Careers', href: 'https://careers.scalingsocials.com/', external: true },
+  { label: 'Contact', href: '/contact/' },
+];
+const legal = [
+  { label: 'Terms', href: '/terms/' },
+  { label: 'Privacy', href: '/privacy/' },
+  { label: 'Disclaimer', href: '/disclaimer/' },
+  { label: 'Cookie policy', href: '/cookie-policy/' },
+];
+const social = [
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/scaling-socials/' },
+  { label: 'Instagram', href: 'https://www.instagram.com/scalingsocialsofficial/' },
+  { label: 'Facebook', href: 'https://www.facebook.com/scalingsocials/' },
+];
+
+const colClass = 'flex flex-col gap-[var(--space-2)]';
+const headClass = 'text-[var(--text-small)] font-semibold text-[var(--fg-muted)]';
+const linkClass = 'text-[var(--text-small)] text-[var(--fg)] no-underline hover:text-[var(--accent-text)]';
+---
+
+<footer data-register="ink" class="border-t border-[var(--rule-c)]">
+  <div class="mx-auto w-full max-w-[var(--container)] px-[var(--space-3)] py-[var(--space-10)] md:px-[var(--space-4)]">
+    <div class="grid grid-cols-2 gap-[var(--space-6)] md:grid-cols-4 lg:grid-cols-6">
+      <!-- Brand + NAP -->
+      <div class="col-span-2 flex flex-col gap-[var(--space-3)]">
+        <a href="/" class="no-underline" aria-label="Scaling Socials — home">
+          <Image src={lockupWhite} alt="Scaling Socials" height={30} width={Math.round(30 * (lockupWhite.width / lockupWhite.height))} loading="lazy" />
+        </a>
+        <p class="max-w-[36ch] text-[var(--text-small)] text-[var(--fg-muted)]">
+          Performance marketing and ecommerce development for D2C brands in India and the UAE.
+        </p>
+        <address class="flex flex-col gap-[var(--space-1)] text-[var(--text-small)] not-italic text-[var(--fg)]">
+          <span>{a.streetAddress}, {a.addressLocality}, {a.addressRegion} {a.postalCode}</span>
+          <a href={`tel:${ORG.telephone.replace(/[^+\d]/g, '')}`} class={linkClass} data-num>{ORG.telephone}</a>
+          <a href={`mailto:${ORG.email}`} class={linkClass}>{ORG.email}</a>
+        </address>
+        <ul class="flex flex-wrap gap-[var(--space-3)]">
+          {social.map((s) => (
+            <li>
+              <a href={s.href} target="_blank" rel="noopener" class={linkClass}>{s.label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <nav aria-label="Services" class={colClass}>
+        <h2 class={headClass}>Services</h2>
+        {SERVICE_PILLARS.map((p) => (
+          <a href={p.href} class={linkClass}>{p.label}</a>
+        ))}
+      </nav>
+
+      <nav aria-label="Proof" class={colClass}>
+        <h2 class={headClass}>Proof</h2>
+        {proof.map((p) => (
+          <a href={p.href} class={linkClass}>{p.label}</a>
+        ))}
+      </nav>
+
+      <nav aria-label="Resources" class={colClass}>
+        <h2 class={headClass}>Resources</h2>
+        {resources.map((p) => (
+          <a href={p.href} class={linkClass}>{p.label}</a>
+        ))}
+      </nav>
+
+      <nav aria-label="Company" class={colClass}>
+        <h2 class={headClass}>Company</h2>
+        {company.map((p) => (
+          <a href={p.href} target={p.external ? '_blank' : undefined} rel={p.external ? 'noopener' : undefined} class={linkClass}>{p.label}</a>
+        ))}
+      </nav>
+    </div>
+
+    <div class="mt-[var(--space-8)] flex flex-col gap-[var(--space-3)] border-t border-[var(--rule-c)] pt-[var(--space-4)] md:flex-row md:items-center md:justify-between">
+      <p class="text-[var(--text-label)] text-[var(--fg-muted)]" data-num>
+        © {year} {ORG.legalName}. All rights reserved.
+      </p>
+      <ul class="flex flex-wrap gap-[var(--space-3)]">
+        {legal.map((l) => (
+          <li>
+            <a href={l.href} class="text-[var(--text-label)] text-[var(--fg-muted)] no-underline hover:text-[var(--accent-text)]">{l.label}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</footer>

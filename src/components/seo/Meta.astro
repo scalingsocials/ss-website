@@ -1,0 +1,64 @@
+---
+/**
+ * Meta — per-page <head> tags, placed in BaseLayout's `meta` slot.
+ *   <Meta slot="meta" title="…" description="…" />
+ *
+ * Enforces the launch blockers from 03 §0/§2: a unique <title> of 50–60 chars
+ * and a unique meta description of 140–158 chars. registerTitle/registerDescription
+ * THROW on a missing, out-of-range, or duplicate value, which fails the build.
+ *
+ * Emits a self-referencing absolute, non-www canonical (03 §2) plus Open Graph
+ * and Twitter tags. noindex pages (styleguide, thank-you, ad LPs) opt out of the
+ * uniqueness gate since they are excluded from search and the sitemap.
+ */
+import { ORG } from '@/lib/schema/entity';
+import { registerTitle, registerDescription, canonicalFor } from '@/lib/seo';
+
+export interface Props {
+  title: string;
+  description: string;
+  /** Absolute image URL for OG/Twitter cards. Defaults to the org logo. */
+  image?: string;
+  type?: 'website' | 'article';
+  /** Skip the uniqueness/length gate (noindex, out-of-sitemap pages). */
+  noindex?: boolean;
+  publishedTime?: string;
+  modifiedTime?: string;
+}
+
+const {
+  title,
+  description,
+  image = ORG.logo,
+  type = 'website',
+  noindex = false,
+  publishedTime,
+  modifiedTime,
+} = Astro.props;
+
+const path = Astro.url.pathname;
+const canonical = canonicalFor(path);
+
+// Enforce (and normalise) unless this is an out-of-sitemap noindex page.
+const finalTitle = noindex ? title.trim() : registerTitle(title, path);
+const finalDescription = noindex ? description.trim() : registerDescription(description, path);
+---
+
+<title>{finalTitle}</title>
+<meta name="description" content={finalDescription} />
+<link rel="canonical" href={canonical} />
+
+<meta property="og:type" content={type} />
+<meta property="og:title" content={finalTitle} />
+<meta property="og:description" content={finalDescription} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={image} />
+<meta property="og:site_name" content={ORG.name} />
+<meta property="og:locale" content="en_IN" />
+{publishedTime && <meta property="article:published_time" content={publishedTime} />}
+{modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={finalTitle} />
+<meta name="twitter:description" content={finalDescription} />
+<meta name="twitter:image" content={image} />

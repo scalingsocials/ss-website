@@ -1,0 +1,72 @@
+---
+/**
+ * CaseStudyCard — a proof card with a real result table, not a thumbnail.
+ * See 08-DESIGN-BRIEF.md §7 and 02 §5.2.
+ *
+ * The homepage and service pages show these instead of image tiles. Like Delta,
+ * a card is a STATE CHANGE with attribution: it requires a client and a period,
+ * and shows before→after metrics as real values. No invented numbers — pages
+ * pass real case-study data; the styleguide passes clearly-labelled SAMPLE data.
+ *
+ * Elevation is a 1px rule, never a shadow (08 §9). Register-agnostic.
+ */
+export interface Metric {
+  label: string; // "ROAS"
+  before: string; // "1.8×"
+  after: string; // "3.4×"
+  direction?: 'up' | 'down';
+}
+
+export interface Props {
+  client: string;
+  period: string;
+  headline: string; // "3.4× ROAS and ₹42L revenue in 5 months on Meta"
+  category?: string; // "Fashion · Meta Ads"
+  metrics?: Metric[];
+  href: string;
+  class?: string;
+}
+
+const { client, period, headline, category, metrics = [], href, class: className = '' } = Astro.props;
+---
+
+<a
+  href={href}
+  data-case-study-card
+  class:list={[
+    'group flex flex-col gap-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-4)] no-underline transition-colors duration-[var(--dur-base)] hover:border-[var(--fg)]',
+    className,
+  ]}
+>
+  <div class="flex items-baseline justify-between gap-[var(--space-2)]">
+    <span class="text-[var(--text-h4)] font-semibold text-[var(--fg)]">{client}</span>
+    {category && <span class="text-[var(--text-label)] text-[var(--fg-muted)]">{category}</span>}
+  </div>
+
+  <p class="text-[var(--text-body)] leading-snug text-[var(--fg)] group-hover:text-[var(--accent-text)]">
+    {headline}
+  </p>
+
+  {metrics.length > 0 && (
+    <dl class="flex flex-col gap-[var(--space-1)] border-t border-[var(--rule-c)] pt-[var(--space-3)]">
+      {metrics.map((m) => (
+        <div class="flex items-baseline justify-between gap-[var(--space-3)]">
+          <dt class="text-[var(--text-small)] text-[var(--fg-muted)]">{m.label}</dt>
+          <dd class="flex items-baseline gap-[0.4rem] display-type text-[var(--text-small)]" data-num>
+            <span class="text-[var(--fg-muted)]">{m.before}</span>
+            <span aria-hidden="true" class="text-[var(--rule-c)]">→</span>
+            <span
+              class="font-semibold"
+              style={`color: var(--${m.direction === 'down' ? 'neg' : 'pos'})`}
+            >{m.after}</span>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )}
+
+  <div class="mt-auto flex items-center justify-between pt-[var(--space-2)] text-[var(--text-label)] text-[var(--fg-muted)]" data-num>
+    <span>{period}</span>
+    <span class="font-medium text-[var(--accent-text)]">Read the case study</span>
+  </div>
+</a>

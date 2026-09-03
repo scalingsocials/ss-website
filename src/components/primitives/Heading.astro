@@ -1,0 +1,36 @@
+---
+/**
+ * Heading — a semantic heading whose level and visual size are set separately.
+ *
+ * The document outline (h1…h6) must stay correct for accessibility and SEO —
+ * exactly one <h1> per page, never a skipped level (01 §6). But visual size is a
+ * design decision, not an outline decision. `level` controls the tag; `size`
+ * optionally overrides the type scale so an h3 can read at h2 size without
+ * breaking the outline.
+ *
+ * All headings are Anek Latin (theme.css base). Never the serif — that is Prose.
+ */
+export interface Props {
+  level: 1 | 2 | 3 | 4 | 5 | 6;
+  size?: 'display' | 'h2' | 'h3' | 'h4';
+  id?: string;
+  class?: string;
+}
+
+const { level, size, id, class: className = '' } = Astro.props;
+const Tag = `h${level}` as const;
+
+// Only override when `size` is given; otherwise the base h1–h4 rules apply.
+const sizeClass = size
+  ? {
+      display: 'text-[var(--text-display)] leading-[var(--leading-display)] tracking-[var(--tracking-display)]',
+      h2: 'text-[var(--text-h2)]',
+      h3: 'text-[var(--text-h3)]',
+      h4: 'text-[var(--text-h4)]',
+    }[size]
+  : '';
+---
+
+<Tag id={id} class:list={[sizeClass, className]}>
+  <slot />
+</Tag>

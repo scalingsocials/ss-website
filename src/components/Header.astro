@@ -1,0 +1,270 @@
+---
+/**
+ * Header — the 5-item primary nav. See 02-SITEMAP-AND-PAGE-SPECS.md §6.
+ *
+ * Rendered once, paper register. Desktop shows a mega menu (Services) and two
+ * dropdowns (Work, Resources, Company) plus a direct Benchmarks link and the
+ * primary CTA. Mobile collapses to a <dialog> opened by a hamburger — vanilla
+ * JS, NOT a React island (01 §2.1).
+ *
+ * Accessibility: the menu panels are revealed by CSS :hover and :focus-within,
+ * so with JavaScript disabled a keyboard user still tabs to a trigger, sees the
+ * panel, and tabs into its links. src/scripts/nav.ts only layers on aria-expanded,
+ * tap-to-toggle, and Escape/outside-click closing.
+ */
+import { Image } from 'astro:assets';
+import lockup from '@/assets/brand/lockup-black.png';
+import Button from '@/components/primitives/Button.astro';
+import { NAV, NAV_CTA } from '@/lib/nav';
+
+const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+/g, '-')}`;
+---
+
+<header data-register="paper" class="ss-header sticky top-0 z-50 border-b border-[var(--rule-c)]">
+  <div class="mx-auto flex w-full max-w-[var(--container)] items-center gap-[var(--space-4)] px-[var(--space-3)] py-[var(--space-2)] md:px-[var(--space-4)]">
+    <a href="/" class="shrink-0 no-underline" aria-label="Scaling Socials — home">
+      <Image src={lockup} alt="Scaling Socials" height={28} width={Math.round(28 * (lockup.width / lockup.height))} loading="eager" />
+    </a>
+
+    <!-- Desktop nav -->
+    <nav aria-label="Primary" class="ss-nav-desktop ml-auto hidden items-center gap-[var(--space-1)] lg:flex">
+      {NAV.map((item) =>
+        item.kind === 'link' ? (
+          <a
+            href={item.href}
+            class="rounded-[var(--radius-button)] px-[var(--space-2)] py-[var(--space-1)] text-[var(--text-small)] font-medium text-[var(--fg)] no-underline hover:bg-[var(--surface-c)]"
+          >
+            {item.label}
+          </a>
+        ) : (
+          <div class="ss-nav-group relative" data-nav-group>
+            <button
+              type="button"
+              data-nav-trigger
+              aria-expanded="false"
+              aria-controls={panelId(item.label)}
+              class="ss-nav-trigger flex items-center gap-[0.3rem] rounded-[var(--radius-button)] px-[var(--space-2)] py-[var(--space-1)] text-[var(--text-small)] font-medium text-[var(--fg)] hover:bg-[var(--surface-c)]"
+            >
+              {item.label}
+              <svg class="ss-caret" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" fill="none">
+                <path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+
+            <div
+              id={panelId(item.label)}
+              data-register="paper"
+              class:list={[
+                'ss-nav-panel absolute left-0 top-full mt-px border border-[var(--rule-c)] bg-[var(--ground)]',
+                item.kind === 'mega' ? 'ss-nav-panel--mega' : 'ss-nav-panel--list',
+              ]}
+            >
+              {item.kind === 'mega' ? (
+                <div class="grid grid-cols-[1fr_1fr_minmax(200px,240px)] gap-[var(--space-5)] p-[var(--space-4)]">
+                  <div class="col-span-2 grid grid-cols-2 gap-x-[var(--space-5)] gap-y-[var(--space-3)]">
+                    {item.items!.map((leaf) => (
+                      <a href={leaf.href} class="group block no-underline">
+                        <span class="block text-[var(--text-small)] font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">
+                          {leaf.label}
+                        </span>
+                        {leaf.descriptor && (
+                          <span class="mt-[0.15rem] block text-[var(--text-label)] leading-snug text-[var(--fg-muted)]">
+                            {leaf.descriptor}
+                          </span>
+                        )}
+                      </a>
+                    ))}
+                  </div>
+                  <!-- Right rail: latest case study. Data pending. -->
+                  <div class="border-l border-[var(--rule-c)] pl-[var(--space-4)]">
+                    <span class="block text-[var(--text-label)] font-semibold text-[var(--fg-muted)]">
+                      Latest case study
+                    </span>
+                    <p class="mt-[var(--space-2)] text-[var(--text-label)] leading-snug text-[var(--fg-muted)]">
+                      TODO: [featured case study — client, result, link]
+                    </p>
+                    <a href="/case-studies/" class="mt-[var(--space-2)] inline-block text-[var(--text-small)] font-medium text-[var(--accent-text)]">
+                      See all case studies
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <ul class="flex min-w-[240px] flex-col gap-[0.15rem] p-[var(--space-2)]">
+                  {item.items!.map((leaf) => (
+                    <li>
+                      <a
+                        href={leaf.href}
+                        target={leaf.external ? '_blank' : undefined}
+                        rel={leaf.external ? 'noopener' : undefined}
+                        class="group block rounded-[var(--radius-button)] px-[var(--space-2)] py-[var(--space-1)] no-underline hover:bg-[var(--surface-c)]"
+                      >
+                        <span class="block text-[var(--text-small)] font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">
+                          {leaf.label}
+                        </span>
+                        {leaf.descriptor && (
+                          <span class="block text-[var(--text-label)] leading-snug text-[var(--fg-muted)]">
+                            {leaf.descriptor}
+                          </span>
+                        )}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        )
+      )}
+
+      <Button href={NAV_CTA.href} variant="primary" size="sm" class="ml-[var(--space-2)]">
+        {NAV_CTA.label}
+      </Button>
+    </nav>
+
+    <!-- Mobile: CTA + hamburger -->
+    <div class="ml-auto flex items-center gap-[var(--space-2)] lg:hidden">
+      <Button href={NAV_CTA.href} variant="primary" size="sm" class="hidden sm:inline-flex">
+        {NAV_CTA.label}
+      </Button>
+      <button
+        type="button"
+        data-mobile-open
+        aria-label="Open menu"
+        aria-haspopup="dialog"
+        class="flex items-center justify-center rounded-[var(--radius-button)] p-[0.4rem] text-[var(--fg)] hover:bg-[var(--surface-c)]"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none">
+          <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile nav dialog. Native <dialog>; answers/links present in DOM. -->
+  <dialog data-mobile-nav data-register="paper" class="ss-mobile-nav" aria-label="Primary">
+    <div class="ss-mobile-nav__inner flex h-full flex-col bg-[var(--ground)]">
+      <div class="flex items-center justify-between border-b border-[var(--rule-c)] px-[var(--space-3)] py-[var(--space-2)]">
+        <span class="text-[var(--text-small)] font-semibold text-[var(--fg)]">Menu</span>
+        <button
+          type="button"
+          data-mobile-close
+          aria-label="Close menu"
+          class="flex items-center justify-center rounded-[var(--radius-button)] p-[0.4rem] text-[var(--fg)] hover:bg-[var(--surface-c)]"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <nav aria-label="Mobile" class="flex-1 overflow-y-auto px-[var(--space-3)] py-[var(--space-3)]">
+        {NAV.map((item) =>
+          item.kind === 'link' ? (
+            <a
+              href={item.href}
+              class="block border-b border-[var(--rule-c)] py-[var(--space-2)] text-[var(--text-h4)] font-semibold text-[var(--fg)] no-underline"
+            >
+              {item.label}
+            </a>
+          ) : (
+            <details class="border-b border-[var(--rule-c)]">
+              <summary class="flex cursor-pointer list-none items-center justify-between py-[var(--space-2)] text-[var(--text-h4)] font-semibold text-[var(--fg)]">
+                {item.label}
+                <svg class="ss-caret" width="14" height="14" viewBox="0 0 10 10" aria-hidden="true" fill="none">
+                  <path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </summary>
+              <ul class="flex flex-col gap-[0.15rem] pb-[var(--space-2)]">
+                {item.items!.map((leaf) => (
+                  <li>
+                    <a
+                      href={leaf.href}
+                      target={leaf.external ? '_blank' : undefined}
+                      rel={leaf.external ? 'noopener' : undefined}
+                      class="block py-[0.5rem] pl-[var(--space-2)] text-[var(--text-body)] text-[var(--fg)] no-underline"
+                    >
+                      {leaf.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )
+        )}
+        <Button href={NAV_CTA.href} variant="primary" class="mt-[var(--space-3)] w-full">
+          {NAV_CTA.label}
+        </Button>
+      </nav>
+    </div>
+  </dialog>
+</header>
+
+<script>
+  import '@/scripts/nav.ts';
+</script>
+
+<style>
+  .ss-header {
+    background: var(--ground);
+    backdrop-filter: saturate(1.1);
+  }
+
+  /* Menu panels: hidden by default, revealed on hover / keyboard focus / JS
+     open. focus-within is what makes them keyboard-usable with JS disabled. */
+  .ss-nav-panel {
+    z-index: 60;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition:
+      opacity var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out),
+      visibility var(--dur-fast);
+  }
+  .ss-nav-panel--mega {
+    width: min(720px, calc(100vw - 2 * var(--space-4)));
+  }
+  .ss-nav-group:hover > .ss-nav-panel,
+  .ss-nav-group:focus-within > .ss-nav-panel,
+  .ss-nav-group[data-open='true'] > .ss-nav-panel {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .ss-caret {
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .ss-nav-group:hover .ss-caret,
+  .ss-nav-group:focus-within .ss-caret,
+  .ss-nav-group[data-open='true'] .ss-caret {
+    transform: rotate(180deg);
+  }
+  details[open] > summary .ss-caret {
+    transform: rotate(180deg);
+  }
+
+  /* Native dialog as a full-height sheet from the right. */
+  .ss-mobile-nav {
+    margin: 0 0 0 auto;
+    height: 100dvh;
+    max-height: 100dvh;
+    width: min(360px, 92vw);
+    max-width: 92vw;
+    padding: 0;
+    border: none;
+    border-left: 1px solid var(--rule-c);
+    color: var(--fg);
+  }
+  .ss-mobile-nav::backdrop {
+    background: color-mix(in srgb, var(--color-black) 45%, transparent);
+  }
+  .ss-mobile-nav__inner {
+    height: 100%;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+</style>

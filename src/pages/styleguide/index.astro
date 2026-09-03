@@ -1,0 +1,463 @@
+---
+/**
+ * /styleguide/ — the visual regression surface. noindex, excluded from sitemap.
+ *
+ * Shows every token, primitive and block in BOTH registers side by side, so the
+ * reviewer can confirm the registers differ in COLOUR ONLY — identical type
+ * scale, spacing rhythm and component shapes (08 §6, §9). Every specimen is
+ * written once and rendered inside a <Section register={reg}> for each register,
+ * so Section stays the only thing that sets data-register (CLAUDE.md §5).
+ *
+ * The contrast panel computes the measured WCAG ratio for every foreground/
+ * background pair actually in use, so a palette regression is visible here.
+ *
+ * Sample data is clearly labelled SAMPLE. No invented client names or metrics
+ * (CLAUDE.md §15). Renders fully with JavaScript disabled.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import Section from '@/components/primitives/Section.astro';
+import Container from '@/components/primitives/Container.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import Heading from '@/components/primitives/Heading.astro';
+import Button from '@/components/primitives/Button.astro';
+import Link from '@/components/primitives/Link.astro';
+import Table from '@/components/primitives/Table.astro';
+
+import Delta from '@/components/blocks/Delta.astro';
+import Annotation from '@/components/blocks/Annotation.astro';
+import AnswerBlock from '@/components/blocks/AnswerBlock.astro';
+import ProofBar from '@/components/blocks/ProofBar.astro';
+import LogoWall from '@/components/blocks/LogoWall.astro';
+import ClientVoice from '@/components/blocks/ClientVoice.astro';
+import CaseStudyCard from '@/components/blocks/CaseStudyCard.astro';
+import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import FounderQuote from '@/components/blocks/FounderQuote.astro';
+import ComparisonTable from '@/components/blocks/ComparisonTable.astro';
+import PricingBlock from '@/components/blocks/PricingBlock.astro';
+import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
+import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
+
+const REGISTERS = ['paper', 'ink'] as const;
+
+// ---- Design tokens (mirror of theme.css @theme; used for the contrast panel) --
+const SWATCHES = ['ground', 'fg', 'fg-muted', 'surface-c', 'rule-c', 'accent-fill', 'accent-text', 'accent-on', 'pos', 'neg'];
+
+const TYPE = [
+  { name: 'display', cls: 'text-[var(--text-display)] leading-[var(--leading-display)] tracking-[var(--tracking-display)]' },
+  { name: 'h2', cls: 'text-[var(--text-h2)]' },
+  { name: 'h3', cls: 'text-[var(--text-h3)]' },
+  { name: 'h4', cls: 'text-[var(--text-h4)]' },
+  { name: 'body', cls: 'text-[var(--text-body)]' },
+  { name: 'small', cls: 'text-[var(--text-small)]' },
+  { name: 'label', cls: 'text-[var(--text-label)]' },
+  { name: 'data', cls: 'text-[var(--text-data-sm)] display-type' },
+];
+
+const SPACES = ['1', '2', '3', '4', '5', '6', '8', '10', '12', '16'];
+const RADII = [
+  { name: 'card', cls: 'rounded-[var(--radius-card)]' },
+  { name: 'button', cls: 'rounded-[var(--radius-button)]' },
+  { name: 'input', cls: 'rounded-[var(--radius-input)]' },
+];
+
+// ---- WCAG contrast, computed at build time -----------------------------------
+const HEX = {
+  white: '#FFFFFF', black: '#000000',
+  fgLight: '#111111', fgDark: '#EDEDED',
+  mutedLight: '#6E6E6E', mutedDark: '#9A9A9A',
+  surfaceLight: '#F5F5F5', surfaceDark: '#141414',
+  accent: '#002FA7', accentLift: '#5B7CFF',
+  upLight: '#0B7A45', upDark: '#3ECF8E',
+  downLight: '#B3261E', downDark: '#FF6B5E',
+};
+function lum(hex: string): number {
+  const c = hex.replace('#', '');
+  const n = c.length === 3 ? c.split('').map((x) => x + x).join('') : c;
+  const ch = [0, 2, 4].map((i) => parseInt(n.slice(i, i + 2), 16) / 255);
+  const f = (v: number) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+  const [r, g, b] = ch.map(f) as [number, number, number];
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+function ratio(a: string, b: string): number {
+  const L1 = lum(a), L2 = lum(b);
+  const hi = Math.max(L1, L2), lo = Math.min(L1, L2);
+  return (hi + 0.05) / (lo + 0.05);
+}
+const PAIRS: { reg: string; label: string; fg: string; bg: string }[] = [
+  { reg: 'paper', label: 'fg on ground', fg: HEX.fgLight, bg: HEX.white },
+  { reg: 'paper', label: 'fg-muted on ground', fg: HEX.mutedLight, bg: HEX.white },
+  { reg: 'paper', label: 'accent-text on ground', fg: HEX.accent, bg: HEX.white },
+  { reg: 'paper', label: 'accent-on on accent-fill', fg: HEX.white, bg: HEX.accent },
+  { reg: 'paper', label: 'pos on ground', fg: HEX.upLight, bg: HEX.white },
+  { reg: 'paper', label: 'neg on ground', fg: HEX.downLight, bg: HEX.white },
+  { reg: 'paper', label: 'fg on surface-c', fg: HEX.fgLight, bg: HEX.surfaceLight },
+  { reg: 'ink', label: 'fg on ground', fg: HEX.fgDark, bg: HEX.black },
+  { reg: 'ink', label: 'fg-muted on ground', fg: HEX.mutedDark, bg: HEX.black },
+  { reg: 'ink', label: 'accent-text on ground', fg: HEX.accentLift, bg: HEX.black },
+  { reg: 'ink', label: 'accent-on on accent-fill', fg: HEX.black, bg: HEX.accentLift },
+  { reg: 'ink', label: 'pos on ground', fg: HEX.upDark, bg: HEX.black },
+  { reg: 'ink', label: 'neg on ground', fg: HEX.downDark, bg: HEX.black },
+  { reg: 'ink', label: 'fg on surface-c', fg: HEX.fgDark, bg: HEX.surfaceDark },
+];
+const contrastRows = PAIRS.map((p) => {
+  const r = ratio(p.fg, p.bg);
+  return [
+    p.reg,
+    p.label,
+    `${p.fg} on ${p.bg}`,
+    `${r.toFixed(2)}:1`,
+    r >= 4.5 ? 'PASS (AA text)' : r >= 3 ? 'large text only' : 'FAIL',
+  ];
+});
+
+// ---- SAMPLE data for the block specimens (clearly labelled) -------------------
+const sampleDelta = {
+  metric: 'Return on ad spend', before: '1.8×', after: '4.1×',
+  client: 'SAMPLE Brand', period: 'Mar–Aug 2026', channel: 'Meta Ads', direction: 'up' as const,
+};
+const sampleProof = [
+  { value: '₹10.4 Cr', label: 'Ad spend managed', source: 'SAMPLE — real figure pending (11 §6)' },
+  { value: '100+', label: 'D2C brands', source: 'SAMPLE — real figure pending' },
+  { value: '3.8×', label: 'Average ROAS', source: 'SAMPLE — real figure pending' },
+];
+const sampleVoice = [
+  "I'm frustrated that my agency doesn't bring fresh ideas.",
+  "I can't tell which campaigns are actually making money.",
+  'The ROAS my last agency reported never showed up in my bank account.',
+];
+const sampleMetrics = [
+  { label: 'ROAS', before: '1.8×', after: '3.4×', direction: 'up' as const },
+  { label: 'Revenue', before: '₹12L', after: '₹42L', direction: 'up' as const },
+  { label: 'CAC', before: '₹740', after: '₹520', direction: 'down' as const },
+];
+const sampleSteps = [
+  { title: 'Audit', body: 'We read your ad accounts and your store and find where spend leaks and where it scales.' },
+  { title: 'Plan', body: 'A 30-60-90 plan: the first things we would change, in order, with the reasoning.' },
+  { title: 'Build', body: 'Campaign structure, creative angles, and landing pages built to be tested.' },
+  { title: 'Test', body: 'We test creative and audiences against your real break-even ROAS, not a vanity target.' },
+  { title: 'Scale', body: 'What works gets budget; what does not gets cut. Then we do it again.' },
+];
+const sampleFaq = [
+  { q: 'How much does performance marketing cost?', a: 'Scaling Socials starts performance marketing at ₹25,000/month. Where you land depends on your monthly ad spend, how many platforms you run, and how much creative you need produced. Ad spend is separate and paid directly to the platforms — never marked up.' },
+  { q: 'Do you work with brands outside India?', a: 'Scaling Socials works with D2C and ecommerce brands across India and the UAE. UAE engagements account for platform mix, VAT on ad spend, and local seasonality like Ramadan and DSF.' },
+  { q: 'What do you need from me to start?', a: 'Read-only access to your Meta Ads, Google Ads, and Shopify or GA4, plus a 20-minute call on what you sell and what your margins are. From there the first audit takes three working days.' },
+];
+const comparisonCols = ['', 'In-house hire', 'Freelancer', 'Scaling Socials'];
+const comparisonRows = [
+  ['Monthly cost', '₹80k–1.5L salary', '₹20k–60k', 'From ₹25k'],
+  ['Ramp time', '1–3 months', 'Days', '1 week'],
+  ['Breadth', 'One skill set', 'One skill set', 'Media, creative, CRO, dev'],
+  ['Best when', 'Spend is large and steady', 'Scope is small and defined', 'You need to build, test and scale'],
+  ['Not for you if', 'You need breadth fast', 'You need accountability', 'You want the cheapest option — a freelancer is cheaper'],
+];
+const pricing = {
+  price: '₹25,000/month',
+  lede: 'Where you land depends on your monthly ad spend. Managing ₹1L a month and managing ₹20L a month are different jobs.',
+  factors: [
+    'Monthly ad spend',
+    'How many platforms you run',
+    'How much creative you need produced each month',
+    'Whether landing page and CRO work is in scope',
+  ],
+  note: 'Ad spend is separate and paid directly to the platforms. We never mark it up.',
+};
+const notForYou = [
+  'Pre-launch brands with no data to audit. We cannot audit an empty account.',
+  'Anyone wanting a free strategy they will hand to a cheaper agency.',
+  'Service businesses and B2B lead gen. Not our specialism — we will refer you to someone better.',
+];
+
+const sectionTitle = 'mb-[var(--space-3)] text-[var(--text-h4)] font-semibold text-[var(--fg-muted)]';
+const panel = '!py-[var(--space-5)] rounded-[var(--radius-card)] border border-[var(--rule-c)]';
+const regLabel = 'mb-[var(--space-4)] inline-block rounded-[var(--radius-button)] border border-[var(--rule-c)] px-[var(--space-2)] py-[0.15rem] text-[var(--text-label)] text-[var(--fg-muted)]';
+---
+
+<BaseLayout noindex>
+  <Meta
+    slot="meta"
+    title="Styleguide — Scaling Socials design system"
+    description="Internal styleguide: tokens, primitives and blocks in both registers."
+    noindex
+  />
+
+  <Section size="lg">
+    <Heading level={1} size="display">Styleguide</Heading>
+    <p class="mt-[var(--space-3)] max-w-[60ch] text-[var(--text-body)] text-[var(--fg-muted)]">
+      Every token, primitive and block, rendered in both registers side by side. Paper and ink
+      must differ in <strong class="text-[var(--fg)]">colour only</strong> — identical type scale,
+      spacing rhythm and component shapes. Sample data is labelled SAMPLE; nothing here invents a
+      client, metric or case study.
+    </p>
+  </Section>
+
+  <!-- ========================= TOKENS: COLOUR ========================= -->
+  <Section size="sm">
+    <h2 class={sectionTitle}>Tokens — semantic colour</h2>
+    <div class="grid gap-[var(--space-3)] md:grid-cols-2">
+      {REGISTERS.map((reg) => (
+        <Section register={reg} size="sm" class={panel}>
+          <span class={regLabel}>{reg}</span>
+          <div class="grid grid-cols-2 gap-[var(--space-3)] sm:grid-cols-5">
+            {SWATCHES.map((name) => (
+              <div class="flex flex-col gap-[var(--space-1)]">
+                <div
+                  class="h-[44px] w-full rounded-[var(--radius-input)] border border-[var(--rule-c)]"
+                  style={`background: var(--${name})`}
+                ></div>
+                <span class="text-[var(--text-label)] text-[var(--fg-muted)]">{name}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+      ))}
+    </div>
+  </Section>
+
+  <!-- ========================= TOKENS: TYPE ========================= -->
+  <Section size="sm">
+    <h2 class={sectionTitle}>Tokens — type scale (Anek Latin, tabular figures)</h2>
+    <div class="grid gap-[var(--space-3)] md:grid-cols-2">
+      {REGISTERS.map((reg) => (
+        <Section register={reg} size="sm" class={panel}>
+          <span class={regLabel}>{reg}</span>
+          <div class="flex flex-col gap-[var(--space-3)]">
+            {TYPE.map((t) => (
+              <div class="flex items-baseline gap-[var(--space-3)] border-b border-[var(--rule-c)] pb-[var(--space-2)]">
+                <span class="w-[64px] shrink-0 text-[var(--text-label)] text-[var(--fg-muted)]">{t.name}</span>
+                <span class:list={[t.cls, 'text-[var(--fg)]']} data-num>Ag ₹1.5Cr 4.1×</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+      ))}
+    </div>
+  </Section>
+
+  <!-- ========================= TOKENS: SPACE + RADII ========================= -->
+  <Section size="sm">
+    <h2 class={sectionTitle}>Tokens — spacing (8px base) and radii</h2>
+    <div class="grid gap-[var(--space-3)] md:grid-cols-2">
+      {REGISTERS.map((reg) => (
+        <Section register={reg} size="sm" class={panel}>
+          <span class={regLabel}>{reg}</span>
+          <div class="flex flex-col gap-[var(--space-2)]">
+            {SPACES.map((s) => (
+              <div class="flex items-center gap-[var(--space-3)]">
+                <span class="w-[48px] shrink-0 text-[var(--text-label)] text-[var(--fg-muted)]">space-{s}</span>
+                <div class="h-[12px] rounded-[var(--radius-input)] bg-[var(--accent-fill)]" style={`width: var(--space-${s})`}></div>
+              </div>
+            ))}
+          </div>
+          <div class="mt-[var(--space-4)] flex gap-[var(--space-4)]">
+            {RADII.map((r) => (
+              <div class="flex flex-col items-center gap-[var(--space-1)]">
+                <div class:list={['h-[48px] w-[48px] border border-[var(--fg)] bg-[var(--surface-c)]', r.cls]}></div>
+                <span class="text-[var(--text-label)] text-[var(--fg-muted)]">{r.name}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+      ))}
+    </div>
+  </Section>
+
+  <!-- ========================= CONTRAST PANEL ========================= -->
+  <Section size="sm">
+    <h2 class={sectionTitle}>Contrast — measured WCAG ratio for every pair in use</h2>
+    <p class="mb-[var(--space-3)] max-w-[70ch] text-[var(--text-small)] text-[var(--fg-muted)]">
+      Computed at build time from the palette in theme.css. AA body text needs 4.5:1; large text
+      needs 3:1. If a value here drops, a colour token regressed.
+    </p>
+    <Table
+      columns={['Register', 'Pair', 'Values', 'Ratio', 'Result']}
+      rows={contrastRows}
+      numericCols={[3]}
+    />
+  </Section>
+
+  <!-- ========================= PRIMITIVES ========================= -->
+  <Section size="sm">
+    <h2 class={sectionTitle}>Primitives — Button, Link, Heading, Prose, Table, Container</h2>
+    <div class="grid gap-[var(--space-3)] md:grid-cols-2">
+      {REGISTERS.map((reg) => (
+        <Section register={reg} size="sm" class={panel}>
+          <span class={regLabel}>{reg}</span>
+
+          <div class="flex flex-col gap-[var(--space-4)]">
+            <div class="flex flex-wrap items-center gap-[var(--space-2)]">
+              <Button variant="primary">Get a free growth plan</Button>
+              <Button variant="secondary">See case studies</Button>
+              <Button variant="ghost">Learn more</Button>
+              <Button variant="primary" size="sm">Small</Button>
+            </div>
+
+            <p class="text-[var(--text-body)] text-[var(--fg)]">
+              A paragraph with an <Link href="/case-studies/">inline text link</Link> and an
+              <Link href="https://meta.com/">external link</Link> that opens in a new tab.
+            </p>
+
+            <div>
+              <Heading level={2} size="h3">Heading level 2 at h3 size</Heading>
+              <Heading level={3} size="h4" class="mt-[var(--space-2)]">Heading level 3 at h4 size</Heading>
+            </div>
+
+            <Prose>
+              <p>This is Source Serif 4 — the only place the serif appears. Long-form reading copy
+              in the paper register is calm and document-like; the interface around it stays sharp
+              and geometric in Anek Latin.</p>
+            </Prose>
+
+            <Table
+              columns={['Metric', 'Before', 'After']}
+              rows={[['ROAS', '1.8×', '3.4×'], ['CAC', '₹740', '₹520']]}
+              numericCols={[1, 2]}
+              caption="Table primitive — tabular figures, 1px rules"
+            />
+
+            <Container width="narrow" class="border border-dashed border-[var(--rule-c)] py-[var(--space-2)]">
+              <span class="text-[var(--text-small)] text-[var(--fg-muted)]">Container (narrow) — centring and gutters only</span>
+            </Container>
+          </div>
+        </Section>
+      ))}
+    </div>
+  </Section>
+
+  <!-- ========================= SIGNATURE: DELTA + ANNOTATION ========================= -->
+  <Section size="sm">
+    <h2 class={sectionTitle}>Signature — Delta and Annotation</h2>
+    <div class="grid gap-[var(--space-3)] md:grid-cols-2">
+      {REGISTERS.map((reg) => (
+        <Section register={reg} size="sm" class={panel}>
+          <span class={regLabel}>{reg}</span>
+          <div class="flex flex-col gap-[var(--space-5)]">
+            <Delta {...sampleDelta} />
+            <Delta metric="Cost per acquisition" before="₹740" after="₹520" client="SAMPLE Brand" period="Q2 2026" channel="Google Ads" direction="down" size="sm" />
+            <div class="flex gap-[var(--space-5)]">
+              <Annotation label="Creative refresh" date="14 Apr 2026" />
+              <Annotation label="Budget scaled 3×" date="2 May 2026" emphasis />
+            </div>
+          </div>
+        </Section>
+      ))}
+    </div>
+  </Section>
+
+  <!-- ========================= BLOCKS: ANSWER + PROOF ========================= -->
+  <Section size="sm">
+    <h2 class={sectionTitle}>Blocks — AnswerBlock and ProofBar</h2>
+    <div class="grid gap-[var(--space-3)] md:grid-cols-2">
+      {REGISTERS.map((reg) => (
+        <Section register={reg} size="sm" class={panel}>
+          <span class={regLabel}>{reg}</span>
+          <div class="flex flex-col gap-[var(--space-6)]">
+            <AnswerBlock>
+              Scaling Socials is a performance marketing agency in Bangalore that manages Meta and
+              Google Ads for D2C and ecommerce brands in India and the UAE. Performance marketing
+              starts at ₹25,000/month on a build-test-scale cycle.
+            </AnswerBlock>
+            <ProofBar stats={sampleProof} />
+          </div>
+        </Section>
+      ))}
+    </div>
+  </Section>
+
+  <!-- ========================= BLOCKS: LOGO WALL + CLIENT VOICE ========================= -->
+  <Section size="sm">
+    <h2 class={sectionTitle}>Blocks — LogoWall (empty state) and ClientVoice</h2>
+    <div class="grid gap-[var(--space-3)] md:grid-cols-2">
+      {REGISTERS.map((reg) => (
+        <Section register={reg} size="sm" class={panel}>
+          <span class={regLabel}>{reg}</span>
+          <div class="flex flex-col gap-[var(--space-6)]">
+            <LogoWall heading="Trusted by D2C brands" />
+            <ClientVoice problems={sampleVoice} />
+          </div>
+        </Section>
+      ))}
+    </div>
+  </Section>
+
+  <!-- ========================= BLOCKS: CASE STUDY + PROCESS ========================= -->
+  <Section size="sm">
+    <h2 class={sectionTitle}>Blocks — CaseStudyCard (SAMPLE) and ProcessSteps</h2>
+    <div class="grid gap-[var(--space-3)] md:grid-cols-2">
+      {REGISTERS.map((reg) => (
+        <Section register={reg} size="sm" class={panel}>
+          <span class={regLabel}>{reg}</span>
+          <div class="flex flex-col gap-[var(--space-6)]">
+            <CaseStudyCard
+              client="SAMPLE Brand"
+              period="Mar–Aug 2026"
+              headline="3.4× ROAS and ₹42L revenue in 5 months on Meta"
+              category="Fashion, Meta Ads"
+              metrics={sampleMetrics}
+              href="/case-studies/"
+            />
+            <ProcessSteps steps={sampleSteps} />
+          </div>
+        </Section>
+      ))}
+    </div>
+  </Section>
+
+  <!-- ========================= BLOCKS: COMPARISON + PRICING ========================= -->
+  <Section size="sm">
+    <h2 class={sectionTitle}>Blocks — ComparisonTable and PricingBlock</h2>
+    <div class="grid gap-[var(--space-3)] md:grid-cols-2">
+      {REGISTERS.map((reg) => (
+        <Section register={reg} size="sm" class={panel}>
+          <span class={regLabel}>{reg}</span>
+          <div class="flex flex-col gap-[var(--space-6)]">
+            <ComparisonTable columns={comparisonCols} rows={comparisonRows} highlightCol={3} caption="In-house vs freelancer vs agency — including where not to hire us" />
+            <PricingBlock {...pricing} />
+          </div>
+        </Section>
+      ))}
+    </div>
+  </Section>
+
+  <!-- ========================= BLOCKS: FOUNDER + NOT-FOR-YOU + FAQ ========================= -->
+  <Section size="sm">
+    <h2 class={sectionTitle}>Blocks — FounderQuote (SAMPLE), NotForYouBlock and FaqAccordion</h2>
+    <div class="grid gap-[var(--space-3)] md:grid-cols-2">
+      {REGISTERS.map((reg) => (
+        <Section register={reg} size="sm" class={panel}>
+          <span class={regLabel}>{reg}</span>
+          <div class="flex flex-col gap-[var(--space-6)]">
+            <FounderQuote
+              quote="SAMPLE — We only take on brands we think we can actually move the number for. If we cannot, we say so."
+              name="SAMPLE Founder"
+              role="Co-founder"
+            />
+            <NotForYouBlock items={notForYou} />
+            <FaqAccordion items={sampleFaq} openFirst />
+          </div>
+        </Section>
+      ))}
+    </div>
+  </Section>
+
+  <!-- ========================= BLOCKS: CTA BAND ========================= -->
+  <Section size="sm">
+    <h2 class={sectionTitle}>Blocks — CtaBand</h2>
+    <div class="flex flex-col gap-[var(--space-3)]">
+      {REGISTERS.map((reg) => (
+        <Section register={reg} size="sm" class={panel}>
+          <span class={regLabel}>{reg}</span>
+          <CtaBand
+            heading="Find out what is leaking money in your ads"
+            body="A written audit in three working days, whether or not you hire us."
+            ctaLabel="Get a free growth plan"
+            ctaHref="/audit/"
+            secondaryLabel="See case studies"
+            secondaryHref="/case-studies/"
+          />
+        </Section>
+      ))}
+    </div>
+  </Section>
+</BaseLayout>

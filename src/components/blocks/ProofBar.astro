@@ -1,0 +1,45 @@
+---
+/**
+ * ProofBar — three real, attributed numbers with sources. See 02 §4.
+ *
+ * Not a hero of vanity metrics: each figure carries an attribution/source so it
+ * survives extraction. Numbers render as real values in the HTML (CLAUDE.md §10)
+ * — the perf gate fails the build on any `0 Cr+` placeholder-zero counter.
+ *
+ * The three headline stats (managed spend, brands, average ROAS) are not
+ * supplied yet, so pages pass `TODO: [headline stat]` as the value. Never invent
+ * a number (CLAUDE.md §15).
+ */
+export interface Stat {
+  value: string; // "₹10.4 Cr" — or "TODO: [managed spend]" until supplied
+  label: string; // "Ad spend managed"
+  source?: string; // "Across 100+ brands since 2021"
+}
+
+export interface Props {
+  stats: Stat[];
+  class?: string;
+}
+
+const { stats, class: className = '' } = Astro.props;
+---
+
+<dl
+  class:list={[
+    'grid gap-[var(--space-4)] sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-[var(--rule-c)]',
+    className,
+  ]}
+  data-proof-bar
+>
+  {stats.map((s, i) => (
+    <div class:list={['flex flex-col gap-[var(--space-1)]', i > 0 && 'sm:pl-[var(--space-5)]']}>
+      <dd class="order-1 display-type text-[var(--text-data-sm)] font-semibold leading-none text-[var(--fg)]" data-num>
+        {s.value}
+      </dd>
+      <dt class="order-2 text-[var(--text-small)] font-medium text-[var(--fg)]">{s.label}</dt>
+      {s.source && (
+        <p class="order-3 text-[var(--text-label)] leading-snug text-[var(--fg-muted)]">{s.source}</p>
+      )}
+    </div>
+  ))}
+</dl>

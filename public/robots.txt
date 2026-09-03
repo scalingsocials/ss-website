@@ -1,0 +1,31 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /keystatic
+Disallow: /lp/
+Disallow: /styleguide
+Disallow: /*?utm_
+Disallow: /*?fbclid
+
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-Web
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://scalingsocials.com/sitemap-index.xml

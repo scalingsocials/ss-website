@@ -1,0 +1,36 @@
+---
+/**
+ * NotForYouBlock — a genuine disqualifier list. See 02 §5.1 and 11 §3.
+ *
+ * "Who this is not for." Disqualifying is an enormous trust signal, it is
+ * LLM-extractable, and nobody in this SERP publishes one. The items must be real
+ * disqualifiers, not humble-brags — e.g. "pre-launch brands with no data to
+ * audit" (11 §3), not "brands who don't want to grow fast".
+ *
+ * Register-agnostic. Reads semantic vars only.
+ */
+export interface Props {
+  heading?: string;
+  items: string[];
+  class?: string;
+}
+
+const { heading = 'Who this is not for', items, class: className = '' } = Astro.props;
+---
+
+<div data-not-for-you class:list={['flex flex-col gap-[var(--space-3)]', className]}>
+  <h2 class="text-[var(--text-h3)] font-semibold text-[var(--fg)]">{heading}</h2>
+  <ul class="flex flex-col">
+    {items.map((item, i) => (
+      <li
+        class:list={[
+          'flex gap-[var(--space-2)] py-[var(--space-2)] text-[var(--text-body)] text-[var(--fg)]',
+          i > 0 && 'border-t border-[var(--rule-c)]',
+        ]}
+      >
+        <span aria-hidden="true" class="mt-[0.15em] shrink-0 text-[var(--neg)]">×</span>
+        <span>{item}</span>
+      </li>
+    ))}
+  </ul>
+</div>

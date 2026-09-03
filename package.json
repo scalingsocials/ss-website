@@ -1,0 +1,35 @@
+{
+  "name": "scalingsocials",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && pagefind --site dist && node scripts/build-llms-txt.mjs",
+    "preview": "astro preview",
+    "check": "astro check && tsc --noEmit",
+    "check:perf": "node scripts/check-perf-budget.mjs",
+    "check:schema": "node scripts/validate-schema.mjs",
+    "check:links": "node scripts/check-links.mjs",
+    "lh": "lhci autorun"
+  },
+  "dependencies": {
+    "astro": "^5.0.0",
+    "@astrojs/react": "^4.0.0",
+    "@astrojs/mdx": "^4.0.0",
+    "@astrojs/sitemap": "^3.2.0",
+    "@astrojs/cloudflare": "^12.0.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "tailwindcss": "^4.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@keystatic/astro": "latest",
+    "@keystatic/core": "latest",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.0",
+    "typescript": "^5.6.0",
+    "pagefind": "^1.1.0",
+    "@lhci/cli": "^0.14.0"
+  }
+}

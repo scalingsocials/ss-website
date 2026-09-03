@@ -1,0 +1,39 @@
+---
+/**
+ * Container — horizontal centring and gutters, nothing else.
+ *
+ * <Section> already wraps its slot in a container, so most page content never
+ * needs this directly. Reach for it when you need containment WITHOUT switching
+ * register (inside a bleed section, or in a layout shell), or a narrower measure
+ * than the default page width.
+ *
+ * It never sets colour and never sets a register — that is <Section>'s job alone.
+ */
+export interface Props {
+  width?: 'default' | 'narrow' | 'measure';
+  as?: 'div' | 'section' | 'header' | 'footer' | 'nav' | 'article';
+  id?: string;
+  class?: string;
+}
+
+const { width = 'default', as: Tag = 'div', id, class: className = '' } = Astro.props;
+
+const maxByWidth: Record<string, string> = {
+  default: 'max-w-[var(--container)]',
+  narrow: 'max-w-[880px]',
+  measure: 'max-w-[var(--measure)]',
+};
+const max = maxByWidth[width];
+---
+
+<Tag
+  id={id}
+  class:list={[
+    'mx-auto w-full',
+    max,
+    'px-[var(--space-3)] md:px-[var(--space-4)]',
+    className,
+  ]}
+>
+  <slot />
+</Tag>

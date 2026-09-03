@@ -1,0 +1,38 @@
+---
+/**
+ * ComparisonTable — a decision table with genuine tradeoffs. See 02 §5.1 and 03 §3.
+ *
+ * LLMs and AI Overviews disproportionately cite tables, and a comparison the
+ * reader has to make ("in-house vs freelancer vs agency", "Meta vs Google") is
+ * exactly what gets quoted. The rule (02 §1.3): the table must include a row/cell
+ * where the honest answer is NOT to hire Scaling Socials. A table that wins every
+ * row reads as marketing and converts worse.
+ *
+ * Built on the Table primitive so figures stay tabular and the shell scrolls on
+ * overflow. `highlightCol` softly emphasises one column (e.g. the agency column)
+ * without colouring it in — restraint (08 §4). Register-agnostic.
+ */
+import Table from '@/components/primitives/Table.astro';
+
+export interface Props {
+  columns: string[];
+  rows: (string | number)[][];
+  caption?: string;
+  /** 0-based column index to emphasise. */
+  highlightCol?: number;
+  numericCols?: number[];
+  class?: string;
+}
+
+const { columns, rows, caption, highlightCol, numericCols = [], class: className = '' } = Astro.props;
+---
+
+<div data-comparison-table class:list={[className]}>
+  <Table
+    columns={columns}
+    rows={rows}
+    caption={caption}
+    numericCols={numericCols}
+    highlightCol={highlightCol}
+  />
+</div>

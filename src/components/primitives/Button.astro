@@ -1,0 +1,76 @@
+---
+/**
+ * Button — three variants, one shape token, reads semantic vars only.
+ *
+ * From 08-DESIGN-BRIEF.md §4 and CLAUDE.md §5a: `--accent-fill` is for
+ * BACKGROUNDS, `--accent-on` is the text on top of a fill, `--accent-text` is
+ * for text on the ground. The primary button is the one place the fill appears
+ * as a button background; it inverts correctly between registers because the
+ * tokens do. Never write a raw hex here.
+ *
+ *  - primary   accent fill + accent-on text. One per view; the real CTA.
+ *  - secondary transparent, 1px rule border, foreground text.
+ *  - ghost     transparent, no border; foreground text, subtle hover wash.
+ *
+ * Renders as <a> when `href` is set, otherwise <button>. Button labels say what
+ * happens (CLAUDE.md voice) — no `→` glued on, the design brief bans it.
+ */
+export interface Props {
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'sm' | 'md';
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  class?: string;
+  id?: string;
+  'aria-label'?: string;
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  href,
+  type = 'button',
+  disabled = false,
+  class: className = '',
+  id,
+  'aria-label': ariaLabel,
+} = Astro.props;
+
+const base =
+  'inline-flex items-center justify-center gap-[0.5rem] no-underline font-medium ' +
+  'rounded-[var(--radius-button)] transition-colors duration-[var(--dur-fast)] ' +
+  'ease-[var(--ease-out)] whitespace-nowrap select-none ' +
+  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
+
+const sizes = {
+  sm: 'text-[var(--text-small)] px-[var(--space-2)] py-[0.4rem]',
+  md: 'text-[var(--text-body)] px-[var(--space-3)] py-[0.7rem]',
+}[size];
+
+const variants = {
+  primary:
+    'bg-[var(--accent-fill)] text-[var(--accent-on)] ' +
+    'hover:bg-[var(--accent-hover)] hover:text-[var(--accent-on)]',
+  secondary:
+    'bg-transparent text-[var(--fg)] border border-[var(--rule-c)] ' +
+    'hover:border-[var(--fg)]',
+  ghost:
+    'bg-transparent text-[var(--fg)] ' +
+    'hover:bg-[var(--surface-c)]',
+}[variant];
+
+const cls = [base, sizes, variants, disabled && 'opacity-50 pointer-events-none', className];
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag
+  id={id}
+  href={href}
+  type={href ? undefined : type}
+  aria-label={ariaLabel}
+  aria-disabled={disabled ? 'true' : undefined}
+  class:list={cls}
+>
+  <slot />
+</Tag>

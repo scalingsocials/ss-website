@@ -1,0 +1,30 @@
+---
+/**
+ * AnswerBlock — the 40–60 word answer that opens every commercial page.
+ * See 02 §4 and 03 §3, and CLAUDE.md §13.
+ *
+ * It is the first content element after the H1 and it is the passage that gets
+ * lifted into an AI Overview, so it must be self-contained: it names "Scaling
+ * Socials", not "we", and reads correctly out of context. Plain prose, no "in
+ * today's landscape", entity + location + service + audience + a concrete fact.
+ *
+ * Rendered in the display sans at lead size — it sits above .prose, so it is not
+ * the serif. Pass the copy via the default slot.
+ */
+export interface Props {
+  as?: 'p' | 'div';
+  class?: string;
+}
+
+const { as: Tag = 'p', class: className = '' } = Astro.props;
+---
+
+<Tag
+  data-answer-block
+  class:list={[
+    'max-w-[54ch] text-[var(--text-h4)] leading-[1.5] text-[var(--fg)]',
+    className,
+  ]}
+>
+  <slot />
+</Tag>

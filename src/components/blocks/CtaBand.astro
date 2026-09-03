@@ -1,0 +1,52 @@
+---
+/**
+ * CtaBand — the conversion band. See 08-DESIGN-BRIEF.md §7.
+ *
+ * A heading, one line of subcopy, and the primary CTA. Usually the last ink band
+ * on a page, but it is register-agnostic (the styleguide shows it on both
+ * grounds); wrap it in <Section register="ink"> for the loud version.
+ *
+ * Button labels say what happens (CLAUDE.md voice) — no `→` glued on.
+ */
+import Button from '@/components/primitives/Button.astro';
+
+export interface Props {
+  heading: string;
+  body?: string;
+  ctaLabel: string;
+  ctaHref: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+  class?: string;
+}
+
+const {
+  heading,
+  body,
+  ctaLabel,
+  ctaHref,
+  secondaryLabel,
+  secondaryHref,
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  data-cta-band
+  class:list={[
+    'flex flex-col gap-[var(--space-4)] md:flex-row md:items-center md:justify-between',
+    className,
+  ]}
+>
+  <div class="flex flex-col gap-[var(--space-2)]">
+    <h2 class="max-w-[20ch] text-[var(--text-h2)] font-semibold text-[var(--fg)]">{heading}</h2>
+    {body && <p class="max-w-[48ch] text-[var(--text-body)] text-[var(--fg-muted)]">{body}</p>}
+  </div>
+
+  <div class="flex shrink-0 flex-wrap items-center gap-[var(--space-2)]">
+    <Button href={ctaHref} variant="primary">{ctaLabel}</Button>
+    {secondaryLabel && secondaryHref && (
+      <Button href={secondaryHref} variant="secondary">{secondaryLabel}</Button>
+    )}
+  </div>
+</div>

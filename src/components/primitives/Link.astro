@@ -1,0 +1,36 @@
+---
+/**
+ * Link — an inline text link. Uses --accent-text, never --accent-fill.
+ *
+ * A bright brand accent usually fails contrast as text on a light ground, so
+ * links read the accent-TEXT token, which is #002FA7 (10.69:1) on paper and the
+ * lifted #5B7CFF (5.77:1) on ink (CLAUDE.md §5a). The base `a` rule in theme.css
+ * already sets colour and underline-offset; this component adds sensible
+ * external-link handling and keeps anchor text descriptive (never "click here").
+ */
+export interface Props {
+  href: string;
+  external?: boolean;
+  class?: string;
+  id?: string;
+  'aria-label'?: string;
+  rel?: string;
+}
+
+const { href, external, class: className = '', id, 'aria-label': ariaLabel, rel } = Astro.props;
+
+// Auto-detect off-site links unless told; add safe rel + target for those.
+const isExternal = external ?? /^https?:\/\//.test(href);
+const relValue = isExternal ? [rel, 'noopener'].filter(Boolean).join(' ') : rel;
+---
+
+<a
+  id={id}
+  href={href}
+  aria-label={ariaLabel}
+  target={isExternal ? '_blank' : undefined}
+  rel={relValue || undefined}
+  class:list={['underline decoration-from-font hover:text-[var(--accent-hover)]', className]}
+>
+  <slot />
+</a>

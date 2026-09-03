@@ -1,0 +1,24 @@
+old_url,new_url,status,impressions_12mo,found_by,notes
+/,/,200,13685,both,Homepage. No redirect. Highest traffic page on the site.
+/about-us/,/about/,301,7670,both,"7670 impressions — second-highest page. Currently has NO H1 at all. Must redirect."
+/about-us-2/,/about/,301,96,both,"Duplicate About — the one the nav links to. H1: Building Digital Brands Beyond Limits."
+/contact-us/,/contact/,301,4662,both,
+/performance-marketing-agency-bangalore/,/performance-marketing-agency-bangalore/,200,4347,both,"KEEP THIS URL. Position 24 with 4347 impressions. Title is 77 chars — rewrite to 50-60."
+/web-development/,/web-development-company-bangalore/,301,2428,both,"2428 impressions at position 4.5. H1 is generic 'Our Services'. No meta description."
+/performance-marketing/,/performance-marketing-agency-bangalore/,301,2335,both,Already 301s on the old site. Preserve the destination.
+/careers/,https://careers.scalingsocials.com/,301,2147,gsc-only,"ORPHAN — indexed but not linked from anywhere. Confirm subdomain is the intended destination."
+/new-disclaimer/,/disclaimer/,301,2084,both,"H1 is wrongly 'Ready to Transform Your Online Store?' — a CTA band as the H1."
+/shopify-web-development/,/shopify-development-company-bangalore/,301,251,crawl-only,"CURRENTLY A LIVE 404 — and it is LINKED FROM THE HOMEPAGE. Broken link in production."
+/social-media-handling/,/social-media-marketing-agency-bangalore/,301,979,both,"H1 is truncated: 'Elevate Your Brand With'. No meta description."
+/seo/,/seo-agency-bangalore/,301,359,both,"Title is 'SEO - Scaling Socials'. No meta description. Contains another agency's name in the FAQ."
+/shopify-development-company-bangalore/,/shopify-development-company-bangalore/,200,299,both,"KEEP THIS URL. Meta description is 174 chars — over the 158 limit, rewrite."
+/elementor-6312/,/team/,301,164,both,Auto-generated Elementor slug sitting in the main nav.
+/new-terms-conditions/,/terms/,301,246,gsc-only,ORPHAN — indexed but not linked.
+/terms-and-conditions/,/terms/,301,19,both,"H1 wrongly 'Ready to Transform Your Online Store?'"
+/new-privacy-policy/,/privacy/,301,66,both,"H1 wrongly 'Ready to Transform Your Online Store?'"
+/₹1-4-million-in-3-months/,/case-studies/,301,1490,both,"1490 impressions. Unencoded rupee in the slug. Repoint to the real case study when it ships."
+/₹1-million-in-90-days/,/case-studies/,301,606,both,"No H1 on the page at all. Repoint when the case study ships."
+/₹44-3-million-in-90-days/,/case-studies/,301,284,both,"No H1. Repoint when the case study ships."
+/thank_you/,/thank-you/,301,420,gsc-only,ORPHAN. Underscore variant. New page is noindex but the redirect must exist.
+/thank-you/,/thank-you/,200,153,gsc-only,"ORPHAN. Noindex on the new site. Do not drop the URL."
+/category/blog/,/blog/,301,268,gsc-only,ORPHAN. Empty WordPress category archive.

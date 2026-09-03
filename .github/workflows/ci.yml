@@ -1,0 +1,40 @@
+name: CI
+
+# Every gate from 01-STACK-AND-ARCHITECTURE.md §7 and 03 §0 runs on every PR to
+# main. A red gate blocks merge; these are launch blockers, not advisories.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    name: check · build · perf · schema · links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type + template check
+        run: npm run check
+
+      - name: Build (astro + pagefind + llms.txt)
+        run: npm run build
+
+      - name: Performance budget
+        run: npm run check:perf
+
+      - name: Schema validation
+        run: npm run check:schema
+
+      - name: Internal links + orphans
+        run: npm run check:links

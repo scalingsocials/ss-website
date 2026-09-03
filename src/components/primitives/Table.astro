@@ -1,0 +1,80 @@
+---
+/**
+ * Table — the data-table shell. Rules, not shadows; tabular figures throughout.
+ *
+ * LLMs and AI Overviews parse tables with far higher fidelity than prose
+ * (03 §3.5), so tables are load-bearing content, not decoration. Elevation is a
+ * 1px rule (08 §9) — no shadows, no zebra fills beyond the surface token.
+ *
+ * Pass `columns` + `rows` for the common case, or omit both and provide your own
+ * <thead>/<tbody> via the slot. Wraps in an overflow-x container so a wide table
+ * scrolls inside itself instead of pushing the page sideways.
+ *
+ * theme.css already applies tabular-nums to every td/th, so numbers align.
+ */
+export interface Props {
+  columns?: string[];
+  rows?: (string | number)[][];
+  caption?: string;
+  /** Column indexes (0-based) to right-align, e.g. numeric columns. */
+  numericCols?: number[];
+  /** 0-based column index to softly emphasise with the surface fill. */
+  highlightCol?: number;
+  class?: string;
+}
+
+const { columns, rows, caption, numericCols = [], highlightCol, class: className = '' } = Astro.props;
+const align = (i: number) => (numericCols.includes(i) ? 'text-right' : 'text-left');
+// Static class string so Tailwind's scanner keeps it; toggled per-column.
+const hl = (i: number) => (i === highlightCol ? 'bg-[var(--surface-c)]' : '');
+---
+
+<div class:list={['w-full overflow-x-auto', className]}>
+  <table class="w-full border-collapse text-[var(--text-small)]">
+    {caption && (
+      <caption class="text-left text-[var(--text-label)] text-[var(--fg-muted)] mb-[var(--space-2)]">
+        {caption}
+      </caption>
+    )}
+    {columns && rows ? (
+      <>
+        <thead>
+          <tr class="border-b border-[var(--fg)]">
+            {columns.map((c, i) => (
+              <th
+                scope="col"
+                class:list={[
+                  'py-[var(--space-2)] px-[var(--space-3)] font-semibold text-[var(--fg)]',
+                  align(i),
+                  hl(i),
+                ]}
+              >
+                {c}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr class="border-b border-[var(--rule-c)]">
+              {row.map((cell, i) => (
+                <td
+                  class:list={[
+                    'py-[var(--space-2)] px-[var(--space-3)] text-[var(--fg)]',
+                    align(i),
+                    hl(i),
+                  ]}
+                  data-num={numericCols.includes(i) ? '' : undefined}
+                >
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </>
+    ) : (
+      <slot />
+    )}
+  </table>
+</div>

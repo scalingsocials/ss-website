@@ -1,0 +1,74 @@
+---
+/**
+ * BaseLayout — the document shell every page renders into.
+ *
+ * Responsibilities: semantic landmarks (one <main>, header, footer), a working
+ * skip link (01 §6), font preloads, and two slots — `meta` for <head> tags
+ * (title, description, canonical, OG; built by seo/Meta.astro) and `schema` for
+ * the single @graph JSON-LD block (built by seo/SchemaGraph.astro). Keeping them
+ * as slots means the layout owns structure while pages own their SEO payload.
+ *
+ * Fonts are self-hosted, subset, preloaded here (01 §4). Both woff2 include
+ * U+20B9 (₹) — without it every rupee figure silently falls back.
+ */
+import '@/styles/theme.css';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+
+export interface Props {
+  /** Set true on noindex pages (styleguide, thank-you, ad LPs). */
+  noindex?: boolean;
+  /** Suppress the global header/footer (ad landing pages, 02 §5.4). */
+  bare?: boolean;
+  class?: string;
+}
+
+const { noindex = false, bare = false, class: className = '' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link
+      rel="preload"
+      href="/fonts/anek-latin-var.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/source-serif-4-var.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/favicon-180.png" />
+
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Page <head> tags: title, description, canonical, Open Graph. -->
+    <slot name="meta" />
+
+    <!-- One @graph JSON-LD block per page. Never an isolated blob (03 §1.2). -->
+    <slot name="schema" />
+  </head>
+
+  <body class={className}>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    {!bare && <Header />}
+
+    <main id="main" data-register="paper">
+      <slot />
+    </main>
+
+    {!bare && <Footer />}
+  </body>
+</html>

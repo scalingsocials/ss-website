@@ -1,0 +1,22 @@
+---
+/**
+ * SchemaGraph — emits the single @graph JSON-LD block. See 03 §1.2.
+ *
+ * One per page, placed into BaseLayout's `schema` slot:
+ *   <SchemaGraph slot="schema" nodes={[...base(), webPage({...}), ...]} />
+ *
+ * Never emit isolated JSON-LD blobs (03 §0/§1.2) — compose node builders from
+ * src/lib/schema and pass them here. `<` is escaped to < so a string value
+ * can never break out of the <script> element.
+ */
+import { graph, type SchemaNode } from '@/lib/schema';
+
+export interface Props {
+  nodes: (SchemaNode | SchemaNode[])[];
+}
+
+const { nodes } = Astro.props;
+const json = JSON.stringify(graph(...nodes)).replace(/</g, '\\u003c');
+---
+
+<script type="application/ld+json" is:inline set:html={json} />

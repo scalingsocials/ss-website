@@ -1,0 +1,55 @@
+---
+/**
+ * LogoWall — the client wall. See 08-DESIGN-BRIEF.md §7 and 11 §4.
+ *
+ * Reads auto-discovered logos from src/lib/logos.ts. Each is rendered at a fixed
+ * height with object-fit: contain, so mixed aspect ratios sit on one line. Every
+ * logo has real alt text (the filename), because a logo with `alt="9"` is a
+ * wasted link (03 §Images).
+ *
+ * Renders GRACEFULLY with zero logos — the folder is empty at launch, so it
+ * shows an obvious TODO rather than inventing a single fake mark (CLAUDE.md §15).
+ * It never sets a register; wrap it in <Section register="ink"> for the wall.
+ */
+import { Image } from 'astro:assets';
+import { LOGOS, type Logo } from '@/lib/logos';
+
+export interface Props {
+  logos?: Logo[];
+  heading?: string;
+  class?: string;
+}
+
+const { logos = LOGOS, heading, class: className = '' } = Astro.props;
+---
+
+<div data-logo-wall class:list={[className]}>
+  {heading && (
+    <h2 class="mb-[var(--space-5)] text-[var(--text-small)] font-semibold text-[var(--fg-muted)]">
+      {heading}
+    </h2>
+  )}
+
+  {logos.length > 0 ? (
+    <ul class="grid grid-cols-2 items-center gap-x-[var(--space-6)] gap-y-[var(--space-6)] sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+      {logos.map((logo) => (
+        <li class="flex items-center justify-center">
+          <Image
+            src={logo.src}
+            alt={logo.alt}
+            height={40}
+            width={Math.round(40 * (logo.src.width / logo.src.height))}
+            loading="lazy"
+            class="h-[40px] w-auto object-contain opacity-80 transition-opacity duration-[var(--dur-base)] hover:opacity-100"
+          />
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <div class="rounded-[var(--radius-card)] border border-dashed border-[var(--rule-c)] p-[var(--space-6)] text-center">
+      <p class="text-[var(--text-small)] text-[var(--fg-muted)]">
+        TODO: [client logos] — drop files into <code>src/assets/logos/</code> and they appear on the next build.
+      </p>
+    </div>
+  )}
+</div>
