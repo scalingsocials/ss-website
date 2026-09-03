@@ -30,38 +30,40 @@
      Text on black is #EDEDED rather than pure white: pure-white-on-pure-black
      causes halation and is genuinely harder to read at body size.
      -------------------------------------------------------------------- */
-  --color-white:        #FFFFFF;  /* true white — logo, scrim text, rare */
-  --color-black:        #000000;  /* true black — backdrop scrim, rare */
+  --color-white:        #FFFFFF;  /* true white — logo, scrim text */
+  --color-black:        #000000;  /* true black — backdrop scrim, shadows */
 
-  /* Softened grounds — lighter shades of black and white for a calmer, more
-     premium feel than pure #FFF/#000: a warm off-white and a rich near-black.
+  /* Grounds from the brand palette: crisp white and a rich near-black (#0A0A0A).
      The two registers still differ in COLOUR ONLY; the scale never changes. */
-  --color-ground-light: #FAF9F7;  /* off-white paper ground */
-  --color-ground-dark:  #141518;  /* near-black ink ground */
+  --color-ground-light: #FFFFFF;  /* paper ground */
+  --color-ground-dark:  #0A0A0A;  /* ink ground */
 
-  --color-fg-light:     #1B1B1B;  /* text on off-white — 16.37:1 */
-  --color-fg-dark:      #ECECEC;  /* text on near-black — 15.45:1 */
-  --color-muted-light:  #6B6B6B;  /* 5.06:1 on off-white */
-  --color-muted-dark:   #9C9C9C;  /* 6.65:1 on near-black */
-  --color-surface-light:#F1EFEA;  /* raised card fill on off-white */
-  --color-surface-dark: #1F2024;  /* raised card fill on near-black */
-  --color-rule-light:   #E4E1DA;  /* hairline on off-white */
-  --color-rule-dark:    #2E3033;  /* hairline on near-black */
+  --color-fg-light:     #16161A;  /* text on white — ~17:1, a hair cool */
+  --color-fg-dark:      #ECECEE;  /* text on near-black — ~17:1 */
+  --color-muted-light:  #6A6A72;  /* 5.2:1 on white */
+  --color-muted-dark:   #9A9AA4;  /* 7:1 on near-black */
+  --color-surface-light:#F4F4F8;  /* raised card fill on white (faint cool tint) */
+  --color-surface-dark: #16171E;  /* raised card fill on near-black */
+  --color-rule-light:   #E6E5EC;  /* hairline on white */
+  --color-rule-dark:    #262730;  /* hairline on near-black */
 
-  /* Accent — deep teal / petrol. Classy and editorial rather than a techy blue,
-     it passes contrast in BOTH registers (measured) and does NOT collide with the
-     green/red used for delta direction. Deep teal is text + fill on light (white
-     text on the fill); the lifted teal is text + fill on dark (black text). */
-  --color-accent:       #0F5257;  /* light: text 8.44:1, white-on-fill 8.88:1 */
-  --color-accent-lift:  #67C9BF;  /* dark:  text 9.29:1, black-on-fill 10.46:1 */
-  --color-accent-deep:  #0A4046;  /* hover on light — white text 11.45:1 */
-  --color-accent-lift-hi:#7AD6CD; /* hover on dark  — black text 12.33:1 */
-  --color-accent-wash:  #E6F0EF;  /* subtle teal tint on light */
+  /* Accent — periwinkle, from the brand palette (#9FA1FF), made legible in both
+     registers. The bright pastels fail as text on white (measured), so the accent
+     is DEEPENED to #4F52DB there (text + fill, white text on the fill); the bright
+     #9FA1FF is text + fill on the near-black bands (black text on the fill).
+     Soft teal #96C7C1 is a DECORATIVE companion — dark-band gradients only, never
+     text (it is 1.9:1 on white). */
+  --color-accent:       #4F52DB;  /* light: text 5.90:1, white-on-fill 5.90:1 */
+  --color-accent-lift:  #9FA1FF;  /* dark:  text 8.50:1, black-on-fill 8.50:1 */
+  --color-accent-deep:  #3E40BE;  /* hover on light — white text ~8:1 */
+  --color-accent-lift-hi:#C2C4FF; /* hover on dark  — black text ~12:1 */
+  --color-accent-wash:  #EDEDFB;  /* subtle periwinkle tint on white */
+  --color-teal:         #96C7C1;  /* decorative companion (dark-band gradients) */
 
-  --color-up:           #0B7A45;  /* 5.14:1 on off-white */
-  --color-up-dark:      #3ECF8E;  /* 10.1:1 on near-black */
-  --color-down:         #B3261E;  /* 6.21:1 on off-white */
-  --color-down-dark:    #FF6B5E;  /* 7.2:1 on near-black  */
+  --color-up:           #0B7A45;  /* 5.1:1 on white */
+  --color-up-dark:      #3ECF8E;  /* 11:1 on near-black */
+  --color-down:         #B3261E;  /* 6.2:1 on white */
+  --color-down-dark:    #FF6B5E;  /* 7.6:1 on near-black */
 
   /* --- type ------------------------------------------------------------- */
   --font-display: "Anek Latin", ui-sans-serif, system-ui, sans-serif;

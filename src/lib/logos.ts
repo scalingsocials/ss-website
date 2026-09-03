@@ -22,18 +22,36 @@ const files = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true }
 );
 
-const titleCase = (slug: string) =>
-  slug
-    .split('-')
-    .map((w) => (w ? w[0]!.toUpperCase() + w.slice(1) : w))
+// Case one word for a brand name: fix ALL-CAPS words, otherwise keep the brand's
+// own casing (KiddieHUG, blush9) and just capitalise the first letter.
+const caseWord = (w: string) => {
+  if (!w) return w;
+  const allCaps = w === w.toUpperCase() && /[A-Z]/.test(w);
+  if (allCaps && w.length > 1) return w[0]! + w.slice(1).toLowerCase();
+  return w[0]!.toUpperCase() + w.slice(1);
+};
+
+// Derive a readable brand name from a messy filename: strip the extension,
+// turn _/- into spaces, drop the word "logo" and any trailing index number.
+const brandName = (raw: string) =>
+  raw
+    .replace(/[_-]+/g, ' ')
+    .replace(/\blogo\b/gi, ' ')
+    .replace(/\s+\d+\s*$/, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .map(caseWord)
     .join(' ');
 
 export const LOGOS: Logo[] = Object.entries(files)
   .map(([path, mod]) => {
-    const slug = path.split('/').pop()!.replace(/\.\w+$/, '');
-    return { slug, src: mod.default, alt: `${titleCase(slug)} logo` };
+    const raw = path.split('/').pop()!.replace(/\.\w+$/, '');
+    const slug = raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const name = brandName(raw);
+    return { slug, src: mod.default, alt: `${name} logo` };
   })
-  .sort((a, b) => a.slug.localeCompare(b.slug));
+  .sort((a, b) => a.alt.localeCompare(b.alt));
 
 /**
  * Optional homepage subset: src/assets/logos/_featured.json listing 6–8 slugs.

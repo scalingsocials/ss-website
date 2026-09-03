@@ -1,65 +1,58 @@
 ---
 /**
- * CreativeWall — looping ad creatives. See 08 §7, 02 §1.2, and 08 §8 media rules.
+ * CreativeWall — real ad creatives. See 08 §7, 02 §1.2, 08 §8.
  *
- * Posters by default. A clip that has a real, cleared `src` becomes a <video>
- * that motion.ts loads and plays on intersection (data-src), pauses off-screen,
- * and expands + unmutes on click. Clips WITHOUT a src render as a poster image
- * only — no dummy video is passed off as our creative (CLAUDE.md §15). Real
- * client creatives require permission before they appear (02 §1.2).
+ * Renders the real client creative stills from src/assets/Creatives/, optimised
+ * by astro:assets (webp/avif, srcset, lazy, explicit dimensions → no CLS). The
+ * supplied videos are held until compressed to the 1.5MB clip budget; when a
+ * cleared, compressed clip lands, a card can carry it with the poster→play→
+ * click-to-unmute mechanism in motion.ts.
+ *
+ * Ink register. Client permission required before any client creative appears.
  */
-import { CREATIVE_CLIPS } from '@/lib/media';
+import { Image } from 'astro:assets';
+import { CREATIVES } from '@/lib/creatives';
 
 export interface Props {
+  /** Cap how many to show on the homepage; the full set lives on /work/. */
+  limit?: number;
   class?: string;
 }
-const { class: className = '' } = Astro.props;
+const { limit, class: className = '' } = Astro.props;
+const items = typeof limit === 'number' ? CREATIVES.slice(0, limit) : CREATIVES;
 ---
 
-<ul data-creative-wall class:list={['grid grid-cols-2 gap-[var(--space-3)] md:grid-cols-3', className]}>
-  {CREATIVE_CLIPS.map((clip) => (
-    <li class="ss-clip group relative overflow-hidden rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)]">
-      {clip.src ? (
-        <button type="button" class="ss-clip__btn block w-full" data-clip aria-label={`Play ad creative — ${clip.tag}. Click to unmute and expand.`}>
-          <video
-            data-src={clip.src}
-            poster={clip.poster}
-            muted
-            loop
-            playsinline
-            preload="none"
-            class="ss-clip__video aspect-[9/16] w-full object-cover"
-          ></video>
-          <span class="ss-clip__play pointer-events-none absolute inset-0 grid place-items-center">
-            <span class="grid h-[44px] w-[44px] place-items-center rounded-full border border-[var(--rule-c)] bg-[color-mix(in_srgb,var(--ground)_70%,transparent)] backdrop-blur-sm">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="text-[var(--fg)]"><path d="M5 3.5v9l7-4.5-7-4.5Z"/></svg>
-            </span>
-          </span>
-        </button>
-      ) : (
-        <img
-          src={clip.poster}
-          alt={`Creative wall placeholder — ${clip.tag}`}
-          width="600"
-          height="900"
+{items.length > 0 ? (
+  <ul data-creative-wall class:list={['grid grid-cols-2 gap-[var(--space-3)] sm:grid-cols-3 lg:grid-cols-4', className]}>
+    {items.map((c) => (
+      <li class="ss-clip group relative overflow-hidden rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)]">
+        <Image
+          src={c.src}
+          alt={c.alt}
+          width={c.src.width}
+          height={c.src.height}
+          widths={[360, 720]}
+          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 22vw"
           loading="lazy"
           decoding="async"
-          class="ss-clip__video aspect-[9/16] w-full object-cover"
+          class="ss-clip__img aspect-[4/5] w-full object-cover"
         />
-      )}
-      <span class="pointer-events-none absolute bottom-[var(--space-2)] left-[var(--space-2)] rounded-full border border-[var(--rule-c)] bg-[color-mix(in_srgb,var(--ground)_70%,transparent)] px-[0.6rem] py-[0.15rem] text-label font-semibold text-[var(--fg)] backdrop-blur-sm">
-        {clip.tag}
-      </span>
-    </li>
-  ))}
-</ul>
+      </li>
+    ))}
+  </ul>
+) : (
+  <div class:list={['rounded-[var(--radius-card)] border border-dashed border-[var(--rule-c)] p-[var(--space-6)] text-center', className]}>
+    <p class="text-small text-[var(--fg-muted)]">
+      TODO: [creatives] — drop stills into <code>src/assets/Creatives/</code> and they appear here.
+    </p>
+  </div>
+)}
 
 <style>
   .ss-clip { transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
-  .ss-clip__video { transition: transform 0.6s var(--ease-out); background: var(--surface-c); }
-  .ss-clip__btn { cursor: pointer; }
+  .ss-clip__img { transition: transform 0.6s var(--ease-out); background: var(--surface-c); }
   @media (prefers-reduced-motion: no-preference) {
     .ss-clip:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent-fill) 50%, var(--rule-c)); }
-    .ss-clip:hover .ss-clip__video { transform: scale(1.04); }
+    .ss-clip:hover .ss-clip__img { transform: scale(1.05); }
   }
 </style>

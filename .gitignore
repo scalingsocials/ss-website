@@ -7,3 +7,6 @@ node_modules/
 .DS_Store
 
 .lighthouseci/
+src/assets/Creatives/*.mp4
+src/assets/Creatives/*.webm
+src/assets/Creatives/*.mov
