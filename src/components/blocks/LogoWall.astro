@@ -62,16 +62,27 @@ const loop = logos.length ? [...logos, ...logos] : [];
   .ss-marquee__track {
     display: flex;
     align-items: center;
-    gap: clamp(2rem, 6vw, 4.5rem);
+    gap: var(--space-3);
     width: max-content;
     padding-block: var(--space-2);
   }
-  .ss-marquee__item { flex: none; display: grid; place-items: center; }
+  /* Every logo sits in an identical box, so wide and tall marks read the same
+     size. object-contain caps both dimensions; nothing dominates. */
+  .ss-marquee__item {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 168px;
+    height: 72px;
+    padding-inline: var(--space-3);
+  }
   .ss-marquee__logo {
-    height: clamp(36px, 6vw, 52px);
+    max-height: 40px;
+    max-width: 132px;
     width: auto;
+    height: auto;
     object-fit: contain;
-    opacity: 0.85;
+    opacity: 0.9;
     transition: opacity var(--dur-base) var(--ease-out);
   }
   .ss-marquee__item:hover .ss-marquee__logo { opacity: 1; }

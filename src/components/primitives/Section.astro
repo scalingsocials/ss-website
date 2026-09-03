@@ -31,9 +31,9 @@ const {
 } = Astro.props;
 
 const padBySize: Record<string, string> = {
-  sm: 'py-[var(--space-8)]',
-  md: 'py-[var(--space-12)]',
-  lg: 'py-[var(--space-16)]',
+  sm: 'py-[var(--space-6)]',
+  md: 'py-[var(--space-10)]',
+  lg: 'pt-[var(--space-8)] pb-[var(--space-10)]',
 };
 const pad = padBySize[size];
 ---

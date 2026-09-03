@@ -1,56 +1,46 @@
 ---
 /**
- * PricingBlock — transparent starting price. See 02 §5.1 and 11 §2.
- *
- * Nobody else in this SERP publishes pricing; doing so is a differentiator, an
- * AEO win ("how much does a performance marketing agency cost in India" has no
- * good Indian answer to cite), and it filters inbound. Performance marketing and
- * SEO start at ₹25,000/month — a confirmed real floor (11 §2). Never publish a
- * price you won't honour (CLAUDE.md §15 / 11 §2).
- *
+ * PricingBlock — value-framed. See 11 §2. Leads with the worth of what's included,
+ * not the "cost". The published floor stays (transparency is the differentiator,
+ * 11 §2) but as a quiet "from" line, so the reader feels the value before the price.
  * The number renders as real text in the HTML (CLAUDE.md §10). Register-agnostic.
  */
 export interface Props {
-  price: string; // "₹25,000/month"
-  lede?: string; // one line on what the price depends on
-  factors: string[]; // "what moves the number"
-  note?: string; // e.g. ad spend is separate and never marked up
+  lede: string; // the value statement (headline)
+  included: string[]; // what you actually get
+  price?: string; // e.g. "₹25,000/month" — shown as a quiet "from" line
+  note?: string;
   class?: string;
 }
-
-const { price, lede, factors, note, class: className = '' } = Astro.props;
+const { lede, included, price, note, class: className = '' } = Astro.props;
 ---
 
 <div
-  data-pricing-block
+  data-value-block
   class:list={[
-    'flex flex-col gap-[var(--space-4)] rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-5)]',
+    'grid gap-[var(--space-6)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-6)] md:grid-cols-[1fr_1fr] md:items-start',
     className,
   ]}
 >
-  <p class="display-type text-data-sm font-semibold leading-none text-[var(--fg)]" data-num>
-    {price}
-  </p>
-
-  {lede && <p class="max-w-[54ch] text-body text-[var(--fg)]">{lede}</p>}
-
-  <div class="flex flex-col gap-[var(--space-2)]">
-    <h3 class="text-small font-semibold text-[var(--fg-muted)]">
-      What moves the number
-    </h3>
-    <ul class="flex flex-col gap-[var(--space-1)]">
-      {factors.map((f) => (
-        <li class="flex gap-[var(--space-2)] text-small text-[var(--fg)]">
-          <span aria-hidden="true" class="text-[var(--accent-text)]">—</span>
-          <span>{f}</span>
-        </li>
-      ))}
-    </ul>
+  <div class="flex flex-col gap-[var(--space-3)]">
+    <p class="text-h3 font-semibold leading-snug text-[var(--fg)]">{lede}</p>
+    {price && (
+      <p class="text-small text-[var(--fg-muted)]">
+        Plans start from <span class="font-semibold text-[var(--fg)]" data-num>{price}</span>.
+        We publish this because nobody else in this SERP does.
+      </p>
+    )}
+    {note && <p class="text-small text-[var(--fg-muted)]">{note}</p>}
   </div>
 
-  {note && (
-    <p class="border-t border-[var(--rule-c)] pt-[var(--space-3)] text-small text-[var(--fg-muted)]">
-      {note}
-    </p>
-  )}
+  <ul class="flex flex-col gap-[var(--space-2)]">
+    {included.map((item) => (
+      <li class="flex gap-[var(--space-2)] text-body text-[var(--fg)]">
+        <span class="mt-[0.15em] grid h-[20px] w-[20px] shrink-0 place-items-center rounded-full bg-[var(--accent-wash)]" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 5 8.6l4.5-5" stroke="var(--accent-text)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span>{item}</span>
+      </li>
+    ))}
+  </ul>
 </div>

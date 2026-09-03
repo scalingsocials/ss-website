@@ -23,7 +23,9 @@ export interface ServiceContent {
   subheading: string;
   subservices: SubService[];
   comparison?: { heading: string; cols: string[]; rows: (string | number)[][]; highlightCol: number; caption?: string };
-  pricing: { heading: string; price: string; lede: string; factors: string[]; note?: string };
+  // Value-framed, not cost-framed. `price` is a quiet published floor; `included`
+  // is what the client actually gets for it.
+  value: { heading: string; lede: string; included: string[]; price?: string; note?: string };
   notForYou: string[];
   faqs: Faq[];
   formHeading: string;
@@ -74,17 +76,23 @@ export const SERVICES: ServiceContent[] = [
       highlightCol: 3,
       caption: 'We use Advantage+ where it genuinely beats manual, and manual where control pays for itself.',
     },
-    pricing: {
-      heading: 'What performance marketing costs',
+    value: {
+      heading: 'What you get for your money',
+      lede: 'One team running media, creative and CRO to your P&L — not a media buyer optimising to a dashboard.',
+      included: [
+        'A senior team on your account — media, creative and CRO, never a junior with a template',
+        'Ad creative produced in-house and tested every week',
+        'A live dashboard and a shared Slack channel, so you always know what changed',
+        'Weekly optimisation against your break-even ROAS and a monthly strategy read',
+        'Ad spend paid directly to the platforms — we never mark it up',
+      ],
       price: '₹25,000/month',
-      lede: 'Where you land depends on your monthly ad spend. Managing ₹1L a month and managing ₹20L a month are different jobs — more campaigns, more creative, more testing.',
-      factors: ['Monthly ad spend and how many platforms you run', 'How much creative you need produced each month', 'Whether landing page and CRO work is in scope', 'How much reporting and strategy support you want'],
-      note: 'Ad spend is separate and paid directly to the platforms. We never mark it up.',
+      note: 'Where you land depends on ad spend and creative volume. Managing ₹1L a month and ₹20L a month are different jobs.',
     },
     notForYou: [
       'Pre-launch brands with no data to work from. We can’t optimise an empty account.',
       'Anyone chasing a guaranteed ROAS number. We work to your margin and we won’t promise a figure we can’t control.',
-      'Service businesses and B2B lead gen. Not our specialism — we’ll refer you to someone better.',
+      'Brands unwilling to produce creative. On Meta, creative is the growth lever — without a steady supply, there is little for us to scale.',
     ],
     faqs: [
       { q: 'How much does a performance marketing agency cost in India?', a: 'Scaling Socials starts performance marketing at ₹25,000 a month. The final number depends on your ad spend, how many platforms you run, and how much creative you need produced. Ad spend is separate and paid directly to Meta or Google — we never mark it up.' },
@@ -92,6 +100,7 @@ export const SERVICES: ServiceContent[] = [
       { q: 'Do you make the ad creative?', a: 'Yes. We produce statics and video-led ads in-house and run a structured testing pipeline. Creative is the single biggest lever in performance today, so it’s core to the engagement, not an add-on.' },
       { q: 'How soon do we see results?', a: 'The first audit lands in three working days. Meaningful account changes take a testing cycle — usually 30 to 60 days to read signal cleanly — before we scale what works. We won’t scale spend on unproven creative to show early numbers.' },
       { q: 'Which platforms do you run?', a: 'Primarily Meta (Facebook and Instagram) and Google (Search, Shopping, Performance Max), plus Amazon and YouTube where they fit the brand. We recommend the mix from your margins and buyer, not a fixed package.' },
+      { q: 'Do you run ads for B2B or lead-generation businesses?', a: 'Yes. Alongside D2C and ecommerce, Scaling Socials runs performance marketing for B2B and service businesses — lead-generation campaigns on Meta and Google, with landing pages and tracking built to fill your pipeline, measured on cost per qualified lead rather than ROAS.' },
     ],
     formHeading: 'Get a free performance audit',
     formQuestions: [
@@ -128,12 +137,18 @@ export const SERVICES: ServiceContent[] = [
       { title: 'Local SEO', body: 'Google Business Profile, citations and local pages for brands that also sell or serve in a city.', href: '/local-seo-services-bangalore/' },
       { title: 'Answer engine optimisation', body: 'Structuring content so it gets cited in AI Overviews and by ChatGPT, Perplexity and Gemini.', href: '/answer-engine-optimisation-services/' },
     ],
-    pricing: {
-      heading: 'What SEO costs',
+    value: {
+      heading: 'What you get for your money',
+      lede: 'Organic growth that compounds — technical foundations, content and authority, all tied to revenue.',
+      included: [
+        'A full technical audit and the fixes that unblock rankings',
+        'Category and product pages optimised for terms that convert',
+        'Content and internal linking that build topical authority',
+        'Answer-engine optimisation, so you get cited in AI Overviews and ChatGPT',
+        'A monthly report tied to organic revenue, not vanity keyword counts',
+      ],
       price: '₹25,000/month',
-      lede: 'Where you land depends on how many keywords you’re targeting and how competitive they are. Ranking for twenty long-tail terms in one city is a different job from competing nationally on head terms.',
-      factors: ['Keyword count and difficulty', 'How many pages need writing or rewriting', 'Whether technical fixes are in scope', 'How much link and digital-PR work you want'],
-      note: 'SEO compounds. Expect the first movement in 8–12 weeks and the real curve after two quarters.',
+      note: 'Where you land depends on keyword count and difficulty. SEO compounds over quarters, not weeks.',
     },
     notForYou: [
       'Brands that need revenue this month. SEO compounds over quarters; if you need sales now, start with performance marketing.',
@@ -146,6 +161,7 @@ export const SERVICES: ServiceContent[] = [
       { q: 'What is answer engine optimisation?', a: 'It’s structuring your content so it gets quoted inside AI answers — Google’s AI Overviews and tools like ChatGPT and Perplexity. It rewards specific, well-structured, well-cited pages, and almost nobody in this market is doing it yet.' },
       { q: 'Do you do technical SEO?', a: 'Yes, and we usually start there. Crawlability, site speed, indexation, structured data and internal linking decide whether your content can ever rank. We run a full technical audit and fix the foundations before scaling content.' },
       { q: 'Can you do SEO and performance marketing together?', a: 'Yes — many clients run both. Paid buys demand today while SEO compounds for tomorrow, and the data from each improves the other. We keep them on one team and one number so they don’t work at cross purposes.' },
+      { q: 'Do you do SEO for B2B or service businesses?', a: 'Yes. Beyond ecommerce, Scaling Socials runs SEO for B2B and service businesses. The technical and intent work is similar — we target the commercial and service queries your buyers actually search, and build the pages that turn them into leads.' },
     ],
     formHeading: 'Get a free SEO audit',
     formQuestions: [
@@ -182,12 +198,17 @@ export const SERVICES: ServiceContent[] = [
       { title: 'Speed optimisation', body: 'A dedicated pass on Core Web Vitals and load time — because speed is conversion and cheaper ads.', href: '/shopify-speed-optimisation-services/' },
       { title: 'Store redesign', body: 'Rebuilding an existing store around what actually converts, informed by session and heatmap data.', href: '/shopify-store-redesign-services/' },
     ],
-    pricing: {
-      heading: 'What a Shopify build costs',
-      price: 'Scoped to the build',
-      lede: 'Shopify work is priced by scope — a speed pass on an existing store is a different job from a full custom build or a migration with thousands of SKUs. Tell us what you need and we’ll quote in two working days.',
-      factors: ['New build, migration, redesign or a speed fix', 'How many products and variants you carry', 'Custom features — subscriptions, bundles, multi-currency', 'Whether content and product photography are in scope'],
-      note: 'We never quote a number we can’t stand behind. If a template store fits you better than a custom build, we’ll say so.',
+    value: {
+      heading: 'What you get for your money',
+      lede: 'A store built around revenue per session — fast, clean to track, and made to convert paid traffic.',
+      included: [
+        'A theme built around the product page, cart and checkout',
+        'Core Web Vitals and load time optimised from the start',
+        'Clean tracking and analytics wired in on day one',
+        'A build your team can run without a developer on standby',
+        'Honest advice — if a template fits you better than custom, we say so',
+      ],
+      note: 'Priced by scope — a speed pass differs from a full custom build or a migration. We quote in two working days.',
     },
     notForYou: [
       'Anyone who wants the cheapest possible theme install. A template store is fine — you don’t need us for that.',
@@ -234,12 +255,17 @@ export const SERVICES: ServiceContent[] = [
       { title: 'Rebuilds and migrations', body: 'Replacing a slow WordPress build with a fast modern stack, without losing your SEO.' },
       { title: 'Analytics and tracking', body: 'Clean GA4, server-side events and dashboards so decisions are made on real data, not guesses.' },
     ],
-    pricing: {
-      heading: 'What a website costs',
-      price: 'Scoped to the project',
-      lede: 'Web work is priced by scope — a set of landing pages is a different job from a full brand-site rebuild. Tell us what you need and we’ll quote in two working days.',
-      factors: ['New site, rebuild or landing pages', 'How many pages and templates you need', 'Custom features and integrations', 'Whether copy, design and photography are in scope'],
-      note: 'If a Shopify theme or a no-code tool genuinely fits you better and cheaper, we’ll tell you.',
+    value: {
+      heading: 'What you get for your money',
+      lede: 'A site that sells — fast to load, clear on one action, and measurable so you can see what works.',
+      included: [
+        'Design around a single clear action, not decoration',
+        'Sub-1.5s load times that protect Quality Score and budget',
+        'Clean GA4 and event tracking, so decisions run on data',
+        'Message-matched landing pages for your ad campaigns',
+        'A stack your team can actually run and update',
+      ],
+      note: 'Priced by scope — landing pages differ from a full brand-site rebuild. We quote in two working days.',
     },
     notForYou: [
       'Anyone who just needs a one-page template site — a builder like Wix or Framer will serve you fine.',
@@ -251,6 +277,7 @@ export const SERVICES: ServiceContent[] = [
       { q: 'Why does site speed matter?', a: 'Speed is money. A slow site loses visitors before they act, and for ad-driven pages it lowers your Quality Score and raises your cost per click. We build to load in well under two seconds, which protects both conversion and budget.' },
       { q: 'Can you rebuild my slow WordPress site?', a: 'Yes. We move brands off slow WordPress builds onto a fast modern stack while preserving SEO with a proper redirect map. You keep your rankings and gain the speed, and your team can run it without a developer on standby.' },
       { q: 'Do you build landing pages for ads?', a: 'Yes, and it’s one of the highest-return things we do. Message-matched landing pages that load fast convert far better than sending paid traffic to a generic homepage, and because we run the ads too, the page and the creative are built together.' },
+      { q: 'Do you build websites for B2B or lead-gen businesses?', a: 'Yes. Beyond ecommerce, Scaling Socials builds fast, measurable websites and lead-generation landing pages for B2B and service businesses — designed around the enquiry or booking you want, with clean tracking so you can see what converts.' },
     ],
     formHeading: 'Get a free site review',
     formQuestions: [
@@ -285,12 +312,17 @@ export const SERVICES: ServiceContent[] = [
       { title: 'Creator and UGC', body: 'Sourcing and running creator and UGC content that fuels both organic and paid.' },
       { title: 'Channel strategy', body: 'The right platform mix for your brand and buyer — Instagram, YouTube and beyond — not a fixed package.' },
     ],
-    pricing: {
-      heading: 'What social media management costs',
-      price: 'Scoped to the work',
-      lede: 'Social is priced by scope — how much content you need each month, how many channels, and whether creators are in the mix. Tell us what you need and we’ll quote in two working days.',
-      factors: ['How many pieces of content per month', 'How many channels you run', 'Whether community management is in scope', 'Whether creator and UGC sourcing is included'],
-      note: 'Social works best alongside paid — the same creative engine feeds both, so you get more from each.',
+    value: {
+      heading: 'What you get for your money',
+      lede: 'Organic social that feeds performance — one creative engine behind both your content and your ads.',
+      included: [
+        'A real content calendar, with reels and statics at volume',
+        'Community management on comments and DMs, where trust is built',
+        'Creator and UGC sourcing that fuels organic and paid',
+        'The right platform mix for your brand, not a fixed package',
+        'Content built to be tested, so it makes your paid work harder',
+      ],
+      note: 'Priced by scope — how much content, how many channels, and whether creators are in the mix. We quote in two working days.',
     },
     notForYou: [
       'Brands chasing follower counts as the goal. We build social that supports revenue, and we’ll measure it that way.',
@@ -302,6 +334,7 @@ export const SERVICES: ServiceContent[] = [
       { q: 'Do followers actually matter?', a: 'Not on their own. We build organic social to do two things your P&L cares about: warm an audience so paid works harder, and produce the native content volume a testing pipeline needs. Follower count is a byproduct, not the target.' },
       { q: 'Can social and paid ads work together?', a: 'That’s exactly how we run it. The same in-house creative engine feeds both organic and paid, so the content you post and the ads you run reinforce each other and you get more from every asset produced.' },
       { q: 'Do you work with creators?', a: 'Yes. We source and run creator and UGC content that fuels both organic and paid. For founder- and creator-led brands, we lean into that voice deliberately — an operator’s perspective outperforms polished brand-speak on social.' },
+      { q: 'Do you handle social media for B2B brands?', a: 'Yes. Alongside D2C, Scaling Socials handles social media for B2B and service businesses — LinkedIn and founder-led content included — built to warm buyers and support lead generation, not just to chase followers.' },
     ],
     formHeading: 'Get a free social review',
     formQuestions: [
@@ -336,12 +369,17 @@ export const SERVICES: ServiceContent[] = [
       { title: 'Cart and checkout', body: 'Reducing the friction and abandonment in the two steps closest to the money.' },
       { title: 'Landing page testing', body: 'Message-matched pages for paid traffic, tested against real conversion, not opinion.' },
     ],
-    pricing: {
-      heading: 'What CRO costs',
-      price: 'Scoped to the work',
-      lede: 'CRO is priced by scope and by traffic — there needs to be enough volume to test cleanly. Tell us your store and monthly sessions and we’ll quote in two working days.',
-      factors: ['Monthly sessions and order volume (enough to test)', 'Platform — Shopify, WooCommerce or custom', 'How many tests per month you want', 'Whether design and build of variants is included'],
-      note: 'CRO needs traffic to work. If you don’t have enough sessions yet, we’ll tell you to start with acquisition first.',
+    value: {
+      heading: 'What you get for your money',
+      lede: 'More revenue from the traffic you already pay for — the cheapest growth you have.',
+      included: [
+        'A full funnel audit from session recordings, analytics and heatmaps',
+        'Product page, cart and checkout tested where it matters most',
+        'Message-matched landing pages for paid traffic',
+        'A/B tests run and read properly, so winners actually ship',
+        'A conversion lift that lowers your effective CAC across every channel',
+      ],
+      note: 'Priced by scope and traffic — there needs to be enough volume to test cleanly. We quote in two working days.',
     },
     notForYou: [
       'Stores with too little traffic to test cleanly. Below a few thousand sessions a month, spend on acquisition first.',

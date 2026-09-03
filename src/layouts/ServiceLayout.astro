@@ -97,13 +97,17 @@ const nodes = [
     <LogoWall heading="Brands we work with" />
   </Section>
 
-  <!-- EDUCATION -->
+  <!-- EDUCATION (2-col: heading left, prose right — fills the width) -->
   <Section size="md">
-    <span class="ss-eyebrow">{svc.intro.eyebrow}</span>
-    <h2 class="max-w-[26ch] text-h2 font-semibold">{svc.intro.heading}</h2>
-    <Prose class="mt-[var(--space-4)]">
-      {svc.intro.paras.map((p) => <p>{p}</p>)}
-    </Prose>
+    <div class="grid gap-[var(--space-6)] lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
+      <div class="lg:sticky lg:top-[96px]">
+        <span class="ss-eyebrow">{svc.intro.eyebrow}</span>
+        <h2 class="text-h2 font-semibold">{svc.intro.heading}</h2>
+      </div>
+      <Prose>
+        {svc.intro.paras.map((p) => <p>{p}</p>)}
+      </Prose>
+    </div>
   </Section>
 
   <!-- SUB-SERVICES -->
@@ -138,11 +142,11 @@ const nodes = [
     <div class="mt-[var(--space-5)]"><ProcessSteps steps={process} /></div>
   </Section>
 
-  <!-- PRICING -->
+  <!-- VALUE (was "pricing" — value-framed, full width) -->
   <Section size="md">
-    <span class="ss-eyebrow">Pricing</span>
-    <h2 class="max-w-[24ch] text-h2 font-semibold">{svc.pricing.heading}</h2>
-    <div class="mt-[var(--space-5)] max-w-[640px]"><PricingBlock price={svc.pricing.price} lede={svc.pricing.lede} factors={svc.pricing.factors} note={svc.pricing.note} /></div>
+    <span class="ss-eyebrow">The value</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">{svc.value.heading}</h2>
+    <div class="mt-[var(--space-5)]"><PricingBlock lede={svc.value.lede} included={svc.value.included} price={svc.value.price} note={svc.value.note} /></div>
   </Section>
 
   <!-- NOT FOR YOU -->

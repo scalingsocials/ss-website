@@ -1,73 +1,89 @@
 ---
 /**
- * ProcessSteps — the five numbered engagement phases. See 02 §3 and §5.1.
+ * ProcessSteps — the five numbered engagement phases. See 02 §3 and 08 §7.
+ * The one place numbered markers appear (08 §7), because it is a real sequence.
  *
- * This is the ONLY place numbered markers appear on the site (08 §7), because
- * the engagement genuinely is a sequence. Do not reuse numbered markers for
- * decoration — if it is not a real ordered sequence, it does not get numbers.
- *
- * Numerals are Anek Latin, tabular. Register-agnostic.
+ * A horizontal timeline: numbered badges on a connecting rail on desktop, stacked
+ * on mobile. Numerals are Anek Latin, tabular. Register-agnostic.
  */
 export interface Step {
   title: string;
   body: string;
 }
-
 export interface Props {
   steps: Step[];
   class?: string;
 }
-
 const { steps, class: className = '' } = Astro.props;
 ---
 
-<ol data-process-steps class:list={['flex flex-col', className]}>
+<ol data-process-steps class:list={['ss-process', className]}>
   {steps.map((step, i) => (
-    <li
-      class:list={[
-        'ss-step relative grid grid-cols-[auto_1fr] gap-x-[var(--space-4)] gap-y-[var(--space-1)] py-[var(--space-4)] pl-[var(--space-4)]',
-        i > 0 && 'border-t border-[var(--rule-c)]',
-      ]}
-    >
-      <span class="ss-step__fill" aria-hidden="true"></span>
-      <span
-        class="row-span-2 display-type text-data-sm font-semibold leading-none text-[var(--accent-text)]"
-        data-num
-        aria-hidden="true"
-      >
-        {String(i + 1).padStart(2, '0')}
-      </span>
-      <h3 class="self-center text-h4 font-semibold text-[var(--fg)]">{step.title}</h3>
-      <p class="max-w-[54ch] text-small leading-relaxed text-[var(--fg-muted)]">{step.body}</p>
+    <li class="ss-process__step">
+      <div class="ss-process__badge display-type" data-num aria-hidden="true">{String(i + 1).padStart(2, '0')}</div>
+      <h3 class="ss-process__title">{step.title}</h3>
+      <p class="ss-process__body">{step.body}</p>
     </li>
   ))}
 </ol>
 
 <style>
-  /* Left spine "fills" as each step scrolls into view. CSS scroll-driven, zero
-     JS, progressive enhancement (unsupported browsers show a static spine). */
-  .ss-step__fill {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: var(--accent-graphic);
-    transform: scaleY(1);
-    transform-origin: top;
+  .ss-process {
+    position: relative;
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: 1fr;
   }
+  .ss-process__step { position: relative; z-index: 1; display: flex; flex-direction: column; gap: var(--space-2); }
+  .ss-process__badge {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent-fill);
+    color: var(--accent-on);
+    font-size: var(--text-h4);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .ss-process__title { font-size: var(--text-h4); font-weight: 600; color: var(--fg); }
+  .ss-process__body { font-size: var(--text-small); line-height: 1.55; color: var(--fg-muted); max-width: 30ch; }
+
+  /* Mobile: a vertical rail down the left of the badges. */
+  @media (max-width: 767px) {
+    .ss-process::before {
+      content: '';
+      position: absolute;
+      top: 24px;
+      bottom: 24px;
+      left: 23px;
+      width: 2px;
+      background: var(--rule-c);
+      z-index: 0;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .ss-process { grid-template-columns: repeat(5, 1fr); gap: var(--space-4); }
+    .ss-process::before {
+      content: '';
+      position: absolute;
+      top: 24px;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: var(--rule-c);
+      z-index: 0;
+    }
+    .ss-process__step { align-items: flex-start; }
+    .ss-process__body { max-width: none; }
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
-      .ss-step__fill {
-        transform: scaleY(0);
-        animation: ssStepFill linear both;
-        animation-timeline: view();
-        animation-range: entry 12% cover 42%;
-      }
-      @keyframes ssStepFill {
-        from { transform: scaleY(0); }
-        to { transform: scaleY(1); }
-      }
+      .ss-process__step { animation: ssStepIn 0.6s var(--ease-out) both; animation-timeline: view(); animation-range: entry 5% cover 30%; }
+      @keyframes ssStepIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
     }
   }
 </style>

@@ -63,24 +63,25 @@ const steps = [
 
 const comparisonCols = ['', 'In-house hire', 'Freelancer', 'Scaling Socials'];
 const comparisonRows = [
-  ['Monthly cost', 'A full salary', 'Per project', 'From ₹25,000'],
+  ['What you get', 'One skill set', 'One skill set', 'Media, creative, CRO and dev — one team'],
   ['Ramp time', 'A month or more', 'Days', 'About a week'],
-  ['Breadth', 'One skill set', 'One skill set', 'Media, creative, CRO, dev'],
   ['Accountability', 'Yours to manage', 'Varies', 'One team, one number'],
+  ['Creative', 'Depends on the hire', 'Rarely', 'Produced in-house, tested weekly'],
   ['Best when', 'Spend is large and steady', 'Scope is small and defined', 'You need to build, test and scale'],
-  ['Not for you if', 'You need breadth fast', 'You need accountability', 'You want the cheapest option — a freelancer is cheaper'],
+  ['Not for you if', 'You need breadth fast', 'You need accountability', 'You only want the cheapest option'],
 ];
 
-const pricing = {
-  price: '₹25,000/month',
-  lede: 'Performance marketing and SEO start at ₹25,000 a month. Shopify, web and social are scoped to the project. We publish this because nobody else in the SERP does.',
-  factors: [
-    'Monthly ad spend and how many platforms you run',
-    'Keyword count and difficulty, for SEO',
-    'Store or site build scope, for Shopify and web',
-    'Creative volume and whether CRO work is in scope',
+const value = {
+  lede: 'A full growth department — ads, SEO, Shopify, creative and CRO — for less than the cost of one senior in-house hire.',
+  included: [
+    'A senior team across media, creative, SEO, store and CRO',
+    'Ad creative and content produced in-house, tested every week',
+    'A shared Slack channel and a live dashboard — you always know what changed',
+    'Everything run against your real margins, not vanity metrics',
+    'Transparent pricing, and never a markup on your ad spend',
   ],
-  note: 'Ad spend is separate and paid directly to the platforms. We never mark it up.',
+  price: '₹25,000/month',
+  note: 'Performance marketing and SEO start at ₹25,000 a month. Shopify, web and social are scoped to the project.',
 };
 
 const notForYou = [
@@ -125,12 +126,16 @@ const surface = '!bg-[var(--surface-c)]';
 
   <!-- SERVICES (surface) -->
   <Section id="services" size="md" class={surface} data-reveal>
-    <span class={eyebrow}>What we do</span>
-    <h2 class="max-w-[20ch] text-h2 font-semibold">Everything a D2C brand needs to grow</h2>
-    <p class="mt-[var(--space-2)] max-w-[56ch] text-body text-[var(--fg-muted)]">
-      Six services, one team — paid media, SEO, Shopify and web, social and CRO — run against your
-      margins, not vanity metrics.
-    </p>
+    <div class="grid gap-[var(--space-4)] md:grid-cols-[1fr_1fr] md:items-end">
+      <div>
+        <span class={eyebrow}>What we do</span>
+        <h2 class="max-w-[16ch] text-h2 font-semibold">Everything a brand needs to grow</h2>
+      </div>
+      <p class="max-w-[52ch] text-body text-[var(--fg-muted)] md:justify-self-end">
+        Six services, one team — paid media, SEO, Shopify and web, social and CRO. We grow D2C and
+        ecommerce brands, and run lead generation for B2B and service businesses too.
+      </p>
+    </div>
     <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
       {SERVICE_PILLARS.map((s) => (
         <li>
@@ -218,15 +223,15 @@ const surface = '!bg-[var(--surface-c)]';
     </div>
   </Section>
 
-  <!-- PRICING (paper) -->
+  <!-- VALUE (paper) -->
   <Section size="md" data-reveal>
-    <span class={eyebrow}>Pricing</span>
-    <h2 class="max-w-[24ch] text-h2 font-semibold">What it costs</h2>
-    <div class="mt-[var(--space-5)] max-w-[640px]">
-      <PricingBlock {...pricing} />
+    <span class={eyebrow}>The value</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">What you get for your money</h2>
+    <div class="mt-[var(--space-5)]">
+      <PricingBlock lede={value.lede} included={value.included} price={value.price} note={value.note} />
     </div>
     <p class="mt-[var(--space-4)] text-body text-[var(--fg-muted)]">
-      Not sure what return you need before ads pay off?
+      Want to see the maths on what a customer is worth to you?
       <a href="/tools/break-even-roas-calculator/" class="font-medium text-[var(--accent-text)]">Work out your break-even ROAS</a>.
     </p>
   </Section>
