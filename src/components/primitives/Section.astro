@@ -16,6 +16,8 @@ export interface Props {
   as?: 'section' | 'div' | 'header' | 'footer' | 'article';
   id?: string;
   class?: string;
+  // Allow data-* passthrough (e.g. data-reveal for scroll motion).
+  [attr: `data-${string}`]: string | boolean | undefined;
 }
 
 const {
@@ -25,6 +27,7 @@ const {
   as: Tag = 'section',
   id,
   class: className = '',
+  ...rest
 } = Astro.props;
 
 const padBySize: Record<string, string> = {
@@ -39,6 +42,7 @@ const pad = padBySize[size];
   data-register={register}
   id={id}
   class={`${pad} ${bleed ? 'w-full' : ''} ${className}`}
+  {...rest}
 >
   <div class="mx-auto w-full max-w-[var(--container)] px-[var(--space-3)] md:px-[var(--space-4)]">
     <slot />

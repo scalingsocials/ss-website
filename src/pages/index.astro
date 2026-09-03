@@ -12,8 +12,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
-import Button from '@/components/primitives/Button.astro';
-import AnswerBlock from '@/components/blocks/AnswerBlock.astro';
+import Hero from '@/components/Hero.astro';
 import LogoWall from '@/components/blocks/LogoWall.astro';
 import ClientVoice from '@/components/blocks/ClientVoice.astro';
 import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
@@ -107,38 +106,29 @@ const schemaNodes = [
   <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
   <SchemaGraph slot="schema" nodes={schemaNodes} />
 
-  <!-- 1. HERO (paper) -->
-  <Section size="lg">
-    <div class="max-w-[24ch]">
-      <h1>Performance marketing that answers to your P&amp;L.</h1>
-    </div>
-    <div class="mt-[var(--space-5)]">
-      <AnswerBlock>
-        Scaling Socials is a performance marketing and ecommerce development agency in Bangalore.
-        We run Meta and Google Ads and build Shopify stores for D2C brands across India and the
-        UAE, on a build-test-scale cycle. Performance marketing starts at ₹25,000 a month, and ad
-        spend is never marked up.
-      </AnswerBlock>
-    </div>
-    <div class="mt-[var(--space-6)] flex flex-wrap items-center gap-[var(--space-2)]">
-      <Button href="/audit/" variant="primary">Get a free growth plan</Button>
-      <Button href="/case-studies/" variant="secondary">See case studies</Button>
-    </div>
-  </Section>
+  <!-- 1. HERO (ink, cinematic) -->
+  <Hero />
 
   <!-- 2. SERVICES (paper) -->
-  <Section size="md">
+  <Section id="services" size="md" data-reveal>
     <h2 class="max-w-[20ch] text-h2 font-semibold">What Scaling Socials runs for you</h2>
+    <p class="mt-[var(--space-2)] max-w-[52ch] text-body text-[var(--fg-muted)]">
+      Six services, one team. Media, creative, store build and CRO, run against your margins.
+    </p>
     <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
-      {SERVICE_PILLARS.map((s) => (
+      {SERVICE_PILLARS.map((s, i) => (
         <li>
           <a
             href={s.href}
-            class="group flex h-full flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline transition-colors duration-[var(--dur-base)] hover:border-[var(--fg)] hover:bg-[var(--surface-c)]"
+            class="ss-svc-card group relative flex h-full flex-col gap-[var(--space-2)] overflow-hidden rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline"
           >
+            <span class="display-type text-small font-semibold text-[var(--accent-text)]" data-num>{String(i + 1).padStart(2, '0')}</span>
             <h3 class="text-h4 font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">{s.label}</h3>
             <p class="text-small leading-relaxed text-[var(--fg-muted)]">{s.descriptor}</p>
-            <span class="mt-auto pt-[var(--space-2)] text-small font-medium text-[var(--accent-text)]">Explore {s.label.toLowerCase()}</span>
+            <span class="mt-auto inline-flex items-center gap-[0.35rem] pt-[var(--space-2)] text-small font-medium text-[var(--accent-text)]">
+              Explore
+              <svg class="ss-svc-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
           </a>
         </li>
       ))}
@@ -146,20 +136,20 @@ const schemaNodes = [
   </Section>
 
   <!-- 3. CLIENT WALL (ink) -->
-  <Section register="ink" size="md">
+  <Section register="ink" size="md" data-reveal>
     <LogoWall heading="Brands we have grown" />
   </Section>
 
   <!-- 4. CLIENT VOICE (paper) -->
-  <Section size="md">
+  <Section size="md" data-reveal>
     <h2 class="max-w-[22ch] text-h2 font-semibold">You have probably said one of these</h2>
-    <div class="mt-[var(--space-5)] max-w-[40ch]">
+    <div class="mt-[var(--space-5)] max-w-[44ch]">
       <ClientVoice problems={problems} />
     </div>
   </Section>
 
   <!-- 5. PROCESS (paper) -->
-  <Section size="md">
+  <Section size="md" data-reveal>
     <h2 class="max-w-[20ch] text-h2 font-semibold">How an engagement runs</h2>
     <div class="mt-[var(--space-5)]">
       <ProcessSteps steps={steps} />
@@ -167,7 +157,7 @@ const schemaNodes = [
   </Section>
 
   <!-- 6. PRICING (paper) -->
-  <Section size="md">
+  <Section size="md" data-reveal>
     <h2 class="max-w-[24ch] text-h2 font-semibold">What performance marketing costs</h2>
     <div class="mt-[var(--space-5)] max-w-[640px]">
       <PricingBlock {...pricing} />
@@ -175,7 +165,7 @@ const schemaNodes = [
   </Section>
 
   <!-- 7. COMPARISON (paper) -->
-  <Section size="md">
+  <Section size="md" data-reveal>
     <h2 class="max-w-[26ch] text-h2 font-semibold">In-house, freelancer, or agency?</h2>
     <p class="mt-[var(--space-2)] max-w-[60ch] text-body text-[var(--fg-muted)]">
       Sometimes the honest answer is not us. Here is when each option wins.
@@ -186,7 +176,7 @@ const schemaNodes = [
   </Section>
 
   <!-- 8. FAQ (paper) -->
-  <Section size="md">
+  <Section size="md" data-reveal>
     <h2 class="max-w-[20ch] text-h2 font-semibold">Questions founders ask</h2>
     <div class="mt-[var(--space-5)] max-w-[760px]">
       <FaqAccordion items={faqItems} openFirst />
@@ -194,14 +184,14 @@ const schemaNodes = [
   </Section>
 
   <!-- 9. NOT FOR YOU (paper) -->
-  <Section size="md">
+  <Section size="md" data-reveal>
     <div class="max-w-[640px]">
       <NotForYouBlock items={notForYou} />
     </div>
   </Section>
 
   <!-- 10. CTA BAND (ink) -->
-  <Section register="ink" size="md">
+  <Section register="ink" size="md" data-reveal>
     <CtaBand
       heading="Find out what is leaking money in your ads"
       body="Send us access and, within three working days, you get a written audit of what is working, what is not, and what we would change first — whether or not you hire us."
@@ -211,4 +201,34 @@ const schemaNodes = [
       secondaryHref="/contact/"
     />
   </Section>
+
+  <style>
+    .ss-svc-card {
+      transition: transform var(--dur-base) var(--ease-out),
+                  border-color var(--dur-base) var(--ease-out),
+                  box-shadow var(--dur-base) var(--ease-out);
+    }
+    .ss-svc-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent, var(--accent-wash));
+      opacity: 0;
+      transition: opacity var(--dur-base) var(--ease-out);
+      pointer-events: none;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .ss-svc-card:hover {
+        transform: translateY(-4px);
+        border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c));
+        box-shadow: 0 24px 50px -30px color-mix(in srgb, var(--accent-fill) 55%, transparent);
+      }
+    }
+    .ss-svc-card:hover::before { opacity: 1; }
+    .ss-svc-arrow { transition: transform var(--dur-fast) var(--ease-out); }
+    .ss-svc-card:hover .ss-svc-arrow { transform: translateX(3px); }
+  </style>
+
+  <script>
+    import '@/scripts/motion.ts';
+  </script>
 </BaseLayout>
