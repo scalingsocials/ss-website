@@ -1,0 +1,6 @@
+---
+import ServiceLayout from '@/layouts/ServiceLayout.astro';
+import { SERVICE_BY_SLUG } from '@/lib/services';
+const svc = SERVICE_BY_SLUG['social-media-marketing'];
+---
+<ServiceLayout svc={svc} />

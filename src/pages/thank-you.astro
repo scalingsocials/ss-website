@@ -1,0 +1,30 @@
+---
+/**
+ * /thank-you/ — post-submit confirmation. noindex, excluded from sitemap.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/primitives/Section.astro';
+import Button from '@/components/primitives/Button.astro';
+---
+
+<BaseLayout noindex>
+  <title slot="meta">Thank you — Scaling Socials</title>
+  <meta slot="meta" name="description" content="Thanks — we have your details and will reply within one working day." />
+
+  <Section size="lg">
+    <div class="mx-auto max-w-[52ch] text-center">
+      <div class="mx-auto mb-[var(--space-4)] grid h-[64px] w-[64px] place-items-center rounded-full bg-[var(--accent-wash)]">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17l9-10" stroke="var(--accent-text)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h1 class="text-h2 font-semibold">Thanks — we’ve got it.</h1>
+      <p class="mt-[var(--space-3)] text-body text-[var(--fg-muted)]">
+        A real person at Scaling Socials will read this and reply within one working day. If it’s
+        urgent, message us on WhatsApp at +91 96067 13608.
+      </p>
+      <div class="mt-[var(--space-6)] flex flex-wrap justify-center gap-[var(--space-2)]">
+        <Button href="/" variant="primary">Back to home</Button>
+        <Button href="/case-studies/" variant="secondary">See case studies</Button>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

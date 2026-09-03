@@ -1,0 +1,175 @@
+---
+/**
+ * ServiceLayout — the pillar-page template. See 02 §5.1 and 03 §1.3.
+ *
+ * Renders a full service page from a ServiceContent object: answer-first hero
+ * with an inline service-specific lead form, real proof, education, sub-services,
+ * comparison, process, transparent pricing, a genuine disqualifier list, FAQ, and
+ * a CTA band. Emits one @graph (Service + WebPage + BreadcrumbList + FAQPage,
+ * with an Offer where a price floor is published).
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import Button from '@/components/primitives/Button.astro';
+import LeadForm from '@/components/blocks/LeadForm.astro';
+import LogoWall from '@/components/blocks/LogoWall.astro';
+import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
+import PricingBlock from '@/components/blocks/PricingBlock.astro';
+import ComparisonTable from '@/components/blocks/ComparisonTable.astro';
+import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
+import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import { CASE_STUDIES } from '@/lib/caseStudies';
+import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
+import type { ServiceContent } from '@/lib/services';
+
+export interface Props {
+  svc: ServiceContent;
+}
+const { svc } = Astro.props;
+const url = svc.url;
+const published = '2026-09-01';
+const modified = '2026-09-04';
+
+const process = [
+  { title: 'Audit', body: 'We read your accounts and your store and find where spend leaks and where it can scale.' },
+  { title: 'Plan', body: 'A 30-60-90 plan: the first things we would change, in order, with the reasoning.' },
+  { title: 'Build', body: 'The work itself — campaigns, pages, content or code — built so it can be tested.' },
+  { title: 'Test', body: 'We test against your real margins, not a vanity benchmark.' },
+  { title: 'Scale', body: 'What works gets more; what doesn’t gets cut. Then we run the loop again.' },
+];
+
+const nodes = [
+  ...base(),
+  service({
+    url,
+    name: svc.name,
+    description: svc.description,
+    serviceType: svc.name,
+    areaServed: ['IN', 'AE'],
+    ...(svc.offer ? { offer: svc.offer } : {}),
+    offerCatalog: svc.subservices.map((s) => ({ name: s.title, url: s.href ?? url })),
+  }),
+  webPage({ url, name: svc.title, description: svc.description, aboutId: serviceId(url), hasBreadcrumb: true, datePublished: published, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: svc.name, url }]),
+  faqPage(url, svc.faqs),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={svc.title} description={svc.description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <!-- HERO -->
+  <Section size="lg">
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
+      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span> / </span><span>{svc.name}</span>
+    </nav>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+      <div>
+        <span class="ss-eyebrow">{svc.eyebrow}</span>
+        <h1>{svc.h1}</h1>
+        <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">{svc.answer}</p>
+        <ul class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-6)]">
+          {CASE_STUDIES.map((cs) => (
+            <li class="flex flex-col gap-[2px]">
+              <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{cs.result}</span>
+              <span class="text-label text-[var(--fg-muted)]">{cs.metric} {cs.period}</span>
+            </li>
+          ))}
+        </ul>
+        <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+          <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+          <Button href="/case-studies/" variant="secondary">See case studies</Button>
+        </div>
+      </div>
+      <div class="lg:sticky lg:top-[88px]">
+        <LeadForm source={svc.slug} heading={svc.formHeading} questions={svc.formQuestions} submitLabel="Get my free plan" />
+      </div>
+    </div>
+  </Section>
+
+  <!-- LOGOS -->
+  <Section size="sm" class="!bg-[var(--surface-c)]">
+    <LogoWall heading="Brands we work with" />
+  </Section>
+
+  <!-- EDUCATION -->
+  <Section size="md">
+    <span class="ss-eyebrow">{svc.intro.eyebrow}</span>
+    <h2 class="max-w-[26ch] text-h2 font-semibold">{svc.intro.heading}</h2>
+    <Prose class="mt-[var(--space-4)]">
+      {svc.intro.paras.map((p) => <p>{p}</p>)}
+    </Prose>
+  </Section>
+
+  <!-- SUB-SERVICES -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="ss-eyebrow">What’s included</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">{svc.subheading}</h2>
+    <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2">
+      {svc.subservices.map((s) => (
+        <li class="flex flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+          <h3 class="text-h4 font-semibold text-[var(--fg)]">{s.title}</h3>
+          <p class="text-small leading-relaxed text-[var(--fg-muted)]">{s.body}</p>
+          {s.href && <a href={s.href} class="mt-auto pt-[var(--space-1)] text-small font-medium text-[var(--accent-text)] no-underline">Learn more</a>}
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  {svc.comparison && (
+    <Section size="md">
+      <span class="ss-eyebrow">Honest comparison</span>
+      <h2 class="max-w-[28ch] text-h2 font-semibold">{svc.comparison.heading}</h2>
+      <div class="mt-[var(--space-5)]">
+        <ComparisonTable columns={svc.comparison.cols} rows={svc.comparison.rows} highlightCol={svc.comparison.highlightCol} caption={svc.comparison.caption} />
+      </div>
+    </Section>
+  )}
+
+  <!-- PROCESS -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="ss-eyebrow">How it works</span>
+    <h2 class="max-w-[22ch] text-h2 font-semibold">How an engagement runs</h2>
+    <div class="mt-[var(--space-5)]"><ProcessSteps steps={process} /></div>
+  </Section>
+
+  <!-- PRICING -->
+  <Section size="md">
+    <span class="ss-eyebrow">Pricing</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">{svc.pricing.heading}</h2>
+    <div class="mt-[var(--space-5)] max-w-[640px]"><PricingBlock price={svc.pricing.price} lede={svc.pricing.lede} factors={svc.pricing.factors} note={svc.pricing.note} /></div>
+  </Section>
+
+  <!-- NOT FOR YOU -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <div class="max-w-[640px]"><NotForYouBlock items={svc.notForYou} /></div>
+  </Section>
+
+  <!-- FAQ -->
+  <Section size="md">
+    <span class="ss-eyebrow">Questions</span>
+    <h2 class="max-w-[22ch] text-h2 font-semibold">Questions founders ask</h2>
+    <div class="mt-[var(--space-5)] max-w-[760px]"><FaqAccordion items={svc.faqs} openFirst /></div>
+  </Section>
+
+  <!-- CTA -->
+  <Section register="ink" size="md">
+    <CtaBand
+      heading="Find out what is leaking money"
+      body="Send us access and, within three working days, you get a written audit of what is working, what is not, and what we would change first — whether or not you hire us."
+      ctaLabel="Get a free growth plan"
+      ctaHref="/audit/"
+      secondaryLabel="Talk to us"
+      secondaryHref="/contact/"
+    />
+  </Section>
+
+  <style>
+    .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+  </style>
+</BaseLayout>

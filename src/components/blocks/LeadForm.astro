@@ -1,0 +1,168 @@
+---
+/**
+ * LeadForm — the 2-step lead capture form. See 04-LEAD-CAPTURE-AND-TRACKING.md,
+ * 01 §2.1 (intentionally VANILLA JS, not React — a 2-step form doesn't justify a
+ * ~60KB runtime on a content page, and this must stay under the 60KB budget).
+ *
+ * Progressive enhancement: with JS off it is one honest form that posts to
+ * /api/lead. With JS on (src/scripts/leadform.ts) it becomes two steps, validates
+ * inline, and captures the lead as soon as step 1 is done — sending a `partial`
+ * record then, and an `abandoned` beacon if the visitor leaves without submitting
+ * (Shopify-style abandoned capture). Step 2 questions are service-specific.
+ */
+import type { Field } from '@/lib/formFields';
+export type { Field };
+
+export interface Props {
+  source: string; // e.g. 'performance-marketing', 'audit'
+  heading?: string;
+  subheading?: string;
+  submitLabel?: string;
+  /** Service-specific step-2 questions. Their names are prefixed q_ on submit. */
+  questions?: Field[];
+  class?: string;
+}
+
+const {
+  source,
+  heading = 'Get a free growth plan',
+  subheading = 'A written audit in three working days — whether or not you hire us.',
+  submitLabel = 'Get my free growth plan',
+  questions = [],
+  class: className = '',
+} = Astro.props;
+
+const step1: Field[] = [
+  { name: 'name', label: 'Full name', type: 'text', required: true, autocomplete: 'name' },
+  { name: 'email', label: 'Work email', type: 'email', required: true, autocomplete: 'email' },
+  { name: 'phone', label: 'Phone or WhatsApp', type: 'tel', required: true, autocomplete: 'tel' },
+  { name: 'company', label: 'Brand or company', type: 'text', required: true, autocomplete: 'organization' },
+  { name: 'website', label: 'Website or Instagram', type: 'text', required: false, autocomplete: 'url', placeholder: 'yourbrand.com' },
+];
+
+const field = (f: Field, prefix = '') => ({ ...f, key: `${prefix}${f.name}` });
+const inputType = (t?: Field['type']): 'text' | 'email' | 'tel' | 'url' =>
+  t === 'select' || t === 'textarea' || !t ? 'text' : t;
+const s1 = step1.map((f) => field(f));
+const s2 = questions.map((f) => field(f, 'q_'));
+---
+
+<form
+  data-lead-form
+  data-source={source}
+  action="/api/lead"
+  method="post"
+  class:list={['ss-leadform flex flex-col gap-[var(--space-4)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]', className]}
+  novalidate
+>
+  <input type="hidden" name="lead_id" value="" />
+  <input type="hidden" name="source" value={source} />
+  <input type="hidden" name="page" value="" />
+  <!-- honeypot -->
+  <div class="ss-hp" aria-hidden="true">
+    <label>Company website<input type="text" name="company_website" tabindex="-1" autocomplete="off" /></label>
+  </div>
+
+  <div class="flex flex-col gap-[0.35rem]">
+    <div class="flex items-center justify-between">
+      <h3 class="text-h4 font-semibold text-[var(--fg)]">{heading}</h3>
+      <span class="text-label text-[var(--fg-muted)]" data-lf-progress hidden>
+        Step <span data-lf-step>1</span> of 2
+      </span>
+    </div>
+    {subheading && <p class="text-small text-[var(--fg-muted)]">{subheading}</p>}
+  </div>
+
+  <fieldset data-step="1" class="ss-lf-step flex flex-col gap-[var(--space-3)]">
+    <legend class="sr-only">Your details</legend>
+    {s1.map((f) => (
+      <label class="flex flex-col gap-[0.3rem]">
+        <span class="text-small font-medium text-[var(--fg)]">
+          {f.label}{f.required && <span class="text-[var(--neg)]"> *</span>}
+        </span>
+        <input
+          type={inputType(f.type)}
+          name={f.key}
+          required={f.required}
+          placeholder={f.placeholder}
+          autocomplete={f.autocomplete}
+          class="ss-input"
+        />
+        <span class="ss-err text-label text-[var(--neg)]" data-err hidden></span>
+      </label>
+    ))}
+    <div class="ss-lf-nav flex justify-end">
+      <button type="button" data-next class="ss-btn-primary">Next</button>
+    </div>
+  </fieldset>
+
+  <fieldset data-step="2" class="ss-lf-step flex flex-col gap-[var(--space-3)]">
+    <legend class="sr-only">About your brand</legend>
+    {s2.map((f) => (
+      <label class="flex flex-col gap-[0.3rem]">
+        <span class="text-small font-medium text-[var(--fg)]">
+          {f.label}{f.required && <span class="text-[var(--neg)]"> *</span>}
+        </span>
+        {f.type === 'select' ? (
+          <select name={f.key} required={f.required} class="ss-input">
+            <option value="">Select…</option>
+            {(f.options ?? []).map((o) => <option value={o}>{o}</option>)}
+          </select>
+        ) : f.type === 'textarea' ? (
+          <textarea name={f.key} required={f.required} rows="3" placeholder={f.placeholder} class="ss-input"></textarea>
+        ) : (
+          <input type={inputType(f.type)} name={f.key} required={f.required} placeholder={f.placeholder} class="ss-input" />
+        )}
+        <span class="ss-err text-label text-[var(--neg)]" data-err hidden></span>
+      </label>
+    ))}
+    <label class="flex flex-col gap-[0.3rem]">
+      <span class="text-small font-medium text-[var(--fg)]">Anything else? (optional)</span>
+      <textarea name="message" rows="2" class="ss-input" placeholder="Context, links, targets…"></textarea>
+    </label>
+    <div class="ss-lf-nav flex items-center justify-between gap-[var(--space-2)]">
+      <button type="button" data-back class="ss-btn-ghost" hidden>Back</button>
+      <button type="submit" class="ss-btn-primary ml-auto">{submitLabel}</button>
+    </div>
+  </fieldset>
+
+  <p class="ss-lf-status text-small" role="status" aria-live="polite" data-lf-status hidden></p>
+  <p class="text-label text-[var(--fg-muted)]">No spam. We reply within one working day.</p>
+</form>
+
+<script>
+  import '@/scripts/leadform.ts';
+</script>
+
+<style>
+  .ss-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .ss-input {
+    width: 100%;
+    border: 1px solid var(--fg-muted);
+    border-radius: var(--radius-input);
+    background: var(--ground);
+    color: var(--fg);
+    padding: 0.6rem var(--space-3);
+    font-size: var(--text-body);
+    font-family: inherit;
+  }
+  .ss-input::placeholder { color: var(--fg-muted); }
+  .ss-input:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 1px; }
+  .ss-input[aria-invalid='true'] { border-color: var(--neg); }
+  .ss-btn-primary {
+    border-radius: var(--radius-button);
+    background: var(--accent-fill);
+    color: var(--accent-on);
+    font-weight: 600;
+    padding: 0.65rem var(--space-4);
+    transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  }
+  .ss-btn-primary:hover { transform: translateY(-1px); background: var(--accent-hover); }
+  .ss-btn-ghost {
+    border-radius: var(--radius-button);
+    color: var(--fg-muted);
+    padding: 0.65rem var(--space-3);
+    font-weight: 500;
+  }
+  .ss-btn-ghost:hover { color: var(--fg); }
+</style>
