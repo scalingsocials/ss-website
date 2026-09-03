@@ -49,8 +49,8 @@ const social = [
 ];
 
 const colClass = 'flex flex-col gap-[var(--space-2)]';
-const headClass = 'text-[var(--text-small)] font-semibold text-[var(--fg-muted)]';
-const linkClass = 'text-[var(--text-small)] text-[var(--fg)] no-underline hover:text-[var(--accent-text)]';
+const headClass = 'text-small font-semibold text-[var(--fg-muted)]';
+const linkClass = 'text-small text-[var(--fg)] no-underline hover:text-[var(--accent-text)]';
 ---
 
 <footer data-register="ink" class="border-t border-[var(--rule-c)]">
@@ -61,10 +61,10 @@ const linkClass = 'text-[var(--text-small)] text-[var(--fg)] no-underline hover:
         <a href="/" class="no-underline" aria-label="Scaling Socials — home">
           <Image src={lockupWhite} alt="Scaling Socials" height={30} width={Math.round(30 * (lockupWhite.width / lockupWhite.height))} loading="lazy" />
         </a>
-        <p class="max-w-[36ch] text-[var(--text-small)] text-[var(--fg-muted)]">
+        <p class="max-w-[36ch] text-small text-[var(--fg-muted)]">
           Performance marketing and ecommerce development for D2C brands in India and the UAE.
         </p>
-        <address class="flex flex-col gap-[var(--space-1)] text-[var(--text-small)] not-italic text-[var(--fg)]">
+        <address class="flex flex-col gap-[var(--space-1)] text-small not-italic text-[var(--fg)]">
           <span>{a.streetAddress}, {a.addressLocality}, {a.addressRegion} {a.postalCode}</span>
           <a href={`tel:${ORG.telephone.replace(/[^+\d]/g, '')}`} class={linkClass} data-num>{ORG.telephone}</a>
           <a href={`mailto:${ORG.email}`} class={linkClass}>{ORG.email}</a>
@@ -108,13 +108,13 @@ const linkClass = 'text-[var(--text-small)] text-[var(--fg)] no-underline hover:
     </div>
 
     <div class="mt-[var(--space-8)] flex flex-col gap-[var(--space-3)] border-t border-[var(--rule-c)] pt-[var(--space-4)] md:flex-row md:items-center md:justify-between">
-      <p class="text-[var(--text-label)] text-[var(--fg-muted)]" data-num>
+      <p class="text-label text-[var(--fg-muted)]" data-num>
         © {year} {ORG.legalName}. All rights reserved.
       </p>
       <ul class="flex flex-wrap gap-[var(--space-3)]">
         {legal.map((l) => (
           <li>
-            <a href={l.href} class="text-[var(--text-label)] text-[var(--fg-muted)] no-underline hover:text-[var(--accent-text)]">{l.label}</a>
+            <a href={l.href} class="text-label text-[var(--fg-muted)] no-underline hover:text-[var(--accent-text)]">{l.label}</a>
           </li>
         ))}
       </ul>

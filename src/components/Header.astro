@@ -32,7 +32,7 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
         item.kind === 'link' ? (
           <a
             href={item.href}
-            class="rounded-[var(--radius-button)] px-[var(--space-2)] py-[var(--space-1)] text-[var(--text-small)] font-medium text-[var(--fg)] no-underline hover:bg-[var(--surface-c)]"
+            class="rounded-[var(--radius-button)] px-[var(--space-2)] py-[var(--space-1)] text-small font-medium text-[var(--fg)] no-underline hover:bg-[var(--surface-c)]"
           >
             {item.label}
           </a>
@@ -43,7 +43,7 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
               data-nav-trigger
               aria-expanded="false"
               aria-controls={panelId(item.label)}
-              class="ss-nav-trigger flex items-center gap-[0.3rem] rounded-[var(--radius-button)] px-[var(--space-2)] py-[var(--space-1)] text-[var(--text-small)] font-medium text-[var(--fg)] hover:bg-[var(--surface-c)]"
+              class="ss-nav-trigger flex items-center gap-[0.3rem] rounded-[var(--radius-button)] px-[var(--space-2)] py-[var(--space-1)] text-small font-medium text-[var(--fg)] hover:bg-[var(--surface-c)]"
             >
               {item.label}
               <svg class="ss-caret" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" fill="none">
@@ -64,11 +64,11 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
                   <div class="col-span-2 grid grid-cols-2 gap-x-[var(--space-5)] gap-y-[var(--space-3)]">
                     {item.items!.map((leaf) => (
                       <a href={leaf.href} class="group block no-underline">
-                        <span class="block text-[var(--text-small)] font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">
+                        <span class="block text-small font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">
                           {leaf.label}
                         </span>
                         {leaf.descriptor && (
-                          <span class="mt-[0.15rem] block text-[var(--text-label)] leading-snug text-[var(--fg-muted)]">
+                          <span class="mt-[0.15rem] block text-label leading-snug text-[var(--fg-muted)]">
                             {leaf.descriptor}
                           </span>
                         )}
@@ -77,13 +77,13 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
                   </div>
                   <!-- Right rail: latest case study. Data pending. -->
                   <div class="border-l border-[var(--rule-c)] pl-[var(--space-4)]">
-                    <span class="block text-[var(--text-label)] font-semibold text-[var(--fg-muted)]">
+                    <span class="block text-label font-semibold text-[var(--fg-muted)]">
                       Latest case study
                     </span>
-                    <p class="mt-[var(--space-2)] text-[var(--text-label)] leading-snug text-[var(--fg-muted)]">
+                    <p class="mt-[var(--space-2)] text-label leading-snug text-[var(--fg-muted)]">
                       TODO: [featured case study — client, result, link]
                     </p>
-                    <a href="/case-studies/" class="mt-[var(--space-2)] inline-block text-[var(--text-small)] font-medium text-[var(--accent-text)]">
+                    <a href="/case-studies/" class="mt-[var(--space-2)] inline-block text-small font-medium text-[var(--accent-text)]">
                       See all case studies
                     </a>
                   </div>
@@ -98,11 +98,11 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
                         rel={leaf.external ? 'noopener' : undefined}
                         class="group block rounded-[var(--radius-button)] px-[var(--space-2)] py-[var(--space-1)] no-underline hover:bg-[var(--surface-c)]"
                       >
-                        <span class="block text-[var(--text-small)] font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">
+                        <span class="block text-small font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">
                           {leaf.label}
                         </span>
                         {leaf.descriptor && (
-                          <span class="block text-[var(--text-label)] leading-snug text-[var(--fg-muted)]">
+                          <span class="block text-label leading-snug text-[var(--fg-muted)]">
                             {leaf.descriptor}
                           </span>
                         )}
@@ -144,7 +144,7 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
   <dialog data-mobile-nav data-register="paper" class="ss-mobile-nav" aria-label="Primary">
     <div class="ss-mobile-nav__inner flex h-full flex-col bg-[var(--ground)]">
       <div class="flex items-center justify-between border-b border-[var(--rule-c)] px-[var(--space-3)] py-[var(--space-2)]">
-        <span class="text-[var(--text-small)] font-semibold text-[var(--fg)]">Menu</span>
+        <span class="text-small font-semibold text-[var(--fg)]">Menu</span>
         <button
           type="button"
           data-mobile-close
@@ -162,13 +162,13 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
           item.kind === 'link' ? (
             <a
               href={item.href}
-              class="block border-b border-[var(--rule-c)] py-[var(--space-2)] text-[var(--text-h4)] font-semibold text-[var(--fg)] no-underline"
+              class="block border-b border-[var(--rule-c)] py-[var(--space-2)] text-h4 font-semibold text-[var(--fg)] no-underline"
             >
               {item.label}
             </a>
           ) : (
             <details class="border-b border-[var(--rule-c)]">
-              <summary class="flex cursor-pointer list-none items-center justify-between py-[var(--space-2)] text-[var(--text-h4)] font-semibold text-[var(--fg)]">
+              <summary class="flex cursor-pointer list-none items-center justify-between py-[var(--space-2)] text-h4 font-semibold text-[var(--fg)]">
                 {item.label}
                 <svg class="ss-caret" width="14" height="14" viewBox="0 0 10 10" aria-hidden="true" fill="none">
                   <path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
@@ -181,7 +181,7 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
                       href={leaf.href}
                       target={leaf.external ? '_blank' : undefined}
                       rel={leaf.external ? 'noopener' : undefined}
-                      class="block py-[0.5rem] pl-[var(--space-2)] text-[var(--text-body)] text-[var(--fg)] no-underline"
+                      class="block py-[0.5rem] pl-[var(--space-2)] text-body text-[var(--fg)] no-underline"
                     >
                       {leaf.label}
                     </a>

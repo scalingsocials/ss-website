@@ -21,7 +21,7 @@ const { problems, class: className = '' } = Astro.props;
   {problems.map((problem, i) => (
     <li
       class:list={[
-        'py-[var(--space-4)] text-[var(--text-h3)] leading-snug text-[var(--fg)]',
+        'py-[var(--space-4)] text-h3 leading-snug text-[var(--fg)]',
         i > 0 && 'border-t border-[var(--rule-c)]',
       ]}
     >

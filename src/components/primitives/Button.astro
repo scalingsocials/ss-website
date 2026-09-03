@@ -44,8 +44,8 @@ const base =
   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 
 const sizes = {
-  sm: 'text-[var(--text-small)] px-[var(--space-2)] py-[0.4rem]',
-  md: 'text-[var(--text-body)] px-[var(--space-3)] py-[0.7rem]',
+  sm: 'text-small px-[var(--space-2)] py-[0.4rem]',
+  md: 'text-body px-[var(--space-3)] py-[0.7rem]',
 }[size];
 
 const variants = {
@@ -53,8 +53,8 @@ const variants = {
     'bg-[var(--accent-fill)] text-[var(--accent-on)] ' +
     'hover:bg-[var(--accent-hover)] hover:text-[var(--accent-on)]',
   secondary:
-    'bg-transparent text-[var(--fg)] border border-[var(--rule-c)] ' +
-    'hover:border-[var(--fg)]',
+    'bg-transparent text-[var(--fg)] border border-[var(--fg-muted)] ' +
+    'hover:border-[var(--fg)] hover:bg-[var(--surface-c)]',
   ghost:
     'bg-transparent text-[var(--fg)] ' +
     'hover:bg-[var(--surface-c)]',

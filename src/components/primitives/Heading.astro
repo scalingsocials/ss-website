@@ -23,10 +23,10 @@ const Tag = `h${level}` as const;
 // Only override when `size` is given; otherwise the base h1–h4 rules apply.
 const sizeClass = size
   ? {
-      display: 'text-[var(--text-display)] leading-[var(--leading-display)] tracking-[var(--tracking-display)]',
-      h2: 'text-[var(--text-h2)]',
-      h3: 'text-[var(--text-h3)]',
-      h4: 'text-[var(--text-h4)]',
+      display: 'text-display leading-[var(--leading-display)] tracking-[var(--tracking-display)]',
+      h2: 'text-h2',
+      h3: 'text-h3',
+      h4: 'text-h4',
     }[size]
   : '';
 ---

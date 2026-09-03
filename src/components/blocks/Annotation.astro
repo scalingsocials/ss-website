@@ -34,14 +34,14 @@ const { label, date, align = 'left', emphasis = false, class: className = '' } =
 >
   <div
     class="w-px shrink-0 self-stretch"
-    style={`background: var(--${emphasis ? 'accent' : 'rule-c'})`}
+    style={`background: var(--${emphasis ? 'accent-graphic' : 'rule-c'})`}
     aria-hidden="true"
   ></div>
 
   <div class="py-[0.15rem]">
-    <div class="text-[var(--text-small)] leading-snug display-type">{label}</div>
+    <div class="text-small leading-snug display-type">{label}</div>
     {date && (
-      <div class="text-[var(--text-label)] text-[var(--fg-muted)] mt-[0.15rem]" data-num>
+      <div class="text-label text-[var(--fg-muted)] mt-[0.15rem]" data-num>
         {date}
       </div>
     )}

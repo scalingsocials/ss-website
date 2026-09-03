@@ -30,27 +30,38 @@
      Text on black is #EDEDED rather than pure white: pure-white-on-pure-black
      causes halation and is genuinely harder to read at body size.
      -------------------------------------------------------------------- */
-  --color-white:        #FFFFFF;
-  --color-black:        #000000;
+  --color-white:        #FFFFFF;  /* true white — logo, scrim text, rare */
+  --color-black:        #000000;  /* true black — backdrop scrim, rare */
 
-  --color-fg-light:     #111111;  /* text on white — 18.88:1 */
-  --color-fg-dark:      #EDEDED;  /* text on black — 17.94:1, no halation */
-  --color-muted-light:  #6E6E6E;  /* 5.10:1 on white */
-  --color-muted-dark:   #9A9A9A;  /* 7.46:1 on black */
-  --color-surface-light:#F5F5F5;  /* card fill on white */
-  --color-surface-dark: #141414;  /* card fill on black */
-  --color-rule-light:   #E2E2E2;
-  --color-rule-dark:    #2A2A2A;
+  /* Softened grounds — lighter shades of black and white for a calmer, more
+     premium feel than pure #FFF/#000: a warm off-white and a rich near-black.
+     The two registers still differ in COLOUR ONLY; the scale never changes. */
+  --color-ground-light: #FAF9F7;  /* off-white paper ground */
+  --color-ground-dark:  #141518;  /* near-black ink ground */
 
-  --color-accent:       #002FA7;  /* Klein blue — fills and text on white */
-  --color-accent-lift:  #5B7CFF;  /* text on black — 5.77:1 */
-  --color-accent-deep:  #001F73;  /* hover and pressed on white */
-  --color-accent-wash:  #EDF0FC;  /* tint fill on white */
+  --color-fg-light:     #1B1B1B;  /* text on off-white — 16.37:1 */
+  --color-fg-dark:      #ECECEC;  /* text on near-black — 15.45:1 */
+  --color-muted-light:  #6B6B6B;  /* 5.06:1 on off-white */
+  --color-muted-dark:   #9C9C9C;  /* 6.65:1 on near-black */
+  --color-surface-light:#F1EFEA;  /* raised card fill on off-white */
+  --color-surface-dark: #1F2024;  /* raised card fill on near-black */
+  --color-rule-light:   #E4E1DA;  /* hairline on off-white */
+  --color-rule-dark:    #2E3033;  /* hairline on near-black */
 
-  --color-up:           #0B7A45;  /* 5.41:1 on white  */
-  --color-up-dark:      #3ECF8E;  /* 10.52:1 on black */
-  --color-down:         #B3261E;  /* 6.54:1 on white  */
-  --color-down-dark:    #FF6B5E;  /* 7.52:1 on black  */
+  /* Accent — deep teal / petrol. Classy and editorial rather than a techy blue,
+     it passes contrast in BOTH registers (measured) and does NOT collide with the
+     green/red used for delta direction. Deep teal is text + fill on light (white
+     text on the fill); the lifted teal is text + fill on dark (black text). */
+  --color-accent:       #0F5257;  /* light: text 8.44:1, white-on-fill 8.88:1 */
+  --color-accent-lift:  #67C9BF;  /* dark:  text 9.29:1, black-on-fill 10.46:1 */
+  --color-accent-deep:  #0A4046;  /* hover on light — white text 11.45:1 */
+  --color-accent-lift-hi:#7AD6CD; /* hover on dark  — black text 12.33:1 */
+  --color-accent-wash:  #E6F0EF;  /* subtle teal tint on light */
+
+  --color-up:           #0B7A45;  /* 5.14:1 on off-white */
+  --color-up-dark:      #3ECF8E;  /* 10.1:1 on near-black */
+  --color-down:         #B3261E;  /* 6.21:1 on off-white */
+  --color-down-dark:    #FF6B5E;  /* 7.2:1 on near-black  */
 
   /* --- type ------------------------------------------------------------- */
   --font-display: "Anek Latin", ui-sans-serif, system-ui, sans-serif;
@@ -100,36 +111,36 @@
    ========================================================================= */
 
 [data-register="paper"] {
-  --ground:         var(--color-white);
+  --ground:         var(--color-ground-light);
   --fg:             var(--color-fg-light);
   --fg-muted:       var(--color-muted-light);
   --surface-c:      var(--color-surface-light);
   --rule-c:         var(--color-rule-light);
 
-  --accent-text:    var(--color-accent);       /* 10.69:1 */
+  --accent-text:    var(--color-accent);       /* 8.44:1 on off-white */
   --accent-fill:    var(--color-accent);
-  --accent-on:      var(--color-white);        /* 10.69:1 on the fill */
+  --accent-on:      var(--color-white);        /* 8.88:1 on the fill */
   --accent-graphic: var(--color-accent);
   --accent-wash:    var(--color-accent-wash);
-  --accent-hover:   var(--color-accent-deep);
+  --accent-hover:   var(--color-accent-deep);  /* darker teal — works as fill bg AND link text */
 
   --pos:            var(--color-up);
   --neg:            var(--color-down);
 }
 
 [data-register="ink"] {
-  --ground:         var(--color-black);
+  --ground:         var(--color-ground-dark);
   --fg:             var(--color-fg-dark);
   --fg-muted:       var(--color-muted-dark);
   --surface-c:      var(--color-surface-dark);
   --rule-c:         var(--color-rule-dark);
 
-  --accent-text:    var(--color-accent-lift);  /* LIFTED — #002FA7 is 1.96:1 here */
+  --accent-text:    var(--color-accent-lift);  /* LIFTED — deep teal is too dark on near-black */
   --accent-fill:    var(--color-accent-lift);
-  --accent-on:      var(--color-black);        /* 5.77:1 on the lifted fill */
+  --accent-on:      var(--color-black);        /* 10.46:1 on the lifted fill */
   --accent-graphic: var(--color-accent-lift);
   --accent-wash:    color-mix(in srgb, var(--color-accent-lift) 14%, transparent);
-  --accent-hover:   var(--color-white);
+  --accent-hover:   var(--color-accent-lift-hi); /* lighter teal — works as fill bg AND link text */
 
   --pos:            var(--color-up-dark);
   --neg:            var(--color-down-dark);
@@ -163,7 +174,7 @@
     font-family: var(--font-display);
     font-size: var(--text-body);
     line-height: var(--leading-body);
-    background: var(--color-white);
+    background: var(--color-ground-light);
     color: var(--color-fg-light);
     text-rendering: optimizeLegibility;
   }

@@ -30,9 +30,9 @@ const hl = (i: number) => (i === highlightCol ? 'bg-[var(--surface-c)]' : '');
 ---
 
 <div class:list={['w-full overflow-x-auto', className]}>
-  <table class="w-full border-collapse text-[var(--text-small)]">
+  <table class="w-full border-collapse text-small">
     {caption && (
-      <caption class="text-left text-[var(--text-label)] text-[var(--fg-muted)] mb-[var(--space-2)]">
+      <caption class="text-left text-label text-[var(--fg-muted)] mb-[var(--space-2)]">
         {caption}
       </caption>
     )}

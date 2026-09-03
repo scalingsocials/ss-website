@@ -33,12 +33,12 @@ const { stats, class: className = '' } = Astro.props;
 >
   {stats.map((s, i) => (
     <div class:list={['flex flex-col gap-[var(--space-1)]', i > 0 && 'sm:pl-[var(--space-5)]']}>
-      <dd class="order-1 display-type text-[var(--text-data-sm)] font-semibold leading-none text-[var(--fg)]" data-num>
+      <dd class="order-1 display-type text-data-sm font-semibold leading-none text-[var(--fg)]" data-num>
         {s.value}
       </dd>
-      <dt class="order-2 text-[var(--text-small)] font-medium text-[var(--fg)]">{s.label}</dt>
+      <dt class="order-2 text-small font-medium text-[var(--fg)]">{s.label}</dt>
       {s.source && (
-        <p class="order-3 text-[var(--text-label)] leading-snug text-[var(--fg-muted)]">{s.source}</p>
+        <p class="order-3 text-label leading-snug text-[var(--fg-muted)]">{s.source}</p>
       )}
     </div>
   ))}

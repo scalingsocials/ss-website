@@ -28,19 +28,19 @@ const { price, lede, factors, note, class: className = '' } = Astro.props;
     className,
   ]}
 >
-  <p class="display-type text-[var(--text-data-sm)] font-semibold leading-none text-[var(--fg)]" data-num>
+  <p class="display-type text-data-sm font-semibold leading-none text-[var(--fg)]" data-num>
     {price}
   </p>
 
-  {lede && <p class="max-w-[54ch] text-[var(--text-body)] text-[var(--fg)]">{lede}</p>}
+  {lede && <p class="max-w-[54ch] text-body text-[var(--fg)]">{lede}</p>}
 
   <div class="flex flex-col gap-[var(--space-2)]">
-    <h3 class="text-[var(--text-small)] font-semibold text-[var(--fg-muted)]">
+    <h3 class="text-small font-semibold text-[var(--fg-muted)]">
       What moves the number
     </h3>
     <ul class="flex flex-col gap-[var(--space-1)]">
       {factors.map((f) => (
-        <li class="flex gap-[var(--space-2)] text-[var(--text-small)] text-[var(--fg)]">
+        <li class="flex gap-[var(--space-2)] text-small text-[var(--fg)]">
           <span aria-hidden="true" class="text-[var(--accent-text)]">—</span>
           <span>{f}</span>
         </li>
@@ -49,7 +49,7 @@ const { price, lede, factors, note, class: className = '' } = Astro.props;
   </div>
 
   {note && (
-    <p class="border-t border-[var(--rule-c)] pt-[var(--space-3)] text-[var(--text-small)] text-[var(--fg-muted)]">
+    <p class="border-t border-[var(--rule-c)] pt-[var(--space-3)] text-small text-[var(--fg-muted)]">
       {note}
     </p>
   )}

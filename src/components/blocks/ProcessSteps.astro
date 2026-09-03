@@ -30,14 +30,14 @@ const { steps, class: className = '' } = Astro.props;
       ]}
     >
       <span
-        class="row-span-2 display-type text-[var(--text-data-sm)] font-semibold leading-none text-[var(--accent-text)]"
+        class="row-span-2 display-type text-data-sm font-semibold leading-none text-[var(--accent-text)]"
         data-num
         aria-hidden="true"
       >
         {String(i + 1).padStart(2, '0')}
       </span>
-      <h3 class="self-center text-[var(--text-h4)] font-semibold text-[var(--fg)]">{step.title}</h3>
-      <p class="max-w-[54ch] text-[var(--text-small)] leading-relaxed text-[var(--fg-muted)]">{step.body}</p>
+      <h3 class="self-center text-h4 font-semibold text-[var(--fg)]">{step.title}</h3>
+      <p class="max-w-[54ch] text-small leading-relaxed text-[var(--fg-muted)]">{step.body}</p>
     </li>
   ))}
 </ol>

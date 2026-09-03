@@ -25,7 +25,7 @@ const { logos = LOGOS, heading, class: className = '' } = Astro.props;
 
 <div data-logo-wall class:list={[className]}>
   {heading && (
-    <h2 class="mb-[var(--space-5)] text-[var(--text-small)] font-semibold text-[var(--fg-muted)]">
+    <h2 class="mb-[var(--space-5)] text-small font-semibold text-[var(--fg-muted)]">
       {heading}
     </h2>
   )}
@@ -47,7 +47,7 @@ const { logos = LOGOS, heading, class: className = '' } = Astro.props;
     </ul>
   ) : (
     <div class="rounded-[var(--radius-card)] border border-dashed border-[var(--rule-c)] p-[var(--space-6)] text-center">
-      <p class="text-[var(--text-small)] text-[var(--fg-muted)]">
+      <p class="text-small text-[var(--fg-muted)]">
         TODO: [client logos] — drop files into <code>src/assets/logos/</code> and they appear on the next build.
       </p>
     </div>

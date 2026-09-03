@@ -1,0 +1,214 @@
+---
+/**
+ * Home — brand + entity hub. See 08-DESIGN-BRIEF.md §7 and 02 §4.
+ *
+ * Paper/ink rhythm with two ink chapter breaks (client wall, CTA). Everything
+ * here is real or plainly derivable copy — no invented client names, metrics or
+ * case studies (CLAUDE.md §15). The three headline stats, client logos and hero
+ * deltas are still outstanding (11 §6), so those slots are left out rather than
+ * faked; they drop in when the data lands.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Button from '@/components/primitives/Button.astro';
+import AnswerBlock from '@/components/blocks/AnswerBlock.astro';
+import LogoWall from '@/components/blocks/LogoWall.astro';
+import ClientVoice from '@/components/blocks/ClientVoice.astro';
+import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
+import PricingBlock from '@/components/blocks/PricingBlock.astro';
+import ComparisonTable from '@/components/blocks/ComparisonTable.astro';
+import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
+import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import { SERVICE_PILLARS } from '@/lib/nav';
+import { professionalService, website, webPage, breadcrumbs, faqPage, ORG_ID } from '@/lib/schema';
+
+const title = 'Performance Marketing Agency in Bangalore | Scaling Socials';
+const description =
+  'Scaling Socials manages Meta and Google Ads and builds Shopify stores for D2C brands in India and the UAE. Performance marketing from ₹25,000 a month.';
+
+const published = '2026-09-01';
+const modified = '2026-09-03';
+
+const problems = [
+  'I can’t tell which campaigns are actually making money.',
+  'My agency reports a ROAS that never shows up in my bank account.',
+  'We keep boosting spend, but the CAC climbs faster than revenue.',
+  'Nobody has looked at my store’s checkout in months.',
+];
+
+const steps = [
+  { title: 'Audit', body: 'Scaling Socials reads your ad accounts and your store, and finds where spend leaks and where it can scale.' },
+  { title: 'Plan', body: 'A 30-60-90 plan: the first things we would change, in order, with the reasoning behind each one.' },
+  { title: 'Build', body: 'Campaign structure, creative angles and landing pages, all built so they can be tested against real margins.' },
+  { title: 'Test', body: 'We test creative and audiences against your break-even ROAS, not a generic benchmark that loses money.' },
+  { title: 'Scale', body: 'What works gets budget, what doesn’t gets cut, and then we run the loop again. Every month.' },
+];
+
+const comparisonCols = ['', 'In-house hire', 'Freelancer', 'Scaling Socials'];
+const comparisonRows = [
+  ['Monthly cost', '₹80k–1.5L salary', '₹20k–60k', 'From ₹25k'],
+  ['Ramp time', '1–3 months', 'Days', 'About a week'],
+  ['Breadth', 'One skill set', 'One skill set', 'Media, creative, CRO, dev'],
+  ['Accountability', 'Yours to manage', 'Varies', 'One team, one number'],
+  ['Best when', 'Spend is large and steady', 'Scope is small and defined', 'You need to build, test and scale'],
+  ['Not for you if', 'You need breadth fast', 'You need accountability', 'You want the cheapest option — a freelancer is cheaper'],
+];
+
+const pricing = {
+  price: '₹25,000/month',
+  lede: 'Where you land depends on your monthly ad spend. Managing ₹1L a month and managing ₹20L a month are different jobs — more campaigns, more creative, more testing.',
+  factors: [
+    'Monthly ad spend',
+    'How many platforms you run',
+    'How much creative you need produced each month',
+    'Whether landing page and CRO work is in scope',
+  ],
+  note: 'Ad spend is separate and paid directly to the platforms. We never mark it up.',
+};
+
+const notForYou = [
+  'Pre-launch brands with no data to audit. We can’t audit an empty account.',
+  'Anyone wanting a free strategy they’ll hand to a cheaper agency. We’d rather say no.',
+  'Service businesses and B2B lead gen. Not our specialism — we’ll refer you to someone better.',
+];
+
+const faqItems = [
+  {
+    q: 'How much does performance marketing cost in India?',
+    a: 'Scaling Socials starts performance marketing at ₹25,000 a month. Where you land depends on your monthly ad spend, how many platforms you run, and how much creative you need produced. Ad spend is separate and paid directly to the platforms — we never mark it up.',
+  },
+  {
+    q: 'Do you work with brands outside India?',
+    a: 'Scaling Socials works with D2C and ecommerce brands across India and the UAE. UAE engagements account for the local platform mix, VAT on ad spend, and seasonality like Ramadan and DSF, rather than being a copy of the India playbook.',
+  },
+  {
+    q: 'What do you need from me to get started?',
+    a: 'Read-only access to your Meta Ads, Google Ads, and Shopify or GA4, plus a 20-minute call on what you sell and what your margins are. From there the first audit takes three working days.',
+  },
+  {
+    q: 'What makes you different from other agencies?',
+    a: 'Scaling Socials works to your P&L, not to platform-reported ROAS. We publish our pricing, tell you when not to hire us, and hand you an audit you could take to another agency. The India D2C Ad Benchmark Index is ours.',
+  },
+];
+
+const schemaNodes = [
+  professionalService(),
+  website(),
+  webPage({ url: '/', name: title, description, aboutId: ORG_ID, hasBreadcrumb: true, datePublished: published, dateModified: modified }),
+  breadcrumbs('/', [{ name: 'Home', url: '/' }]),
+  faqPage('/', faqItems),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={schemaNodes} />
+
+  <!-- 1. HERO (paper) -->
+  <Section size="lg">
+    <div class="max-w-[24ch]">
+      <h1>Performance marketing that answers to your P&amp;L.</h1>
+    </div>
+    <div class="mt-[var(--space-5)]">
+      <AnswerBlock>
+        Scaling Socials is a performance marketing and ecommerce development agency in Bangalore.
+        We run Meta and Google Ads and build Shopify stores for D2C brands across India and the
+        UAE, on a build-test-scale cycle. Performance marketing starts at ₹25,000 a month, and ad
+        spend is never marked up.
+      </AnswerBlock>
+    </div>
+    <div class="mt-[var(--space-6)] flex flex-wrap items-center gap-[var(--space-2)]">
+      <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+      <Button href="/case-studies/" variant="secondary">See case studies</Button>
+    </div>
+  </Section>
+
+  <!-- 2. SERVICES (paper) -->
+  <Section size="md">
+    <h2 class="max-w-[20ch] text-h2 font-semibold">What Scaling Socials runs for you</h2>
+    <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
+      {SERVICE_PILLARS.map((s) => (
+        <li>
+          <a
+            href={s.href}
+            class="group flex h-full flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline transition-colors duration-[var(--dur-base)] hover:border-[var(--fg)] hover:bg-[var(--surface-c)]"
+          >
+            <h3 class="text-h4 font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">{s.label}</h3>
+            <p class="text-small leading-relaxed text-[var(--fg-muted)]">{s.descriptor}</p>
+            <span class="mt-auto pt-[var(--space-2)] text-small font-medium text-[var(--accent-text)]">Explore {s.label.toLowerCase()}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <!-- 3. CLIENT WALL (ink) -->
+  <Section register="ink" size="md">
+    <LogoWall heading="Brands we have grown" />
+  </Section>
+
+  <!-- 4. CLIENT VOICE (paper) -->
+  <Section size="md">
+    <h2 class="max-w-[22ch] text-h2 font-semibold">You have probably said one of these</h2>
+    <div class="mt-[var(--space-5)] max-w-[40ch]">
+      <ClientVoice problems={problems} />
+    </div>
+  </Section>
+
+  <!-- 5. PROCESS (paper) -->
+  <Section size="md">
+    <h2 class="max-w-[20ch] text-h2 font-semibold">How an engagement runs</h2>
+    <div class="mt-[var(--space-5)]">
+      <ProcessSteps steps={steps} />
+    </div>
+  </Section>
+
+  <!-- 6. PRICING (paper) -->
+  <Section size="md">
+    <h2 class="max-w-[24ch] text-h2 font-semibold">What performance marketing costs</h2>
+    <div class="mt-[var(--space-5)] max-w-[640px]">
+      <PricingBlock {...pricing} />
+    </div>
+  </Section>
+
+  <!-- 7. COMPARISON (paper) -->
+  <Section size="md">
+    <h2 class="max-w-[26ch] text-h2 font-semibold">In-house, freelancer, or agency?</h2>
+    <p class="mt-[var(--space-2)] max-w-[60ch] text-body text-[var(--fg-muted)]">
+      Sometimes the honest answer is not us. Here is when each option wins.
+    </p>
+    <div class="mt-[var(--space-5)]">
+      <ComparisonTable columns={comparisonCols} rows={comparisonRows} highlightCol={3} />
+    </div>
+  </Section>
+
+  <!-- 8. FAQ (paper) -->
+  <Section size="md">
+    <h2 class="max-w-[20ch] text-h2 font-semibold">Questions founders ask</h2>
+    <div class="mt-[var(--space-5)] max-w-[760px]">
+      <FaqAccordion items={faqItems} openFirst />
+    </div>
+  </Section>
+
+  <!-- 9. NOT FOR YOU (paper) -->
+  <Section size="md">
+    <div class="max-w-[640px]">
+      <NotForYouBlock items={notForYou} />
+    </div>
+  </Section>
+
+  <!-- 10. CTA BAND (ink) -->
+  <Section register="ink" size="md">
+    <CtaBand
+      heading="Find out what is leaking money in your ads"
+      body="Send us access and, within three working days, you get a written audit of what is working, what is not, and what we would change first — whether or not you hire us."
+      ctaLabel="Get a free growth plan"
+      ctaHref="/audit/"
+      secondaryLabel="Talk to us"
+      secondaryHref="/contact/"
+    />
+  </Section>
+</BaseLayout>

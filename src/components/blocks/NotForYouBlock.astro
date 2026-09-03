@@ -19,12 +19,12 @@ const { heading = 'Who this is not for', items, class: className = '' } = Astro.
 ---
 
 <div data-not-for-you class:list={['flex flex-col gap-[var(--space-3)]', className]}>
-  <h2 class="text-[var(--text-h3)] font-semibold text-[var(--fg)]">{heading}</h2>
+  <h2 class="text-h3 font-semibold text-[var(--fg)]">{heading}</h2>
   <ul class="flex flex-col">
     {items.map((item, i) => (
       <li
         class:list={[
-          'flex gap-[var(--space-2)] py-[var(--space-2)] text-[var(--text-body)] text-[var(--fg)]',
+          'flex gap-[var(--space-2)] py-[var(--space-2)] text-body text-[var(--fg)]',
           i > 0 && 'border-t border-[var(--rule-c)]',
         ]}
       >

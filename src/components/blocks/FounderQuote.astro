@@ -42,7 +42,7 @@ const initials = name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpper
       />
     ) : (
       <div
-        class="flex h-[96px] w-[96px] items-center justify-center rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] text-[var(--text-h3)] font-semibold text-[var(--fg-muted)]"
+        class="flex h-[96px] w-[96px] items-center justify-center rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] text-h3 font-semibold text-[var(--fg-muted)]"
         aria-hidden="true"
       >
         {initials}
@@ -51,10 +51,10 @@ const initials = name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpper
   </div>
 
   <div class="flex flex-col gap-[var(--space-3)]">
-    <blockquote class="max-w-[46ch] text-[var(--text-h3)] font-medium leading-snug text-[var(--fg)]">
+    <blockquote class="max-w-[46ch] text-h3 font-medium leading-snug text-[var(--fg)]">
       {quote}
     </blockquote>
-    <figcaption class="flex flex-wrap items-baseline gap-x-[var(--space-2)] text-[var(--text-small)]">
+    <figcaption class="flex flex-wrap items-baseline gap-x-[var(--space-2)] text-small">
       <span class="font-semibold text-[var(--fg)]">{name}</span>
       <span class="text-[var(--fg-muted)]">{role}, Scaling Socials</span>
       {linkedin && (
