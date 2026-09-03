@@ -13,7 +13,11 @@ import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import Hero from '@/components/Hero.astro';
-import LogoWall from '@/components/blocks/LogoWall.astro';
+import PlatformStrip from '@/components/blocks/PlatformStrip.astro';
+import CreativeWall from '@/components/blocks/CreativeWall.astro';
+import CaseStudyTeaser from '@/components/blocks/CaseStudyTeaser.astro';
+import BenchmarkTeaser from '@/components/blocks/BenchmarkTeaser.astro';
+import FounderNote from '@/components/blocks/FounderNote.astro';
 import ClientVoice from '@/components/blocks/ClientVoice.astro';
 import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
 import PricingBlock from '@/components/blocks/PricingBlock.astro';
@@ -109,7 +113,12 @@ const schemaNodes = [
   <!-- 1. HERO (ink, cinematic) -->
   <Hero />
 
-  <!-- 2. SERVICES (paper) -->
+  <!-- 2. PLATFORM STRIP (paper) -->
+  <Section size="sm" data-reveal>
+    <PlatformStrip />
+  </Section>
+
+  <!-- 3. SERVICES (paper) -->
   <Section id="services" size="md" data-reveal>
     <h2 class="max-w-[20ch] text-h2 font-semibold">What Scaling Socials runs for you</h2>
     <p class="mt-[var(--space-2)] max-w-[52ch] text-body text-[var(--fg-muted)]">
@@ -135,17 +144,38 @@ const schemaNodes = [
     </ul>
   </Section>
 
-  <!-- 3. CLIENT WALL (ink) -->
+  <!-- 4. CREATIVE WALL (ink) -->
   <Section register="ink" size="md" data-reveal>
-    <LogoWall heading="Brands we have grown" />
+    <div class="mb-[var(--space-6)] flex flex-col gap-[var(--space-2)]">
+      <h2 class="max-w-[22ch] text-h2 font-semibold">Creative that stops the scroll</h2>
+      <p class="max-w-[56ch] text-body text-[var(--fg-muted)]">
+        Video-led ads we produce in-house, built to be tested. Most agencies describe their
+        creative work — this is ours, running.
+      </p>
+    </div>
+    <CreativeWall />
   </Section>
 
-  <!-- 4. CLIENT VOICE (paper) -->
+  <!-- 5. CLIENT VOICE (paper) -->
   <Section size="md" data-reveal>
     <h2 class="max-w-[22ch] text-h2 font-semibold">You have probably said one of these</h2>
     <div class="mt-[var(--space-5)] max-w-[44ch]">
       <ClientVoice problems={problems} />
     </div>
+  </Section>
+
+  <!-- 6. CASE STUDIES (paper) -->
+  <Section size="md" data-reveal>
+    <div class="mb-[var(--space-6)] flex flex-wrap items-end justify-between gap-[var(--space-3)]">
+      <h2 class="max-w-[20ch] text-h2 font-semibold">Results we can show you</h2>
+      <a href="/case-studies/" class="text-small font-medium text-[var(--accent-text)] no-underline">All case studies</a>
+    </div>
+    <CaseStudyTeaser />
+  </Section>
+
+  <!-- 7. BENCHMARK INDEX (ink) -->
+  <Section register="ink" size="lg" data-reveal>
+    <BenchmarkTeaser />
   </Section>
 
   <!-- 5. PROCESS (paper) -->
@@ -175,7 +205,12 @@ const schemaNodes = [
     </div>
   </Section>
 
-  <!-- 8. FAQ (paper) -->
+  <!-- FOUNDER (paper) -->
+  <Section size="md" data-reveal>
+    <FounderNote />
+  </Section>
+
+  <!-- FAQ (paper) -->
   <Section size="md" data-reveal>
     <h2 class="max-w-[20ch] text-h2 font-semibold">Questions founders ask</h2>
     <div class="mt-[var(--space-5)] max-w-[760px]">

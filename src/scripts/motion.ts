@@ -38,3 +38,24 @@ if (targets.length && !reduce && 'IntersectionObserver' in window) {
   );
   for (const t of targets) io.observe(t);
 }
+
+// Creative-wall videos: load + play only in view, pause out (08 §8 media rules).
+// data-src holds the source so nothing downloads until it is near the viewport.
+const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('video[data-src]'));
+if (videos.length && 'IntersectionObserver' in window) {
+  const vio = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        const v = e.target as HTMLVideoElement;
+        if (e.isIntersecting) {
+          if (!v.src) v.src = v.dataset.src!;
+          if (!reduce) v.play().catch(() => {});
+        } else {
+          v.pause();
+        }
+      }
+    },
+    { threshold: 0.35 }
+  );
+  for (const v of videos) vio.observe(v);
+}

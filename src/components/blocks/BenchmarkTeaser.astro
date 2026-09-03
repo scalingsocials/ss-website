@@ -1,0 +1,76 @@
+---
+/**
+ * BenchmarkTeaser — homepage window into the India D2C Ad Benchmark Index.
+ * See 03 §7 and 08 §7 (the loudest thing on the site). Ink register.
+ *
+ * The chart shows clearly-labelled SAMPLE values (CLAUDE.md §15) — the real
+ * quarterly dataset publishes on the Index itself. Numbers render as real text
+ * in the HTML (CLAUDE.md §10), never a placeholder zero.
+ */
+import Button from '@/components/primitives/Button.astro';
+
+export interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+
+// SAMPLE preview data (illustrative). Real figures live on the Index.
+const bars = [
+  { label: 'Fashion', value: 3.6 },
+  { label: 'Beauty', value: 4.1 },
+  { label: 'Home', value: 3.2 },
+  { label: 'Wellness', value: 3.9 },
+  { label: 'Jewellery', value: 4.4 },
+  { label: 'F&B', value: 2.8 },
+];
+const scaleMax = 5;
+---
+
+<div data-benchmark class:list={['grid gap-[var(--space-8)] lg:grid-cols-[0.9fr_1.1fr] lg:items-center', className]}>
+  <div class="flex flex-col gap-[var(--space-3)]">
+    <span class="inline-flex w-fit items-center gap-[0.4rem] rounded-full border border-[var(--rule-c)] px-[0.7rem] py-[0.2rem] text-label font-semibold text-[var(--accent-text)]">
+      Original research
+    </span>
+    <h2 class="max-w-[18ch] text-h2 font-semibold text-[var(--fg)]">The India D2C Ad Benchmark Index</h2>
+    <p class="max-w-[52ch] text-body text-[var(--fg-muted)]">
+      A free, quarterly dataset of real Meta and Google Ads performance for Indian D2C ecommerce —
+      CPM, CPC, CTR, ROAS and CAC by category and spend band. The number nobody else in this market
+      publishes, so it is the one journalists, founders and LLMs have a reason to cite.
+    </p>
+    <div class="mt-[var(--space-2)] flex flex-wrap items-center gap-[var(--space-2)]">
+      <Button href="/india-d2c-ad-benchmarks/" variant="primary">Explore the Index</Button>
+      <span class="text-label text-[var(--fg-muted)]">Published CC BY 4.0</span>
+    </div>
+  </div>
+
+  <figure class="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-5)]">
+    <figcaption class="mb-[var(--space-4)] flex items-center justify-between">
+      <span class="text-small font-semibold text-[var(--fg)]">Average ROAS by category</span>
+      <span class="rounded-full border border-[var(--rule-c)] px-[0.6rem] py-[0.15rem] text-label text-[var(--fg-muted)]">Sample preview</span>
+    </figcaption>
+    <div class="ss-bench-chart flex h-[200px] items-end gap-[var(--space-2)]">
+      {bars.map((b, i) => (
+        <div class="flex h-full flex-1 flex-col items-center justify-end gap-[var(--space-1)]">
+          <span class="text-small font-semibold text-[var(--fg)] display-type" data-num>{b.value.toFixed(1)}×</span>
+          <div
+            class="ss-bench-bar w-full rounded-t-[3px]"
+            style={`--h:${(b.value / scaleMax) * 100}%; --i:${i}`}
+          ></div>
+          <span class="text-label text-[var(--fg-muted)]">{b.label}</span>
+        </div>
+      ))}
+    </div>
+  </figure>
+</div>
+
+<style>
+  .ss-bench-bar {
+    height: var(--h);
+    background: linear-gradient(180deg, var(--accent-graphic), color-mix(in srgb, var(--accent-graphic) 55%, transparent));
+    transform-origin: bottom;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ss-bench-bar { animation: benchGrow 0.9s var(--ease-out) backwards; animation-delay: calc(var(--i) * 90ms + 0.2s); }
+    @keyframes benchGrow { from { height: 0; } to { height: var(--h); } }
+  }
+</style>

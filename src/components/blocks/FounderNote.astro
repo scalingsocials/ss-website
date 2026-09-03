@@ -1,0 +1,52 @@
+---
+/**
+ * FounderNote — a named human. See 08 §7.
+ *
+ * Uses a real co-founder and their real LinkedIn (11 §1). The portrait is an
+ * initials placeholder, NOT a stock face — attaching a stranger's photo to a
+ * named real person would be misleading; the real headshot slots in later (11 §1).
+ *
+ * TODO: confirm the pull-quote with the founder. The line below reflects the
+ * documented positioning (work to the P&L, publish pricing, disqualify honestly)
+ * but has not been approved as a verbatim quote.
+ */
+export interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+
+const founder = {
+  name: 'Jamal Khan',
+  role: 'Co-founder, paid media',
+  linkedin: 'https://www.linkedin.com/in/jamal-mohammed-khan-4555001b2/',
+  quote:
+    'We would rather show you the number that moved and the one that did not, than a dashboard that flatters us. If we cannot make the maths work for your brand, we will tell you.',
+};
+const initials = founder.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+---
+
+<figure data-founder class:list={['grid gap-[var(--space-6)] md:grid-cols-[auto_1fr] md:items-center', className]}>
+  <div class="flex items-center gap-[var(--space-4)]">
+    <div
+      class="flex h-[112px] w-[112px] shrink-0 items-center justify-center rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] text-data-sm font-semibold text-[var(--accent-text)]"
+      aria-hidden="true"
+    >
+      {initials}
+    </div>
+    <div class="md:hidden">
+      <div class="font-semibold text-[var(--fg)]">{founder.name}</div>
+      <div class="text-small text-[var(--fg-muted)]">{founder.role}</div>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-[var(--space-4)]">
+    <blockquote class="max-w-[52ch] text-h3 font-medium leading-snug text-[var(--fg)]">
+      “{founder.quote}”
+    </blockquote>
+    <figcaption class="hidden flex-wrap items-baseline gap-x-[var(--space-2)] text-small md:flex">
+      <span class="font-semibold text-[var(--fg)]">{founder.name}</span>
+      <span class="text-[var(--fg-muted)]">{founder.role}</span>
+      <a href={founder.linkedin} target="_blank" rel="noopener" class="font-medium text-[var(--accent-text)]">LinkedIn</a>
+    </figcaption>
+  </div>
+</figure>
