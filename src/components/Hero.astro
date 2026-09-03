@@ -16,21 +16,21 @@
 import Section from '@/components/primitives/Section.astro';
 import Button from '@/components/primitives/Button.astro';
 
-const chips = ['Meta Ads', 'Google Ads', 'Shopify', 'CRO'];
+const chips = ['Paid media', 'SEO', 'Shopify', 'Web', 'Social', 'CRO'];
 ---
 
 <Section register="ink" size="lg" class="hero" as="section">
   <div class="hero__grid">
     <div class="hero__copy">
       <h1 class="hero__title">
-        <span class="hero__line hero__line--1">Performance marketing</span>
-        <span class="hero__line hero__line--2">that answers to your <span class="hero__accent">P&amp;L.</span></span>
+        <span class="hero__line hero__line--1">Ads, Shopify and SEO,</span>
+        <span class="hero__line hero__line--2">run on your <span class="hero__accent">P&amp;L.</span></span>
       </h1>
 
       <p class="hero__answer hero__line hero__line--3" data-answer-block>
-        Scaling Socials runs Meta and Google Ads and builds Shopify stores for D2C brands across
-        India and the UAE, on a build-test-scale cycle. Performance marketing starts at ₹25,000 a
-        month, and ad spend is never marked up.
+        Scaling Socials is an omni-channel ecommerce growth agency in Bangalore. We run Meta and
+        Google Ads, build and optimise Shopify stores, and handle SEO, social and CRO for D2C brands
+        across India and the UAE. Performance marketing and SEO start at ₹25,000 a month.
       </p>
 
       <div class="hero__cta hero__line hero__line--4">
@@ -169,10 +169,12 @@ const chips = ['Meta Ads', 'Google Ads', 'Shopify', 'CRO'];
     border-radius: 999px; padding: 4px 12px; white-space: nowrap;
     opacity: 0;
   }
-  .hero__chip--1 { top: 8%; left: -6%; }
-  .hero__chip--2 { top: 34%; right: -8%; }
-  .hero__chip--3 { bottom: 20%; left: -8%; }
-  .hero__chip--4 { bottom: 6%; right: 4%; }
+  .hero__chip--1 { top: 5%; left: -7%; }
+  .hero__chip--2 { top: 26%; right: -9%; }
+  .hero__chip--3 { top: 52%; left: -9%; }
+  .hero__chip--4 { bottom: 20%; right: -7%; }
+  .hero__chip--5 { bottom: 4%; left: 8%; }
+  .hero__chip--6 { top: 1%; right: 12%; }
 
   /* ---- scroll cue ------------------------------------------------------- */
   .hero__scroll {
@@ -203,8 +205,9 @@ const chips = ['Meta Ads', 'Google Ads', 'Shopify', 'CRO'];
     .hero__annot, .hero__point { animation: fadeIn 0.5s ease 1.5s forwards; }
     .hero__annotlabel { animation: chipIn 0.5s var(--ease-out) 1.6s forwards; }
     .hero__chip { animation: chipIn 0.5s var(--ease-out) forwards; }
-    .hero__chip--1 { animation-delay: 1.0s; } .hero__chip--2 { animation-delay: 1.15s; }
-    .hero__chip--3 { animation-delay: 1.3s; } .hero__chip--4 { animation-delay: 1.45s; }
+    .hero__chip--1 { animation-delay: 1.0s; } .hero__chip--2 { animation-delay: 1.12s; }
+    .hero__chip--3 { animation-delay: 1.24s; } .hero__chip--4 { animation-delay: 1.36s; }
+    .hero__chip--5 { animation-delay: 1.48s; } .hero__chip--6 { animation-delay: 1.6s; }
     .hero__scroll { opacity: 0; animation: fadeIn 0.6s ease 1.8s forwards; }
     .hero__scrollicon::after { animation: scrollDot 1.6s ease-in-out 2s infinite; }
 

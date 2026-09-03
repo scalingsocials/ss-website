@@ -1,0 +1,59 @@
+---
+/**
+ * Testimonials — real, attributed client quotes migrated from the current site
+ * (scalingsocials.com). Named, public, and spanning services (Shopify, web,
+ * marketing) so they double as proof of the full range, not just ads.
+ *
+ * These are genuine — not invented (CLAUDE.md §15). Lightly trimmed for length;
+ * confirm final wording and add client logos with the case-study rollout.
+ * Register-agnostic.
+ */
+export interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+
+const testimonials = [
+  {
+    quote:
+      'They revamped our cosmetic brand Timri’s ecommerce Shopify website. On-time delivery, a good sense of our business, solid tools and design, and available whenever we need assistance. Highly recommended for ecommerce Shopify development.',
+    name: 'Nikunj Vavadiya',
+    brand: 'Timri',
+    tag: 'Shopify development',
+  },
+  {
+    quote:
+      'Amazing work on website development, coordinating regularly with the brand. We set deadlines together and they commit to them. Over the months the quality of work kept improving, which is rare and commendable.',
+    name: 'Param Sadh',
+    brand: 'Younglings',
+    tag: 'Web development',
+  },
+  {
+    quote:
+      'A team of very hard-working people who strive to understand what the brand actually requires. They understood exactly what our vision was and delivered their best to achieve it.',
+    name: 'Juhi Dhanki',
+    brand: 'Lille Barn',
+    tag: 'Brand & growth',
+  },
+  {
+    quote:
+      'Clear ideas and smooth coordination have really paid off, boosting our sales. The straightforward approach to getting things done is making a big impact.',
+    name: 'Pooja',
+    brand: 'Rangloom Indie Crafts',
+    tag: 'Performance marketing',
+  },
+];
+---
+
+<ul data-testimonials class:list={['grid gap-[var(--space-4)] md:grid-cols-2', className]}>
+  {testimonials.map((t) => (
+    <li class="flex h-full flex-col gap-[var(--space-4)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]">
+      <span class="w-fit rounded-full border border-[var(--rule-c)] px-[0.7rem] py-[0.2rem] text-label font-semibold text-[var(--accent-text)]">{t.tag}</span>
+      <blockquote class="text-body leading-relaxed text-[var(--fg)]">“{t.quote}”</blockquote>
+      <figcaption class="mt-auto flex items-baseline gap-[var(--space-2)] text-small">
+        <span class="font-semibold text-[var(--fg)]">{t.name}</span>
+        <span class="text-[var(--fg-muted)]">{t.brand}</span>
+      </figcaption>
+    </li>
+  ))}
+</ul>
