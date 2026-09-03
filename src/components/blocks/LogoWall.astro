@@ -1,15 +1,13 @@
 ---
 /**
- * LogoWall — the client wall. See 08-DESIGN-BRIEF.md §7 and 11 §4.
+ * LogoWall — an auto-scrolling marquee of client logos. See 08 §7, 11 §4.
  *
- * Reads auto-discovered logos from src/lib/logos.ts. Each is rendered at a fixed
- * height with object-fit: contain, so mixed aspect ratios sit on one line. Every
- * logo has real alt text (the filename), because a logo with `alt="9"` is a
- * wasted link (03 §Images).
+ * Reads auto-discovered logos from src/lib/logos.ts. Bigger than a static grid
+ * and always moving, so it reads as "many brands" at a glance. The track is
+ * duplicated for a seamless loop; it pauses on hover and holds still under
+ * prefers-reduced-motion. Edges fade with a mask. Every logo keeps real alt text.
  *
- * Renders GRACEFULLY with zero logos — the folder is empty at launch, so it
- * shows an obvious TODO rather than inventing a single fake mark (CLAUDE.md §15).
- * It never sets a register; wrap it in <Section register="ink"> for the wall.
+ * Renders gracefully with zero logos. Register-agnostic (place on paper).
  */
 import { Image } from 'astro:assets';
 import { LOGOS, type Logo } from '@/lib/logos';
@@ -19,37 +17,71 @@ export interface Props {
   heading?: string;
   class?: string;
 }
-
 const { logos = LOGOS, heading, class: className = '' } = Astro.props;
+const loop = logos.length ? [...logos, ...logos] : [];
 ---
 
 <div data-logo-wall class:list={[className]}>
   {heading && (
-    <h2 class="mb-[var(--space-5)] text-small font-semibold text-[var(--fg-muted)]">
-      {heading}
-    </h2>
+    <p class="mb-[var(--space-5)] text-center text-small font-medium text-[var(--fg-muted)]">{heading}</p>
   )}
 
   {logos.length > 0 ? (
-    <ul class="grid grid-cols-2 items-center gap-x-[var(--space-6)] gap-y-[var(--space-6)] sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-      {logos.map((logo) => (
-        <li class="flex items-center justify-center">
-          <Image
-            src={logo.src}
-            alt={logo.alt}
-            height={40}
-            width={Math.round(40 * (logo.src.width / logo.src.height))}
-            loading="lazy"
-            class="h-[40px] w-auto object-contain opacity-80 transition-opacity duration-[var(--dur-base)] hover:opacity-100"
-          />
-        </li>
-      ))}
-    </ul>
+    <div class="ss-marquee">
+      <ul class="ss-marquee__track">
+        {loop.map((logo, i) => (
+          <li class="ss-marquee__item" aria-hidden={i >= logos.length ? 'true' : undefined}>
+            <Image
+              src={logo.src}
+              alt={logo.alt}
+              height={52}
+              width={Math.round(52 * (logo.src.width / logo.src.height))}
+              loading="lazy"
+              class="ss-marquee__logo"
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
   ) : (
     <div class="rounded-[var(--radius-card)] border border-dashed border-[var(--rule-c)] p-[var(--space-6)] text-center">
       <p class="text-small text-[var(--fg-muted)]">
-        TODO: [client logos] — drop files into <code>src/assets/logos/</code> and they appear on the next build.
+        TODO: [client logos] — drop files into <code>src/assets/logos/</code>.
       </p>
     </div>
   )}
 </div>
+
+<style>
+  .ss-marquee {
+    overflow: hidden;
+    width: 100%;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .ss-marquee__track {
+    display: flex;
+    align-items: center;
+    gap: clamp(2rem, 6vw, 4.5rem);
+    width: max-content;
+    padding-block: var(--space-2);
+  }
+  .ss-marquee__item { flex: none; display: grid; place-items: center; }
+  .ss-marquee__logo {
+    height: clamp(36px, 6vw, 52px);
+    width: auto;
+    object-fit: contain;
+    opacity: 0.85;
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+  .ss-marquee__item:hover .ss-marquee__logo { opacity: 1; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ss-marquee__track { animation: ssMarquee 42s linear infinite; }
+    .ss-marquee:hover .ss-marquee__track { animation-play-state: paused; }
+    @keyframes ssMarquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+  }
+</style>

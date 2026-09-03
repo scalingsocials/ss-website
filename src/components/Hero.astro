@@ -1,37 +1,22 @@
 ---
 /**
- * Hero — the cinematic opener. Ink register (dark, "for showing"), one
- * orchestrated load sequence (08-DESIGN-BRIEF.md §6): the headline settles, the
- * results panel draws in, the chips resolve. About 900ms, wrapped in
- * prefers-reduced-motion.
+ * Hero — the cinematic opener. Ink register, one orchestrated load sequence
+ * (08 §6). Sized to sit in one viewport on desktop: smaller headline, tighter
+ * rhythm, the results panel centred alongside.
  *
- * The liveliness is motion + an on-brand animated "results dashboard" graphic +
- * floating capability chips — not stock photography (which we don't have yet).
- * The chart is an illustrative motif (our annotation marker on a trend), NOT a
- * claimed client statistic, so nothing here fabricates a metric (CLAUDE.md §15).
- *
- * Everything renders with JS disabled — the animations are CSS and the content
- * is in the DOM. Uses the Section primitive so register is still set only there.
+ * The proof row shows REAL, permissioned client results (owner confirmed) — the
+ * figures Scaling Socials publishes, in Indian units. Every number renders as a
+ * real value in the HTML (CLAUDE.md §10). Renders fully with JS disabled.
  */
 import Section from '@/components/primitives/Section.astro';
 import Button from '@/components/primitives/Button.astro';
-import Delta from '@/components/blocks/Delta.astro';
+import { CASE_STUDIES } from '@/lib/caseStudies';
 
 const chips = ['Paid media', 'SEO', 'Shopify', 'Web', 'Social', 'CRO'];
-
-/**
- * The signature proof bar. Real client deltas require permission (11 §6), so
- * these are VISIBLY INCOMPLETE placeholders — never invented values (CLAUDE.md
- * §10, §15). Swap TODO for real before→after values once a client signs off.
- */
-const heroDeltas = [
-  { metric: 'Return on ad spend', before: 'TODO', after: 'TODO', client: 'TODO', period: 'awaiting client permission' },
-  { metric: 'Cost per acquisition', before: 'TODO', after: 'TODO', client: 'TODO', period: 'awaiting client permission', direction: 'down' as const },
-  { metric: 'Monthly revenue', before: 'TODO', after: 'TODO', client: 'TODO', period: 'awaiting client permission' },
-];
+const stats = CASE_STUDIES;
 ---
 
-<Section register="ink" size="lg" class="hero" as="section">
+<Section register="ink" size="md" class="hero" as="section">
   <div class="hero__grid">
     <div class="hero__copy">
       <h1 class="hero__title">
@@ -40,19 +25,21 @@ const heroDeltas = [
       </h1>
 
       <p class="hero__answer hero__line hero__line--3" data-answer-block>
-        Scaling Socials is an omni-channel ecommerce growth agency in Bangalore. We run Meta and
-        Google Ads, build and optimise Shopify stores, and handle SEO, social and CRO for D2C brands
-        across India and the UAE. Performance marketing and SEO start at ₹25,000 a month.
+        Scaling Socials is an omni-channel ecommerce growth agency in Bangalore — Meta and Google
+        Ads, Shopify and web, SEO, social and CRO for D2C brands in India and the UAE. From ₹25,000
+        a month.
       </p>
 
-      <div class="hero__deltas hero__line" style="animation-delay:0.38s" aria-label="Recent client results">
-        {heroDeltas.map((d) => <Delta {...d} size="sm" animate />)}
-      </div>
-      <p class="hero__deltas-note hero__line" style="animation-delay:0.44s">
-        Real, attributed client deltas land here as permissions come in.
-      </p>
+      <ul class="hero__stats hero__line" style="animation-delay:0.36s" aria-label="Recent client results">
+        {stats.map((s) => (
+          <li class="hero__stat">
+            <span class="hero__stat-value" data-num>{s.result}</span>
+            <span class="hero__stat-label">{s.metric} {s.period}</span>
+          </li>
+        ))}
+      </ul>
 
-      <div class="hero__cta hero__line hero__line--4" style="animation-delay:0.52s">
+      <div class="hero__cta hero__line" style="animation-delay:0.48s">
         <Button href="/audit/" variant="primary">Get a free growth plan</Button>
         <Button href="/case-studies/" variant="secondary">See case studies</Button>
       </div>
@@ -66,15 +53,11 @@ const heroDeltas = [
       </div>
 
       <svg class="hero__chart" viewBox="0 0 420 240" fill="none" preserveAspectRatio="none" role="img" aria-label="Illustrative upward performance trend">
-        <!-- gridlines -->
         <g class="hero__grid-lines">
           <line x1="0" y1="60" x2="420" y2="60" /><line x1="0" y1="120" x2="420" y2="120" /><line x1="0" y1="180" x2="420" y2="180" />
         </g>
-        <!-- area fill -->
         <path class="hero__area" d="M0 200 C 70 190, 110 170, 160 150 C 220 126, 270 120, 320 78 C 355 50, 390 40, 420 30 L 420 240 L 0 240 Z" />
-        <!-- the trend line -->
         <path class="hero__line-path" d="M0 200 C 70 190, 110 170, 160 150 C 220 126, 270 120, 320 78 C 355 50, 390 40, 420 30" />
-        <!-- annotation marker (our motif) at the turning point -->
         <line class="hero__annot" x1="320" y1="10" x2="320" y2="230" />
         <circle class="hero__point" cx="320" cy="78" r="5" />
       </svg>
@@ -85,23 +68,17 @@ const heroDeltas = [
       ))}
     </div>
   </div>
-
-  <a href="#services" class="hero__scroll" aria-label="Scroll to content">
-    <span class="hero__scrolltext">Scroll</span>
-    <span class="hero__scrollicon"></span>
-  </a>
 </Section>
 
 <style>
   .hero {
     position: relative;
     overflow: hidden;
-    min-height: min(92vh, 820px);
+    min-height: min(94svh, 860px);
     display: flex;
     flex-direction: column;
     justify-content: center;
   }
-  /* soft radial glow so the dark ground isn't flat */
   .hero::before {
     content: '';
     position: absolute;
@@ -113,18 +90,14 @@ const heroDeltas = [
   }
   .hero > :global(*) { position: relative; }
 
-  .hero__grid {
-    display: grid;
-    gap: var(--space-8);
-    align-items: center;
-  }
+  .hero__grid { display: grid; gap: var(--space-6); align-items: center; }
   @media (min-width: 960px) {
-    .hero__grid { grid-template-columns: 1.05fr 0.95fr; gap: var(--space-6); }
+    .hero__grid { grid-template-columns: 1.05fr 0.9fr; gap: var(--space-8); }
   }
 
   .hero__title {
-    font-size: var(--text-display);
-    line-height: 1.02;
+    font-size: clamp(2.25rem, 4.8vw, 3.6rem);
+    line-height: 1.06;
     letter-spacing: var(--tracking-display);
     margin: 0;
   }
@@ -134,126 +107,85 @@ const heroDeltas = [
   .hero__accent { color: var(--accent-text); }
 
   .hero__answer {
-    margin-top: var(--space-4);
-    max-width: 46ch;
-    font-size: var(--text-h4);
-    line-height: 1.5;
+    margin-top: var(--space-3);
+    max-width: 52ch;
+    font-size: var(--text-body);
+    line-height: 1.55;
     color: var(--fg-muted);
   }
-  .hero__deltas {
-    margin-top: var(--space-5);
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-4);
-    max-width: 540px;
-  }
-  @media (max-width: 520px) {
-    .hero__deltas { grid-template-columns: 1fr; gap: var(--space-3); max-width: 320px; }
-  }
-  .hero__deltas-note {
-    margin-top: var(--space-2);
-    font-size: var(--text-label);
-    color: var(--fg-muted);
-  }
-  .hero__cta {
+
+  .hero__stats {
     margin-top: var(--space-5);
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2);
+    gap: var(--space-5);
   }
+  .hero__stat { display: flex; flex-direction: column; gap: 2px; }
+  .hero__stat-value {
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--fg);
+    letter-spacing: -0.02em;
+  }
+  .hero__stat-label { font-size: var(--text-label); color: var(--fg-muted); }
+
+  .hero__cta { margin-top: var(--space-5); display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
   /* ---- results panel ---------------------------------------------------- */
   .hero__panel {
     position: relative;
     border: 1px solid var(--rule-c);
     border-radius: var(--radius-card);
-    background:
-      linear-gradient(180deg, color-mix(in srgb, var(--surface-c) 92%, transparent), var(--surface-c));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--surface-c) 92%, transparent), var(--surface-c));
     padding: var(--space-3);
-    box-shadow: 0 30px 80px -40px color-mix(in srgb, var(--accent-fill) 40%, transparent);
+    box-shadow: 0 30px 80px -40px color-mix(in srgb, var(--accent-fill) 45%, transparent);
     aspect-ratio: 4 / 3;
   }
+  @media (max-width: 640px) { .hero__panel { aspect-ratio: 16 / 11; } }
   .hero__panelhead { display: flex; align-items: center; gap: 6px; padding-bottom: var(--space-2); }
   .hero__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-c); }
-  .hero__panellabel {
-    margin-left: auto; font-size: var(--text-label); color: var(--fg-muted);
-    letter-spacing: 0.02em;
-  }
+  .hero__panellabel { margin-left: auto; font-size: var(--text-label); color: var(--fg-muted); letter-spacing: 0.02em; }
   .hero__chart { width: 100%; height: calc(100% - 2.2rem); display: block; }
   .hero__grid-lines line { stroke: var(--rule-c); stroke-width: 1; }
   .hero__area { fill: color-mix(in srgb, var(--accent-fill) 16%, transparent); opacity: 0; }
-  .hero__line-path {
-    stroke: var(--accent-graphic); stroke-width: 2.5; stroke-linecap: round; fill: none;
-    stroke-dasharray: 620; stroke-dashoffset: 620;
-  }
+  .hero__line-path { stroke: var(--accent-graphic); stroke-width: 2.5; stroke-linecap: round; fill: none; stroke-dasharray: 620; stroke-dashoffset: 620; }
   .hero__annot { stroke: var(--accent-graphic); stroke-width: 1; stroke-dasharray: 3 4; opacity: 0; }
   .hero__point { fill: var(--accent-graphic); opacity: 0; }
-  .hero__annotlabel {
-    position: absolute; top: 12%; right: 12%;
-    font-size: var(--text-label); color: var(--fg);
-    background: var(--ground); border: 1px solid var(--rule-c);
-    border-radius: 999px; padding: 2px 10px; opacity: 0;
-  }
+  .hero__annotlabel { position: absolute; top: 12%; right: 12%; font-size: var(--text-label); color: var(--fg); background: var(--ground); border: 1px solid var(--rule-c); border-radius: 999px; padding: 2px 10px; opacity: 0; }
 
   .hero__chip {
-    position: absolute;
-    font-size: var(--text-label); font-weight: 600; color: var(--accent-text);
-    background: color-mix(in srgb, var(--accent-fill) 14%, var(--ground));
+    position: absolute; font-size: var(--text-label); font-weight: 600; color: var(--accent-text);
+    background: color-mix(in srgb, var(--accent-fill) 16%, var(--ground));
     border: 1px solid color-mix(in srgb, var(--accent-fill) 40%, transparent);
-    border-radius: 999px; padding: 4px 12px; white-space: nowrap;
-    opacity: 0;
+    border-radius: 999px; padding: 4px 12px; white-space: nowrap; opacity: 0;
   }
-  .hero__chip--1 { top: 5%; left: -7%; }
-  .hero__chip--2 { top: 26%; right: -9%; }
-  .hero__chip--3 { top: 52%; left: -9%; }
-  .hero__chip--4 { bottom: 20%; right: -7%; }
-  .hero__chip--5 { bottom: 4%; left: 8%; }
-  .hero__chip--6 { top: 1%; right: 12%; }
+  .hero__chip--1 { top: 5%; left: -6%; } .hero__chip--2 { top: 26%; right: -8%; }
+  .hero__chip--3 { top: 52%; left: -8%; } .hero__chip--4 { bottom: 20%; right: -6%; }
+  .hero__chip--5 { bottom: 4%; left: 8%; } .hero__chip--6 { top: 1%; right: 12%; }
+  @media (max-width: 640px) { .hero__chip--3, .hero__chip--5, .hero__chip--6 { display: none; } }
 
-  /* ---- scroll cue ------------------------------------------------------- */
-  .hero__scroll {
-    position: absolute; left: 50%; bottom: var(--space-3); transform: translateX(-50%);
-    display: inline-flex; flex-direction: column; align-items: center; gap: 6px;
-    color: var(--fg-muted); text-decoration: none; font-size: var(--text-label);
-  }
-  .hero__scrollicon {
-    width: 22px; height: 34px; border: 1.5px solid var(--rule-c); border-radius: 12px;
-    position: relative;
-  }
-  .hero__scrollicon::after {
-    content: ''; position: absolute; top: 6px; left: 50%; width: 3px; height: 6px;
-    border-radius: 2px; background: var(--accent-graphic); transform: translateX(-50%);
-  }
-
-  /* ---- orchestrated entrance (CSS only; JS-off safe) -------------------- */
   @media (prefers-reduced-motion: no-preference) {
     .hero__line { opacity: 0; transform: translateY(14px); animation: heroIn 0.7s var(--ease-out) forwards; }
     .hero__line--1 { animation-delay: 0.05s; }
     .hero__line--2 { animation-delay: 0.16s; }
     .hero__line--3 { animation-delay: 0.30s; }
-    .hero__line--4 { animation-delay: 0.42s; }
-    .hero__line--5 { animation-delay: 0.30s; transform: translateY(24px) scale(0.98); }
-
-    .hero__line-path { animation: draw 1.2s var(--ease-out) 0.6s forwards; }
-    .hero__area { animation: fadeIn 0.8s ease 1.2s forwards; }
-    .hero__annot, .hero__point { animation: fadeIn 0.5s ease 1.5s forwards; }
-    .hero__annotlabel { animation: chipIn 0.5s var(--ease-out) 1.6s forwards; }
+    .hero__line--5 { animation-delay: 0.28s; transform: translateY(24px) scale(0.98); }
+    .hero__line-path { animation: draw 1.2s var(--ease-out) 0.55s forwards; }
+    .hero__area { animation: fadeIn 0.8s ease 1.15s forwards; }
+    .hero__annot, .hero__point { animation: fadeIn 0.5s ease 1.45s forwards; }
+    .hero__annotlabel { animation: chipIn 0.5s var(--ease-out) 1.55s forwards; }
     .hero__chip { animation: chipIn 0.5s var(--ease-out) forwards; }
-    .hero__chip--1 { animation-delay: 1.0s; } .hero__chip--2 { animation-delay: 1.12s; }
-    .hero__chip--3 { animation-delay: 1.24s; } .hero__chip--4 { animation-delay: 1.36s; }
-    .hero__chip--5 { animation-delay: 1.48s; } .hero__chip--6 { animation-delay: 1.6s; }
-    .hero__scroll { opacity: 0; animation: fadeIn 0.6s ease 1.8s forwards; }
-    .hero__scrollicon::after { animation: scrollDot 1.6s ease-in-out 2s infinite; }
-
+    .hero__chip--1 { animation-delay: 0.95s; } .hero__chip--2 { animation-delay: 1.07s; }
+    .hero__chip--3 { animation-delay: 1.19s; } .hero__chip--4 { animation-delay: 1.31s; }
+    .hero__chip--5 { animation-delay: 1.43s; } .hero__chip--6 { animation-delay: 1.55s; }
     @keyframes heroIn { to { opacity: 1; transform: none; } }
     @keyframes draw { to { stroke-dashoffset: 0; } }
     @keyframes fadeIn { to { opacity: 1; } }
     @keyframes chipIn { from { opacity: 0; transform: translateY(8px) scale(0.96); } to { opacity: 1; transform: none; } }
-    @keyframes scrollDot { 0%,100% { transform: translate(-50%,0); opacity: 1; } 50% { transform: translate(-50%,10px); opacity: 0.3; } }
   }
-  /* reduced motion / JS-off: everything simply visible */
   @media (prefers-reduced-motion: reduce) {
-    .hero__area, .hero__annot, .hero__point, .hero__annotlabel, .hero__chip, .hero__scroll { opacity: 1; }
+    .hero__area, .hero__annot, .hero__point, .hero__annotlabel, .hero__chip { opacity: 1; }
     .hero__line-path { stroke-dashoffset: 0; }
   }
 </style>

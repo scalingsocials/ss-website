@@ -1,19 +1,18 @@
 ---
 /**
- * Home — brand + entity hub. See 08-DESIGN-BRIEF.md §7 and 02 §4.
+ * Home — brand + entity hub. See 08 §7 and 02 §4.
  *
- * Paper/ink rhythm with two ink chapter breaks (client wall, CTA). Everything
- * here is real or plainly derivable copy — no invented client names, metrics or
- * case studies (CLAUDE.md §15). The three headline stats, client logos and hero
- * deltas are still outstanding (11 §6), so those slots are left out rather than
- * faked; they drop in when the data lands.
+ * Real, permissioned content throughout (owner confirmed): the three published
+ * results, real client logos, real creatives, real testimonials. Colour comes
+ * from alternating white/surface bands, periwinkle eyebrows and the ink chapter
+ * breaks — so it reads as a designed page, not a document. Mobile-first: every
+ * dense block (logos, creatives, testimonials) is a swipeable rail.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import Hero from '@/components/Hero.astro';
-import PlatformStrip from '@/components/blocks/PlatformStrip.astro';
 import PartnerBadges from '@/components/blocks/PartnerBadges.astro';
 import LogoWall from '@/components/blocks/LogoWall.astro';
 import CreativeWall from '@/components/blocks/CreativeWall.astro';
@@ -28,14 +27,24 @@ import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import { SERVICE_PILLARS } from '@/lib/nav';
+import { CASE_STUDIES } from '@/lib/caseStudies';
 import { professionalService, website, webPage, breadcrumbs, faqPage, ORG_ID } from '@/lib/schema';
 
 const title = 'Ecommerce Growth & Ads Agency Bangalore | Scaling Socials';
 const description =
   'Scaling Socials is an omni-channel ecommerce growth agency in Bangalore — Meta and Google Ads, Shopify, SEO and CRO for D2C brands in India and the UAE.';
-
 const published = '2026-09-01';
-const modified = '2026-09-03';
+const modified = '2026-09-04';
+
+// Simple line icons per service pillar.
+const ICONS: Record<string, string> = {
+  'Performance marketing': 'M4 19V5M4 19h16M7 15l3-3 3 2 4-6',
+  'SEO': 'M10.5 4a6.5 6.5 0 1 0 4.9 10.8M20 20l-4.6-4.6',
+  'Shopify development': 'M6 8h12l-1 11H7L6 8Zm3 0a3 3 0 0 1 6 0',
+  'Web development': 'M8.5 9 5 12l3.5 3M15.5 9 19 12l-3.5 3M13 7l-2 10',
+  'Social media marketing': 'M5 6h14v9h-8l-4 3.5V6Z',
+  'Conversion rate optimisation': 'M4 5h16l-6 7v5l-4 2v-7L4 5Z',
+};
 
 const problems = [
   'I can’t tell which campaigns are actually making money.',
@@ -45,15 +54,13 @@ const problems = [
 ];
 
 const steps = [
-  { title: 'Audit', body: 'Scaling Socials reads your ad accounts and your store, and finds where spend leaks and where it can scale.' },
-  { title: 'Plan', body: 'A 30-60-90 plan: the first things we would change, in order, with the reasoning behind each one.' },
-  { title: 'Build', body: 'Campaign structure, creative angles and landing pages, all built so they can be tested against real margins.' },
-  { title: 'Test', body: 'We test creative and audiences against your break-even ROAS, not a generic benchmark that loses money.' },
+  { title: 'Audit', body: 'We read your ad accounts and your store, and find where spend leaks and where it can scale.' },
+  { title: 'Plan', body: 'A 30-60-90 plan: the first things we would change, in order, with the reasoning.' },
+  { title: 'Build', body: 'Campaign structure, creative angles and landing pages, built so they can be tested against real margins.' },
+  { title: 'Test', body: 'We test creative and audiences against your break-even ROAS, not a generic benchmark.' },
   { title: 'Scale', body: 'What works gets budget, what doesn’t gets cut, and then we run the loop again. Every month.' },
 ];
 
-// Cost row is qualitative for in-house/freelancer — we don't ship a salary/rate
-// figure the owner hasn't supplied. Only the real Scaling Socials floor is a number.
 const comparisonCols = ['', 'In-house hire', 'Freelancer', 'Scaling Socials'];
 const comparisonRows = [
   ['Monthly cost', 'A full salary', 'Per project', 'From ₹25,000'],
@@ -66,7 +73,7 @@ const comparisonRows = [
 
 const pricing = {
   price: '₹25,000/month',
-  lede: 'Performance marketing and SEO start at ₹25,000 a month. Shopify development, web and social are scoped to the project. We publish this because nobody else in the SERP does.',
+  lede: 'Performance marketing and SEO start at ₹25,000 a month. Shopify, web and social are scoped to the project. We publish this because nobody else in the SERP does.',
   factors: [
     'Monthly ad spend and how many platforms you run',
     'Keyword count and difficulty, for SEO',
@@ -83,22 +90,10 @@ const notForYou = [
 ];
 
 const faqItems = [
-  {
-    q: 'How much does performance marketing cost in India?',
-    a: 'Scaling Socials starts performance marketing at ₹25,000 a month. Where you land depends on your monthly ad spend, how many platforms you run, and how much creative you need produced. Ad spend is separate and paid directly to the platforms — we never mark it up.',
-  },
-  {
-    q: 'Do you work with brands outside India?',
-    a: 'Scaling Socials works with D2C and ecommerce brands across India and the UAE. UAE engagements account for the local platform mix, VAT on ad spend, and seasonality like Ramadan and DSF, rather than being a copy of the India playbook.',
-  },
-  {
-    q: 'What do you need from me to get started?',
-    a: 'Read-only access to your Meta Ads, Google Ads, and Shopify or GA4, plus a 20-minute call on what you sell and what your margins are. From there the first audit takes three working days.',
-  },
-  {
-    q: 'What makes you different from other agencies?',
-    a: 'Scaling Socials works to your P&L, not to platform-reported ROAS. We publish our pricing, tell you when not to hire us, and hand you an audit you could take to another agency. We also publish honest public teardowns of real D2C brands.',
-  },
+  { q: 'How much does performance marketing cost in India?', a: 'Scaling Socials starts performance marketing at ₹25,000 a month. Where you land depends on your monthly ad spend, how many platforms you run, and how much creative you need produced. Ad spend is separate and paid directly to the platforms — we never mark it up.' },
+  { q: 'Do you work with brands outside India?', a: 'Scaling Socials works with D2C and ecommerce brands across India and the UAE. UAE engagements account for the local platform mix, VAT on ad spend, and seasonality like Ramadan and DSF, rather than being a copy of the India playbook.' },
+  { q: 'What do you need from me to get started?', a: 'Read-only access to your Meta Ads, Google Ads, and Shopify or GA4, plus a 20-minute call on what you sell and what your margins are. From there the first audit takes three working days.' },
+  { q: 'What makes you different from other agencies?', a: 'Scaling Socials works to your P&L, not to platform-reported ROAS. We publish our pricing, tell you when not to hire us, and hand you an audit you could take to another agency. We also publish honest public teardowns of real D2C brands.' },
 ];
 
 const schemaNodes = [
@@ -108,43 +103,46 @@ const schemaNodes = [
   breadcrumbs('/', [{ name: 'Home', url: '/' }]),
   faqPage('/', faqItems),
 ];
+
+const eyebrow = 'ss-eyebrow';
+const surface = '!bg-[var(--surface-c)]';
 ---
 
 <BaseLayout>
   <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
   <SchemaGraph slot="schema" nodes={schemaNodes} />
 
-  <!-- 1. HERO (ink, cinematic) -->
+  <!-- HERO (ink) -->
   <Hero />
 
-  <!-- 2. TRUST BAND (paper): platforms we run on + partnerships (distinct things) -->
+  <!-- TRUST: official partners + client logo marquee (paper) -->
   <Section size="sm" data-reveal>
-    <PlatformStrip />
-    <div class="mt-[var(--space-6)] border-t border-[var(--rule-c)] pt-[var(--space-6)]">
-      <PartnerBadges />
+    <PartnerBadges />
+    <div class="mt-[var(--space-6)]">
+      <LogoWall heading="Brands we work with" />
     </div>
   </Section>
 
-  <!-- 3. SERVICES (paper) -->
-  <Section id="services" size="md" data-reveal>
+  <!-- SERVICES (surface) -->
+  <Section id="services" size="md" class={surface} data-reveal>
+    <span class={eyebrow}>What we do</span>
     <h2 class="max-w-[20ch] text-h2 font-semibold">Everything a D2C brand needs to grow</h2>
     <p class="mt-[var(--space-2)] max-w-[56ch] text-body text-[var(--fg-muted)]">
-      Six services, one team — paid media, SEO, Shopify and web build, social and CRO. We grow D2C
-      brands across the whole funnel, run against your margins.
+      Six services, one team — paid media, SEO, Shopify and web, social and CRO — run against your
+      margins, not vanity metrics.
     </p>
     <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
-      {SERVICE_PILLARS.map((s, i) => (
+      {SERVICE_PILLARS.map((s) => (
         <li>
-          <a
-            href={s.href}
-            class="ss-svc-card group relative flex h-full flex-col gap-[var(--space-2)] overflow-hidden rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline"
-          >
-            <span class="display-type text-small font-semibold text-[var(--accent-text)]" data-num>{String(i + 1).padStart(2, '0')}</span>
+          <a href={s.href} class="ss-svc-card group relative flex h-full flex-col gap-[var(--space-2)] overflow-hidden rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline">
+            <span class="ss-svc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={ICONS[s.label]} stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </span>
             <h3 class="text-h4 font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">{s.label}</h3>
             <p class="text-small leading-relaxed text-[var(--fg-muted)]">{s.descriptor}</p>
             <span class="mt-auto inline-flex items-center gap-[0.35rem] pt-[var(--space-2)] text-small font-medium text-[var(--accent-text)]">
               Explore
-              <svg class="ss-svc-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg class="ss-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
           </a>
         </li>
@@ -152,77 +150,77 @@ const schemaNodes = [
     </ul>
   </Section>
 
-  <!-- 4. CREATIVE WALL (ink) -->
+  <!-- CREATIVE WALL (ink) -->
   <Section register="ink" size="md" data-reveal>
-    <div class="mb-[var(--space-6)] flex flex-wrap items-end justify-between gap-[var(--space-3)]">
-      <div class="flex flex-col gap-[var(--space-2)]">
-        <h2 class="max-w-[22ch] text-h2 font-semibold">Creative built to be tested</h2>
-        <p class="max-w-[58ch] text-body text-[var(--fg-muted)]">
-          We produce ad creative in-house — statics and video. This is real client work: the
-          portfolio nobody else in this SERP shows at volume.
-        </p>
-      </div>
+    <span class={eyebrow}>Creative</span>
+    <div class="flex flex-wrap items-end justify-between gap-[var(--space-3)]">
+      <h2 class="max-w-[22ch] text-h2 font-semibold">Creative built to be tested</h2>
       <a href="/work/" class="text-small font-medium text-[var(--accent-text)] no-underline">See the full wall</a>
     </div>
-    <CreativeWall limit={8} />
+    <p class="mt-[var(--space-2)] mb-[var(--space-6)] max-w-[58ch] text-body text-[var(--fg-muted)]">
+      We produce ad creative in-house — statics and video. Real client work: the portfolio nobody
+      else in this SERP shows at volume.
+    </p>
+    <CreativeWall limit={10} />
   </Section>
 
-  <!-- 5. CLIENT VOICE (paper) -->
+  <!-- CASE STUDIES (paper) — real, permissioned results -->
   <Section size="md" data-reveal>
-    <h2 class="max-w-[22ch] text-h2 font-semibold">You have probably said one of these</h2>
-    <div class="mt-[var(--space-5)] max-w-[44ch]">
+    <span class={eyebrow}>Proof</span>
+    <div class="flex flex-wrap items-end justify-between gap-[var(--space-3)]">
+      <h2 class="max-w-[20ch] text-h2 font-semibold">Real revenue, on the board</h2>
+      <a href="/case-studies/" class="text-small font-medium text-[var(--accent-text)] no-underline">All case studies</a>
+    </div>
+    <ul class="mt-[var(--space-6)] grid gap-[var(--space-4)] sm:grid-cols-3">
+      {CASE_STUDIES.map((cs) => (
+        <li>
+          <a href={cs.href} class="ss-case group flex h-full flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)] no-underline">
+            <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{cs.result}</span>
+            <span class="text-body text-[var(--fg)]">{cs.metric} {cs.period}</span>
+            <span class="mt-auto border-t border-[var(--rule-c)] pt-[var(--space-3)] text-label text-[var(--fg-muted)]">
+              {cs.work} — {cs.channels}
+            </span>
+            <span class="inline-flex items-center gap-[0.35rem] text-small font-medium text-[var(--accent-text)]">
+              Read the case study
+              <svg class="ss-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <!-- TESTIMONIALS (surface) -->
+  <Section size="md" class={surface} data-reveal>
+    <span class={eyebrow}>In their words</span>
+    <h2 class="max-w-[22ch] text-h2 font-semibold">What our clients say</h2>
+    <p class="mt-[var(--space-2)] mb-[var(--space-6)] max-w-[56ch] text-body text-[var(--fg-muted)]">
+      Real brands, across ads, Shopify and web — swipe through.
+    </p>
+    <Testimonials />
+  </Section>
+
+  <!-- CLIENT VOICE (paper) — compact -->
+  <Section size="sm" data-reveal>
+    <span class={eyebrow}>Sound familiar?</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">You have probably said one of these</h2>
+    <div class="mt-[var(--space-5)]">
       <ClientVoice problems={problems} />
     </div>
   </Section>
 
-  <!-- 6. CASE STUDIES (paper) — honest interim block until permissioned studies exist -->
-  <Section size="md" data-reveal>
-    <div class="max-w-[760px] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-6)]">
-      <h2 class="max-w-[24ch] text-h2 font-semibold">Case studies, with real numbers, are on the way</h2>
-      <p class="mt-[var(--space-3)] max-w-[62ch] text-body text-[var(--fg-muted)]">
-        We are writing them up with each client’s permission. Until a study is signed off, we will
-        not put a before-and-after number on this page that we cannot stand behind. What our clients
-        say about the work is below, and it is real.
-      </p>
-      <div class="mt-[var(--space-4)] flex flex-wrap gap-[var(--space-2)]">
-        <a href="/audit/" class="rounded-[var(--radius-button)] bg-[var(--accent-fill)] px-[var(--space-3)] py-[0.6rem] text-body font-medium text-[var(--accent-on)] no-underline transition-transform duration-[var(--dur-fast)] hover:-translate-y-px">Get a free growth plan</a>
-        <a href="/case-studies/" class="rounded-[var(--radius-button)] border border-[var(--fg-muted)] px-[var(--space-3)] py-[0.6rem] text-body font-medium text-[var(--fg)] no-underline">All case studies</a>
-      </div>
-    </div>
-  </Section>
-
-  <!-- TESTIMONIALS (paper) -->
-  <Section size="md" data-reveal>
-    <h2 class="max-w-[22ch] text-h2 font-semibold">What our clients say</h2>
-    <p class="mt-[var(--space-2)] max-w-[56ch] text-body text-[var(--fg-muted)]">
-      Real brands, across ads, Shopify and web. The moment a client becomes a friend is the one we
-      work for.
-    </p>
-    <div class="mt-[var(--space-6)]">
-      <Testimonials />
-    </div>
-  </Section>
-
-  <!-- CLIENT LOGO WALL (paper) — real client logos from src/lib/logos.ts -->
-  <Section size="md" data-reveal>
-    <LogoWall heading="Brands we work with" />
-  </Section>
-
-  <!-- TEARDOWNS (ink) -->
-  <Section register="ink" size="lg" data-reveal>
-    <Teardowns />
-  </Section>
-
-  <!-- 5. PROCESS (paper) -->
-  <Section size="md" data-reveal>
+  <!-- PROCESS (surface) -->
+  <Section size="md" class={surface} data-reveal>
+    <span class={eyebrow}>How it works</span>
     <h2 class="max-w-[20ch] text-h2 font-semibold">How an engagement runs</h2>
     <div class="mt-[var(--space-5)]">
       <ProcessSteps steps={steps} />
     </div>
   </Section>
 
-  <!-- 6. PRICING (paper) -->
+  <!-- PRICING (paper) -->
   <Section size="md" data-reveal>
+    <span class={eyebrow}>Pricing</span>
     <h2 class="max-w-[24ch] text-h2 font-semibold">What it costs</h2>
     <div class="mt-[var(--space-5)] max-w-[640px]">
       <PricingBlock {...pricing} />
@@ -233,8 +231,9 @@ const schemaNodes = [
     </p>
   </Section>
 
-  <!-- 7. COMPARISON (paper) -->
-  <Section size="md" data-reveal>
+  <!-- COMPARISON (surface) -->
+  <Section size="md" class={surface} data-reveal>
+    <span class={eyebrow}>Honest comparison</span>
     <h2 class="max-w-[26ch] text-h2 font-semibold">In-house, freelancer, or agency?</h2>
     <p class="mt-[var(--space-2)] max-w-[60ch] text-body text-[var(--fg-muted)]">
       Sometimes the honest answer is not us. Here is when each option wins.
@@ -244,27 +243,29 @@ const schemaNodes = [
     </div>
   </Section>
 
-  <!-- FOUNDER (paper) -->
-  <Section size="md" data-reveal>
-    <FounderNote />
+  <!-- TEARDOWNS (ink) -->
+  <Section register="ink" size="md" data-reveal>
+    <Teardowns />
   </Section>
 
   <!-- FAQ (paper) -->
   <Section size="md" data-reveal>
+    <span class={eyebrow}>Questions</span>
     <h2 class="max-w-[20ch] text-h2 font-semibold">Questions founders ask</h2>
     <div class="mt-[var(--space-5)] max-w-[760px]">
       <FaqAccordion items={faqItems} openFirst />
     </div>
   </Section>
 
-  <!-- 9. NOT FOR YOU (paper) -->
-  <Section size="md" data-reveal>
-    <div class="max-w-[640px]">
+  <!-- FOUNDER + NOT FOR YOU (surface) -->
+  <Section size="md" class={surface} data-reveal>
+    <FounderNote />
+    <div class="mt-[var(--space-8)] max-w-[640px] border-t border-[var(--rule-c)] pt-[var(--space-6)]">
       <NotForYouBlock items={notForYou} />
     </div>
   </Section>
 
-  <!-- 10. CTA BAND (ink) -->
+  <!-- CTA BAND (ink) -->
   <Section register="ink" size="md" data-reveal>
     <CtaBand
       heading="Find out what is leaking money in your ads"
@@ -277,7 +278,25 @@ const schemaNodes = [
   </Section>
 
   <style>
-    .ss-svc-card {
+    .ss-eyebrow {
+      display: inline-block;
+      margin-bottom: var(--space-2);
+      font-size: var(--text-label);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      color: var(--accent-text);
+    }
+    .ss-svc-icon {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-card);
+      background: var(--accent-wash);
+      color: var(--accent-text);
+      margin-bottom: var(--space-1);
+    }
+    .ss-svc-card, .ss-case {
       transition: transform var(--dur-base) var(--ease-out),
                   border-color var(--dur-base) var(--ease-out),
                   box-shadow var(--dur-base) var(--ease-out);
@@ -291,55 +310,39 @@ const schemaNodes = [
       pointer-events: none;
     }
     @media (prefers-reduced-motion: no-preference) {
-      .ss-svc-card:hover {
+      .ss-svc-card:hover, .ss-case:hover {
         transform: translateY(-4px);
         border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c));
-        box-shadow: 0 24px 50px -30px color-mix(in srgb, var(--accent-fill) 55%, transparent);
+        box-shadow: 0 24px 50px -30px color-mix(in srgb, var(--accent-fill) 45%, transparent);
       }
     }
     .ss-svc-card:hover::before { opacity: 1; }
-    .ss-svc-arrow { transition: transform var(--dur-fast) var(--ease-out); }
-    .ss-svc-card:hover .ss-svc-arrow { transform: translateX(3px); }
+    .ss-arrow { transition: transform var(--dur-fast) var(--ease-out); }
+    .ss-svc-card:hover .ss-arrow, .ss-case:hover .ss-arrow { transform: translateX(3px); }
 
     /* Sticky mini-CTA — shown by motion.ts once the hero scrolls out. */
     .ss-sticky-cta {
-      position: fixed;
-      left: 50%;
-      bottom: var(--space-3);
-      transform: translate(-50%, 160%);
-      z-index: 40;
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      border: 1px solid var(--rule-c);
-      border-radius: 999px;
+      position: fixed; left: 50%; bottom: var(--space-3); transform: translate(-50%, 160%);
+      z-index: 40; display: flex; align-items: center; gap: var(--space-3);
+      border: 1px solid var(--rule-c); border-radius: 999px;
       background: color-mix(in srgb, var(--ground) 92%, transparent);
       backdrop-filter: blur(12px) saturate(1.3);
       box-shadow: 0 16px 40px -20px color-mix(in srgb, var(--color-black) 55%, transparent);
       padding: 0.45rem 0.45rem 0.45rem var(--space-4);
       max-width: calc(100vw - 2 * var(--space-3));
-      opacity: 0;
-      visibility: hidden;
-      transition: transform var(--dur-base) var(--ease-out),
-                  opacity var(--dur-base) var(--ease-out),
-                  visibility var(--dur-base);
+      opacity: 0; visibility: hidden;
+      transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out), visibility var(--dur-base);
     }
     .ss-sticky-cta.is-visible { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
     .ss-sticky-cta__text { font-size: var(--text-small); color: var(--fg); white-space: nowrap; }
     @media (max-width: 640px) { .ss-sticky-cta__text { display: none; } }
     .ss-sticky-cta__btn {
-      border-radius: 999px;
-      background: var(--accent-fill);
-      color: var(--accent-on);
-      font-size: var(--text-small);
-      font-weight: 600;
-      text-decoration: none;
-      padding: 0.55rem var(--space-3);
-      white-space: nowrap;
+      border-radius: 999px; background: var(--accent-fill); color: var(--accent-on);
+      font-size: var(--text-small); font-weight: 600; text-decoration: none;
+      padding: 0.55rem var(--space-3); white-space: nowrap;
     }
   </style>
 
-  <!-- Sticky mini-CTA. Hidden until the hero scrolls out (motion.ts). -->
   <div data-sticky-cta class="ss-sticky-cta">
     <span class="ss-sticky-cta__text">Free growth plan — a written audit in three working days.</span>
     <a href="/audit/" class="ss-sticky-cta__btn">Get a free growth plan</a>

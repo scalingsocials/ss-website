@@ -17,14 +17,9 @@ export interface Props {
 const { problems, class: className = '' } = Astro.props;
 ---
 
-<ul data-client-voice class:list={['flex flex-col', className]}>
-  {problems.map((problem, i) => (
-    <li
-      class:list={[
-        'py-[var(--space-4)] text-h3 leading-snug text-[var(--fg)]',
-        i > 0 && 'border-t border-[var(--rule-c)]',
-      ]}
-    >
+<ul data-client-voice class:list={['grid gap-[var(--space-3)] sm:grid-cols-2', className]}>
+  {problems.map((problem) => (
+    <li class="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-4)] text-h4 leading-snug text-[var(--fg)]">
       <span class="text-[var(--accent-text)]">“</span>{problem}<span class="text-[var(--accent-text)]">”</span>
     </li>
   ))}
