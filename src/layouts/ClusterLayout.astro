@@ -1,0 +1,105 @@
+---
+/**
+ * ClusterLayout — focused sub-service page. See 02 §5.1 (cluster). Answer-first
+ * hero with the parent's lead form, two content sections, FAQ, related links up
+ * to the pillar and across to siblings, and a CTA. One @graph (Service + WebPage
+ * + BreadcrumbList + FAQPage).
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import Button from '@/components/primitives/Button.astro';
+import LeadForm from '@/components/blocks/LeadForm.astro';
+import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import { CLUSTERS, type Cluster } from '@/lib/clusters';
+import { SERVICE_BY_SLUG } from '@/lib/services';
+import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
+
+export interface Props {
+  cluster: Cluster;
+}
+const { cluster: c } = Astro.props;
+const url = c.url;
+const modified = '2026-09-04';
+const parent = SERVICE_BY_SLUG[c.parentSlug];
+const siblings = CLUSTERS.filter((x) => x.parentSlug === c.parentSlug && x.slug !== c.slug);
+
+const nodes = [
+  ...base(),
+  service({ url, name: c.name, description: c.description, serviceType: c.name, areaServed: ['IN', 'AE'] }),
+  webPage({ url, name: c.title, description: c.description, aboutId: serviceId(url), hasBreadcrumb: true, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: c.parentName, url: c.parentUrl }, { name: c.name, url }]),
+  faqPage(url, c.faqs),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={c.title} description={c.description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
+      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span> / </span>
+      <a href={c.parentUrl} class="text-[var(--accent-text)] no-underline">{c.parentName}</a><span> / </span>
+      <span>{c.name}</span>
+    </nav>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+      <div>
+        <span class="ss-eyebrow">{c.parentName}</span>
+        <h1>{c.h1}</h1>
+        <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">{c.answer}</p>
+        <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+          <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+          <Button href={c.parentUrl} variant="secondary">{c.parentName}</Button>
+        </div>
+      </div>
+      <div class="lg:sticky lg:top-[88px]">
+        <LeadForm source={c.slug} heading="Get a free review" questions={parent?.formQuestions ?? []} submitLabel="Get my free review" />
+      </div>
+    </div>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <Prose>
+      {c.sections.map((s) => (<><h2>{s.heading}</h2><p>{s.body}</p></>))}
+    </Prose>
+  </Section>
+
+  <Section size="md">
+    <span class="ss-eyebrow">Questions</span>
+    <h2 class="max-w-[22ch] text-h2 font-semibold">Questions founders ask</h2>
+    <div class="mt-[var(--space-5)] max-w-[760px]"><FaqAccordion items={c.faqs} openFirst /></div>
+  </Section>
+
+  {siblings.length > 0 && (
+    <Section size="md" class="!bg-[var(--surface-c)]">
+      <span class="ss-eyebrow">Related</span>
+      <h2 class="max-w-[24ch] text-h2 font-semibold">More {c.parentName.toLowerCase()}</h2>
+      <ul class="mt-[var(--space-5)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
+        <li>
+          <a href={c.parentUrl} class="ss-rel group flex h-full flex-col gap-[var(--space-1)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline">
+            <span class="text-h4 font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">{c.parentName}</span>
+            <span class="text-small text-[var(--fg-muted)]">The full service</span>
+          </a>
+        </li>
+        {siblings.map((s) => (
+          <li>
+            <a href={s.url} class="ss-rel group flex h-full flex-col gap-[var(--space-1)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline">
+              <span class="text-h4 font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">{s.name}</span>
+              <span class="text-small text-[var(--fg-muted)]">Learn more</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )}
+
+  <Section register="ink" size="md">
+    <CtaBand heading="Find out what is leaking money" body="A written audit in three working days, whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" secondaryLabel="Talk to us" secondaryHref="/contact/" />
+  </Section>
+
+  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); } .ss-rel { transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); } @media (prefers-reduced-motion: no-preference) { .ss-rel:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); } }</style>
+</BaseLayout>

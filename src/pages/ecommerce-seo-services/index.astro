@@ -1,0 +1,6 @@
+---
+import ClusterLayout from '@/layouts/ClusterLayout.astro';
+import { CLUSTER_BY_SLUG } from '@/lib/clusters';
+const cluster = CLUSTER_BY_SLUG['ecommerce-seo'];
+---
+<ClusterLayout cluster={cluster} />
