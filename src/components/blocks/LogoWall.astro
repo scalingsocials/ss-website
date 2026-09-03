@@ -30,12 +30,15 @@ const loop = logos.length ? [...logos, ...logos] : [];
     <div class="ss-marquee">
       <ul class="ss-marquee__track">
         {loop.map((logo, i) => (
-          <li class="ss-marquee__item" aria-hidden={i >= logos.length ? 'true' : undefined}>
+          <li
+            class:list={['ss-marquee__item', logo.light && 'ss-marquee__item--dark']}
+            aria-hidden={i >= logos.length ? 'true' : undefined}
+          >
             <Image
               src={logo.src}
               alt={logo.alt}
-              height={52}
-              width={Math.round(52 * (logo.src.width / logo.src.height))}
+              height={48}
+              width={Math.round(48 * (logo.src.width / logo.src.height))}
               loading="lazy"
               class="ss-marquee__logo"
             />
@@ -66,23 +69,32 @@ const loop = logos.length ? [...logos, ...logos] : [];
     width: max-content;
     padding-block: var(--space-2);
   }
-  /* Every logo sits in an identical box, so wide and tall marks read the same
-     size. object-contain caps both dimensions; nothing dominates. */
+  /* Every logo sits in an identical tile, so wide and tall marks read the same
+     size — the tile is the constant, object-contain scales each mark to fit it.
+     The tile also gives light and dark logos a consistent, deliberate frame. */
   .ss-marquee__item {
     flex: none;
     display: grid;
     place-items: center;
-    width: 168px;
-    height: 72px;
-    padding-inline: var(--space-3);
+    width: 176px;
+    height: 84px;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--rule-c);
+    background: var(--ground);
+  }
+  /* Near-white marks are invisible on a white tile — give them an ink tile. */
+  .ss-marquee__item--dark {
+    background: #14141a;
+    border-color: #26262e;
   }
   .ss-marquee__logo {
-    max-height: 40px;
-    max-width: 132px;
+    max-height: 46px;
+    max-width: 128px;
     width: auto;
     height: auto;
     object-fit: contain;
-    opacity: 0.9;
+    opacity: 0.92;
     transition: opacity var(--dur-base) var(--ease-out);
   }
   .ss-marquee__item:hover .ss-marquee__logo { opacity: 1; }

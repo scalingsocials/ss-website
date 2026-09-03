@@ -10,11 +10,17 @@
  * with zero logos — nothing invented, no fake marks (CLAUDE.md §15).
  */
 import type { ImageMetadata } from 'astro';
+import logoMeta from './logo-meta.json';
+
+type LogoMeta = Record<string, { light: boolean; ratio: number }>;
+const META = logoMeta as LogoMeta;
 
 export interface Logo {
   slug: string;
   src: ImageMetadata;
   alt: string;
+  /** True when the mark is near-white and needs a dark tile to be visible. */
+  light: boolean;
 }
 
 const files = import.meta.glob<{ default: ImageMetadata }>(
@@ -49,7 +55,7 @@ export const LOGOS: Logo[] = Object.entries(files)
     const raw = path.split('/').pop()!.replace(/\.\w+$/, '');
     const slug = raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const name = brandName(raw);
-    return { slug, src: mod.default, alt: `${name} logo` };
+    return { slug, src: mod.default, alt: `${name} logo`, light: META[slug]?.light ?? false };
   })
   .sort((a, b) => a.alt.localeCompare(b.alt));
 
