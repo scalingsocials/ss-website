@@ -1,0 +1,130 @@
+---
+/**
+ * /audit/ — the Free Growth Audit lead flow. See 02 §1.4 and 11 §3.
+ * Indexed, with real content above the form (not a bare form page). The form
+ * posts with source "audit"; ad spend and store URL are required (11 §3).
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import LeadForm from '@/components/blocks/LeadForm.astro';
+import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
+import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
+import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
+import { base, webPage, breadcrumbs, faqPage } from '@/lib/schema';
+
+const url = '/audit/';
+const title = 'Free Growth Audit for D2C Brands | Scaling Socials';
+const description =
+  'Send Scaling Socials access to your ad accounts and store; within three working days you get a written audit of what is leaking money and what to fix first.';
+const published = '2026-09-01';
+const modified = '2026-09-04';
+
+const getYou = [
+  { t: 'Ad account teardown', b: 'Campaign structure, budget allocation, audience overlap, creative fatigue, and where spend is going that shouldn’t be.' },
+  { t: 'Your break-even ROAS, calculated', b: 'Based on your actual margins, not a generic benchmark. Most brands we audit are targeting a number that loses money.' },
+  { t: 'Attribution check', b: 'Where platform-reported revenue diverges from your real Shopify revenue, and why.' },
+  { t: 'Store conversion audit', b: 'Page speed, product page, cart and checkout, with the friction points ranked by how much they cost you.' },
+  { t: 'Creative review', b: 'What’s fatigued, and the angles you haven’t tested yet.' },
+  { t: 'A 30-60-90 plan', b: 'The three things we’d do first, in order, with the reasoning behind each.' },
+];
+
+const steps = [
+  { title: '20-minute call', body: 'What you sell, what your margins are, and what you’ve already tried.' },
+  { title: 'Read-only access', body: 'You give read-only access to Meta Ads, Google Ads, Shopify or GA4.' },
+  { title: 'We audit', body: 'Three working days. No sales deck — a document you could hand to another agency.' },
+  { title: '45-minute walkthrough', body: 'We take you through it live and answer questions.' },
+  { title: 'You keep the document', body: 'Yours to keep, and to act on, regardless of what you decide.' },
+];
+
+const notForYou = [
+  'Pre-launch brands with no data to audit. We can’t audit an empty account.',
+  'Anyone wanting a free strategy they’ll hand to a cheaper agency. We’ll know, and we’d rather say no.',
+  'Service businesses and B2B lead gen. Not our specialism — we’ll refer you to someone better.',
+];
+
+const faqs = [
+  { q: 'Is the growth audit really free?', a: 'Yes, and there’s no obligation. Obviously we hope you’ll work with us, but we’ve handed audits to brands who took them in-house and did the work themselves — that’s a fine outcome. A brand that fixes its own funnel and comes back at 10× the spend is worth more to us than one we talked into a retainer.' },
+  { q: 'What do you need access to?', a: 'Read-only access to your Meta Ads, Google Ads, and Shopify or GA4. Read-only means we can see the accounts to audit them, but change nothing. You can revoke it the moment the audit is done.' },
+  { q: 'How long does it take?', a: 'Three working days from the point you give access, then a 45-minute live walkthrough. You keep the written document either way.' },
+];
+
+const nodes = [
+  ...base(),
+  webPage({ url, name: title, description, hasBreadcrumb: true, datePublished: published, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Free Growth Audit', url }]),
+  faqPage(url, faqs),
+];
+
+const auditQuestions = [
+  { name: 'monthly_spend', label: 'Monthly ad spend', type: 'select' as const, required: true, options: ['Under ₹1L', '₹1–3L', '₹3–5L', '₹5L+', 'Not running ads yet'] },
+  { name: 'store_url', label: 'Store or website URL', type: 'text' as const, required: true, placeholder: 'yourbrand.com' },
+  { name: 'selling', label: 'What do you sell?', type: 'text' as const, required: false, placeholder: 'e.g. skincare, fashion, home' },
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+      <div>
+        <span class="ss-eyebrow">Free Growth Audit</span>
+        <h1 class="max-w-[18ch]">We’ll tell you what’s wrong with your ads before you pay us anything</h1>
+        <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+          Send us access to your ad accounts and your store. Within three working days you get a
+          written audit of what’s working, what’s leaking money, and what we’d change first — whether
+          or not you hire us. No sales deck. A document you could hand to another agency.
+        </p>
+      </div>
+      <div class="lg:sticky lg:top-[88px]">
+        <LeadForm source="audit" heading="Claim your free audit" subheading="Three working days. No obligation." questions={auditQuestions} submitLabel="Get my free audit" />
+      </div>
+    </div>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="ss-eyebrow">What you get</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">A document, not a pitch</h2>
+    <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
+      {getYou.map((g) => (
+        <li class="flex flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+          <h3 class="text-h4 font-semibold text-[var(--fg)]">{g.t}</h3>
+          <p class="text-small leading-relaxed text-[var(--fg-muted)]">{g.b}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section size="md">
+    <span class="ss-eyebrow">How it works</span>
+    <h2 class="max-w-[20ch] text-h2 font-semibold">Five steps, three working days</h2>
+    <div class="mt-[var(--space-5)]"><ProcessSteps steps={steps} /></div>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <Prose>
+      <h2>The honest bit</h2>
+      <p>
+        It’s free and there’s no obligation. Obviously we hope you’ll work with us. But we’ve handed
+        audits to brands who took them in-house and did the work themselves, and that’s a fine
+        outcome. A brand that fixes its own funnel and comes back at 10× the spend is worth more to
+        us than one we talked into a retainer they weren’t ready for.
+      </p>
+    </Prose>
+    <div class="mt-[var(--space-6)] max-w-[640px]">
+      <NotForYouBlock items={notForYou} />
+    </div>
+  </Section>
+
+  <Section size="md">
+    <span class="ss-eyebrow">Questions</span>
+    <h2 class="max-w-[20ch] text-h2 font-semibold">Before you send access</h2>
+    <div class="mt-[var(--space-5)] max-w-[760px]"><FaqAccordion items={faqs} openFirst /></div>
+  </Section>
+
+  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+</BaseLayout>

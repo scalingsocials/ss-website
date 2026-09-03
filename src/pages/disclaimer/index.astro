@@ -1,0 +1,26 @@
+---
+import LegalLayout from '@/layouts/LegalLayout.astro';
+import { ORG } from '@/lib/schema/entity';
+const url = '/disclaimer/';
+const title = 'Website Disclaimer and Liability | Scaling Socials';
+const description =
+  'The disclaimer for the Scaling Socials website: results are not guaranteed and content is for general information only, not professional advice.';
+---
+<LegalLayout url={url} title={title} description={description} heading="Disclaimer" updated="4 September 2026">
+  <p>This disclaimer applies to {ORG.url}, operated by {ORG.legalName} (“Scaling Socials”).</p>
+
+  <h2>No guaranteed results</h2>
+  <p>Marketing and development outcomes depend on factors outside our control — your product, pricing, margins, market conditions and the advertising platforms’ own systems. Any figures, benchmarks or case results shown on this site describe past work in specific circumstances and are not a promise of future performance. We do not guarantee any particular ROAS, ranking, revenue or result.</p>
+
+  <h2>General information only</h2>
+  <p>The content on this website, including guides, tools, calculators and benchmarks, is provided for general information. It is not professional, financial, legal or tax advice, and you should not rely on it as a substitute for advice specific to your situation. Our free calculators produce estimates from the inputs you provide and may not reflect your actual results.</p>
+
+  <h2>External links</h2>
+  <p>Where we link to third-party websites, we do so for convenience. We do not control those sites and are not responsible for their content, accuracy or practices.</p>
+
+  <h2>Accuracy</h2>
+  <p>We take care to keep this website accurate and up to date, but we make no warranty that it is complete or error-free, and we may change content at any time without notice.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this disclaimer? Email <a href={`mailto:${ORG.email}`}>{ORG.email}</a>.</p>
+</LegalLayout>

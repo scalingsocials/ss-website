@@ -1,0 +1,32 @@
+---
+import LegalLayout from '@/layouts/LegalLayout.astro';
+import { ORG } from '@/lib/schema/entity';
+const url = '/privacy/';
+const title = 'Privacy Policy | Scaling Socials Media LLP Bangalore';
+const description =
+  'How Scaling Socials Media LLP collects, uses and protects your personal data when you use our website or enquire about our services — and the rights you have.';
+---
+<LegalLayout url={url} title={title} description={description} heading="Privacy Policy" updated="4 September 2026">
+  <p>{ORG.legalName} (“Scaling Socials”, “we”) respects your privacy. This policy explains what personal data we collect, why, and what rights you have. It covers {ORG.url} and enquiries you send us.</p>
+
+  <h2>What we collect</h2>
+  <p>When you submit a form we collect the details you provide — typically your name, email, phone, brand or company, website, and answers about your business. If you leave a form part-way, we may store the details you had already entered so we can follow up. We also collect standard analytics data (pages viewed, device, approximate location) through cookies and similar technologies.</p>
+
+  <h2>Why we use it</h2>
+  <p>To respond to your enquiry and prepare an audit or proposal, to provide services you engage us for, to improve our website, and to send you information you have asked for. We rely on your consent for marketing communications and on our legitimate interest in running and improving our business for the rest.</p>
+
+  <h2>Who we share it with</h2>
+  <p>We use trusted processors to run our business, including our CRM and database (Supabase), analytics (Google Analytics, Microsoft Clarity), advertising platforms (Meta, Google) and email delivery (Resend). They process data on our behalf under their own security terms. We do not sell your personal data.</p>
+
+  <h2>How long we keep it</h2>
+  <p>We keep enquiry and client data for as long as needed to serve you and to meet legal and accounting obligations, then delete or anonymise it. You can ask us to delete your data sooner.</p>
+
+  <h2>Your rights</h2>
+  <p>You can ask us to access, correct or delete your personal data, or to stop using it for marketing. Email <a href={`mailto:${ORG.email}`}>{ORG.email}</a> and we will respond within a reasonable time.</p>
+
+  <h2>Cookies</h2>
+  <p>We use cookies for essential functions and analytics. See our <a href="/cookie-policy/">cookie policy</a> for the details and how to control them.</p>
+
+  <h2>Contact</h2>
+  <p>For any privacy question, email <a href={`mailto:${ORG.email}`}>{ORG.email}</a> or write to {ORG.address.streetAddress}, {ORG.address.addressLocality}, {ORG.address.addressRegion} {ORG.address.postalCode}, India.</p>
+</LegalLayout>

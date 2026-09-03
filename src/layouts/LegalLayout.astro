@@ -1,0 +1,46 @@
+---
+/**
+ * LegalLayout — shell for terms/privacy/disclaimer/cookie pages.
+ * These are working templates using real entity facts; have them reviewed by a
+ * lawyer before launch (noted on each page).
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import { base, webPage, breadcrumbs } from '@/lib/schema';
+
+export interface Props {
+  url: string;
+  title: string;
+  description: string;
+  heading: string;
+  updated: string; // human date
+}
+const { url, title, description, heading, updated } = Astro.props;
+const modified = '2026-09-04';
+
+const nodes = [
+  ...base(),
+  webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: heading, url }]),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <h1 class="max-w-[22ch]">{heading}</h1>
+    <p class="mt-[var(--space-2)] text-small text-[var(--fg-muted)]">Last updated {updated}</p>
+    <Prose class="mt-[var(--space-6)]">
+      <slot />
+    </Prose>
+    <p class="mt-[var(--space-8)] max-w-[68ch] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-4)] text-small text-[var(--fg-muted)]">
+      This is a working template using our real company details. It should be reviewed by a legal
+      professional before launch and adjusted to your final terms.
+    </p>
+  </Section>
+</BaseLayout>

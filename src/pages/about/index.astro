@@ -1,0 +1,112 @@
+---
+/**
+ * /about/ — company story + founders. See 02 §2 (Company), 03 §1.3.
+ * The 2022 LLP incorporation appears only here in prose; structured fields use
+ * the 2021 founding date (entity.ts / CLAUDE.md entity rules).
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import Button from '@/components/primitives/Button.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import { PARTNERS } from '@/lib/team';
+import { base, webPage, breadcrumbs, person } from '@/lib/schema';
+
+const url = '/about/';
+const title = 'About Scaling Socials | D2C Growth Agency Bangalore';
+const description =
+  'Scaling Socials is an omni-channel ecommerce growth agency in Bangalore, founded in 2021 by four operators, serving D2C brands across India and the UAE.';
+const modified = '2026-09-04';
+
+const values = [
+  { t: 'We work to your P&L', b: 'Not to platform-reported ROAS. If the maths doesn’t work for your brand, we’ll tell you.' },
+  { t: 'We publish our pricing', b: 'Nobody else in this SERP does. Transparency filters the right clients in and the wrong ones out.' },
+  { t: 'We say when not to hire us', b: 'Every service page has a real disqualifier list. Saying no is a trust signal, and it saves everyone time.' },
+  { t: 'One team, one number', b: 'Media, creative, store and CRO under one roof, so nobody points fingers when a number moves.' },
+];
+
+const nodes = [
+  ...base(),
+  webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'About', url }]),
+  ...PARTNERS.map((p) => person({ slug: p.slug, name: p.name, jobTitle: p.role, linkedin: p.linkedin, description: p.bio })),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <span class="ss-eyebrow">About us</span>
+    <h1 class="max-w-[20ch]">The agency that answers to your P&amp;L</h1>
+    <p class="mt-[var(--space-4)] max-w-[58ch] text-h4 leading-[1.5] text-[var(--fg)]">
+      Scaling Socials is an omni-channel ecommerce growth agency in Bangalore. We run Meta and Google
+      Ads, build and optimise Shopify stores, and handle SEO, social and CRO for D2C brands across
+      India and the UAE — measured by the revenue we drive, not the impressions we buy.
+    </p>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <Prose>
+      <h2>How we started</h2>
+      <p>
+        Scaling Socials began as a partnership in 2021 and was incorporated as Scaling Socials Media
+        LLP in 2022. Four founders — an engineer, two MBAs and an operator who’d built his own online
+        businesses — came together around a simple frustration: most agencies sell adjectives, not
+        outcomes, and most founders can’t tell whether their marketing is actually making money.
+      </p>
+      <p>
+        So we built the opposite. We start from your margins, we publish what we charge, and we hand
+        brands an audit they could take to a competitor. It’s a slower way to grow an agency and a
+        far more durable one — the clients who choose us that way tend to stay.
+      </p>
+      <p>
+        Today we work with D2C brands across fashion, beauty, home, wellness and jewellery, in India
+        and the UAE, running the whole funnel from the first ad impression to the checkout.
+      </p>
+    </Prose>
+  </Section>
+
+  <Section size="md">
+    <span class="ss-eyebrow">What we believe</span>
+    <h2 class="max-w-[22ch] text-h2 font-semibold">Four things we won’t compromise on</h2>
+    <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2">
+      {values.map((v) => (
+        <li class="flex flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+          <h3 class="text-h4 font-semibold text-[var(--fg)]">{v.t}</h3>
+          <p class="text-small leading-relaxed text-[var(--fg-muted)]">{v.b}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="ss-eyebrow">The team</span>
+    <div class="flex flex-wrap items-end justify-between gap-[var(--space-3)]">
+      <h2 class="max-w-[20ch] text-h2 font-semibold">Four founders, four disciplines</h2>
+      <a href="/team/" class="text-small font-medium text-[var(--accent-text)] no-underline">Meet the team</a>
+    </div>
+    <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-4">
+      {PARTNERS.map((p) => (
+        <li class="flex flex-col items-start gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+          <div class="grid h-[56px] w-[56px] place-items-center rounded-[var(--radius-card)] bg-[var(--accent-wash)] text-h4 font-semibold text-[var(--accent-text)]" aria-hidden="true">
+            {p.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}
+          </div>
+          <div>
+            <div class="font-semibold text-[var(--fg)]">{p.name}</div>
+            <div class="text-small text-[var(--fg-muted)]">{p.focus}</div>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section register="ink" size="md">
+    <CtaBand heading="Want to see how we’d grow your brand?" body="A written audit in three working days, whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" secondaryLabel="Contact us" secondaryHref="/contact/" />
+  </Section>
+
+  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+</BaseLayout>

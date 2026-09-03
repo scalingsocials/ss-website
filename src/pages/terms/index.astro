@@ -1,0 +1,41 @@
+---
+import LegalLayout from '@/layouts/LegalLayout.astro';
+import { ORG } from '@/lib/schema/entity';
+const url = '/terms/';
+const title = 'Website Terms and Conditions | Scaling Socials Media';
+const description =
+  'The terms and conditions governing use of the Scaling Socials website and the services provided by Scaling Socials Media LLP, Bengaluru, India.';
+---
+<LegalLayout url={url} title={title} description={description} heading="Terms and Conditions" updated="4 September 2026">
+  <p>These terms govern your use of {ORG.url} and any services you engage {ORG.legalName} (“Scaling Socials”, “we”, “us”) to provide. By using this website or engaging our services, you agree to these terms.</p>
+
+  <h2>Our services</h2>
+  <p>Scaling Socials provides performance marketing, SEO, Shopify and web development, social media and conversion rate optimisation services. The specific scope, deliverables, fees and timelines for any engagement are set out in a separate written proposal or statement of work, which takes precedence over general statements on this website.</p>
+
+  <h2>Fees and payment</h2>
+  <p>Published starting prices are indicative floors; your final fee depends on scope. Advertising spend is paid by you directly to the advertising platforms and is never marked up by us. Invoices are payable within the period stated on the invoice. We may pause work on overdue accounts.</p>
+
+  <h2>Client responsibilities</h2>
+  <p>You are responsible for providing timely access, approvals, assets and accurate information, and for the legality of the products and claims you ask us to promote. You retain ownership of your brand assets, accounts and data.</p>
+
+  <h2>Intellectual property</h2>
+  <p>Deliverables created for you become yours on full payment, except for our pre-existing tools, templates and know-how, which remain ours. We may reference the engagement and non-confidential results in our portfolio unless you ask us in writing not to.</p>
+
+  <h2>No guarantee of results</h2>
+  <p>Marketing outcomes depend on many factors outside our control, including your product, pricing, market and the advertising platforms. We do not guarantee specific results, rankings or revenue. See our <a href="/disclaimer/">disclaimer</a>.</p>
+
+  <h2>Limitation of liability</h2>
+  <p>To the maximum extent permitted by law, our total liability arising from any engagement is limited to the fees you paid us for the services giving rise to the claim in the three months before the claim. We are not liable for indirect or consequential loss, including lost profits or advertising spend.</p>
+
+  <h2>Confidentiality and data</h2>
+  <p>Each party will keep the other’s confidential information confidential. Our handling of personal data is described in our <a href="/privacy/">privacy policy</a>.</p>
+
+  <h2>Termination</h2>
+  <p>Either party may end an ongoing engagement with the notice period stated in the relevant proposal. Fees for work performed up to termination remain payable.</p>
+
+  <h2>Governing law</h2>
+  <p>These terms are governed by the laws of India, and the courts of Bengaluru, Karnataka have exclusive jurisdiction.</p>
+
+  <h2>Changes and contact</h2>
+  <p>We may update these terms; the current version is always posted here. Questions? Email <a href={`mailto:${ORG.email}`}>{ORG.email}</a> or write to us at {ORG.address.streetAddress}, {ORG.address.addressLocality}, {ORG.address.addressRegion} {ORG.address.postalCode}.</p>
+</LegalLayout>
