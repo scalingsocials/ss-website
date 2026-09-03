@@ -5,37 +5,54 @@ const url = '/terms/';
 const title = 'Website Terms and Conditions | Scaling Socials Media';
 const description =
   'The terms and conditions governing use of the Scaling Socials website and the services provided by Scaling Socials Media LLP, Bengaluru, India.';
+const intro =
+  'The following terms and conditions, privacy policy and cookie policy cover services provided by Scaling Socials. If you continue to browse and use this website, you agree to comply with and be bound by them.';
+const toc = [
+  { id: 'information', title: '1. Information and disclaimers' },
+  { id: 'pricing-policy', title: '2. Pricing policy' },
+  { id: 'refund', title: '3. Refund policy' },
+  { id: 'rights', title: '4. Rights' },
+  { id: 'other-websites', title: '5. Other websites' },
+  { id: 'pricing', title: '6. Pricing' },
+  { id: 'complaints', title: '7. Queries and complaints' },
+  { id: 'copyright', title: '8. Copyright notice' },
+  { id: 'cookies', title: '9. Cookie policy' },
+];
 ---
-<LegalLayout url={url} title={title} description={description} heading="Terms and Conditions" updated="4 September 2026">
-  <p>These terms govern your use of {ORG.url} and any services you engage {ORG.legalName} (“Scaling Socials”, “we”, “us”) to provide. By using this website or engaging our services, you agree to these terms.</p>
+<LegalLayout url={url} title={title} description={description} heading="Terms and Conditions" updated="4 September 2026" intro={intro} toc={toc}>
+  <p>If you disagree with any part of these terms and conditions, please do not use the website.</p>
 
-  <h2>Our services</h2>
-  <p>Scaling Socials provides performance marketing, SEO, Shopify and web development, social media and conversion rate optimisation services. The specific scope, deliverables, fees and timelines for any engagement are set out in a separate written proposal or statement of work, which takes precedence over general statements on this website.</p>
+  <h2 id="information">1. Information and Disclaimers</h2>
+  <p>Whilst Scaling Socials works hard to prevent any or all errors and omissions, neither we nor any third parties provide any warranty or guarantee as to the accuracy, performance or completeness of information offered on this website for any particular purpose or use.</p>
+  <p>The material on this website is owned by or licensed to Scaling Socials and includes, but is not limited to, the design, layout, look, appearance and graphics. Reproduction of all material is prohibited other than in accordance with the copyright notice and with permission given.</p>
+  <p>Scaling Socials will not be held liable in connection to the website, products or services offered both by us or others. This includes direct, indirect or consequential losses. We are not liable for any financial losses caused as a result of using the website.</p>
+  <p>By accepting these terms and conditions you accept that Scaling Socials is not responsible for the welfare of its clients or students.</p>
 
-  <h2>Fees and payment</h2>
-  <p>Published starting prices are indicative floors; your final fee depends on scope. Advertising spend is paid by you directly to the advertising platforms and is never marked up by us. Invoices are payable within the period stated on the invoice. We may pause work on overdue accounts.</p>
+  <h2 id="pricing-policy">2. Pricing Policy</h2>
+  <p>Our company usually prices services based on the client requirement. To gather the requirements we do our initial discovery call where we determine the requirement and price accordingly.</p>
 
-  <h2>Client responsibilities</h2>
-  <p>You are responsible for providing timely access, approvals, assets and accurate information, and for the legality of the products and claims you ask us to promote. You retain ownership of your brand assets, accounts and data.</p>
+  <h2 id="refund">3. Refund Policy</h2>
+  <p>At Scaling Socials, we follow a strict no-refund policy. Once a service has been purchased, no refunds will be issued under any circumstances. We encourage clients to review our offerings carefully before proceeding with any transaction. For any concerns, our support team is always here to assist you.</p>
 
-  <h2>Intellectual property</h2>
-  <p>Deliverables created for you become yours on full payment, except for our pre-existing tools, templates and know-how, which remain ours. We may reference the engagement and non-confidential results in our portfolio unless you ask us in writing not to.</p>
+  <h2 id="rights">4. Rights</h2>
+  <p>Scaling Socials reserves the right to change or alter any part of the website, with or without notice, both temporarily and permanently. We always work to maintain the website at all times, however, it is subject to change.</p>
 
-  <h2>No guarantee of results</h2>
-  <p>Marketing outcomes depend on many factors outside our control, including your product, pricing, market and the advertising platforms. We do not guarantee specific results, rankings or revenue. See our <a href="/disclaimer/">disclaimer</a>.</p>
+  <h2 id="other-websites">5. Other Websites</h2>
+  <p>This website may also include links to other websites or applications. These links are provided for the user’s convenience to give further information. They do not signify that Scaling Socials agree or endorse them and are not liable for their content.</p>
 
-  <h2>Limitation of liability</h2>
-  <p>To the maximum extent permitted by law, our total liability arising from any engagement is limited to the fees you paid us for the services giving rise to the claim in the three months before the claim. We are not liable for indirect or consequential loss, including lost profits or advertising spend.</p>
+  <h2 id="pricing">6. Pricing</h2>
+  <p>Payments between Scaling Socials and the users are handled by Stripe, Inc. and PayPal. All prices for Scaling Socials services are correct at the time of writing and are subject to change at any time before an agreement is made; once an agreement is made between Scaling Socials and a user the price is fixed unless stated. All prices are exclusive of tax. The user has the right to cancel a subscription at any time.</p>
+  <p>Although we try to ensure all prices are correct at all times, there may be an occasion when something is priced incorrectly; we will verify the cost at the point of payment. If you cancel your membership, you will not receive a refund but will be able to access all features until the month expires. There is no obligation to continue your membership. You have the right to cancel at any time.</p>
+  <p>Consultation calls will be paid for in advance; if no payment is received before the indicated time slot the consultation will not go ahead. Scaling Socials have the right to cancel consultation calls without notice. If this happens due to a scheduling error on Scaling Socials’ part then the cost of the call will be refunded to the user. If the user misses their scheduled time slot they will not be able to rebook for free. If you are running late you must let the member of Scaling Socials hosting the call know as soon as possible. If there is a ‘no show’ the appointment will be cancelled after 50% of the time has elapsed, and no refund shall be given.</p>
 
-  <h2>Confidentiality and data</h2>
-  <p>Each party will keep the other’s confidential information confidential. Our handling of personal data is described in our <a href="/privacy/">privacy policy</a>.</p>
+  <h2 id="complaints">7. Queries and Complaints</h2>
+  <p>Scaling Socials always aims to provide an excellent and professional service. If you are unhappy with a service or would like to provide feedback, please email us at <a href={`mailto:${ORG.email}`}>{ORG.email}</a>.</p>
 
-  <h2>Termination</h2>
-  <p>Either party may end an ongoing engagement with the notice period stated in the relevant proposal. Fees for work performed up to termination remain payable.</p>
+  <h2 id="copyright">8. Copyright Notice</h2>
+  <p>This application and its content are copyright of Scaling Socials.</p>
+  <p>All information on this website is protected by copyright and belongs to Scaling Socials. The copying and reproduction of any material used for this website, in any media or format of any kind, is strictly prohibited unless written permission by Scaling Socials is obtained prior to use. This is true for content and information.</p>
 
-  <h2>Governing law</h2>
-  <p>These terms are governed by the laws of India, and the courts of Bengaluru, Karnataka have exclusive jurisdiction.</p>
-
-  <h2>Changes and contact</h2>
-  <p>We may update these terms; the current version is always posted here. Questions? Email <a href={`mailto:${ORG.email}`}>{ORG.email}</a> or write to us at {ORG.address.streetAddress}, {ORG.address.addressLocality}, {ORG.address.addressRegion} {ORG.address.postalCode}.</p>
+  <h2 id="cookies">9. Cookie Policy</h2>
+  <p>Scaling Socials uses cookies to enhance your browsing experience. Cookies are small files stored on your computer’s hard drive and allow websites to respond to you as a specific user; this allows your preferences to be remembered.</p>
+  <p>Whilst some browsers will only allow you to reject third-party cookies, most browsers allow you to reject all cookies. A negative impact of blocking all cookies, however, is that it will have a negative impact on the usability of many websites. See our <a href="/cookie-policy/">cookie policy</a> and <a href="/privacy/">privacy policy</a> for more.</p>
 </LegalLayout>

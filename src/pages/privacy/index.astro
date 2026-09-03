@@ -5,28 +5,89 @@ const url = '/privacy/';
 const title = 'Privacy Policy | Scaling Socials Media LLP Bangalore';
 const description =
   'How Scaling Socials Media LLP collects, uses and protects your personal data when you use our website or enquire about our services — and the rights you have.';
+const intro =
+  'This page informs you of our policies regarding the collection, use and disclosure of personal information when you use our service. We will not use or share your information with anyone except as described in this Privacy Policy.';
+const toc = [
+  { id: 'pricing-policy', title: '1. Pricing policy' },
+  { id: 'refund', title: '2. Refund policy' },
+  { id: 'collection', title: '3. Information collection and use' },
+  { id: 'log-data', title: '4. Log data' },
+  { id: 'cookies', title: '5. Cookies' },
+  { id: 'doubleclick', title: '6. DoubleClick cookie' },
+  { id: 'remarketing', title: '7. Behavioral re-marketing' },
+  { id: 'service-providers', title: '8. Service providers' },
+  { id: 'communications', title: '9. Communications' },
+  { id: 'security', title: '10. Security' },
+  { id: 'international', title: '11. International transfer' },
+  { id: 'links', title: '12. Links to other sites' },
+  { id: 'children', title: '13. Children’s privacy' },
+  { id: 'changes', title: '14. Changes to this policy' },
+  { id: 'jurisdiction', title: '15. Jurisdiction' },
+  { id: 'contact', title: '16. Contact us' },
+];
 ---
-<LegalLayout url={url} title={title} description={description} heading="Privacy Policy" updated="4 September 2026">
-  <p>{ORG.legalName} (“Scaling Socials”, “we”) respects your privacy. This policy explains what personal data we collect, why, and what rights you have. It covers {ORG.url} and enquiries you send us.</p>
+<LegalLayout url={url} title={title} description={description} heading="Privacy Policy" updated="4 September 2026" intro={intro} toc={toc}>
+  <p>We use your Personal Information for providing and improving the Service. By using the Service, you agree to the collection and use of information in accordance with this policy. Unless otherwise defined in this Privacy Policy, terms used here have the same meanings as in our <a href="/terms/">Terms and Conditions</a>.</p>
 
-  <h2>What we collect</h2>
-  <p>When you submit a form we collect the details you provide — typically your name, email, phone, brand or company, website, and answers about your business. If you leave a form part-way, we may store the details you had already entered so we can follow up. We also collect standard analytics data (pages viewed, device, approximate location) through cookies and similar technologies.</p>
+  <h2 id="pricing-policy">1. Pricing Policy</h2>
+  <p>Our company usually prices services based on the client requirement. To gather the requirements we do our initial discovery call where we determine the requirement and price accordingly.</p>
 
-  <h2>Why we use it</h2>
-  <p>To respond to your enquiry and prepare an audit or proposal, to provide services you engage us for, to improve our website, and to send you information you have asked for. We rely on your consent for marketing communications and on our legitimate interest in running and improving our business for the rest.</p>
+  <h2 id="refund">2. Refund Policy</h2>
+  <p>No refunds available.</p>
 
-  <h2>Who we share it with</h2>
-  <p>We use trusted processors to run our business, including our CRM and database (Supabase), analytics (Google Analytics, Microsoft Clarity), advertising platforms (Meta, Google) and email delivery (Resend). They process data on our behalf under their own security terms. We do not sell your personal data.</p>
+  <h2 id="collection">3. Information Collection and Use</h2>
+  <p>While using our Service, we may ask you to provide us with certain personally identifiable information that can be used to contact or identify you. Personally identifiable information may include, but is not limited to, your email address, name, phone number, postal address, and other information (“Personal Information”).</p>
 
-  <h2>How long we keep it</h2>
-  <p>We keep enquiry and client data for as long as needed to serve you and to meet legal and accounting obligations, then delete or anonymise it. You can ask us to delete your data sooner.</p>
+  <h2 id="log-data">4. Log Data</h2>
+  <p>We collect information that your browser sends whenever you visit our Service (“Log Data”). This Log Data may include information such as your computer’s Internet Protocol (“IP”) address, browser type, browser version, the pages of our Service that you visit, the time and date of your visit, the time spent on those pages, and other statistics.</p>
+  <p>In addition, we may use third-party services such as Google Analytics that collect, monitor and analyse this type of information in order to increase our Service’s functionality. These third-party service providers have their own privacy policies addressing how they use such information.</p>
 
-  <h2>Your rights</h2>
-  <p>You can ask us to access, correct or delete your personal data, or to stop using it for marketing. Email <a href={`mailto:${ORG.email}`}>{ORG.email}</a> and we will respond within a reasonable time.</p>
+  <h2 id="cookies">5. Cookies</h2>
+  <p>Cookies are files with a small amount of data, which may include an anonymous unique identifier. Cookies are sent to your browser from a website and stored on your computer’s hard drive.</p>
+  <p>We use cookies to collect information. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our Service.</p>
+  <p>If you would like to have the right to be forgotten and all data removed, please contact us at <a href={`mailto:${ORG.email}`}>{ORG.email}</a>. If you wish to delete cookies on your device, please use the information at <a href="https://www.aboutcookies.org" rel="nofollow noopener" target="_blank">www.aboutcookies.org</a> to learn how.</p>
 
-  <h2>Cookies</h2>
-  <p>We use cookies for essential functions and analytics. See our <a href="/cookie-policy/">cookie policy</a> for the details and how to control them.</p>
+  <h2 id="doubleclick">6. DoubleClick Cookie</h2>
+  <p>Google, as a third-party vendor, uses cookies to serve ads on our Service. Google’s use of the DoubleClick cookie enables it and its partners to serve ads to our users based on their visit to our Service or other websites on the Internet. You may opt out of the use of the DoubleClick cookie for interest-based advertising by visiting the Google Ads Settings web page.</p>
 
-  <h2>Contact</h2>
-  <p>For any privacy question, email <a href={`mailto:${ORG.email}`}>{ORG.email}</a> or write to {ORG.address.streetAddress}, {ORG.address.addressLocality}, {ORG.address.addressRegion} {ORG.address.postalCode}, India.</p>
+  <h2 id="remarketing">7. Behavioral Re-marketing</h2>
+  <p>We use re-marketing services to advertise on third-party websites to you after you visited our Service. We, and our third-party vendors, use cookies to inform, optimise and serve ads based on your past visits to our Service.</p>
+  <h3>Google and Facebook</h3>
+  <p>Google AdWords re-marketing service is provided by Google Inc. You can opt out of Google Analytics for Display Advertising and customise the Google Display Network ads by visiting the Google Ads Settings page. Google also recommends installing the Google Analytics Opt-out Browser Add-on, which provides visitors with the ability to prevent their data from being collected and used by Google Analytics. For more information on the privacy practices of Google, please visit the Google Privacy &amp; Terms web page.</p>
+  <h3>Facebook Custom Audience Ads</h3>
+  <p>We may display interest-based ads to you when you are using Facebook through a tool offered by Facebook called the Custom Audience Tool. This tool allows us to personalise our ads based on your shopping experience with us. We do not share any of your personal information, including your shopping history, with Facebook. The tool lets the Scaling Socials team convert your email address to a unique number that Facebook uses to match to unique numbers Facebook generates from email addresses of its users.</p>
+  <h3>Google Custom Match Ads</h3>
+  <p>We may display interest-based ads to you when you are using Google through a tool offered by Google called the Custom Match Program. This tool allows us to personalise our ads based on your shopping experience with us. The tool lets the Scaling Socials team convert your email address to a unique number that Google uses to match to unique numbers Google generates from email addresses of its users.</p>
+  <h3>Email Marketing</h3>
+  <p>If you are opted in to receive marketing emails from us and wish to unsubscribe, you can do so by clicking on the Unsubscribe hyperlink at the bottom of the marketing email you receive. We will note in our database that you have elected to opt out of future emails from our company. Your record will still remain in our database but you will not receive any future mailings unless we manually opt you back in.</p>
+
+  <h2 id="service-providers">8. Service Providers</h2>
+  <p>We may employ third-party companies and individuals to facilitate our Service, to provide the Service on our behalf, to perform Service-related services, or to assist us in analysing how our Service is used. These third parties have access to your Personal Information only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.</p>
+
+  <h2 id="communications">9. Communications</h2>
+  <p>We may use your Personal Information to contact you with newsletters, marketing or promotional materials, and other information that may be of interest to you. You may opt out of receiving any, or all, of these communications from us by following the unsubscribe link or instructions provided in any email we send, or by contacting us.</p>
+
+  <h2 id="security">10. Security</h2>
+  <p>The security of your Personal Information is important to us, but remember that no method of transmission over the Internet, or method of electronic storage, is 100% secure. While we strive to use commercially acceptable means to protect your Personal Information, we cannot guarantee its absolute security. As such we make no warranties as to the level of security afforded to your data, except that we will always act in accordance with the relevant Indian legislation.</p>
+
+  <h2 id="international">11. International Transfer</h2>
+  <p>Your information, including Personal Information, may be transferred to — and maintained on — computers located outside of your state, province, country or other governmental jurisdiction where the data protection laws may differ from those of your jurisdiction.</p>
+  <p>If you are located outside India and choose to provide information to us, please note that we transfer the information, including Personal Information, to India and process it there. Your consent to this Privacy Policy followed by your submission of such information represents your agreement to that transfer.</p>
+
+  <h2 id="links">12. Links to Other Sites</h2>
+  <p>Our Service may contain links to other sites that are not operated by us. If you click on a third-party link, you will be directed to that third party’s site. We strongly advise you to review the Privacy Policy of every site you visit. We have no control over, and assume no responsibility for, the content, privacy policies or practices of any third-party sites or services.</p>
+  <h3>Work Examples and Retention</h3>
+  <p>All examples of previous client work and case studies have been executed by Scaling Socials whilst either acting as an independent agency or in collaboration with another marketing agency.</p>
+
+  <h2 id="children">13. Children’s Privacy</h2>
+  <p>Our Service does not address anyone under the age of 13 (“Children”). We do not knowingly collect personally identifiable information from children under 13. If you are a parent or guardian and you are aware that your child has provided us with Personal Information, please contact us. If we become aware that we have collected Personal Information from a child under age 13 without verification of parental consent, we take steps to remove that information from our servers.</p>
+
+  <h2 id="changes">14. Changes to This Privacy Policy</h2>
+  <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page. If we make any material changes, we will notify you either through the email address you have provided us, or by placing a prominent notice on our website.</p>
+
+  <h2 id="jurisdiction">15. Jurisdiction</h2>
+  <p>This Policy shall be governed and construed in accordance with the laws of India, without regard to its conflict of law provisions.</p>
+
+  <h2 id="contact">16. Contact Us</h2>
+  <p>If you have any questions about this Privacy Policy, please contact us at <a href={`mailto:${ORG.email}`}>{ORG.email}</a>.</p>
 </LegalLayout>

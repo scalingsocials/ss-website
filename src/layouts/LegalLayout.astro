@@ -1,24 +1,33 @@
 ---
 /**
- * LegalLayout — shell for terms/privacy/disclaimer/cookie pages.
- * These are working templates using real entity facts; have them reviewed by a
- * lawyer before launch (noted on each page).
+ * LegalLayout — full-width shell for terms/privacy/disclaimer/cookie pages.
+ *
+ * A docs layout: a sticky table of contents fills the left rail (the space that
+ * used to sit blank), and the policy text fills the width of the page rather
+ * than a narrow left column. Content is the real, published Scaling Socials
+ * policy wording. Each page passes a `toc` matching its section ids.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
-import Prose from '@/components/primitives/Prose.astro';
+import DotField from '@/components/graphics/DotField.astro';
 import { base, webPage, breadcrumbs } from '@/lib/schema';
 
+export interface TocItem {
+  id: string;
+  title: string;
+}
 export interface Props {
   url: string;
   title: string;
   description: string;
   heading: string;
   updated: string; // human date
+  intro?: string;
+  toc: TocItem[];
 }
-const { url, title, description, heading, updated } = Astro.props;
+const { url, title, description, heading, updated, intro, toc } = Astro.props;
 const modified = '2026-09-04';
 
 const nodes = [
@@ -32,15 +41,94 @@ const nodes = [
   <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
   <SchemaGraph slot="schema" nodes={nodes} />
 
-  <Section size="lg">
-    <h1 class="max-w-[22ch]">{heading}</h1>
-    <p class="mt-[var(--space-2)] text-small text-[var(--fg-muted)]">Last updated {updated}</p>
-    <Prose class="mt-[var(--space-6)]">
-      <slot />
-    </Prose>
-    <p class="mt-[var(--space-8)] max-w-[68ch] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-4)] text-small text-[var(--fg-muted)]">
-      This is a working template using our real company details. It should be reviewed by a legal
-      professional before launch and adjusted to your final terms.
-    </p>
+  <!-- HEADER -->
+  <Section size="md" class="relative overflow-hidden">
+    <DotField origin="top-right" />
+    <nav aria-label="Breadcrumb" class="relative mb-[var(--space-3)] text-small text-[var(--fg-muted)]">
+      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span> / </span><span>{heading}</span>
+    </nav>
+    <h1 class="relative max-w-[24ch]">{heading}</h1>
+    <p class="relative mt-[var(--space-2)] text-small text-[var(--fg-muted)]">Last updated {updated}</p>
+    {intro && <p class="relative mt-[var(--space-4)] max-w-[70ch] text-h4 leading-[1.5] text-[var(--fg)]">{intro}</p>}
+  </Section>
+
+  <!-- BODY: sticky TOC + full-width content -->
+  <Section size="md" class="!pt-0">
+    <div class="ss-legal-grid">
+      <aside class="ss-legal-toc" aria-label="On this page">
+        <p class="ss-legal-toc__title">On this page</p>
+        <ol>
+          {toc.map((t) => (
+            <li><a href={`#${t.id}`}>{t.title}</a></li>
+          ))}
+        </ol>
+      </aside>
+      <div class="ss-legal-body">
+        <slot />
+      </div>
+    </div>
   </Section>
 </BaseLayout>
+
+<style>
+  .ss-legal-grid { display: grid; gap: var(--space-6); align-items: start; }
+  @media (min-width: 1000px) {
+    .ss-legal-grid { grid-template-columns: 240px minmax(0, 1fr); gap: var(--space-8); }
+  }
+
+  .ss-legal-toc { display: none; }
+  @media (min-width: 1000px) {
+    .ss-legal-toc { display: block; position: sticky; top: 96px; }
+  }
+  .ss-legal-toc__title {
+    margin-bottom: var(--space-3);
+    font-size: var(--text-label);
+    font-weight: 600;
+    color: var(--accent-text);
+  }
+  .ss-legal-toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--rule-c); }
+  .ss-legal-toc a {
+    display: block;
+    padding: 5px var(--space-3);
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    color: var(--fg-muted);
+    font-size: var(--text-small);
+    line-height: 1.35;
+    text-decoration: none;
+  }
+  .ss-legal-toc a:hover { color: var(--fg); border-left-color: var(--rule-c); }
+
+  /* Full-width readable body — fills the column, not a narrow measure. */
+  .ss-legal-body { color: var(--fg); font-size: var(--text-body); line-height: 1.7; }
+  .ss-legal-body :global(h2) {
+    scroll-margin-top: 90px;
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-3);
+    font-size: var(--text-h3);
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .ss-legal-body :global(h2:first-child) { margin-top: 0; }
+  .ss-legal-body :global(h3) {
+    scroll-margin-top: 90px;
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-2);
+    font-size: var(--text-h4);
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .ss-legal-body :global(p) { margin-bottom: var(--space-4); max-width: 80ch; }
+  .ss-legal-body :global(ul) { margin: 0 0 var(--space-4) var(--space-5); max-width: 80ch; list-style: disc; }
+  .ss-legal-body :global(li) { margin-bottom: var(--space-2); }
+  .ss-legal-body :global(a) { color: var(--accent-text); }
+  .ss-legal-body :global(.ss-legal-caps) {
+    font-size: var(--text-small);
+    letter-spacing: 0.01em;
+    color: var(--fg-muted);
+    background: var(--surface-c);
+    border-radius: var(--radius-input);
+    padding: var(--space-4);
+    max-width: 80ch;
+  }
+</style>

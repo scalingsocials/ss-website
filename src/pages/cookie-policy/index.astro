@@ -5,21 +5,31 @@ const url = '/cookie-policy/';
 const title = 'Cookie Policy | Scaling Socials Media LLP Bangalore';
 const description =
   'How Scaling Socials uses cookies and similar technologies on our website — essential and analytics cookies, the tools we use, and how you can control them.';
+const intro =
+  'Scaling Socials uses cookies to enhance your browsing experience. Cookies are small files stored on your device that allow websites to respond to you as a specific user, so your preferences can be remembered.';
+const toc = [
+  { id: 'what', title: 'What cookies are' },
+  { id: 'why', title: 'Why we use cookies' },
+  { id: 'analytics', title: 'Analytics and advertising' },
+  { id: 'control', title: 'Controlling cookies' },
+  { id: 'contact', title: 'Contact' },
+];
 ---
-<LegalLayout url={url} title={title} description={description} heading="Cookie Policy" updated="4 September 2026">
-  <p>This policy explains how {ORG.legalName} (“Scaling Socials”) uses cookies and similar technologies on {ORG.url}. It should be read with our <a href="/privacy/">privacy policy</a>.</p>
+<LegalLayout url={url} title={title} description={description} heading="Cookie Policy" updated="4 September 2026" intro={intro} toc={toc}>
+  <p>This policy explains how {ORG.legalName} (“Scaling Socials”) uses cookies and similar technologies on {ORG.url}. It should be read with our <a href="/privacy/">privacy policy</a> and <a href="/terms/">terms and conditions</a>.</p>
 
-  <h2>What cookies are</h2>
-  <p>Cookies are small text files a website stores on your device. They let the site work properly, remember your preferences, and help us understand how the site is used.</p>
+  <h2 id="what">What cookies are</h2>
+  <p>Cookies are files with a small amount of data, which may include an anonymous unique identifier. They are sent to your browser from a website and stored on your device’s hard drive. They let the site work properly, remember your preferences, and help us understand how the site is used.</p>
 
-  <h2>The cookies we use</h2>
-  <p><strong>Essential.</strong> Needed for the site to function — for example, remembering a form draft you started or your cookie choices. These cannot be switched off.</p>
-  <p><strong>Analytics.</strong> Help us see which pages are useful and where visitors drop off, through tools such as Google Analytics and Microsoft Clarity. This data is aggregated and used to improve the site.</p>
-  <p><strong>Advertising and measurement.</strong> Where enabled, tools from Meta and Google help us measure the performance of our own campaigns. We prefer server-side measurement and keep client-side tracking to a minimum.</p>
+  <h2 id="why">Why we use cookies</h2>
+  <p>We use cookies to collect information about how visitors use the site so we can improve it, and to remember your choices. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. If you do not accept cookies, you may not be able to use some portions of the site.</p>
 
-  <h2>Controlling cookies</h2>
-  <p>You can accept or decline non-essential cookies through the consent banner where shown, and you can clear or block cookies in your browser settings at any time. Blocking some cookies may affect how the site works.</p>
+  <h2 id="analytics">Analytics and advertising</h2>
+  <p>We may use third-party services such as Google Analytics that collect, monitor and analyse usage information in order to improve the site. Google, as a third-party vendor, may use the DoubleClick cookie to serve ads based on your visits to this and other sites; you can opt out via the Google Ads Settings page. We may also use re-marketing services from Google and Meta to show relevant ads after you have visited the site. These third parties have their own privacy policies addressing how they use such information.</p>
 
-  <h2>Contact</h2>
+  <h2 id="control">Controlling cookies</h2>
+  <p>Whilst some browsers will only allow you to reject third-party cookies, most browsers allow you to reject all cookies. Blocking all cookies can have a negative impact on the usability of many websites. You can clear or block cookies in your browser settings at any time, and you can learn how at <a href="https://www.aboutcookies.org" rel="nofollow noopener" target="_blank">www.aboutcookies.org</a>.</p>
+
+  <h2 id="contact">Contact</h2>
   <p>Questions about cookies? Email <a href={`mailto:${ORG.email}`}>{ORG.email}</a>.</p>
 </LegalLayout>
