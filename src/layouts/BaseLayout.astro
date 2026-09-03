@@ -12,6 +12,7 @@
  * U+20B9 (₹) — without it every rupee figure silently falls back.
  */
 import '@/styles/theme.css';
+import { ClientRouter } from 'astro:transitions';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 
@@ -58,6 +59,9 @@ const { noindex = false, bare = false, class: className = '' } = Astro.props;
 
     <!-- One @graph JSON-LD block per page. Never an isolated blob (03 §1.2). -->
     <slot name="schema" />
+
+    <!-- Sitewide view transitions. Small runtime; the header/footer persist. -->
+    <ClientRouter />
   </head>
 
   <body class={className}>
@@ -70,5 +74,9 @@ const { noindex = false, bare = false, class: className = '' } = Astro.props;
     </main>
 
     {!bare && <Footer />}
+
+    <script>
+      import '@/scripts/motion.ts';
+    </script>
   </body>
 </html>

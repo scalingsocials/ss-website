@@ -26,7 +26,9 @@ export interface Props {
 const { columns, rows, caption, numericCols = [], highlightCol, class: className = '' } = Astro.props;
 const align = (i: number) => (numericCols.includes(i) ? 'text-right' : 'text-left');
 // Static class string so Tailwind's scanner keeps it; toggled per-column.
-const hl = (i: number) => (i === highlightCol ? 'bg-[var(--surface-c)]' : '');
+// ss-hl-col adds the scroll-driven fill-in (Table <style>); the bg is the
+// no-animation fallback.
+const hl = (i: number) => (i === highlightCol ? 'bg-[var(--surface-c)] ss-hl-col' : '');
 ---
 
 <div class:list={['w-full overflow-x-auto', className]}>
@@ -78,3 +80,21 @@ const hl = (i: number) => (i === highlightCol ? 'bg-[var(--surface-c)]' : '');
     )}
   </table>
 </div>
+
+<style>
+  /* Highlighted column fills in as the table scrolls into view. Zero JS,
+     progressive enhancement (the Tailwind bg is the static fallback). */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .ss-hl-col {
+        animation: ssHlIn linear both;
+        animation-timeline: view();
+        animation-range: entry 5% cover 35%;
+      }
+      @keyframes ssHlIn {
+        from { background-color: transparent; }
+        to { background-color: var(--surface-c); }
+      }
+    }
+  }
+</style>

@@ -1,0 +1,101 @@
+---
+/**
+ * /tools/break-even-roas-calculator/ — the first tool page. See 02 §1 (TOOLS),
+ * 03 §1.3 (WebApplication schema), 01 §2.1 (permitted React island).
+ *
+ * The formula and a worked example render as crawlable HTML, so the page is
+ * complete and citable with JavaScript disabled. The React island adds the
+ * interactive calculator; Astro server-renders its initial state too, so JS-off
+ * users still see a filled-in calculator, just non-interactive. Results are
+ * shareable via ?aov=&margin=&roas=.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import BreakEvenRoasCalculator from '@/components/islands/BreakEvenRoasCalculator.tsx';
+import { base, webApplication, webPage, breadcrumbs, faqPage, webAppId } from '@/lib/schema';
+
+const url = '/tools/break-even-roas-calculator/';
+const title = 'Break-even ROAS Calculator for D2C Brands | Scaling Socials';
+const description =
+  'Work out your break-even ROAS and profit per order from your AOV and gross margin. A free calculator from Scaling Socials for D2C and ecommerce brands.';
+const published = '2026-09-01';
+const modified = '2026-09-03';
+
+const faqItems = [
+  {
+    q: 'What is a break-even ROAS?',
+    a: 'Break-even ROAS is the return on ad spend at which an order exactly covers its ad cost and its gross production cost. Below it you lose money on paid acquisition; above it each order adds profit. It equals 1 divided by your gross margin.',
+  },
+  {
+    q: 'How do you calculate break-even ROAS?',
+    a: 'Break-even ROAS = 1 ÷ gross margin. If your gross margin is 40% (0.40), your break-even ROAS is 1 ÷ 0.40 = 2.5×. Any ROAS above 2.5× is profitable before overheads; anything below loses money on each order.',
+  },
+];
+
+const schemaNodes = [
+  ...base(),
+  webApplication({ url, name: 'Break-even ROAS calculator', description }),
+  webPage({ url, name: title, description, aboutId: webAppId(url), hasBreadcrumb: true, datePublished: published, dateModified: modified }),
+  breadcrumbs(url, [
+    { name: 'Home', url: '/' },
+    { name: 'Tools', url: '/tools/' },
+    { name: 'Break-even ROAS calculator', url },
+  ]),
+  faqPage(url, faqItems),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={schemaNodes} />
+
+  <Section size="lg">
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
+      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a>
+      <span> / </span>
+      <a href="/tools/" class="text-[var(--accent-text)] no-underline">Tools</a>
+      <span> / </span>
+      <span>Break-even ROAS calculator</span>
+    </nav>
+
+    <h1 class="max-w-[16ch]">Break-even ROAS calculator</h1>
+
+    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+      Scaling Socials built this to answer one question: what return on ad spend do you need before a
+      D2C order makes money? Enter your average order value, gross margin and current ROAS to see your
+      break-even ROAS and profit per order.
+    </p>
+
+    <!-- Crawlable formula + worked example. Renders with JavaScript disabled. -->
+    <Prose class="mt-[var(--space-6)]">
+      <h2>How break-even ROAS is calculated</h2>
+      <p>
+        Break-even ROAS is the return on ad spend at which an order exactly covers its own ad cost and
+        its gross production cost — the point where paid acquisition stops losing money and starts
+        making it.
+      </p>
+      <p><strong>Break-even ROAS = 1 ÷ gross margin.</strong></p>
+      <p><strong>Profit per order = AOV × gross margin − (AOV ÷ ROAS).</strong></p>
+      <p>
+        Worked example: if your average order value is ₹1,200 and your gross margin is 40%, your
+        break-even ROAS is 1 ÷ 0.40 = 2.5×. At a 3× ROAS, each order earns ₹1,200 × 0.40 − ₹1,200 ÷ 3
+        = ₹480 − ₹400 = ₹80 in profit before overheads. These figures are an illustrative example, not
+        a client result.
+      </p>
+    </Prose>
+  </Section>
+
+  <Section size="md">
+    <h2 class="text-h3 font-semibold">Run your numbers</h2>
+    <p class="mt-[var(--space-2)] max-w-[56ch] text-small text-[var(--fg-muted)]">
+      Change any input and the result updates. The URL updates too, so you can share or bookmark a
+      result. With JavaScript disabled, the example below is shown for reference.
+    </p>
+    <div class="mt-[var(--space-5)] rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-5)]">
+      <BreakEvenRoasCalculator client:visible aov={1500} margin={40} roas={3} />
+    </div>
+  </Section>
+</BaseLayout>

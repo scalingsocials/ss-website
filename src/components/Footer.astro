@@ -22,7 +22,6 @@ const proof = [
   { label: 'Case studies', href: '/case-studies/' },
   { label: 'Creative gallery', href: '/work/' },
   { label: 'Teardowns', href: '/teardowns/' },
-  { label: 'Benchmark Index', href: '/india-d2c-ad-benchmarks/' },
 ];
 const resources = [
   { label: 'Blog', href: '/blog/' },
@@ -53,13 +52,13 @@ const headClass = 'text-small font-semibold text-[var(--fg-muted)]';
 const linkClass = 'text-small text-[var(--fg)] no-underline hover:text-[var(--accent-text)]';
 ---
 
-<footer data-register="ink" class="border-t border-[var(--rule-c)]">
+<footer data-register="ink" transition:persist="site-footer" class="border-t border-[var(--rule-c)]">
   <div class="mx-auto w-full max-w-[var(--container)] px-[var(--space-3)] py-[var(--space-10)] md:px-[var(--space-4)]">
     <div class="grid grid-cols-2 gap-[var(--space-6)] md:grid-cols-4 lg:grid-cols-6">
       <!-- Brand + NAP -->
       <div class="col-span-2 flex flex-col gap-[var(--space-3)]">
         <a href="/" class="no-underline" aria-label="Scaling Socials — home">
-          <Image src={lockupWhite} alt="Scaling Socials" height={30} width={Math.round(30 * (lockupWhite.width / lockupWhite.height))} loading="lazy" />
+          <Image src={lockupWhite} alt="Scaling Socials" height={30} width={Math.round(30 * (lockupWhite.width / lockupWhite.height))} densities={[1, 2]} loading="lazy" />
         </a>
         <p class="max-w-[36ch] text-small text-[var(--fg-muted)]">
           Performance marketing and ecommerce development for D2C brands in India and the UAE.

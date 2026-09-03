@@ -1,0 +1,93 @@
+---
+/**
+ * Teardowns band — public CRO/ads teardowns of real D2C brands. See 03 §7
+ * (Companion: Teardowns) and 08 §7. Ink register.
+ *
+ * The Benchmark Index is parked, so this is the differentiator band. Teardowns
+ * use only public information (a brand's live storefront and public Meta Ad
+ * Library creatives) — no client data, so no permission gate.
+ *
+ * No real teardown is published yet, so this renders an HONEST "publishing
+ * shortly" state with an email capture. It renders NO placeholder metric of any
+ * kind (CLAUDE.md §10, §15) — the framed visual is an empty annotated mock, not
+ * fabricated data. When the first teardown ships, swap in its real annotated
+ * screenshot and headline.
+ */
+export interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<div data-teardowns class:list={['grid gap-[var(--space-8)] lg:grid-cols-[1fr_1fr] lg:items-center', className]}>
+  <div class="flex flex-col gap-[var(--space-3)]">
+    <span class="inline-flex w-fit items-center rounded-full border border-[var(--rule-c)] px-[0.7rem] py-[0.2rem] text-label font-semibold text-[var(--accent-text)]">
+      Teardowns
+    </span>
+    <h2 class="max-w-[18ch] text-h2 font-semibold text-[var(--fg)]">Honest teardowns of real D2C brands</h2>
+    <p class="max-w-[52ch] text-body text-[var(--fg-muted)]">
+      Every month, Scaling Socials pulls apart a real Indian D2C brand — their live store and their
+      public Meta Ad Library creatives, all public information — and shows exactly what we would
+      change and why. Constructive and specific, never a hit piece.
+    </p>
+
+    <div class="mt-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-4)]">
+      <p class="text-small font-semibold text-[var(--fg)]">The first teardown is publishing shortly.</p>
+      <p class="mt-[0.25rem] text-small text-[var(--fg-muted)]">Get it in your inbox the day it goes live.</p>
+      <form action="/api/subscribe" method="post" class="mt-[var(--space-3)] flex flex-col gap-[var(--space-2)] sm:flex-row">
+        <input type="hidden" name="source_type" value="teardown_waitlist" />
+        <!-- honeypot (spam trap) -->
+        <input type="text" name="company_website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+        <label class="sr-only" for="teardown-email">Email address</label>
+        <input
+          id="teardown-email"
+          type="email"
+          name="email"
+          required
+          placeholder="you@yourbrand.com"
+          class="flex-1 rounded-[var(--radius-input)] border border-[var(--fg-muted)] bg-[var(--ground)] px-[var(--space-3)] py-[0.6rem] text-body text-[var(--fg)] placeholder:text-[var(--fg-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent-text)]"
+        />
+        <button
+          type="submit"
+          class="rounded-[var(--radius-button)] bg-[var(--accent-fill)] px-[var(--space-3)] py-[0.6rem] text-body font-medium text-[var(--accent-on)] transition-[transform,background-color] duration-[var(--dur-fast)] hover:-translate-y-px hover:bg-[var(--accent-hover)]"
+        >
+          Notify me
+        </button>
+      </form>
+    </div>
+
+    <a href="/teardowns/" class="w-fit text-small font-medium text-[var(--accent-text)] no-underline">All teardowns</a>
+  </div>
+
+  <!-- Empty annotated mock — NO data, just the frame + our annotation motif. -->
+  <figure class="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-3)]" aria-hidden="true">
+    <div class="mb-[var(--space-2)] flex items-center gap-[6px]">
+      <span class="h-[8px] w-[8px] rounded-full bg-[var(--rule-c)]"></span>
+      <span class="h-[8px] w-[8px] rounded-full bg-[var(--rule-c)]"></span>
+      <span class="h-[8px] w-[8px] rounded-full bg-[var(--rule-c)]"></span>
+      <span class="ml-auto text-label text-[var(--fg-muted)]">teardown.preview</span>
+    </div>
+    <div class="ss-td-mock relative grid aspect-[4/3] place-items-center overflow-hidden rounded-[3px] border border-dashed border-[var(--rule-c)]">
+      <div class="flex flex-col items-center gap-[var(--space-2)] text-center">
+        <div class="ss-td-annot flex items-stretch gap-[0.6rem]">
+          <span class="w-px self-stretch bg-[var(--accent-graphic)]"></span>
+          <span class="py-[0.1rem] text-small text-[var(--fg)]">Publishing shortly</span>
+        </div>
+        <span class="text-label text-[var(--fg-muted)]">Annotated store + ad breakdown</span>
+      </div>
+    </div>
+  </figure>
+</div>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    .ss-td-mock::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-fill) 10%, transparent), transparent);
+      transform: translateX(-100%);
+      animation: tdSheen 3.2s ease-in-out infinite;
+    }
+    @keyframes tdSheen { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(100%); } }
+  }
+</style>

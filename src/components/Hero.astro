@@ -15,8 +15,20 @@
  */
 import Section from '@/components/primitives/Section.astro';
 import Button from '@/components/primitives/Button.astro';
+import Delta from '@/components/blocks/Delta.astro';
 
 const chips = ['Paid media', 'SEO', 'Shopify', 'Web', 'Social', 'CRO'];
+
+/**
+ * The signature proof bar. Real client deltas require permission (11 §6), so
+ * these are VISIBLY INCOMPLETE placeholders — never invented values (CLAUDE.md
+ * §10, §15). Swap TODO for real before→after values once a client signs off.
+ */
+const heroDeltas = [
+  { metric: 'Return on ad spend', before: 'TODO', after: 'TODO', client: 'TODO', period: 'awaiting client permission' },
+  { metric: 'Cost per acquisition', before: 'TODO', after: 'TODO', client: 'TODO', period: 'awaiting client permission', direction: 'down' as const },
+  { metric: 'Monthly revenue', before: 'TODO', after: 'TODO', client: 'TODO', period: 'awaiting client permission' },
+];
 ---
 
 <Section register="ink" size="lg" class="hero" as="section">
@@ -33,7 +45,14 @@ const chips = ['Paid media', 'SEO', 'Shopify', 'Web', 'Social', 'CRO'];
         across India and the UAE. Performance marketing and SEO start at ₹25,000 a month.
       </p>
 
-      <div class="hero__cta hero__line hero__line--4">
+      <div class="hero__deltas hero__line" style="animation-delay:0.38s" aria-label="Recent client results">
+        {heroDeltas.map((d) => <Delta {...d} size="sm" animate />)}
+      </div>
+      <p class="hero__deltas-note hero__line" style="animation-delay:0.44s">
+        Real, attributed client deltas land here as permissions come in.
+      </p>
+
+      <div class="hero__cta hero__line hero__line--4" style="animation-delay:0.52s">
         <Button href="/audit/" variant="primary">Get a free growth plan</Button>
         <Button href="/case-studies/" variant="secondary">See case studies</Button>
       </div>
@@ -121,8 +140,23 @@ const chips = ['Paid media', 'SEO', 'Shopify', 'Web', 'Social', 'CRO'];
     line-height: 1.5;
     color: var(--fg-muted);
   }
+  .hero__deltas {
+    margin-top: var(--space-5);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+    max-width: 540px;
+  }
+  @media (max-width: 520px) {
+    .hero__deltas { grid-template-columns: 1fr; gap: var(--space-3); max-width: 320px; }
+  }
+  .hero__deltas-note {
+    margin-top: var(--space-2);
+    font-size: var(--text-label);
+    color: var(--fg-muted);
+  }
   .hero__cta {
-    margin-top: var(--space-6);
+    margin-top: var(--space-5);
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);

@@ -5,3 +5,5 @@ node_modules/
 .env.production
 .wrangler/
 .DS_Store
+
+.lighthouseci/

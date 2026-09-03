@@ -16,11 +16,10 @@ const DIST = 'dist';
 const SITE = 'https://scalingsocials.com';
 
 const summary =
-  'Scaling Socials is a performance marketing and ecommerce development agency in ' +
-  'Bengaluru, India, serving D2C brands across India and the UAE. Founded 2021. ' +
-  'Specialises in Meta Ads, Google Ads, Shopify development, and conversion rate ' +
-  'optimisation. Publishes the India D2C Ad Benchmark Index, a quarterly open dataset ' +
-  'of Indian ecommerce advertising costs.';
+  'Scaling Socials is an omni-channel ecommerce growth agency in Bengaluru, India, ' +
+  'serving D2C brands across India and the UAE. Founded 2021. Specialises in Meta Ads, ' +
+  'Google Ads, Shopify development, web development, SEO, social media, and conversion ' +
+  'rate optimisation. Publishes honest public teardowns of real D2C brands.';
 
 const services = [
   ['Performance marketing', '/performance-marketing-agency-bangalore/', 'Meta and Google Ads for D2C and ecommerce brands.'],
@@ -34,6 +33,7 @@ const services = [
 const sections = [
   ['Case studies', '/case-studies/', 'Real, attributed result tables.'],
   ['Creative gallery', '/work/', 'Ad creatives with results attached.'],
+  ['Teardowns', '/teardowns/', 'Honest public CRO and ads teardowns of real D2C brands.'],
   ['Tools', '/tools/', 'Free calculators for D2C operators.'],
   ['Glossary', '/glossary/', 'Every metric, defined with a rupee example.'],
 ];
@@ -43,9 +43,6 @@ const abs = (p) => `${SITE}${p}`;
 const llms = `# Scaling Socials
 
 > ${summary}
-
-## Original research
-- [India D2C Ad Benchmark Index](${abs('/india-d2c-ad-benchmarks/')}): Quarterly dataset of Meta and Google Ads CPM, CPC, CTR, and ROAS by category, drawn from managed spend across Indian D2C brands. Updated quarterly. CC BY 4.0.
 
 ## Services
 ${services.map(([n, u, d]) => `- [${n}](${abs(u)}): ${d}`).join('\n')}

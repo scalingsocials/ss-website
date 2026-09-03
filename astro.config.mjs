@@ -1,12 +1,10 @@
 import { defineConfig } from 'astro/config';
-// NOTE: @astrojs/react is intentionally NOT registered yet. It is a pinned
-// dependency (01 §1) reserved for the permitted islands — LeadForm, the
-// calculators, BenchmarkExplorer, BlogSearch (01 §2.1). None exist in this
-// foundational build, and registering the renderer emits react-dom/client
-// (~60KB gzipped) as a dead client asset that breaks the JS budget on its own.
-// Re-add `react()` below the moment the first real island lands; do not add it
-// to enable a disclosure widget that <details> or vanilla JS already handles.
-// import react from '@astrojs/react';
+// React is registered ONLY for the permitted islands (01 §2.1) — the first is the
+// break-even ROAS calculator on /tools/. react-dom/client (~60KB gzipped) loads
+// only on pages that hydrate an island; content pages stay React-free. The perf
+// gate enforces the two tiers per page (content 60KB, tool 140KB) — see
+// scripts/check-perf-budget.mjs. Never add React for a disclosure <details> can do.
+import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from '@astrojs/cloudflare';
@@ -19,6 +17,7 @@ export default defineConfig({
   output: 'static',
   adapter: cloudflare({ imageService: 'compile' }),
   integrations: [
+    react(),
     mdx(),
     sitemap({
       filter: (page) =>

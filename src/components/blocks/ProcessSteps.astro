@@ -25,10 +25,11 @@ const { steps, class: className = '' } = Astro.props;
   {steps.map((step, i) => (
     <li
       class:list={[
-        'grid grid-cols-[auto_1fr] gap-x-[var(--space-4)] gap-y-[var(--space-1)] py-[var(--space-4)]',
+        'ss-step relative grid grid-cols-[auto_1fr] gap-x-[var(--space-4)] gap-y-[var(--space-1)] py-[var(--space-4)] pl-[var(--space-4)]',
         i > 0 && 'border-t border-[var(--rule-c)]',
       ]}
     >
+      <span class="ss-step__fill" aria-hidden="true"></span>
       <span
         class="row-span-2 display-type text-data-sm font-semibold leading-none text-[var(--accent-text)]"
         data-num
@@ -41,3 +42,32 @@ const { steps, class: className = '' } = Astro.props;
     </li>
   ))}
 </ol>
+
+<style>
+  /* Left spine "fills" as each step scrolls into view. CSS scroll-driven, zero
+     JS, progressive enhancement (unsupported browsers show a static spine). */
+  .ss-step__fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--accent-graphic);
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .ss-step__fill {
+        transform: scaleY(0);
+        animation: ssStepFill linear both;
+        animation-timeline: view();
+        animation-range: entry 12% cover 42%;
+      }
+      @keyframes ssStepFill {
+        from { transform: scaleY(0); }
+        to { transform: scaleY(1); }
+      }
+    }
+  }
+</style>

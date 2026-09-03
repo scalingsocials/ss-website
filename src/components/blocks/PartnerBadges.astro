@@ -1,0 +1,37 @@
+---
+/**
+ * PartnerBadges — Google / Meta / Shopify partner marks. See 08 §7 item 3.
+ *
+ * Partner status is a CERTIFICATION CLAIM and none is verified yet (11 §5 / entity
+ * sameAs TODO), so these render as clearly-labelled TODO placeholders — never an
+ * unverified badge presented as real (CLAUDE.md §15). Replace each with the real
+ * badge + a link to the public partner-directory listing once confirmed.
+ *
+ * Distinct from the "Where we run" platform strip: that lists platforms we operate
+ * on (factual); this asserts a partnership (needs proof). Register-agnostic.
+ */
+export interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+
+const partners = [
+  { name: 'Google Partner', verified: false },
+  { name: 'Meta Business Partner', verified: false },
+  { name: 'Shopify Partner', verified: false },
+];
+---
+
+<div data-partner-badges class:list={['flex flex-col items-center gap-[var(--space-3)]', className]}>
+  <span class="text-label font-semibold text-[var(--fg-muted)]">Partnerships</span>
+  <ul class="flex flex-wrap items-center justify-center gap-[var(--space-3)]">
+    {partners.map((p) => (
+      <li class="flex items-center gap-[0.6rem] rounded-[var(--radius-card)] border border-dashed border-[var(--rule-c)] px-[var(--space-3)] py-[0.6rem]">
+        <span class="text-small font-semibold text-[var(--fg)]">{p.name}</span>
+        <span class="rounded-full border border-[var(--rule-c)] px-[0.5rem] py-[0.1rem] text-label text-[var(--fg-muted)]">
+          {p.verified ? 'Verified' : 'TODO: verify'}
+        </span>
+      </li>
+    ))}
+  </ul>
+</div>

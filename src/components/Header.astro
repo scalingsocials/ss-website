@@ -20,10 +20,12 @@ import { NAV, NAV_CTA } from '@/lib/nav';
 const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+/g, '-')}`;
 ---
 
-<header data-register="paper" class="ss-header sticky top-0 z-50 border-b border-[var(--rule-c)]">
+<header data-register="paper" transition:persist="site-header" class="ss-header sticky top-0 z-50 border-b border-[var(--rule-c)]">
+  <!-- Scroll-progress rule under the header. CSS scroll-driven, zero JS. -->
+  <div class="ss-header__progress" aria-hidden="true"></div>
   <div class="mx-auto flex w-full max-w-[var(--container)] items-center gap-[var(--space-4)] px-[var(--space-3)] py-[var(--space-2)] md:px-[var(--space-4)]">
     <a href="/" class="shrink-0 no-underline" aria-label="Scaling Socials — home">
-      <Image src={lockup} alt="Scaling Socials" height={28} width={Math.round(28 * (lockup.width / lockup.height))} loading="eager" />
+      <Image src={lockup} alt="Scaling Socials" height={28} width={Math.round(28 * (lockup.width / lockup.height))} densities={[1, 2]} loading="eager" />
     </a>
 
     <!-- Desktop nav -->
@@ -265,6 +267,32 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
     visibility: visible;
     pointer-events: auto;
     transform: translateY(0);
+  }
+
+  /* Scroll-progress rule: grows left→right as the page scrolls. Zero JS,
+     progressive enhancement (unsupported browsers just see a static hairline). */
+  .ss-header__progress {
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    height: 2px;
+    width: 100%;
+    transform-origin: left;
+    transform: scaleX(0);
+    background: var(--accent-graphic);
+    z-index: 61;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      .ss-header__progress {
+        animation: ssProgress linear both;
+        animation-timeline: scroll(root block);
+      }
+      @keyframes ssProgress {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+      }
+    }
   }
 
   .ss-caret {

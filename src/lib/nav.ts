@@ -73,12 +73,11 @@ export const NAV: NavItem[] = [
     items: [
       { label: 'Case studies', href: '/case-studies/', descriptor: 'Real result tables, named clients.' },
       { label: 'Creative gallery', href: '/work/', descriptor: 'Ad creatives we made, with results attached.' },
-      { label: 'Teardowns', href: '/teardowns/', descriptor: 'Public CRO and ads teardowns.' },
     ],
   },
   {
-    label: 'Benchmarks',
-    href: '/india-d2c-ad-benchmarks/',
+    label: 'Teardowns',
+    href: '/teardowns/',
     kind: 'link',
   },
   {
