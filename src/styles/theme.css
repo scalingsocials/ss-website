@@ -123,6 +123,7 @@
   --accent-fill:    var(--color-accent);
   --accent-on:      var(--color-white);        /* 8.88:1 on the fill */
   --accent-graphic: var(--color-accent);
+  --accent-graphic-2: var(--color-teal);        /* decorative companion for graphics only */
   --accent-wash:    var(--color-accent-wash);
   --accent-hover:   var(--color-accent-deep);  /* darker teal — works as fill bg AND link text */
 
@@ -141,6 +142,7 @@
   --accent-fill:    var(--color-accent-lift);
   --accent-on:      var(--color-black);        /* 10.46:1 on the lifted fill */
   --accent-graphic: var(--color-accent-lift);
+  --accent-graphic-2: var(--color-teal);        /* decorative companion for graphics only */
   --accent-wash:    color-mix(in srgb, var(--color-accent-lift) 14%, transparent);
   --accent-hover:   var(--color-accent-lift-hi); /* lighter teal — works as fill bg AND link text */
 

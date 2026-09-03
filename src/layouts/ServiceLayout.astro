@@ -22,6 +22,8 @@ import ComparisonTable from '@/components/blocks/ComparisonTable.astro';
 import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
+import Glyph from '@/components/graphics/Glyph.astro';
+import DotField from '@/components/graphics/DotField.astro';
 import { CASE_STUDIES } from '@/lib/caseStudies';
 import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
 import type { ServiceContent } from '@/lib/services';
@@ -33,6 +35,30 @@ const { svc } = Astro.props;
 const url = svc.url;
 const published = '2026-09-01';
 const modified = '2026-09-04';
+
+// Map a sub-service title to one shared glyph, so every card carries a line
+// icon in the site's single drawing hand. Keyword match, falls back to spark.
+function glyphFor(title: string): string {
+  const t = title.toLowerCase();
+  const rules: [RegExp, string][] = [
+    [/meta|facebook|instagram\b|paid social/, 'target'],
+    [/google|search ads|ppc|shopping/, 'search'],
+    [/seo|ranking|organic|answer engine|aeo/, 'chart'],
+    [/shopify|store|ecommerce|checkout|cart/, 'cart'],
+    [/web|site|develop|headless|code|build/, 'code'],
+    [/social|community|content|ugc/, 'social'],
+    [/cro|conversion|landing|funnel/, 'funnel'],
+    [/speed|performance|core web|pagespeed/, 'speed'],
+    [/migrat|replatform/, 'migrate'],
+    [/redesign|theme|design/, 'layers'],
+    [/audit|analys|research/, 'audit'],
+    [/email|crm|retention|lifecycle/, 'mail'],
+    [/report|analytic|dashboard|measure/, 'gauge'],
+    [/local|map|gmb|profile/, 'target'],
+  ];
+  for (const [re, g] of rules) if (re.test(t)) return g;
+  return 'spark';
+}
 
 const process = [
   { title: 'Audit', body: 'We read your accounts and your store and find where spend leaks and where it can scale.' },
@@ -64,11 +90,12 @@ const nodes = [
   <SchemaGraph slot="schema" nodes={nodes} />
 
   <!-- HERO -->
-  <Section size="lg">
-    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
+  <Section size="lg" class="relative overflow-hidden">
+    <DotField origin="top-right" />
+    <nav aria-label="Breadcrumb" class="relative mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
       <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span> / </span><span>{svc.name}</span>
     </nav>
-    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+    <div class="relative grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
       <div>
         <span class="ss-eyebrow">{svc.eyebrow}</span>
         <h1>{svc.h1}</h1>
@@ -117,6 +144,7 @@ const nodes = [
     <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2">
       {svc.subservices.map((s) => (
         <li class="flex flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+          <span class="ss-svc-glyph"><Glyph name={glyphFor(s.title)} size={20} /></span>
           <h3 class="text-h4 font-semibold text-[var(--fg)]">{s.title}</h3>
           <p class="text-small leading-relaxed text-[var(--fg-muted)]">{s.body}</p>
           {s.href && <a href={s.href} class="mt-auto pt-[var(--space-1)] text-small font-medium text-[var(--accent-text)] no-underline">Learn more</a>}
@@ -175,5 +203,15 @@ const nodes = [
 
   <style>
     .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+    .ss-svc-glyph {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-input);
+      color: var(--accent-graphic);
+      background: var(--accent-wash);
+      border: 1px solid color-mix(in srgb, var(--accent-graphic) 22%, transparent);
+    }
   </style>
 </BaseLayout>

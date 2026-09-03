@@ -1,0 +1,36 @@
+---
+/**
+ * DotField — a decorative, purely ornamental dot grid with a soft accent glow.
+ * Sits behind content to keep flat sections from reading as walls of text.
+ * Absolutely positioned, aria-hidden, pointer-events:none; the parent must be
+ * position:relative and clip overflow. Register-agnostic (reads --rule-c etc.).
+ */
+export interface Props {
+  /** corner to anchor the glow to */
+  origin?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
+  class?: string;
+}
+const { origin = 'top-right', class: className = '' } = Astro.props;
+const pos = {
+  'top-right': '18% 0% at 92% 6%',
+  'top-left': '18% 0% at 8% 6%',
+  'bottom-right': '20% 0% at 90% 96%',
+  'bottom-left': '20% 0% at 10% 96%',
+}[origin];
+---
+<div class:list={['ss-dotfield', className]} aria-hidden="true" style={`--glow:${pos}`}></div>
+<style>
+  .ss-dotfield {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(40% 40% at var(--glow), color-mix(in srgb, var(--accent-graphic) 12%, transparent), transparent 70%),
+      radial-gradient(circle, color-mix(in srgb, var(--fg) 12%, transparent) 1px, transparent 1.4px);
+    background-size: auto, 22px 22px;
+    -webkit-mask-image: linear-gradient(180deg, #000, transparent 78%);
+    mask-image: linear-gradient(180deg, #000, transparent 78%);
+    opacity: 0.5;
+  }
+</style>
