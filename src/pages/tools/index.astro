@@ -19,9 +19,9 @@ const modified = '2026-09-04';
 
 const tools = [
   { name: 'Break-even ROAS calculator', desc: 'The return on ad spend you need before an order makes money, from your AOV and margin.', href: '/tools/break-even-roas-calculator/', live: true, icon: 'gauge' },
-  { name: 'D2C CAC payback calculator', desc: 'How long it takes to earn back the cost of acquiring a customer.', href: '/tools/d2c-cac-payback-calculator/', live: false, icon: 'handshake' },
-  { name: 'Meta ads budget planner', desc: 'Plan a testing and scaling budget across creative and audiences.', href: '/tools/meta-ads-budget-planner/', live: false, icon: 'target' },
-  { name: 'Shopify speed grader', desc: 'Check what your store’s load time is costing you in conversion.', href: '/tools/shopify-speed-grader/', live: false, icon: 'speed' },
+  { name: 'D2C CAC payback calculator', desc: 'How long it takes to earn back the cost of acquiring a customer, from CAC, AOV, margin and repeat rate.', href: '/tools/d2c-cac-payback-calculator/', live: true, icon: 'handshake' },
+  { name: 'Meta ads budget planner', desc: 'Split a monthly budget into testing and scaling, and see fundable test cells and estimated orders.', href: '/tools/meta-ads-budget-planner/', live: true, icon: 'target' },
+  { name: 'Shopify speed grader', desc: 'Grade your LCP against Core Web Vitals and model the revenue of reaching the 2.5s target.', href: '/tools/shopify-speed-grader/', live: true, icon: 'speed' },
 ];
 
 const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }), breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Tools', url }])];

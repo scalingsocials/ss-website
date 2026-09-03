@@ -1,0 +1,104 @@
+---
+/**
+ * /tools/meta-ads-budget-planner/ — Meta budget split planner. See 02 §1 (TOOLS),
+ * 03 §1.3 (WebApplication schema), 01 §2.1 (permitted React island).
+ *
+ * The formulae and a worked example render as crawlable HTML, complete with
+ * JavaScript disabled. The React island adds the interactive planner,
+ * server-rendered with its default state. Plans are shareable via
+ * ?budget=&split=&cpa=&cell=.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import MetaBudgetPlanner from '@/components/islands/MetaBudgetPlanner.tsx';
+import { base, webApplication, webPage, breadcrumbs, faqPage, webAppId } from '@/lib/schema';
+
+const url = '/tools/meta-ads-budget-planner/';
+const title = 'Meta Ads Budget Planner for D2C Brands | Scaling Socials';
+const description =
+  'Split a monthly Meta ads budget into testing and scaling, and see daily spend, fundable test cells and estimated orders. A free planner from Scaling Socials.';
+const published = '2026-09-04';
+const modified = '2026-09-04';
+
+const faqItems = [
+  {
+    q: 'How should I split a Meta ads budget between testing and scaling?',
+    a: 'A common starting point is to reserve roughly 20–30% of the budget for testing new creative and audiences, and put the rest behind proven winners. The right split depends on how fast your creative fatigues and how many new angles you can produce — treat it as a dial, not a fixed rule.',
+  },
+  {
+    q: 'How many creatives can I test on my budget?',
+    a: 'Divide your testing pool by the spend it takes to read one test cell — roughly the amount needed to judge whether a single creative or audience works. If testing is ₹45,000 a month and one cell needs ₹8,000, you can fund about five tests a month.',
+  },
+  {
+    q: 'How many orders will a budget produce?',
+    a: 'A rough planning estimate is monthly budget ÷ target CPA. It is a planning figure, not a forecast: real results depend on your offer, creative, margins and the auction. Use it to sanity-check a budget, not to promise a number.',
+  },
+];
+
+const schemaNodes = [
+  ...base(),
+  webApplication({ url, name: 'Meta ads budget planner', description }),
+  webPage({ url, name: title, description, aboutId: webAppId(url), hasBreadcrumb: true, datePublished: published, dateModified: modified }),
+  breadcrumbs(url, [
+    { name: 'Home', url: '/' },
+    { name: 'Tools', url: '/tools/' },
+    { name: 'Meta ads budget planner', url },
+  ]),
+  faqPage(url, faqItems),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={schemaNodes} />
+
+  <Section size="lg">
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
+      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a>
+      <span> / </span>
+      <a href="/tools/" class="text-[var(--accent-text)] no-underline">Tools</a>
+      <span> / </span>
+      <span>Meta ads budget planner</span>
+    </nav>
+
+    <h1 class="max-w-[18ch]">Meta ads budget planner</h1>
+
+    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+      Scaling Socials built this to plan a Meta budget the way we run one: split spend between testing
+      and scaling, then check how many creatives that testing pool can actually fund. Enter your budget,
+      split, target CPA and test-cell cost.
+    </p>
+
+    <Prose class="mt-[var(--space-6)]">
+      <h2>How the plan is worked out</h2>
+      <p>
+        A Meta budget does two jobs at once — finding new winners and scaling the ones that work. Split
+        the budget, then check the testing pool is big enough to read the tests you want to run.
+      </p>
+      <p><strong>Testing budget = monthly budget × testing split.</strong></p>
+      <p><strong>Scaling budget = monthly budget − testing budget.</strong></p>
+      <p><strong>Test cells you can fund = testing budget ÷ spend to read one cell.</strong></p>
+      <p><strong>Estimated orders = monthly budget ÷ target CPA.</strong></p>
+      <p>
+        Worked example: on a ₹1,50,000 budget with a 30% testing split, testing is ₹45,000 and scaling
+        is ₹1,05,000. At ₹8,000 to read a cell you can fund about five tests a month; at a ₹600 target
+        CPA the budget models to roughly 250 orders. These are planning estimates, not a forecast or a
+        client result.
+      </p>
+    </Prose>
+  </Section>
+
+  <Section size="md">
+    <h2 class="text-h3 font-semibold">Plan your budget</h2>
+    <p class="mt-[var(--space-2)] max-w-[56ch] text-small text-[var(--fg-muted)]">
+      Change any input and the plan updates. The URL updates too, so you can share or bookmark a plan.
+      With JavaScript disabled, the example below is shown for reference.
+    </p>
+    <div class="mt-[var(--space-5)] rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-5)]">
+      <MetaBudgetPlanner client:visible budget={150000} split={30} cpa={600} cell={8000} />
+    </div>
+  </Section>
+</BaseLayout>

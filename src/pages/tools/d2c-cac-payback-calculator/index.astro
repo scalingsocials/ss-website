@@ -1,0 +1,102 @@
+---
+/**
+ * /tools/d2c-cac-payback-calculator/ — CAC payback tool. See 02 §1 (TOOLS),
+ * 03 §1.3 (WebApplication schema), 01 §2.1 (permitted React island).
+ *
+ * The formula and a worked example render as crawlable HTML, so the page is
+ * complete and citable with JavaScript disabled. The React island adds the
+ * interactive calculator, server-rendered with its default state. Results are
+ * shareable via ?cac=&aov=&margin=&freq=.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import CacPaybackCalculator from '@/components/islands/CacPaybackCalculator.tsx';
+import { base, webApplication, webPage, breadcrumbs, faqPage, webAppId } from '@/lib/schema';
+
+const url = '/tools/d2c-cac-payback-calculator/';
+const title = 'D2C CAC Payback Period Calculator | Scaling Socials';
+const description =
+  'How many months to earn back customer acquisition cost, from your CAC, AOV, gross margin and repeat rate. A free D2C calculator by Scaling Socials.';
+const published = '2026-09-04';
+const modified = '2026-09-04';
+
+const faqItems = [
+  {
+    q: 'What is CAC payback period?',
+    a: 'CAC payback period is the time it takes for a customer’s gross contribution to earn back the cost of acquiring them. A shorter payback frees up cash to reinvest in acquisition; a long payback ties cash up and raises the risk if a customer churns early.',
+  },
+  {
+    q: 'How do you calculate CAC payback?',
+    a: 'CAC payback (months) = CAC ÷ (AOV × gross margin × orders per year ÷ 12). For example, a ₹800 CAC with ₹1,500 AOV, 40% margin and 2.5 orders a year gives ₹1,500 monthly contribution and a payback of about 6.4 months.',
+  },
+  {
+    q: 'What is a good CAC payback period for D2C?',
+    a: 'It depends on your margin and cash position, but many D2C operators aim to recover CAC within the first order or the first few months. The faster you recover CAC, the more you can spend to acquire the next customer without running out of working capital.',
+  },
+];
+
+const schemaNodes = [
+  ...base(),
+  webApplication({ url, name: 'D2C CAC payback calculator', description }),
+  webPage({ url, name: title, description, aboutId: webAppId(url), hasBreadcrumb: true, datePublished: published, dateModified: modified }),
+  breadcrumbs(url, [
+    { name: 'Home', url: '/' },
+    { name: 'Tools', url: '/tools/' },
+    { name: 'D2C CAC payback calculator', url },
+  ]),
+  faqPage(url, faqItems),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={schemaNodes} />
+
+  <Section size="lg">
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
+      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a>
+      <span> / </span>
+      <a href="/tools/" class="text-[var(--accent-text)] no-underline">Tools</a>
+      <span> / </span>
+      <span>D2C CAC payback calculator</span>
+    </nav>
+
+    <h1 class="max-w-[18ch]">D2C CAC payback calculator</h1>
+
+    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+      Scaling Socials built this to answer one cash-flow question: how long does it take to earn back
+      what you spent to acquire a customer? Enter your CAC, average order value, gross margin and repeat
+      rate to see your payback period in months.
+    </p>
+
+    <Prose class="mt-[var(--space-6)]">
+      <h2>How CAC payback is calculated</h2>
+      <p>
+        CAC payback period is the time a customer’s gross contribution takes to earn back the cost of
+        acquiring them. The shorter it is, the sooner that cash is free to acquire the next customer.
+      </p>
+      <p><strong>Contribution per order = AOV × gross margin.</strong></p>
+      <p><strong>CAC payback (months) = CAC ÷ (AOV × gross margin × orders per year ÷ 12).</strong></p>
+      <p>
+        Worked example: with a ₹800 CAC, ₹1,500 average order value, 40% gross margin and 2.5 orders a
+        year, contribution per order is ₹1,500 × 0.40 = ₹600, annual contribution is ₹600 × 2.5 = ₹1,500,
+        and monthly contribution is ₹125. Payback is ₹800 ÷ ₹125 ≈ 6.4 months. These figures are an
+        illustrative example, not a client result.
+      </p>
+    </Prose>
+  </Section>
+
+  <Section size="md">
+    <h2 class="text-h3 font-semibold">Run your numbers</h2>
+    <p class="mt-[var(--space-2)] max-w-[56ch] text-small text-[var(--fg-muted)]">
+      Change any input and the result updates. The URL updates too, so you can share or bookmark a
+      result. With JavaScript disabled, the example below is shown for reference.
+    </p>
+    <div class="mt-[var(--space-5)] rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-5)]">
+      <CacPaybackCalculator client:visible cac={800} aov={1500} margin={40} freq={2.5} />
+    </div>
+  </Section>
+</BaseLayout>

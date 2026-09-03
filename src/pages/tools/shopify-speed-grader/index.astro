@@ -1,0 +1,105 @@
+---
+/**
+ * /tools/shopify-speed-grader/ — Core Web Vitals speed grader. See 02 §1 (TOOLS),
+ * 03 §1.3 (WebApplication schema), 01 §2.1 (permitted React island).
+ *
+ * The thresholds, formula and a worked example render as crawlable HTML, complete
+ * with JavaScript disabled. The React island adds the interactive grader,
+ * server-rendered with its default state. Shareable via
+ * ?lcp=&sessions=&cr=&aov=&sens=.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import ShopifySpeedGrader from '@/components/islands/ShopifySpeedGrader.tsx';
+import { base, webApplication, webPage, breadcrumbs, faqPage, webAppId } from '@/lib/schema';
+
+const url = '/tools/shopify-speed-grader/';
+const title = 'Shopify Speed Grader and Revenue Estimator | Scaling Socials';
+const description =
+  'Grade your Shopify store’s LCP against Google’s Core Web Vitals and model the revenue of reaching 2.5s from your sessions, conversion rate and AOV. Free tool.';
+const published = '2026-09-04';
+const modified = '2026-09-04';
+
+const faqItems = [
+  {
+    q: 'What is a good LCP for a Shopify store?',
+    a: 'Google’s Core Web Vitals rate Largest Contentful Paint as Good at 2.5 seconds or under, Needs improvement up to 4 seconds, and Poor above 4 seconds. Aiming for 2.5s or better on mobile is a sensible target for a Shopify storefront.',
+  },
+  {
+    q: 'How does site speed affect conversion?',
+    a: 'Slower pages tend to convert worse because more visitors abandon before the page is usable, but the exact relationship varies by store, traffic source and device. This grader lets you set your own conversion sensitivity so the estimate reflects a conservative assumption rather than a claimed industry figure.',
+  },
+  {
+    q: 'How is the revenue estimate calculated?',
+    a: 'Seconds saved is your current LCP minus 2.5s. The modelled conversion uplift is seconds saved × your assumed change per second. Extra orders is sessions × the change in conversion rate, and extra revenue is extra orders × AOV. It is a model driven by your assumption, not a guarantee.',
+  },
+];
+
+const schemaNodes = [
+  ...base(),
+  webApplication({ url, name: 'Shopify speed grader', description }),
+  webPage({ url, name: title, description, aboutId: webAppId(url), hasBreadcrumb: true, datePublished: published, dateModified: modified }),
+  breadcrumbs(url, [
+    { name: 'Home', url: '/' },
+    { name: 'Tools', url: '/tools/' },
+    { name: 'Shopify speed grader', url },
+  ]),
+  faqPage(url, faqItems),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={schemaNodes} />
+
+  <Section size="lg">
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
+      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a>
+      <span> / </span>
+      <a href="/tools/" class="text-[var(--accent-text)] no-underline">Tools</a>
+      <span> / </span>
+      <span>Shopify speed grader</span>
+    </nav>
+
+    <h1 class="max-w-[18ch]">Shopify speed grader</h1>
+
+    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+      Scaling Socials built this to put a number on store speed: grade your Largest Contentful Paint
+      against Google’s Core Web Vitals, then model what reaching the 2.5s “Good” bar could be worth —
+      using a conversion assumption you set yourself.
+    </p>
+
+    <Prose class="mt-[var(--space-6)]">
+      <h2>How the grade and estimate work</h2>
+      <p>
+        Largest Contentful Paint (LCP) measures how long the main content takes to appear. Google’s
+        Core Web Vitals rate it <strong>Good at 2.5s or under</strong>, <strong>Needs improvement up to
+        4s</strong>, and <strong>Poor above 4s</strong>.
+      </p>
+      <p><strong>Seconds saved = current LCP − 2.5s.</strong></p>
+      <p><strong>Modelled conversion uplift = seconds saved × your assumed change per second.</strong></p>
+      <p><strong>Extra revenue = sessions × change in conversion rate × AOV.</strong></p>
+      <p>
+        The uplift figure is an assumption you control, not a claimed industry constant — set it
+        conservatively. Worked example: a store at 4.2s LCP is 1.7s over the Good bar; at an assumed 7%
+        conversion change per second, a 1.8% conversion rate models to about 2.0%, and on 40,000 monthly
+        sessions that is roughly ₹1.4L of modelled monthly revenue at a ₹1,500 AOV. This is an
+        illustrative model, not a client result or a guarantee.
+      </p>
+    </Prose>
+  </Section>
+
+  <Section size="md">
+    <h2 class="text-h3 font-semibold">Grade your store</h2>
+    <p class="mt-[var(--space-2)] max-w-[56ch] text-small text-[var(--fg-muted)]">
+      Change any input and the grade updates. The URL updates too, so you can share or bookmark a
+      result. With JavaScript disabled, the example below is shown for reference.
+    </p>
+    <div class="mt-[var(--space-5)] rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-5)]">
+      <ShopifySpeedGrader client:visible lcp={4.2} sessions={40000} cr={1.8} aov={1500} sens={7} />
+    </div>
+  </Section>
+</BaseLayout>
