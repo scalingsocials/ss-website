@@ -1,0 +1,41 @@
+---
+/**
+ * /teardowns/ — public CRO/ads teardowns index. See 03 §7. Honest "publishing
+ * shortly" state until the first teardown lands; no fabricated content.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Teardowns from '@/components/blocks/Teardowns.astro';
+import { base, webPage, breadcrumbs } from '@/lib/schema';
+
+const url = '/teardowns/';
+const title = 'Public D2C Ads and CRO Teardowns | Scaling Socials';
+const description =
+  'Honest monthly teardowns of real Indian D2C brands from Scaling Socials — their public store and ad creatives, and what we would change first.';
+const modified = '2026-09-04';
+
+const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }), breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Teardowns', url }])];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <span class="ss-eyebrow">Teardowns</span>
+    <h1 class="max-w-[20ch]">Honest teardowns of real D2C brands</h1>
+    <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">
+      Every month we pull apart a real Indian D2C brand — their live store and their public ad
+      creatives, all public information — and show exactly what we’d change and why. Constructive and
+      specific, never a hit piece.
+    </p>
+  </Section>
+
+  <Section register="ink" size="lg">
+    <Teardowns />
+  </Section>
+
+  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+</BaseLayout>

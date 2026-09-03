@@ -1,0 +1,64 @@
+---
+/**
+ * /case-studies/ — proof index. Real, permissioned results (owner confirmed).
+ * Individual /case-studies/[slug]/ pages need each client's name + before→after
+ * table (pending) — see the requirements doc.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import LogoWall from '@/components/blocks/LogoWall.astro';
+import Testimonials from '@/components/blocks/Testimonials.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import { CASE_STUDIES } from '@/lib/caseStudies';
+import { base, webPage, breadcrumbs } from '@/lib/schema';
+
+const url = '/case-studies/';
+const title = 'Case Studies: Real D2C Growth Results | Scaling Socials';
+const description =
+  'Real, permissioned results from Scaling Socials — revenue driven for D2C and ecommerce brands across paid media, Shopify and web, in India and the UAE.';
+const modified = '2026-09-04';
+
+const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }), breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Case studies', url }])];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <span class="ss-eyebrow">Proof</span>
+    <h1 class="max-w-[18ch]">Real revenue, on the board</h1>
+    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+      The results Scaling Socials publishes are real and permissioned. We won’t put a number on this
+      page we can’t stand behind — which is exactly why they’re worth reading.
+    </p>
+    <ul class="mt-[var(--space-8)] grid gap-[var(--space-4)] sm:grid-cols-3">
+      {CASE_STUDIES.map((cs) => (
+        <li class="flex flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]">
+          <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{cs.result}</span>
+          <span class="text-body text-[var(--fg)]">{cs.metric} {cs.period}</span>
+          <span class="mt-auto border-t border-[var(--rule-c)] pt-[var(--space-3)] text-label text-[var(--fg-muted)]">{cs.work} — {cs.channels}</span>
+        </li>
+      ))}
+    </ul>
+    <p class="mt-[var(--space-4)] text-small text-[var(--fg-muted)]">Full write-ups, with the before→after tables, are being published with each client’s permission.</p>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="ss-eyebrow">In their words</span>
+    <h2 class="max-w-[22ch] text-h2 font-semibold">What our clients say</h2>
+    <div class="mt-[var(--space-6)]"><Testimonials /></div>
+  </Section>
+
+  <Section size="md">
+    <LogoWall heading="Brands we work with" />
+  </Section>
+
+  <Section register="ink" size="md">
+    <CtaBand heading="Want results like these for your brand?" body="A written audit in three working days, whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" secondaryLabel="Contact us" secondaryHref="/contact/" />
+  </Section>
+
+  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+</BaseLayout>

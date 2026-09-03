@@ -1,0 +1,23 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import Section from '@/components/primitives/Section.astro';
+import Button from '@/components/primitives/Button.astro';
+---
+<BaseLayout noindex>
+  <Meta slot="meta" title="Guides | Scaling Socials — D2C growth playbooks" description="Long-form, evergreen guides on scaling D2C brands with paid media, Shopify, SEO and CRO, from Scaling Socials." noindex />
+  <Section size="lg">
+    <span class="ss-eyebrow">Guides</span>
+    <h1 class="max-w-[18ch]">Long-form playbooks, coming soon</h1>
+    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+      Evergreen, in-depth guides on scaling a D2C brand — from break-even economics to creative
+      testing to store speed. Publishing shortly. In the meantime, the service pages and free tools
+      have plenty to work with.
+    </p>
+    <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+      <Button href="/tools/" variant="primary">Try the free tools</Button>
+      <Button href="/audit/" variant="secondary">Get a free growth plan</Button>
+    </div>
+  </Section>
+  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+</BaseLayout>

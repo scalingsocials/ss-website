@@ -1,0 +1,27 @@
+---
+/**
+ * /blog/ — index. noindex until the first posts land (thin-index rule, 03 §2).
+ * Needs a content collection (MDX) — see the requirements doc.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import Section from '@/components/primitives/Section.astro';
+import Button from '@/components/primitives/Button.astro';
+---
+<BaseLayout noindex>
+  <Meta slot="meta" title="Blog | Scaling Socials — D2C growth notes" description="Practical notes on Meta and Google Ads, Shopify, SEO and CRO for Indian D2C brands, from the accounts Scaling Socials runs." noindex />
+  <Section size="lg">
+    <span class="ss-eyebrow">Blog</span>
+    <h1 class="max-w-[18ch]">Notes from the accounts we run</h1>
+    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+      Practical writing on Meta and Google Ads, Shopify, SEO and CRO for Indian D2C brands — no
+      fluff, real numbers. Our first posts publish shortly. Until then, the service pages carry the
+      detail.
+    </p>
+    <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+      <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+      <Button href="/tools/" variant="secondary">Try the free tools</Button>
+    </div>
+  </Section>
+  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+</BaseLayout>

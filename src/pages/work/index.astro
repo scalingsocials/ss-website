@@ -1,0 +1,41 @@
+---
+/**
+ * /work/ — the creative gallery. See 02 §1.2. Ink register, real client creatives.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import CreativeWall from '@/components/blocks/CreativeWall.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import { base, webPage, breadcrumbs } from '@/lib/schema';
+
+const url = '/work/';
+const title = 'Creative Gallery: Our D2C Ad Creative | Scaling Socials';
+const description =
+  'The ad creative Scaling Socials produces in-house for D2C brands — statics and video built to be tested. The portfolio nobody else in this SERP shows.';
+const modified = '2026-09-04';
+
+const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }), breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Work', url }])];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section register="ink" size="lg">
+    <span class="ss-eyebrow">Creative</span>
+    <h1 class="max-w-[18ch]">Creative built to be tested</h1>
+    <p class="mt-[var(--space-4)] mb-[var(--space-8)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">
+      We produce ad creative in-house — statics and video. Real client work, at the volume a testing
+      pipeline needs. Most agencies describe their creative; this is ours.
+    </p>
+    <CreativeWall />
+  </Section>
+
+  <Section register="ink" size="md">
+    <CtaBand heading="Want creative that stops the scroll?" body="A written audit in three working days, whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" />
+  </Section>
+
+  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+</BaseLayout>

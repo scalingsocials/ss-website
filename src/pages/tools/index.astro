@@ -1,0 +1,60 @@
+---
+/**
+ * /tools/ — index of the free calculators. See 02 §1 (TOOLS).
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import { base, webPage, breadcrumbs } from '@/lib/schema';
+
+const url = '/tools/';
+const title = 'Free D2C Marketing Tools and Calculators | Scaling Socials';
+const description =
+  'Free calculators for D2C and ecommerce founders from Scaling Socials — work out your break-even ROAS, CAC payback and ad budget, with the maths explained.';
+const modified = '2026-09-04';
+
+const tools = [
+  { name: 'Break-even ROAS calculator', desc: 'The return on ad spend you need before an order makes money, from your AOV and margin.', href: '/tools/break-even-roas-calculator/', live: true },
+  { name: 'D2C CAC payback calculator', desc: 'How long it takes to earn back the cost of acquiring a customer.', href: '/tools/d2c-cac-payback-calculator/', live: false },
+  { name: 'Meta ads budget planner', desc: 'Plan a testing and scaling budget across creative and audiences.', href: '/tools/meta-ads-budget-planner/', live: false },
+  { name: 'Shopify speed grader', desc: 'Check what your store’s load time is costing you in conversion.', href: '/tools/shopify-speed-grader/', live: false },
+];
+
+const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }), breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Tools', url }])];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <span class="ss-eyebrow">Free tools</span>
+    <h1 class="max-w-[18ch]">Free calculators for D2C founders</h1>
+    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+      Simple, honest calculators with the maths shown — no email wall. Built by Scaling Socials for
+      the numbers a D2C operator actually needs to know.
+    </p>
+    <ul class="mt-[var(--space-8)] grid gap-[var(--space-3)] sm:grid-cols-2">
+      {tools.map((t) => (
+        <li>
+          <a href={t.live ? t.href : '#'} class:list={['group flex h-full flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)] no-underline', !t.live && 'pointer-events-none opacity-60']}>
+            <div class="flex items-center justify-between gap-[var(--space-2)]">
+              <h2 class="text-h4 font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">{t.name}</h2>
+              {!t.live && <span class="rounded-full border border-[var(--rule-c)] px-[0.6rem] py-[0.1rem] text-label text-[var(--fg-muted)]">Soon</span>}
+            </div>
+            <p class="text-small leading-relaxed text-[var(--fg-muted)]">{t.desc}</p>
+            {t.live && <span class="mt-auto text-small font-medium text-[var(--accent-text)]">Open the calculator</span>}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section register="ink" size="md">
+    <CtaBand heading="Want the numbers run for your brand?" body="A written audit in three working days, whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" />
+  </Section>
+
+  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+</BaseLayout>
