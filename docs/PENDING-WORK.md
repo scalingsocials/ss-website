@@ -2,7 +2,7 @@
 
 Status as of 2026-09-04. The site builds green: `check`, `build`, `check:perf`
 (per-page tiers), `check:schema`, and `check:links` (0 broken, 0 orphans) all pass.
-**35 pages** are live in the repo. This document lists what remains, split by
+**38 pages** are live in the repo. This document lists what remains, split by
 whether it needs **you** (content/decisions) or can be **built** by Claude Code.
 
 ---
@@ -17,10 +17,19 @@ whether it needs **you** (content/decisions) or can be **built** by Claude Code.
   technical/local SEO + AEO, Shopify migration/speed/redesign).
 - **/audit/** + **2-step lead form** with **abandoned-lead capture** (partial on
   step 1, `sendBeacon` on leave) + **/api/lead** + **/thank-you/**.
-- **About, Team, Contact**; **Terms, Privacy, Disclaimer, Cookie policy** (templates).
+- **About, Team, Contact**; **Terms, Privacy, Disclaimer, Cookie policy**.
 - Index pages: **tools, case-studies, work, teardowns**; noindex landers for
   **blog, guides, glossary**.
-- **Break-even ROAS calculator** (React island, tool page, SSR + shareable URL).
+- **Four free tools** — Break-even ROAS, D2C CAC payback, Meta ads budget planner,
+  Shopify speed grader (React islands, SSR + shareable URLs, crawlable formulae).
+- **Client logos normalised** — trimmed padding + uniform tiles; near-white marks
+  (House of Kathas, Luxeraa) on dark tiles so they are visible.
+- **Lead form fits one screen** — step 1 is name/email/phone; brand + website moved
+  to step 2.
+- **Graphics kit** (`src/components/graphics/`: Glyph, DotField, PanelMotif) placed
+  across service pages, tools and interior heroes.
+- **Policy pages** rebuilt with the real published wording from scalingsocials.com,
+  in a full-width docs layout (sticky TOC + full-width body).
 
 ---
 
@@ -71,8 +80,6 @@ whether it needs **you** (content/decisions) or can be **built** by Claude Code.
 - **Industries** (`/industries/` + 6) — needs a little category content.
 - **Locations/Dubai** — only with a UAE proof point + UAE-specific content (spec says
   don't ship a thin clone).
-- **Calculators 2–4** (CAC payback, Meta budget planner, Shopify speed grader) — React
-  islands on tool pages.
 - **/lp/ ad landing pages** (`LandingLayout`, noindex) — as campaigns need them.
 - **Benchmark Index** — **PARKED** (do not build; owner directive).
 
@@ -96,10 +103,8 @@ whether it needs **you** (content/decisions) or can be **built** by Claude Code.
 ## ⚪ E. Known cleanups / notes
 
 - **Deploy mismatch** (see A) is the single most important open item.
-- Homepage HTML ~106 KB and styleguide ~153 KB exceed the 100 KB HTML *warn* (not a
+- Homepage HTML ~109 KB and styleguide ~153 KB exceed the 100 KB HTML *warn* (not a
   fail). Homepage can be trimmed (marquee duplication, inline SVGs) if desired.
-- A few client logos are light-on-transparent and may read faint on the white
-  marquee — give those a subtle tile if you want them bolder.
 - `astro check` reports **1 hint** (non-blocking) — worth a look.
 - Replace the picsum poster placeholders on the creative wall with real posters when
   the compressed videos land.

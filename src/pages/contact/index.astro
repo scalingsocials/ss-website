@@ -8,6 +8,7 @@ import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import LeadForm from '@/components/blocks/LeadForm.astro';
+import DotField from '@/components/graphics/DotField.astro';
 import { ORG } from '@/lib/schema/entity';
 import { base, webPage, breadcrumbs } from '@/lib/schema';
 
@@ -32,15 +33,16 @@ const nodes = [
   <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
   <SchemaGraph slot="schema" nodes={nodes} />
 
-  <Section size="lg">
-    <span class="ss-eyebrow">Contact</span>
-    <h1 class="max-w-[16ch]">Tell us what you sell</h1>
-    <p class="mt-[var(--space-4)] max-w-[52ch] text-h4 leading-[1.5] text-[var(--fg)]">
+  <Section size="lg" class="relative overflow-hidden">
+    <DotField origin="top-right" />
+    <span class="ss-eyebrow relative">Contact</span>
+    <h1 class="relative max-w-[16ch]">Tell us what you sell</h1>
+    <p class="relative mt-[var(--space-4)] max-w-[52ch] text-h4 leading-[1.5] text-[var(--fg)]">
       Send us your brand and a real person at Scaling Socials replies within one working day. Or
       claim a free growth audit and we’ll come back with what we’d change first.
     </p>
 
-    <div class="mt-[var(--space-8)] grid gap-[var(--space-8)] lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+    <div class="relative mt-[var(--space-8)] grid gap-[var(--space-8)] lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
       <div class="flex flex-col gap-[var(--space-5)]">
         <div>
           <h2 class="text-small font-semibold text-[var(--fg-muted)]">Call or WhatsApp</h2>
