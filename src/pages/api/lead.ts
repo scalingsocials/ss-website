@@ -86,18 +86,79 @@ async function verifyTurnstile(secret: string, token: string, ip?: string): Prom
 
 /** Email the team about a completed enquiry via Resend (best-effort). */
 async function sendLeadEmail(apiKey: string, from: string, to: string, lead: Lead): Promise<void> {
-  const rows: string[] = [
-    `Name:    ${lead.name || '—'}`,
-    `Email:   ${lead.email || '—'}`,
-    `Phone:   ${lead.phone || '—'}`,
-    `Brand:   ${lead.company || '—'}`,
-    `Website: ${lead.website || '—'}`,
-    `Source:  ${lead.source}`,
-    `Page:    ${lead.page || '—'}`,
-    `Score:   ${scoreLead(lead)}`,
+  const score = scoreLead(lead);
+  const temp = temperature(score);
+  const who = lead.name || lead.company || lead.phone || 'Website enquiry';
+  const when = new Date().toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+  });
+
+  // Contact rows, then the service-specific answers, then an optional message.
+  const contact: [string, string, string?][] = [
+    ['Email', lead.email || '—', lead.email ? `mailto:${lead.email}` : undefined],
+    ['Phone', lead.phone || '—', lead.phone ? `tel:${lead.phone.replace(/[^+\d]/g, '')}` : undefined],
+    ['Brand', lead.company || '—'],
+    ['Website', lead.website || '—'],
+    ['Source', humanise(lead.source)],
+    ['Page', lead.page || '—'],
   ];
-  for (const [k, v] of Object.entries(lead.answers)) rows.push(`${k}: ${v}`);
-  if (lead.message) rows.push('', `Message: ${lead.message}`);
+  const answers: [string, string][] = Object.entries(lead.answers).map(([k, v]) => [humanise(k), v]);
+
+  // ---- plain-text fallback -------------------------------------------------
+  const textRows = [
+    `${temp.label} lead · score ${score}`,
+    ...contact.map(([l, v]) => `${l}: ${v}`),
+    ...(answers.length ? ['', 'What they told us:', ...answers.map(([l, v]) => `  ${l}: ${v}`)] : []),
+    ...(lead.message ? ['', `Message: ${lead.message}`] : []),
+    '',
+    `Submitted ${when} IST · reply to this email to reach ${who}.`,
+  ];
+
+  // ---- HTML (inline styles + table layout for email clients) ---------------
+  const row = (label: string, value: string, href?: string) => `
+    <tr>
+      <td style="padding:7px 0;color:#6a6a72;font-size:14px;width:110px;vertical-align:top">${escapeHtml(label)}</td>
+      <td style="padding:7px 0;color:#17171c;font-size:15px;vertical-align:top">${
+        href ? `<a href="${escapeHtml(href)}" style="color:#4f52db;text-decoration:none">${escapeHtml(value)}</a>` : escapeHtml(value)
+      }</td>
+    </tr>`;
+  const answersBlock = answers.length
+    ? `<tr><td colspan="2" style="padding:14px 0 4px"><div style="border-top:1px solid #e6e5ec;padding-top:12px;color:#6a6a72;font-size:12px;letter-spacing:.05em;text-transform:uppercase">What they told us</div></td></tr>
+       ${answers.map(([l, v]) => row(l, v)).join('')}`
+    : '';
+  const messageBlock = lead.message
+    ? `<tr><td colspan="2" style="padding:14px 0 0"><div style="border-top:1px solid #e6e5ec;padding-top:12px;color:#6a6a72;font-size:12px;letter-spacing:.05em;text-transform:uppercase">Message</div>
+       <div style="margin-top:6px;color:#17171c;font-size:15px;line-height:1.5">${escapeHtml(lead.message)}</div></td></tr>`
+    : '';
+
+  const html = `
+  <div style="background:#f4f4f8;padding:24px;font-family:Arial,Helvetica,sans-serif">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e6e5ec;border-radius:14px;overflow:hidden">
+      <tr>
+        <td style="background:#4f52db;padding:20px 24px">
+          <div style="color:#c9caff;font-size:12px;letter-spacing:.08em;text-transform:uppercase">New website lead</div>
+          <div style="color:#ffffff;font-size:22px;font-weight:bold;margin-top:3px">${escapeHtml(who)}</div>
+        </td>
+        <td style="background:#4f52db;padding:20px 24px;text-align:right;vertical-align:top;white-space:nowrap">
+          <span style="display:inline-block;background:#ffffff;color:${temp.color};font-weight:bold;font-size:13px;border-radius:999px;padding:5px 13px">${temp.label} &middot; ${score}</span>
+        </td>
+      </tr>
+      <tr><td colspan="2" style="padding:18px 24px 6px">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${contact.map(([l, v, h]) => row(l, v, h)).join('')}
+          ${answersBlock}
+          ${messageBlock}
+        </table>
+      </td></tr>
+      <tr><td colspan="2" style="padding:8px 24px 22px">
+        <div style="border-top:1px solid #e6e5ec;padding-top:14px;color:#9797a6;font-size:12.5px;line-height:1.5">
+          Submitted ${escapeHtml(when)} IST. Reply to this email to respond to ${escapeHtml(who)} directly.<br>
+          Sent by the scalingsocials.com lead form.
+        </div>
+      </td></tr>
+    </table>
+  </div>`;
+
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
@@ -105,8 +166,9 @@ async function sendLeadEmail(apiKey: string, from: string, to: string, lead: Lea
       from,
       to: [to],
       reply_to: lead.email || undefined,
-      subject: `New lead: ${lead.name || lead.company || lead.phone || 'website enquiry'} (${lead.source})`,
-      text: rows.join('\n'),
+      subject: `New ${temp.label} lead: ${who} (${humanise(lead.source)})`,
+      html,
+      text: textRows.join('\n'),
     }),
   });
   if (!res.ok) {
@@ -115,16 +177,50 @@ async function sendLeadEmail(apiKey: string, from: string, to: string, lead: Lea
   }
 }
 
-/** A simple, transparent lead score. Audit requests are the hottest intent. */
+// Points for the biggest budget/scale signal in the answers (ad spend, online
+// revenue or monthly sessions). Bigger prospect => hotter lead.
+function budgetPoints(answers: Record<string, string>): number {
+  const vals = Object.values(answers);
+  const top = ['₹5L+', 'Over ₹1Cr', 'Over 100k'];
+  const high = ['₹3–5L', '₹20L–1Cr', '20k–100k'];
+  const mid = ['₹1–3L', '₹5–20L', '5k–20k'];
+  if (vals.some((v) => top.includes(v))) return 20;
+  if (vals.some((v) => high.includes(v))) return 12;
+  if (vals.some((v) => mid.includes(v))) return 6;
+  return 0; // Under ₹1L / Under ₹5L / Under 5k / not running yet
+}
+
+/**
+ * Transparent lead score (0–60). Intent + contactability + deal size:
+ *   audit CTA +15 · completed the form +10 · email +5 · phone +5 ·
+ *   answered the qualifying questions +5 · budget/scale tier +0/+6/+12/+20.
+ */
 function scoreLead(lead: Lead): number {
   let s = 0;
   if (lead.source === 'audit') s += 15;
   if (lead.status === 'complete') s += 10;
-  if (lead.email) s += 10;
+  if (lead.email) s += 5;
   if (lead.phone) s += 5;
   if (Object.keys(lead.answers).length) s += 5;
+  s += budgetPoints(lead.answers);
   return s;
 }
+
+/** Triage label from the score. */
+function temperature(score: number): { label: string; color: string } {
+  if (score >= 40) return { label: 'Hot', color: '#d81f52' };
+  if (score >= 25) return { label: 'Warm', color: '#a25a12' };
+  return { label: 'Cool', color: '#2f8f86' };
+}
+
+/** "monthly_spend" -> "Monthly spend"; "performance-marketing" -> "Performance marketing". */
+function humanise(key: string): string {
+  const t = key.replace(/[_-]+/g, ' ').trim();
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
+const escapeHtml = (s: string) =>
+  s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
 /** Upsert one lead row via PostgREST (merge on the unique lead_id). */
 async function upsertLead(url: string, key: string, lead: Lead): Promise<void> {
