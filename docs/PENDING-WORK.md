@@ -51,9 +51,16 @@ whether it needs **you** (content/decisions) or can be **built** by Claude Code.
    end-to-end (live form → function → row, score 45). Remaining: **promote
    website_leads → CRM `leads`** so they show in the CRM UI (needs a default
    assignee + stage from you — see F below).
-3. **Turnstile** (invisible captcha) site + secret keys, and add the widget to the form.
-4. **Resend** API key for form receipt + internal alert emails.
+3. ~~**Turnstile**~~ ✅ **wired (2026-09-04).** Widget on the form (site key in
+   `LeadForm.astro`), server verify in `/api/lead`. **Action:** add
+   `TURNSTILE_SECRET_KEY` to the Cloudflare env + redeploy to switch verification on.
+4. ~~**Resend**~~ ✅ **wired (2026-09-04).** `/api/lead` emails the team on a
+   completed enquiry. **Action:** verify a sending domain in Resend and set
+   `LEAD_ALERT_FROM` (e.g. `Scaling Socials <leads@scalingsocials.com>`) +
+   optionally `LEAD_ALERT_TO`; the default `onboarding@resend.dev` only delivers to
+   the Resend account owner until a domain is verified.
 5. **Analytics** IDs — GA4, Meta CAPI (server-side), Microsoft Clarity (04).
+6. **Promote website_leads → CRM `leads`** (needs a default assignee + stage; see §F).
 
 ## 🟠 B. Real content only you can supply
 
