@@ -44,12 +44,13 @@ whether it needs **you** (content/decisions) or can be **built** by Claude Code.
    build `npm run build` → `dist`, add the `nodejs_compat` flag + `NODE_VERSION`,
    and lock the `*.pages.dev` URL with Cloudflare Access so it can't be indexed.
    (Was: "decide Cloudflare vs Netlify" — now settled.) See the runbook, steps 1–4.
-2. **Supabase** — `SUPABASE_URL` + `SUPABASE_SERVICE_KEY` in the deploy env, and the
-   CRM table/columns for leads (`lead_id`, `status` = partial|abandoned|complete,
-   `source`, contact fields, `answers`, `page`). Wire the upsert in `/api/lead`
-   (marked `TODO` there). Add the `+15` score bonus for `source: "audit"`. **Read
-   secrets via `context.locals.runtime.env`, not `process.env`** on the Cloudflare
-   adapter (runbook step 3).
+2. ~~**Supabase**~~ ✅ **DONE (2026-09-04).** Env vars set on Cloudflare Pages
+   (Scaling Socials CRM project, ref `jpytofvaofsztvuwxnta`); `/api/lead.ts` upserts
+   into a dedicated `public.website_leads` inbox (RLS on, service-role only) —
+   isolated from the CRM `leads` pipeline, which requires a rep + stage. Verified
+   end-to-end (live form → function → row, score 45). Remaining: **promote
+   website_leads → CRM `leads`** so they show in the CRM UI (needs a default
+   assignee + stage from you — see F below).
 3. **Turnstile** (invisible captcha) site + secret keys, and add the widget to the form.
 4. **Resend** API key for form receipt + internal alert emails.
 5. **Analytics** IDs — GA4, Meta CAPI (server-side), Microsoft Clarity (04).
