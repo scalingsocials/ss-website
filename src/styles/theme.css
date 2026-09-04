@@ -13,22 +13,19 @@
   /* --- raw palette (never used directly in components) ------------------
      Black and white are the brand. One accent, used sparingly.
 
-     ACCENT: Klein blue #002FA7. Chosen over the alternatives on measurement
-     and on fit:
-       - 10.69:1 as text on white, and 10.69:1 for white text on a blue fill.
-         Both directions pass at the highest level. Nothing else on the
-         shortlist did both.
-       - No collision with the green/red used for delta direction, which rules
-         out orange and magenta as a system accent.
-       - Not the AI-design defaults: not terracotta, not acid green, not
-         vermilion-on-near-black, and a true Klein blue is not the generic
-         SaaS blue either.
-       - Fails on black (1.96:1), so the ink register uses --accent-lift
-         #5B7CFF at 5.77:1. Fills stay #002FA7 in both registers.
+     ACCENT: periwinkle (owner-directed change from the original Klein blue).
+     The bright brand periwinkle #9FA1FF fails as text on white, so the accent
+     is DEEPENED to #4F52DB in the paper register (text + fill, white text on
+     the fill, 5.90:1 both ways); the bright #9FA1FF is text + fill in the ink
+     register (black text on the fill, 8.50:1). Companion: soft teal #96C7C1,
+     DECORATIVE only (graphics and dark-band gradients) — never as text, since
+     it is ~1.9:1 on white.
+       - No collision with the green/red used for delta direction.
+       - Not the AI-design defaults (terracotta, acid green, vermilion-on-black).
 
-     GROUNDS are pure #FFFFFF and pure #000000 — the brand, taken literally.
-     Text on black is #EDEDED rather than pure white: pure-white-on-pure-black
-     causes halation and is genuinely harder to read at body size.
+     GROUNDS are near-white #FFFFFF and a rich near-black #0A0A0A — the brand,
+     taken literally. Text on black is #ECECEE rather than pure white: pure-
+     white-on-pure-black causes halation and is harder to read at body size.
      -------------------------------------------------------------------- */
   --color-white:        #FFFFFF;  /* true white — logo, scrim text */
   --color-black:        #000000;  /* true black — backdrop scrim, shadows */
