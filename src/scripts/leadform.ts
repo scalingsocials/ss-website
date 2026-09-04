@@ -82,10 +82,10 @@ function initForm(form: HTMLFormElement): void {
   const send = (statusVal: string, beacon = false) => {
     const body = JSON.stringify(collect(statusVal));
     if (beacon && navigator.sendBeacon) {
-      navigator.sendBeacon('/api/lead', new Blob([body], { type: 'application/json' }));
+      navigator.sendBeacon('/api/lead/', new Blob([body], { type: 'application/json' }));
       return;
     }
-    fetch('/api/lead', {
+    fetch('/api/lead/', {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-requested-with': 'fetch' },
       body,
@@ -114,7 +114,7 @@ function initForm(form: HTMLFormElement): void {
       status.style.color = 'var(--fg-muted)';
     }
     try {
-      const r = await fetch('/api/lead', {
+      const r = await fetch('/api/lead/', {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'x-requested-with': 'fetch' },
         body: JSON.stringify(collect('complete')),
