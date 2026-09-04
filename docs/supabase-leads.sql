@@ -1,39 +1,41 @@
--- Scaling Socials — website lead capture table
+-- Scaling Socials — website lead capture inbox
 --
--- Run in the Supabase SQL editor of the project whose SUPABASE_URL /
--- SUPABASE_SERVICE_KEY you set in the Cloudflare Pages env. One row per lead_id,
--- upserted by /api/lead.ts — the partial, abandoned and complete states of a
--- single visitor share the same row (Shopify-style abandoned capture).
+-- APPLIED 2026-09-04 to the "Scaling Socials CRM" Supabase project
+-- (ref jpytofvaofsztvuwxnta) via MCP migration `create_website_leads_table`.
 --
--- ⚠ Reusing an existing project ("Social Flow Hub 84"): if that project ALREADY
---   has a `leads` table, do NOT run this blindly — the column set may differ and
---   the upsert would fail. Confirm the existing schema first (that's what the
---   Supabase MCP inspection is for) and either match this table's columns to the
---   CRM's, or use a dedicated table name (e.g. website_leads) here and in
---   src/pages/api/lead.ts's fetch URL.
+-- Why a separate table, not the CRM `leads` table: that project's public.leads is
+-- the live sales pipeline (full_name / phone / assigned_to are NOT NULL, status is
+-- an enum, rows link to lead_stages/notes/pitch). Raw and partial website captures
+-- can't be inserted there directly and must not pollute it. So the website writes
+-- to this isolated inbox; leads are promoted into public.leads separately, with a
+-- rep and a stage (a future promote step — see src/pages/api/lead.ts TODO).
+--
+-- /api/lead.ts upserts here on lead_id (partial -> abandoned -> complete share one
+-- row). Secrets live only in the Cloudflare Pages env, never in the repo.
 
-create table if not exists public.leads (
-  lead_id     text primary key,
-  status      text not null default 'partial',   -- partial | abandoned | complete
-  source      text,                               -- e.g. audit, performance-marketing, seo
-  name        text,
-  email       text,
-  phone       text,
-  company     text,
-  website     text,
-  message     text,
-  answers     jsonb not null default '{}'::jsonb, -- service-specific q_* answers
-  page        text,                               -- path the lead came from
-  score       integer not null default 0,         -- +15 audit, +10 complete, +10 email, +5 phone, +5 answers
-  created_at  timestamptz not null default now(),
-  updated_at  timestamptz not null default now()
+create table if not exists public.website_leads (
+  lead_id       text primary key,
+  status        text not null default 'partial',   -- partial | abandoned | complete
+  source        text,                               -- audit, performance-marketing, seo, ...
+  name          text,
+  email         text,
+  phone         text,
+  company       text,
+  website       text,
+  message       text,
+  answers       jsonb not null default '{}'::jsonb, -- service-specific q_* answers
+  page          text,                               -- path the lead came from
+  score         integer not null default 0,         -- +15 audit, +10 complete, +10 email, +5 phone, +5 answers
+  crm_lead_id   uuid,                                -- soft link to public.leads.id once promoted
+  synced_to_crm boolean not null default false,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
 );
 
--- Fast filtering of the pipeline by state and recency.
-create index if not exists leads_status_idx      on public.leads (status);
-create index if not exists leads_created_at_idx   on public.leads (created_at desc);
+create index if not exists website_leads_status_idx     on public.website_leads (status);
+create index if not exists website_leads_created_at_idx  on public.website_leads (created_at desc);
+create index if not exists website_leads_unsynced_idx    on public.website_leads (synced_to_crm) where synced_to_crm = false;
 
--- Lock it down: only the service role (used server-side by /api/lead) may touch
--- this table. With RLS on and no anon/authenticated policies, the public anon key
--- can neither read nor write it.
-alter table public.leads enable row level security;
+-- Service-role only. RLS on with no anon/authenticated policies => the public anon
+-- key can neither read nor write; the /api/lead worker uses the service key.
+alter table public.website_leads enable row level security;

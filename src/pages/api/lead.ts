@@ -7,16 +7,18 @@
  * carry the same `lead_id`, so the store upserts one row and can surface partials
  * as abandoned leads.
  *
- * Storage: a dependency-free PostgREST upsert into Supabase, keyed on lead_id,
- * using the service-role key. Secrets are read from the Cloudflare runtime env
- * (`locals.runtime.env`) — never hardcoded, never in the repo (CLAUDE.md §17).
- * When SUPABASE_URL / SUPABASE_SERVICE_KEY are absent (e.g. local dev before the
- * vars are set) it validates and acknowledges but persists nothing, and never
- * throws on a bad payload.
+ * Storage: a dependency-free PostgREST upsert into the Supabase `website_leads`
+ * inbox table (in the Scaling Socials CRM project), keyed on lead_id, using the
+ * service-role key. This is deliberately NOT the CRM's `leads` pipeline table —
+ * raw/partial website captures land in website_leads and are promoted into
+ * public.leads separately (with a rep + stage). Secrets are read from the
+ * Cloudflare runtime env (`locals.runtime.env`) — never hardcoded, never in the
+ * repo (CLAUDE.md §17). When SUPABASE_URL / SUPABASE_SERVICE_KEY are absent it
+ * validates and acknowledges but persists nothing, and never throws.
  *
- * TODO (owner / infra): also add the Turnstile + Resend keys to the deploy env and
- * wire verification + receipt emails. Confirm the Supabase table matches the
- * columns written below (see docs/DEPLOY-CLOUDFLARE.md / the leads table SQL).
+ * TODO (owner / infra): add the Turnstile + Resend keys to the deploy env and
+ * wire verification + receipt emails, then a promote-to-CRM step (website_leads
+ * -> public.leads) once a default assignee + stage are chosen.
  */
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
@@ -83,7 +85,7 @@ async function upsertLead(url: string, key: string, lead: Lead): Promise<void> {
     score: scoreLead(lead),
     updated_at: new Date().toISOString(),
   };
-  const res = await fetch(`${url}/rest/v1/leads?on_conflict=lead_id`, {
+  const res = await fetch(`${url}/rest/v1/website_leads?on_conflict=lead_id`, {
     method: 'POST',
     headers: {
       apikey: key,
