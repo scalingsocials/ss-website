@@ -63,7 +63,7 @@ function glyphFor(title: string): string {
 const process = [
   { title: 'Audit', body: 'We read your accounts and your store and find where spend leaks and where it can scale.' },
   { title: 'Plan', body: 'A 30-60-90 plan: the first things we would change, in order, with the reasoning.' },
-  { title: 'Build', body: 'The work itself — campaigns, pages, content or code — built so it can be tested.' },
+  { title: 'Build', body: 'The work itself, whether campaigns, pages, content or code, built so it can be tested.' },
   { title: 'Test', body: 'We test against your real margins, not a vanity benchmark.' },
   { title: 'Scale', body: 'What works gets more; what doesn’t gets cut. Then we run the loop again.' },
 ];
@@ -177,23 +177,53 @@ const nodes = [
     <div class="mt-[var(--space-5)]"><PricingBlock lede={svc.value.lede} included={svc.value.included} price={svc.value.price} note={svc.value.note} /></div>
   </Section>
 
-  <!-- NOT FOR YOU -->
+  <!-- NOT FOR YOU (2-col: honest disqualifiers + the flip side, so the row fills) -->
   <Section size="md" class="!bg-[var(--surface-c)]">
-    <div class="max-w-[640px]"><NotForYouBlock items={svc.notForYou} /></div>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1fr_1fr] lg:items-start">
+      <NotForYouBlock items={svc.notForYou} />
+      <aside class="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]">
+        <span class="ss-svc-glyph mb-[var(--space-3)]"><Glyph name="handshake" size={20} /></span>
+        <h3 class="text-h4 font-semibold text-[var(--fg)]">A good fit if this sounds like you</h3>
+        <ul class="mt-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
+          {['You’re a D2C or ecommerce brand with some trading data to work from', 'You can keep a steady supply of creative and offers coming', 'You want growth measured against your margins, not a dashboard', 'You’d rather see the maths than be handed a promise'].map((f) => (
+            <li class="flex gap-[var(--space-2)] text-small leading-relaxed text-[var(--fg-muted)]">
+              <span class="mt-[3px] shrink-0 text-[var(--accent-graphic)]"><Glyph name="scale" size={16} /></span>
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    </div>
   </Section>
 
-  <!-- FAQ -->
+  <!-- FAQ (2-col: accordion + a sticky CTA aside so the right column isn't blank) -->
   <Section size="md">
-    <span class="ss-eyebrow">Questions</span>
-    <h2 class="max-w-[22ch] text-h2 font-semibold">Questions founders ask</h2>
-    <div class="mt-[var(--space-5)] max-w-[760px]"><FaqAccordion items={svc.faqs} openFirst /></div>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.5fr_1fr] lg:items-start">
+      <div>
+        <span class="ss-eyebrow">Questions</span>
+        <h2 class="max-w-[22ch] text-h2 font-semibold">Questions founders ask</h2>
+        <div class="mt-[var(--space-5)]"><FaqAccordion items={svc.faqs} openFirst /></div>
+      </div>
+      <aside class="lg:sticky lg:top-[96px] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-5)]">
+        <span class="ss-svc-glyph mb-[var(--space-3)]"><Glyph name="chat" size={20} /></span>
+        <h3 class="text-h4 font-semibold text-[var(--fg)]">Still weighing it up?</h3>
+        <p class="mt-[var(--space-2)] text-small leading-relaxed text-[var(--fg-muted)]">
+          Send us your accounts and you get a written audit in three working days, whether or not you
+          go on to hire us. No sales deck.
+        </p>
+        <div class="mt-[var(--space-4)] flex flex-col gap-[var(--space-2)]">
+          <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+          <Button href="/contact/" variant="secondary">Talk to us</Button>
+        </div>
+      </aside>
+    </div>
   </Section>
 
   <!-- CTA -->
   <Section register="ink" size="md">
     <CtaBand
       heading="Find out what is leaking money"
-      body="Send us access and, within three working days, you get a written audit of what is working, what is not, and what we would change first — whether or not you hire us."
+      body="Send us access and, within three working days, you get a written audit of what is working, what is not, and what we would change first, whether or not you hire us."
       ctaLabel="Get a free growth plan"
       ctaHref="/audit/"
       secondaryLabel="Talk to us"

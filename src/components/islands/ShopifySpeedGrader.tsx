@@ -101,7 +101,7 @@ export default function ShopifySpeedGrader({ lcp: lcp0 = 4.2, sessions: se0 = 40
         {field('Monthly sessions', sessions, setSessions, { step: 1000 })}
         {field('Current conversion rate', cr, setCr, { suffix: '%', step: 0.1 })}
         {field('Average order value (AOV)', aov, setAov, { prefix: '₹', step: 50 })}
-        {field('Assumed conversion change per second faster', sens, setSens, { suffix: '%', step: 1, hint: 'Your assumption, not a fact — set it to be conservative.' })}
+        {field('Assumed conversion change per second faster', sens, setSens, { suffix: '%', step: 1, hint: 'Your assumption, not a fact, so keep it conservative.' })}
       </div>
 
       <div className="flex flex-col gap-[var(--space-3)]">

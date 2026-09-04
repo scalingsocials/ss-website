@@ -14,6 +14,8 @@ import Button from '@/components/primitives/Button.astro';
 import LeadForm from '@/components/blocks/LeadForm.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
+import Glyph from '@/components/graphics/Glyph.astro';
+import PanelMotif from '@/components/graphics/PanelMotif.astro';
 import { CLUSTERS, type Cluster } from '@/lib/clusters';
 import { SERVICE_BY_SLUG } from '@/lib/services';
 import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
@@ -63,15 +65,43 @@ const nodes = [
   </Section>
 
   <Section size="md" class="!bg-[var(--surface-c)]">
-    <Prose>
-      {c.sections.map((s) => (<><h2>{s.heading}</h2><p>{s.body}</p></>))}
-    </Prose>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.4fr_1fr] lg:items-start">
+      <Prose>
+        {c.sections.map((s) => (<><h2>{s.heading}</h2><p>{s.body}</p></>))}
+      </Prose>
+      <aside class="lg:sticky lg:top-[96px] flex flex-col gap-[var(--space-4)]">
+        <PanelMotif label={`${c.slug}.live`} tag={c.name} />
+        <a href={c.parentUrl} class="ss-rel group flex items-center gap-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline">
+          <span class="ss-svc-glyph shrink-0"><Glyph name="layers" size={20} /></span>
+          <span class="flex flex-col">
+            <span class="text-small font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">Part of {c.parentName.toLowerCase()}</span>
+            <span class="text-label text-[var(--fg-muted)]">See the full service</span>
+          </span>
+        </a>
+      </aside>
+    </div>
   </Section>
 
   <Section size="md">
-    <span class="ss-eyebrow">Questions</span>
-    <h2 class="max-w-[22ch] text-h2 font-semibold">Questions founders ask</h2>
-    <div class="mt-[var(--space-5)] max-w-[760px]"><FaqAccordion items={c.faqs} openFirst /></div>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.5fr_1fr] lg:items-start">
+      <div>
+        <span class="ss-eyebrow">Questions</span>
+        <h2 class="max-w-[22ch] text-h2 font-semibold">Questions founders ask</h2>
+        <div class="mt-[var(--space-5)]"><FaqAccordion items={c.faqs} openFirst /></div>
+      </div>
+      <aside class="lg:sticky lg:top-[96px] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-5)]">
+        <span class="ss-svc-glyph mb-[var(--space-3)]"><Glyph name="chat" size={20} /></span>
+        <h3 class="text-h4 font-semibold text-[var(--fg)]">Not sure where to start?</h3>
+        <p class="mt-[var(--space-2)] text-small leading-relaxed text-[var(--fg-muted)]">
+          Send us your accounts and you get a written audit in three working days, whether or not you
+          go on to hire us.
+        </p>
+        <div class="mt-[var(--space-4)] flex flex-col gap-[var(--space-2)]">
+          <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+          <Button href="/contact/" variant="secondary">Talk to us</Button>
+        </div>
+      </aside>
+    </div>
   </Section>
 
   {siblings.length > 0 && (
@@ -101,5 +131,10 @@ const nodes = [
     <CtaBand heading="Find out what is leaking money" body="A written audit in three working days, whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" secondaryLabel="Talk to us" secondaryHref="/contact/" />
   </Section>
 
-  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); } .ss-rel { transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); } @media (prefers-reduced-motion: no-preference) { .ss-rel:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); } }</style>
+  <style>
+    .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+    .ss-rel { transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
+    .ss-svc-glyph { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--radius-input); color: var(--accent-graphic); background: var(--accent-wash); border: 1px solid color-mix(in srgb, var(--accent-graphic) 22%, transparent); }
+    @media (prefers-reduced-motion: no-preference) { .ss-rel:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); } }
+  </style>
 </BaseLayout>

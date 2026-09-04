@@ -98,7 +98,7 @@ export default function CacPaybackCalculator({ cac: cac0 = 800, aov: aov0 = 1500
           </div>
           <p className="mt-[0.4rem] text-small text-[var(--fg-muted)]">
             {firstOrderCovers
-              ? 'The first order already covers CAC — you are cash-positive on acquisition from day one.'
+              ? 'The first order already covers CAC, so you are cash-positive on acquisition from day one.'
               : 'How long the customer’s repeat contribution takes to earn back what you paid to acquire them.'}
           </p>
         </div>

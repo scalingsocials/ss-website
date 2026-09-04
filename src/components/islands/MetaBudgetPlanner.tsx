@@ -104,12 +104,12 @@ export default function MetaBudgetPlanner({ budget: b0 = 150000, split: s0 = 30,
 
       <div className="flex flex-col gap-[var(--space-3)]">
         <div className="grid gap-[var(--space-3)] sm:grid-cols-2">
-          {stat('Testing budget', inr(testing), `${split}% of your budget — funds ${testCells} test ${testCells === 1 ? 'cell' : 'cells'} at ${inr(cell)} each.`)}
-          {stat('Scaling budget', inr(scaling), `${100 - split}% put behind proven winners — about ${Math.round(scalingOrders)} orders at ${inr(cpa)} CPA.`)}
+          {stat('Testing budget', inr(testing), `${split}% of your budget, funding ${testCells} test ${testCells === 1 ? 'cell' : 'cells'} at ${inr(cell)} each.`)}
+          {stat('Scaling budget', inr(scaling), `${100 - split}% put behind proven winners, roughly ${Math.round(scalingOrders)} orders at ${inr(cpa)} CPA.`)}
         </div>
         <div className="grid gap-[var(--space-3)] sm:grid-cols-2">
           {stat('Daily spend', inr(daily), 'Total budget spread across the month.')}
-          {stat('Est. orders / month', `${Math.round(estOrders)}`, `At a ${inr(cpa)} target CPA across the whole budget — a planning estimate, not a forecast.`)}
+          {stat('Est. orders / month', `${Math.round(estOrders)}`, `At a ${inr(cpa)} target CPA across the whole budget, a planning estimate rather than a forecast.`)}
         </div>
       </div>
     </div>
