@@ -1,0 +1,43 @@
+---
+/**
+ * 404 — not found. Prerenders to dist/404.html, which Cloudflare Pages serves
+ * (with a 404 status) for any unmatched route, instead of falling back to the
+ * homepage. noindex, excluded from the sitemap. A branded dead-end with the
+ * useful next steps, not a bare error.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/primitives/Section.astro';
+import Button from '@/components/primitives/Button.astro';
+
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/case-studies/', label: 'Case studies' },
+  { href: '/tools/', label: 'Free tools' },
+  { href: '/contact/', label: 'Contact' },
+];
+---
+
+<BaseLayout noindex>
+  <title slot="meta">Page not found — Scaling Socials</title>
+  <meta slot="meta" name="description" content="That page has moved or never existed. Head back to the Scaling Socials homepage or pick a link below." />
+
+  <Section size="lg">
+    <div class="mx-auto max-w-[54ch] text-center">
+      <span class="display-type text-data-lg font-bold leading-none text-[var(--accent-text)]">404</span>
+      <h1 class="mt-[var(--space-3)] text-h2 font-semibold">This page has moved or never existed</h1>
+      <p class="mt-[var(--space-3)] text-body text-[var(--fg-muted)]">
+        No harm done. Use a link below to get where you were going, or head back to the homepage and
+        start again.
+      </p>
+      <div class="mt-[var(--space-6)] flex flex-wrap justify-center gap-[var(--space-2)]">
+        <Button href="/" variant="primary">Back to home</Button>
+        <Button href="/audit/" variant="secondary">Get a free growth plan</Button>
+      </div>
+      <ul class="mt-[var(--space-6)] flex flex-wrap justify-center gap-x-[var(--space-5)] gap-y-[var(--space-2)] text-small">
+        {links.map((l) => (
+          <li><a href={l.href} class="font-medium text-[var(--accent-text)] no-underline">{l.label}</a></li>
+        ))}
+      </ul>
+    </div>
+  </Section>
+</BaseLayout>

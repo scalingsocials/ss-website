@@ -24,7 +24,8 @@ export default defineConfig({
         !page.includes('/lp/') &&
         !page.includes('/keystatic') &&
         !page.includes('/styleguide') &&
-        !page.includes('/thank-you'),
+        !page.includes('/thank-you') &&
+        !page.includes('/404'),
     }),
   ],
   vite: { plugins: [tailwindcss()] },
