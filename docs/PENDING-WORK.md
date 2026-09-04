@@ -35,16 +35,21 @@ whether it needs **you** (content/decisions) or can be **built** by Claude Code.
 
 ## 🔴 A. Lead pipeline go-live — BLOCKING (the form UI works, but nothing persists yet)
 
-1. **Deploy target decision.** The Astro adapter is `@astrojs/cloudflare`, but the
-   preview is on **Netlify**. Server routes like `/api/lead` need a server runtime:
-   - Option 1 (recommended, matches the spec): deploy to **Cloudflare Pages**.
-   - Option 2: switch to `@astrojs/netlify` and deploy on Netlify.
-   Until one is chosen, form submissions and abandoned-lead beacons are validated
-   but **not stored**.
+> **Deploy target: decided → Cloudflare Pages** (owner, 2026-09-04). Matches the
+> existing `@astrojs/cloudflare` adapter and the spec. Full step-by-step in
+> **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)** — build on the free
+> `*.pages.dev` URL now, attach `scalingsocials.com` only at cutover.
+
+1. **Create the Cloudflare Pages project** — connect `scalingsocials/ss-website`,
+   build `npm run build` → `dist`, add the `nodejs_compat` flag + `NODE_VERSION`,
+   and lock the `*.pages.dev` URL with Cloudflare Access so it can't be indexed.
+   (Was: "decide Cloudflare vs Netlify" — now settled.) See the runbook, steps 1–4.
 2. **Supabase** — `SUPABASE_URL` + `SUPABASE_SERVICE_KEY` in the deploy env, and the
    CRM table/columns for leads (`lead_id`, `status` = partial|abandoned|complete,
    `source`, contact fields, `answers`, `page`). Wire the upsert in `/api/lead`
-   (marked `TODO` there). Add the `+15` score bonus for `source: "audit"`.
+   (marked `TODO` there). Add the `+15` score bonus for `source: "audit"`. **Read
+   secrets via `context.locals.runtime.env`, not `process.env`** on the Cloudflare
+   adapter (runbook step 3).
 3. **Turnstile** (invisible captcha) site + secret keys, and add the widget to the form.
 4. **Resend** API key for form receipt + internal alert emails.
 5. **Analytics** IDs — GA4, Meta CAPI (server-side), Microsoft Clarity (04).
@@ -105,11 +110,11 @@ whether it needs **you** (content/decisions) or can be **built** by Claude Code.
 - **robots.txt** — present; verify it matches 03 §5 (AI crawlers allowed). _(Audited
   2026-09-04: already allows GPTBot/OAI/ChatGPT-User/ClaudeBot/PerplexityBot/
   Google-Extended/Applebot-Extended/CCBot and points at the sitemap — good.)_
-- **Block the staging domain from indexing.** The Netlify preview
-  (`spontaneous-florentine-9f55b8.netlify.app`) is currently crawlable (robots
-  `Allow: /`). Canonicals already point to `scalingsocials.com`, which mitigates it,
-  but before/at launch add `X-Robots-Tag: noindex` (or basic-auth) on the staging
-  domain so the preview can never compete with production.
+- **Block the staging domain from indexing.** The preview URL is crawlable by
+  default. Lock the Cloudflare `*.pages.dev` URL with **Cloudflare Access** (runbook
+  step 4) — a repo `_headers` noindex would wrongly hit the live domain too, and
+  Transform Rules can't target the shared `pages.dev` zone. Canonicals already point
+  at `scalingsocials.com` as a backstop.
 - **Real Core Web Vitals measurement on production** — run PageSpeed Insights /
   Lighthouse and CrUX on mobile **and** desktop and record actual **LCP, INP, CLS,
   FCP, TTFB**, total JS/CSS, image weight, render-blocking and third-party cost.
@@ -189,7 +194,8 @@ robots.txt. The genuinely new items it surfaced:
   page). Those are on the *old* WP build, not this repo, but the migration must 301
   every indexed old URL to its new equivalent and ensure no stale/placeholder page
   survives (ties to the redirect map in D).
-- **Deploy mismatch** (see A) is the single most important open item.
+- **Deploy target** is now decided (Cloudflare Pages, §A / `DEPLOY-CLOUDFLARE.md`);
+  the remaining blockers are the project setup + Supabase/Turnstile/Resend wiring.
 - Homepage HTML ~109 KB and styleguide ~153 KB exceed the 100 KB HTML *warn* (not a
   fail). Homepage can be trimmed (marquee duplication, inline SVGs) if desired.
 - `astro check` reports **1 hint** (non-blocking) — worth a look.
