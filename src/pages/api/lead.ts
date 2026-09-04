@@ -59,9 +59,9 @@ function getEnv(locals: unknown) {
     supabaseKey: pick('SUPABASE_SERVICE_KEY'),
     resendKey: pick('RESEND_API_KEY'),
     turnstileSecret: pick('TURNSTILE_SECRET_KEY'),
-    // Optional overrides; sensible defaults below. Set LEAD_ALERT_FROM to a
-    // verified Resend sender once the domain is verified.
-    alertFrom: pick('LEAD_ALERT_FROM') ?? 'Scaling Socials <onboarding@resend.dev>',
+    // scalingsocials.com is a verified Resend domain, so send from it by default.
+    // Override with LEAD_ALERT_FROM / LEAD_ALERT_TO env vars if needed.
+    alertFrom: pick('LEAD_ALERT_FROM') ?? 'Scaling Socials <leads@scalingsocials.com>',
     alertTo: pick('LEAD_ALERT_TO') ?? 'support@scalingsocials.com',
   };
 }
