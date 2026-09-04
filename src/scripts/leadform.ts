@@ -8,6 +8,32 @@
  */
 type FormEl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
+type TurnstileWin = Window & {
+  turnstile?: { render: (el: HTMLElement, opts: Record<string, unknown>) => string };
+  __ssTsReady?: () => void;
+  __ssTsQ?: Array<() => void>;
+};
+
+// Load the Turnstile API once (explicit render so widgets survive View
+// Transitions), then run the callback when it is ready.
+function loadTurnstile(cb: () => void): void {
+  const w = window as TurnstileWin;
+  if (w.turnstile) return cb();
+  w.__ssTsQ = w.__ssTsQ ?? [];
+  w.__ssTsQ.push(cb);
+  if (document.getElementById('cf-turnstile-api')) return;
+  w.__ssTsReady = () => {
+    for (const f of w.__ssTsQ ?? []) f();
+    w.__ssTsQ = [];
+  };
+  const s = document.createElement('script');
+  s.id = 'cf-turnstile-api';
+  s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=__ssTsReady';
+  s.async = true;
+  s.defer = true;
+  document.head.appendChild(s);
+}
+
 function initForm(form: HTMLFormElement): void {
   if (form.dataset.enh) return;
   form.dataset.enh = '1';
@@ -29,6 +55,26 @@ function initForm(form: HTMLFormElement): void {
   const status = form.querySelector<HTMLElement>('[data-lf-status]');
   const backBtn = form.querySelector<HTMLButtonElement>('[data-back]');
   if (progress) progress.hidden = false;
+
+  // Render the Turnstile widget for this form (if present + configured).
+  const turnstileEl = form.querySelector<HTMLElement>('.ss-turnstile');
+  if (turnstileEl && turnstileEl.dataset.sitekey && !turnstileEl.dataset.rendered) {
+    loadTurnstile(() => {
+      if (turnstileEl.dataset.rendered) return;
+      try {
+        (window as TurnstileWin).turnstile?.render(turnstileEl, { sitekey: turnstileEl.dataset.sitekey });
+        turnstileEl.dataset.rendered = '1';
+      } catch {
+        /* ignore — server treats a missing token as unverified */
+      }
+    });
+  }
+  // Wait briefly for the token so a fast submit isn't dropped as unverified.
+  const ensureToken = async (): Promise<void> => {
+    if (!turnstileEl) return;
+    const val = () => form.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]')?.value;
+    for (let i = 0; i < 30 && !val(); i++) await new Promise((r) => setTimeout(r, 100));
+  };
 
   let partialSent = false;
   let submitted = false;
@@ -113,6 +159,7 @@ function initForm(form: HTMLFormElement): void {
       status.textContent = 'Sending…';
       status.style.color = 'var(--fg-muted)';
     }
+    await ensureToken();
     try {
       const r = await fetch('/api/lead/', {
         method: 'POST',

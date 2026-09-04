@@ -144,6 +144,9 @@ const s2 = questions.map((f) => field(f, 'q_'));
       <span class="text-small font-medium text-[var(--fg)]">Anything else? (optional)</span>
       <textarea name="message" rows="2" class="ss-input" placeholder="Context, links, targets…"></textarea>
     </label>
+    <!-- Cloudflare Turnstile (spam). Public site key; rendered by leadform.ts so
+         it survives View Transitions. No-JS submits fall back to the honeypot. -->
+    <div class="ss-turnstile" data-sitekey="0x4AAAAAAEnPLoBC02N8dQMm"></div>
     <div class="ss-lf-nav flex items-center justify-between gap-[var(--space-2)]">
       <button type="button" data-back class="ss-btn-ghost" hidden>Back</button>
       <button type="submit" class="ss-btn-primary ml-auto">{submitLabel}</button>

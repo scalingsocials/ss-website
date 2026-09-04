@@ -40,6 +40,8 @@ const leadSchema = z.object({
   page: z.string().max(200).optional().default(''),
   // honeypot — must be empty
   company_website: z.string().max(0).optional().default(''),
+  // Cloudflare Turnstile token (present on JS submissions once configured).
+  'cf-turnstile-response': z.string().max(4096).optional().default(''),
 });
 
 type Lead = z.infer<typeof leadSchema>;
@@ -47,14 +49,70 @@ type Lead = z.infer<typeof leadSchema>;
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } });
 
-/** Supabase config from the Cloudflare runtime env, with a local-dev fallback. */
-function supabaseConfig(locals: unknown): { url?: string; key?: string } {
+/** Read config from the Cloudflare runtime env, with a local-dev fallback. */
+function getEnv(locals: unknown) {
   const runtime = (locals as { runtime?: { env?: Record<string, string | undefined> } })?.runtime;
   const env = runtime?.env ?? {};
+  const pick = (k: string) => env[k] ?? (import.meta.env as Record<string, string | undefined>)[k];
   return {
-    url: env.SUPABASE_URL ?? import.meta.env.SUPABASE_URL,
-    key: env.SUPABASE_SERVICE_KEY ?? import.meta.env.SUPABASE_SERVICE_KEY,
+    supabaseUrl: pick('SUPABASE_URL'),
+    supabaseKey: pick('SUPABASE_SERVICE_KEY'),
+    resendKey: pick('RESEND_API_KEY'),
+    turnstileSecret: pick('TURNSTILE_SECRET_KEY'),
+    // Optional overrides; sensible defaults below. Set LEAD_ALERT_FROM to a
+    // verified Resend sender once the domain is verified.
+    alertFrom: pick('LEAD_ALERT_FROM') ?? 'Scaling Socials <onboarding@resend.dev>',
+    alertTo: pick('LEAD_ALERT_TO') ?? 'support@scalingsocials.com',
   };
+}
+
+/** Verify a Cloudflare Turnstile token server-side. */
+async function verifyTurnstile(secret: string, token: string, ip?: string): Promise<boolean> {
+  if (!token) return false;
+  const body = new URLSearchParams({ secret, response: token });
+  if (ip) body.set('remoteip', ip);
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body,
+    });
+    const data = (await res.json()) as { success?: boolean };
+    return Boolean(data.success);
+  } catch {
+    return false;
+  }
+}
+
+/** Email the team about a completed enquiry via Resend (best-effort). */
+async function sendLeadEmail(apiKey: string, from: string, to: string, lead: Lead): Promise<void> {
+  const rows: string[] = [
+    `Name:    ${lead.name || '—'}`,
+    `Email:   ${lead.email || '—'}`,
+    `Phone:   ${lead.phone || '—'}`,
+    `Brand:   ${lead.company || '—'}`,
+    `Website: ${lead.website || '—'}`,
+    `Source:  ${lead.source}`,
+    `Page:    ${lead.page || '—'}`,
+    `Score:   ${scoreLead(lead)}`,
+  ];
+  for (const [k, v] of Object.entries(lead.answers)) rows.push(`${k}: ${v}`);
+  if (lead.message) rows.push('', `Message: ${lead.message}`);
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      from,
+      to: [to],
+      reply_to: lead.email || undefined,
+      subject: `New lead: ${lead.name || lead.company || lead.phone || 'website enquiry'} (${lead.source})`,
+      text: rows.join('\n'),
+    }),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`resend ${res.status}: ${detail.slice(0, 300)}`);
+  }
 }
 
 /** A simple, transparent lead score. Audit requests are the hottest intent. */
@@ -137,12 +195,24 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   // Honeypot tripped → pretend success, store nothing.
   if (lead.company_website) return json({ ok: true, stored: false });
 
+  const env = getEnv(locals);
+  const wantsJson = ct.includes('application/json') || request.headers.get('x-requested-with') === 'fetch';
+
+  // Turnstile: verify completed submissions from the JS path (where a token is
+  // produced). Missing/invalid token → drop silently as spam. The no-JS native
+  // form has no token and falls back to the honeypot, so it still works.
+  if (lead.status === 'complete' && env.turnstileSecret && wantsJson) {
+    const token = lead['cf-turnstile-response'];
+    const ip = request.headers.get('cf-connecting-ip') ?? undefined;
+    const ok = await verifyTurnstile(env.turnstileSecret, token, ip);
+    if (!ok) return json({ ok: true, stored: false });
+  }
+
   // Persist by lead_id if Supabase is configured; otherwise log and carry on.
-  const { url, key } = supabaseConfig(locals);
   let stored = false;
-  if (url && key) {
+  if (env.supabaseUrl && env.supabaseKey) {
     try {
-      await upsertLead(url, key, lead);
+      await upsertLead(env.supabaseUrl, env.supabaseKey, lead);
       stored = true;
     } catch (e) {
       // Don't fail the visitor's submission on a store error — log it.
@@ -153,8 +223,16 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
     console.log('[lead]', lead.status, lead.source, lead.lead_id, usable ? '(usable)' : '(no contact)', '(supabase not configured)');
   }
 
+  // Email the team about completed enquiries (best-effort; never blocks the reply).
+  if (lead.status === 'complete' && env.resendKey) {
+    try {
+      await sendLeadEmail(env.resendKey, env.alertFrom, env.alertTo, lead);
+    } catch (e) {
+      console.error('[lead] email failed', (e as Error).message);
+    }
+  }
+
   // Native (no-JS) form submit expects a redirect; fetch/beacon expects JSON.
-  const wantsJson = ct.includes('application/json') || request.headers.get('x-requested-with') === 'fetch';
   if (!wantsJson && lead.status === 'complete') return redirect('/thank-you/', 303);
   return json({ ok: true, stored });
 };
