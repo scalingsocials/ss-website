@@ -7,14 +7,16 @@
  * carry the same `lead_id`, so the store upserts one row and can surface partials
  * as abandoned leads.
  *
- * Server-side: honeypot + zod validation, then upsert into the Supabase CRM
- * through the Worker service key (04 §Worker). Those secrets are NOT in the repo.
+ * Storage: a dependency-free PostgREST upsert into Supabase, keyed on lead_id,
+ * using the service-role key. Secrets are read from the Cloudflare runtime env
+ * (`locals.runtime.env`) — never hardcoded, never in the repo (CLAUDE.md §17).
+ * When SUPABASE_URL / SUPABASE_SERVICE_KEY are absent (e.g. local dev before the
+ * vars are set) it validates and acknowledges but persists nothing, and never
+ * throws on a bad payload.
  *
- * TODO (owner / infra): set SUPABASE_URL and SUPABASE_SERVICE_KEY (and Turnstile
- * keys) in the deploy env, and confirm the deploy target — this endpoint needs a
- * server runtime (Cloudflare Pages Functions with the current adapter, or switch
- * to @astrojs/netlify). Until then it validates and acknowledges but does not
- * persist. It never throws on a bad payload — it just records nothing.
+ * TODO (owner / infra): also add the Turnstile + Resend keys to the deploy env and
+ * wire verification + receipt emails. Confirm the Supabase table matches the
+ * columns written below (see docs/DEPLOY-CLOUDFLARE.md / the leads table SQL).
  */
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
@@ -38,10 +40,66 @@ const leadSchema = z.object({
   company_website: z.string().max(0).optional().default(''),
 });
 
+type Lead = z.infer<typeof leadSchema>;
+
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } });
 
-export const POST: APIRoute = async ({ request, redirect }) => {
+/** Supabase config from the Cloudflare runtime env, with a local-dev fallback. */
+function supabaseConfig(locals: unknown): { url?: string; key?: string } {
+  const runtime = (locals as { runtime?: { env?: Record<string, string | undefined> } })?.runtime;
+  const env = runtime?.env ?? {};
+  return {
+    url: env.SUPABASE_URL ?? import.meta.env.SUPABASE_URL,
+    key: env.SUPABASE_SERVICE_KEY ?? import.meta.env.SUPABASE_SERVICE_KEY,
+  };
+}
+
+/** A simple, transparent lead score. Audit requests are the hottest intent. */
+function scoreLead(lead: Lead): number {
+  let s = 0;
+  if (lead.source === 'audit') s += 15;
+  if (lead.status === 'complete') s += 10;
+  if (lead.email) s += 10;
+  if (lead.phone) s += 5;
+  if (Object.keys(lead.answers).length) s += 5;
+  return s;
+}
+
+/** Upsert one lead row via PostgREST (merge on the unique lead_id). */
+async function upsertLead(url: string, key: string, lead: Lead): Promise<void> {
+  const row = {
+    lead_id: lead.lead_id,
+    status: lead.status,
+    source: lead.source,
+    name: lead.name || null,
+    email: lead.email || null,
+    phone: lead.phone || null,
+    company: lead.company || null,
+    website: lead.website || null,
+    message: lead.message || null,
+    answers: lead.answers,
+    page: lead.page || null,
+    score: scoreLead(lead),
+    updated_at: new Date().toISOString(),
+  };
+  const res = await fetch(`${url}/rest/v1/leads?on_conflict=lead_id`, {
+    method: 'POST',
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      'content-type': 'application/json',
+      Prefer: 'resolution=merge-duplicates,return=minimal',
+    },
+    body: JSON.stringify(row),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`supabase ${res.status}: ${detail.slice(0, 300)}`);
+  }
+}
+
+export const POST: APIRoute = async ({ request, redirect, locals }) => {
   let raw: Record<string, unknown> = {};
   const ct = request.headers.get('content-type') ?? '';
   try {
@@ -77,16 +135,24 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   // Honeypot tripped → pretend success, store nothing.
   if (lead.company_website) return json({ ok: true, stored: false });
 
-  // A complete submission needs at least an email or phone to be useful.
-  const usable = Boolean(lead.email || lead.phone);
-
-  // TODO: upsert into Supabase by lead_id via the Worker service key.
-  //   await upsertLead(lead);  // status: partial|abandoned|complete
-  // For now, log server-side so it is visible in function logs.
-  console.log('[lead]', lead.status, lead.source, lead.lead_id, usable ? '(usable)' : '(no contact)');
+  // Persist by lead_id if Supabase is configured; otherwise log and carry on.
+  const { url, key } = supabaseConfig(locals);
+  let stored = false;
+  if (url && key) {
+    try {
+      await upsertLead(url, key, lead);
+      stored = true;
+    } catch (e) {
+      // Don't fail the visitor's submission on a store error — log it.
+      console.error('[lead] supabase upsert failed', (e as Error).message);
+    }
+  } else {
+    const usable = Boolean(lead.email || lead.phone);
+    console.log('[lead]', lead.status, lead.source, lead.lead_id, usable ? '(usable)' : '(no contact)', '(supabase not configured)');
+  }
 
   // Native (no-JS) form submit expects a redirect; fetch/beacon expects JSON.
   const wantsJson = ct.includes('application/json') || request.headers.get('x-requested-with') === 'fetch';
   if (!wantsJson && lead.status === 'complete') return redirect('/thank-you/', 303);
-  return json({ ok: true, stored: usable });
+  return json({ ok: true, stored });
 };
