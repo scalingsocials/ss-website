@@ -117,7 +117,7 @@ export const SERVICES: ServiceContent[] = [
     eyebrow: 'Search engine optimisation',
     title: 'SEO Agency in Bangalore for Ecommerce | Scaling Socials',
     description:
-      'Scaling Socials is an SEO agency in Bangalore for ecommerce brands — technical, on-page and local SEO that grows organic revenue. From ₹25,000 a month.',
+      'Scaling Socials is an SEO agency in Bangalore for ecommerce brands: technical, on-page and local SEO that grows organic revenue. From ₹25,000 a month.',
     h1: 'SEO agency in Bangalore for ecommerce brands',
     answer:
       'Scaling Socials is an SEO agency in Bangalore that grows organic traffic and revenue for D2C and ecommerce brands across India and the UAE. We cover technical, on-page and local SEO, plus answer-engine optimisation, and we tie all of it to revenue rather than rankings for their own sake. SEO starts at ₹25,000 a month.',
@@ -178,7 +178,7 @@ export const SERVICES: ServiceContent[] = [
     eyebrow: 'Shopify development',
     title: 'Shopify Development Company in Bangalore | Scaling Socials',
     description:
-      'Scaling Socials is a Shopify development company in Bangalore — stores built to convert, plus migrations, speed optimisation and redesigns for D2C brands.',
+      'Scaling Socials is a Shopify development company in Bangalore: stores built to convert, plus migrations, speed optimisation and redesigns for D2C brands.',
     h1: 'Shopify development company in Bangalore',
     answer:
       'Scaling Socials is a Shopify development company in Bangalore that builds, migrates and optimises stores for D2C and ecommerce brands across India and the UAE. We build for conversion and speed, not just for looks, because the store is where your ad spend either pays off or quietly leaks away. Pricing is scoped to the build.',
@@ -292,7 +292,7 @@ export const SERVICES: ServiceContent[] = [
     eyebrow: 'Social media',
     title: 'Social Media Marketing Agency Bangalore | Scaling Socials',
     description:
-      'Scaling Socials is a social media marketing agency in Bangalore — content, community and creator-led growth that supports paid, for D2C brands.',
+      'Scaling Socials is a social media marketing agency in Bangalore: content, community and creator-led growth that supports paid, for D2C brands.',
     h1: 'Social media marketing agency in Bangalore',
     answer:
       'Scaling Socials is a social media marketing agency in Bangalore that handles content, community and creator-led growth for D2C and ecommerce brands across India and the UAE. We build organic social that supports paid and compounds the brand, rather than chasing vanity follower counts. Pricing is scoped to the work.',
@@ -349,7 +349,7 @@ export const SERVICES: ServiceContent[] = [
     eyebrow: 'Conversion rate optimisation',
     title: 'Conversion Rate Optimisation Services | Scaling Socials',
     description:
-      'Scaling Socials runs conversion rate optimisation for D2C and ecommerce brands in India and the UAE — fixing the leaks between click and checkout.',
+      'Scaling Socials runs conversion rate optimisation for D2C and ecommerce brands in India and the UAE: fixing the leaks between click and checkout.',
     h1: 'Conversion rate optimisation services',
     answer:
       'Scaling Socials runs conversion rate optimisation for D2C and ecommerce brands across India and the UAE. We find and close the leaks between the click and the checkout, across the product page, cart and checkout, so the traffic you already pay for converts more often. CRO is scoped to the work, and it usually pays for itself fastest.',

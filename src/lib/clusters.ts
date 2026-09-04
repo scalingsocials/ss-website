@@ -22,7 +22,7 @@ export const CLUSTERS: Cluster[] = [
   {
     slug: 'meta-ads', url: '/meta-ads-agency-india/', name: 'Meta Ads', parentSlug: 'performance-marketing', parentName: 'Performance marketing', parentUrl: '/performance-marketing-agency-bangalore/',
     title: 'Meta Ads Agency in India for D2C Brands | Scaling Socials',
-    description: 'Scaling Socials is a Meta Ads agency for D2C brands in India and the UAE — full-funnel Facebook and Instagram ads, run to your margin with in-house creative.',
+    description: 'Scaling Socials is a Meta Ads agency for D2C brands in India and the UAE: full-funnel Facebook and Instagram ads, run to your margin with in-house creative.',
     h1: 'Meta Ads agency for D2C brands in India',
     answer: 'Scaling Socials runs full-funnel Meta advertising, across Facebook and Instagram, for D2C and ecommerce brands in India and the UAE. That means prospecting, retargeting, and Advantage+ where it beats manual, all fed by an in-house creative pipeline and managed to your real margin rather than a platform-flattered ROAS.',
     sections: [
@@ -38,7 +38,7 @@ export const CLUSTERS: Cluster[] = [
   {
     slug: 'google-ads', url: '/google-ads-agency-bangalore/', name: 'Google Ads', parentSlug: 'performance-marketing', parentName: 'Performance marketing', parentUrl: '/performance-marketing-agency-bangalore/',
     title: 'Google Ads Agency in Bangalore for D2C | Scaling Socials',
-    description: 'Scaling Socials is a Google Ads agency in Bangalore for D2C brands — Search, Shopping and Performance Max built around intent and margin, not impressions.',
+    description: 'Scaling Socials is a Google Ads agency in Bangalore for D2C brands: Search, Shopping and Performance Max built around intent and margin, not impressions.',
     h1: 'Google Ads agency in Bangalore',
     answer: 'Scaling Socials runs Google Ads for D2C and ecommerce brands in India and the UAE, across Search, Shopping and Performance Max. We build around real search intent and your margin, so you capture existing demand profitably instead of buying impression share for its own sake.',
     sections: [
@@ -54,7 +54,7 @@ export const CLUSTERS: Cluster[] = [
   {
     slug: 'ecommerce-ppc', url: '/ecommerce-ppc-services/', name: 'Ecommerce PPC', parentSlug: 'performance-marketing', parentName: 'Performance marketing', parentUrl: '/performance-marketing-agency-bangalore/',
     title: 'Ecommerce PPC Services for D2C Brands | Scaling Socials',
-    description: 'Scaling Socials runs ecommerce PPC across Meta and Google for D2C brands — catalogue-led paid media built around your real SKUs, seasonality and margin.',
+    description: 'Scaling Socials runs ecommerce PPC across Meta and Google for D2C brands: catalogue-led paid media built around your real SKUs, seasonality and margin.',
     h1: 'Ecommerce PPC services for D2C brands',
     answer: 'Scaling Socials runs ecommerce PPC across Meta and Google for D2C and ecommerce brands in India and the UAE. It is catalogue-led buying built around your real SKUs, seasonality and margin, so paid media scales the products that make money rather than the ones that only pull clicks.',
     sections: [
@@ -70,7 +70,7 @@ export const CLUSTERS: Cluster[] = [
   {
     slug: 'ecommerce-seo', url: '/ecommerce-seo-services/', name: 'Ecommerce SEO', parentSlug: 'seo', parentName: 'SEO', parentUrl: '/seo-agency-bangalore/',
     title: 'Ecommerce SEO Services for D2C Stores | Scaling Socials',
-    description: 'Scaling Socials runs ecommerce SEO for D2C and Shopify brands — category and product page optimisation, structure and internal linking that grows revenue.',
+    description: 'Scaling Socials runs ecommerce SEO for D2C and Shopify brands: category and product page optimisation, structure and internal linking that grows revenue.',
     h1: 'Ecommerce SEO services for D2C stores',
     answer: 'Scaling Socials runs ecommerce SEO for D2C and Shopify brands in India and the UAE. We optimise category and product pages, structured data and internal linking so your store earns organic traffic that actually converts, and we measure it by revenue rather than by a vanity keyword count.',
     sections: [
@@ -86,7 +86,7 @@ export const CLUSTERS: Cluster[] = [
   {
     slug: 'technical-seo-audit', url: '/technical-seo-audit-services/', name: 'Technical SEO audits', parentSlug: 'seo', parentName: 'SEO', parentUrl: '/seo-agency-bangalore/',
     title: 'Technical SEO Audit Services | Scaling Socials Bangalore',
-    description: 'Scaling Socials runs technical SEO audits for D2C and ecommerce sites — crawlability, speed, indexation and structure, with a prioritised fix list by impact.',
+    description: 'Scaling Socials runs technical SEO audits for D2C and ecommerce sites: crawlability, speed, indexation and structure, with a prioritised fix list by impact.',
     h1: 'Technical SEO audit services',
     answer: 'Scaling Socials runs technical SEO audits for D2C and ecommerce sites in India and the UAE. We check crawlability, site speed, indexation, structured data and internal linking, then hand you a fix list ranked by impact. It is the foundation that decides whether your content can ever rank.',
     sections: [
@@ -102,7 +102,7 @@ export const CLUSTERS: Cluster[] = [
   {
     slug: 'local-seo', url: '/local-seo-services-bangalore/', name: 'Local SEO', parentSlug: 'seo', parentName: 'SEO', parentUrl: '/seo-agency-bangalore/',
     title: 'Local SEO Services in Bangalore for Brands | Scaling Socials',
-    description: 'Scaling Socials runs local SEO in Bangalore — Google Business Profile, citations and local pages that get brands found by nearby, ready-to-buy customers.',
+    description: 'Scaling Socials runs local SEO in Bangalore: Google Business Profile, citations and local pages that get brands found by nearby, ready-to-buy customers.',
     h1: 'Local SEO services in Bangalore',
     answer: 'Scaling Socials runs local SEO for brands that also sell or serve in a city. We optimise your Google Business Profile, build consistent citations, and create local pages so nearby buyers with real intent find you first. It sits inside an SEO engagement from ₹25,000 a month.',
     sections: [
@@ -118,7 +118,7 @@ export const CLUSTERS: Cluster[] = [
   {
     slug: 'answer-engine-optimisation', url: '/answer-engine-optimisation-services/', name: 'Answer engine optimisation', parentSlug: 'seo', parentName: 'SEO', parentUrl: '/seo-agency-bangalore/',
     title: 'Answer Engine Optimisation Services | Scaling Socials',
-    description: 'Scaling Socials offers answer engine optimisation — structuring content so it gets cited in Google AI Overviews and by ChatGPT, Perplexity and Gemini.',
+    description: 'Scaling Socials offers answer engine optimisation: structuring content so it gets cited in Google AI Overviews and by ChatGPT, Perplexity and Gemini.',
     h1: 'Answer engine optimisation (AEO) services',
     answer: 'Scaling Socials offers answer engine optimisation, which means structuring your content so it gets quoted inside AI answers, from Google’s AI Overviews to ChatGPT, Perplexity and Gemini. It rewards specific, well-structured, well-cited pages, and almost nobody in India is doing it yet.',
     sections: [
@@ -134,7 +134,7 @@ export const CLUSTERS: Cluster[] = [
   {
     slug: 'shopify-store-migration', url: '/shopify-store-migration-services/', name: 'Shopify store migration', parentSlug: 'shopify-development', parentName: 'Shopify development', parentUrl: '/shopify-development-company-bangalore/',
     title: 'Shopify Store Migration Services | Scaling Socials',
-    description: 'Scaling Socials migrates stores to Shopify from WooCommerce, Wix and Magento without losing SEO, URLs or order history — a planned, rankings-safe migration.',
+    description: 'Scaling Socials migrates stores to Shopify from WooCommerce, Wix and Magento without losing SEO, URLs or order history: a planned, rankings-safe migration.',
     h1: 'Shopify store migration services',
     answer: 'Scaling Socials migrates D2C stores to Shopify from WooCommerce, Wix, Magento and others without losing SEO, URLs or order history. Losing rankings in a migration is avoidable, so we plan the redirect map and data transfer up front, which means you keep your traffic and gain Shopify. It is priced by scope.',
     sections: [
@@ -150,7 +150,7 @@ export const CLUSTERS: Cluster[] = [
   {
     slug: 'shopify-speed-optimisation', url: '/shopify-speed-optimisation-services/', name: 'Shopify speed optimisation', parentSlug: 'shopify-development', parentName: 'Shopify development', parentUrl: '/shopify-development-company-bangalore/',
     title: 'Shopify Speed Optimisation Services | Scaling Socials',
-    description: 'Scaling Socials runs Shopify speed optimisation — a dedicated pass on Core Web Vitals and load time, because a faster store converts more paid traffic.',
+    description: 'Scaling Socials runs Shopify speed optimisation: a dedicated pass on Core Web Vitals and load time, because a faster store converts more paid traffic.',
     h1: 'Shopify speed optimisation services',
     answer: 'Scaling Socials runs Shopify speed optimisation, a dedicated pass on Core Web Vitals and real-world load time. Speed feeds conversion directly: a faster store turns more of your paid traffic into orders and lowers your effective ad cost. It is priced by scope, and it usually pays for itself quickly.',
     sections: [
@@ -166,7 +166,7 @@ export const CLUSTERS: Cluster[] = [
   {
     slug: 'shopify-store-redesign', url: '/shopify-store-redesign-services/', name: 'Shopify store redesign', parentSlug: 'shopify-development', parentName: 'Shopify development', parentUrl: '/shopify-development-company-bangalore/',
     title: 'Shopify Store Redesign Services India | Scaling Socials',
-    description: 'Scaling Socials redesigns Shopify stores for D2C brands — rebuilt around what actually converts, informed by session and heatmap data, not guesswork.',
+    description: 'Scaling Socials redesigns Shopify stores for D2C brands: rebuilt around what actually converts, informed by session and heatmap data, not guesswork.',
     h1: 'Shopify store redesign services',
     answer: 'Scaling Socials redesigns Shopify stores for D2C and ecommerce brands in India and the UAE. We rebuild around what actually converts, across the product page, cart and checkout, using session recordings and heatmaps rather than opinion, so the new store lifts revenue instead of just looking nicer.',
     sections: [
