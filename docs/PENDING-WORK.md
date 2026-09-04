@@ -51,6 +51,10 @@ whether it needs **you** (content/decisions) or can be **built** by Claude Code.
 
 ## 🟠 B. Real content only you can supply
 
+> **See [`CONTENT-REQUIREMENTS.md`](./CONTENT-REQUIREMENTS.md)** for the full, prioritised
+> list of transcripts and raw material to send, framed around what most helps SEO and AEO.
+> Summary below.
+
 - **Case studies (highest value).** For each of the 3 published results (₹4.43 Cr /
   ₹14 L / ₹10 L): the **client name**, the **before→after table** (ROAS, CAC, AOV,
   revenue, spend, period), and a permission confirmation. Then Claude builds the
