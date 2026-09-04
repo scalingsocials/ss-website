@@ -33,34 +33,30 @@ whether it needs **you** (content/decisions) or can be **built** by Claude Code.
 
 ---
 
-## 🔴 A. Lead pipeline go-live — BLOCKING (the form UI works, but nothing persists yet)
+## 🟢 A. Lead pipeline — LIVE on the preview (stores + alerts + spam-protected)
 
-> **Deploy target: decided → Cloudflare Pages** (owner, 2026-09-04). Matches the
-> existing `@astrojs/cloudflare` adapter and the spec. Full step-by-step in
-> **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)** — build on the free
-> `*.pages.dev` URL now, attach `scalingsocials.com` only at cutover.
+The full pipeline is built, deployed to Cloudflare Pages and **verified end-to-end
+on the preview** (real form submit → Turnstile passed → stored → branded alert
+email delivered). Only analytics and the production-domain cutover remain.
+Deploy runbook: **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)**.
 
-1. **Create the Cloudflare Pages project** — connect `scalingsocials/ss-website`,
-   build `npm run build` → `dist`, add the `nodejs_compat` flag + `NODE_VERSION`,
-   and lock the `*.pages.dev` URL with Cloudflare Access so it can't be indexed.
-   (Was: "decide Cloudflare vs Netlify" — now settled.) See the runbook, steps 1–4.
-2. ~~**Supabase**~~ ✅ **DONE (2026-09-04).** Env vars set on Cloudflare Pages
-   (Scaling Socials CRM project, ref `jpytofvaofsztvuwxnta`); `/api/lead.ts` upserts
-   into a dedicated `public.website_leads` inbox (RLS on, service-role only) —
-   isolated from the CRM `leads` pipeline, which requires a rep + stage. Verified
-   end-to-end (live form → function → row, score 45). Remaining: **promote
-   website_leads → CRM `leads`** so they show in the CRM UI (needs a default
-   assignee + stage from you — see F below).
-3. ~~**Turnstile**~~ ✅ **wired (2026-09-04).** Widget on the form (site key in
-   `LeadForm.astro`), server verify in `/api/lead`. **Action:** add
-   `TURNSTILE_SECRET_KEY` to the Cloudflare env + redeploy to switch verification on.
-4. ~~**Resend**~~ ✅ **wired (2026-09-04).** `/api/lead` emails the team on a
-   completed enquiry. **Action:** verify a sending domain in Resend and set
-   `LEAD_ALERT_FROM` (e.g. `Scaling Socials <leads@scalingsocials.com>`) +
-   optionally `LEAD_ALERT_TO`; the default `onboarding@resend.dev` only delivers to
-   the Resend account owner until a domain is verified.
-5. **Analytics** IDs — GA4, Meta CAPI (server-side), Microsoft Clarity (04).
-6. **Promote website_leads → CRM `leads`** (needs a default assignee + stage; see §F).
+1. ✅ **Cloudflare Pages project** (2026-09-04) — repo connected, build
+   `npm run build` → `dist`, `nodejs_compat` + `NODE_VERSION` set. Live at
+   `ss-website-bzx.pages.dev`. A real **404 page** and the **`/api/lead/`
+   trailing-slash** bug were found and fixed during deploy testing.
+2. ✅ **Supabase** (2026-09-04) — `/api/lead` upserts into a dedicated
+   `public.website_leads` inbox (Scaling Socials CRM project `jpytofvaofsztvuwxnta`,
+   RLS on, service-role only), isolated from the live CRM `leads` pipeline.
+3. ✅ **Turnstile** (2026-09-04) — widget on the form + server-side siteverify;
+   secret set and confirmed blocking automated submissions.
+4. ✅ **Resend** (2026-09-04) — branded HTML alert email with a Hot/Warm/Cool
+   score (deal-size aware), human labels and reply-to the lead, from the verified
+   `scalingsocials.com` domain; confirmed delivered to `support@scalingsocials.com`.
+5. ✅ **Promote → CRM** — handled by the owner directly in the CRM.
+6. 🔲 **Analytics** IDs — GA4, Meta CAPI (server-side), Microsoft Clarity (04).
+   The one open item in this section.
+7. 🔲 **Production cutover** — attach `scalingsocials.com` + DNS + `_redirects`
+   when ready (see §D).
 
 ## 🟠 B. Real content only you can supply
 
