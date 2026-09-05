@@ -207,15 +207,15 @@ export const CASE_STUDIES: CaseStudy[] = [
   {
     slug: 'gifting-brand-new-concept-launch',
     niche: 'Gifting',
-    client: 'A mystery-box gifting brand',
+    client: 'A gifting brand',
     archetype: 'launch',
     period: 'May – Jul 2026',
     channels: 'Meta Ads',
     title: 'Gifting Case Study: 11.82x ROAS on a Brand New Concept',
-    description: 'How Scaling Socials launched a mystery-box gifting brand from a blank ad account to 11.82x average ROAS, with monthly return rising 9.62x to 14.23x.',
+    description: 'How Scaling Socials launched a gifting brand from a blank ad account to 11.82x average ROAS in one quarter, with monthly return rising 9.62x to 14.23x.',
     headline: 'Return went up every month we scaled',
     answer:
-      'Scaling Socials launched a mystery-box gifting brand from a blank ad account to ₹9.53 lakh in revenue across its first quarter, at 11.82x average return on ad spend. Monthly return climbed from 9.62x to 14.23x while spend stayed flat, because budget kept concentrating behind one proven campaign instead of spreading.',
+      'Scaling Socials launched a gifting brand from a blank ad account to ₹9.53 lakh in revenue across its first quarter, at 11.82x average return on ad spend. Monthly return climbed from 9.62x to 14.23x while spend stayed flat, because budget kept concentrating behind one proven campaign instead of spreading.',
     delta: { metric: 'Monthly ROAS', before: '9.62x', after: '14.23x' },
     stats: [
       { value: '₹9.53 L', label: 'First-quarter revenue' },
@@ -224,7 +224,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: '859', label: 'Purchases' },
     ],
     situation:
-      'Mystery gift boxes are a genuinely new concept in the Indian market at roughly ₹1,100 average order value. There is no existing search demand to capture and no competitor already proving the offer works — the customer has to understand what it is before deciding it is worth buying. We built the account from scratch, with no pixel history and no benchmark.',
+      'This was a genuinely new concept in the Indian gifting market, at roughly ₹1,100 average order value. There was no existing search demand to capture and no competitor already proving the offer worked — the customer has to understand what the product even is before deciding it is worth buying. We built the account from scratch, with no pixel history and no benchmark.',
     moves: [
       {
         title: 'Proved the concept before funding it',
