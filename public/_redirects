@@ -1,0 +1,27 @@
+# Scaling Socials — legacy WordPress → new URL redirects
+# Generated from docs/spec/redirect-map.csv (curated from the
+# Screaming Frog crawl 2026-09-02 + GSC). Cloudflare Pages _redirects.
+# Rows kept at their existing URL (200, old==new) are intentionally omitted.
+
+/about-us/  /about/  301
+/about-us-2/  /about/  301
+/contact-us/  /contact/  301
+/web-development/  /web-development-company-bangalore/  301
+/performance-marketing/  /performance-marketing-agency-bangalore/  301
+/careers/  https://careers.scalingsocials.com/  301
+/new-disclaimer/  /disclaimer/  301
+/shopify-web-development/  /shopify-development-company-bangalore/  301
+/social-media-handling/  /social-media-marketing-agency-bangalore/  301
+/seo/  /seo-agency-bangalore/  301
+/elementor-6312/  /team/  301
+/new-terms-conditions/  /terms/  301
+/terms-and-conditions/  /terms/  301
+/new-privacy-policy/  /privacy/  301
+/%E2%82%B91-4-million-in-3-months/  /case-studies/  301
+/₹1-4-million-in-3-months/  /case-studies/  301
+/%E2%82%B91-million-in-90-days/  /case-studies/  301
+/₹1-million-in-90-days/  /case-studies/  301
+/%E2%82%B944-3-million-in-90-days/  /case-studies/  301
+/₹44-3-million-in-90-days/  /case-studies/  301
+/thank_you/  /thank-you/  301
+/category/blog/  /blog/  301

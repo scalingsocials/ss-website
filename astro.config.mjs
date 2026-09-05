@@ -25,7 +25,11 @@ export default defineConfig({
         !page.includes('/keystatic') &&
         !page.includes('/styleguide') &&
         !page.includes('/thank-you') &&
-        !page.includes('/404'),
+        !page.includes('/404') &&
+        // noindex landers until their content collections ship (PENDING-WORK §D).
+        !page.includes('/blog') &&
+        !page.includes('/guides') &&
+        !page.includes('/glossary'),
     }),
   ],
   vite: { plugins: [tailwindcss()] },

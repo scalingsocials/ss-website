@@ -18,7 +18,7 @@ const DIST = 'dist';
 const SITE = 'https://scalingsocials.com';
 
 // Routes exempt from the orphan requirement (noindex / out-of-sitemap).
-const ORPHAN_EXEMPT = [/^\/styleguide\//, /^\/thank-you\//, /^\/lp\//, /^\/api\//, /^\/keystatic/];
+const ORPHAN_EXEMPT = [/^\/styleguide\//, /^\/thank-you\//, /^\/lp\//, /^\/api\//, /^\/keystatic/, /^\/404\//];
 const isExempt = (route) => route === '/' || ORPHAN_EXEMPT.some((re) => re.test(route));
 
 const walk = async (dir, out = []) => {
