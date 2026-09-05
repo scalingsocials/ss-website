@@ -1,26 +1,52 @@
 ---
 /**
- * /case-studies/ — proof index. Real, permissioned results (owner confirmed).
- * Individual /case-studies/[slug]/ pages need each client's name + before→after
- * table (pending) — see the requirements doc.
+ * /case-studies/ — proof index, grouped by what we actually did.
+ *
+ * Grouping by archetype rather than listing seven unnamed brands is deliberate:
+ * a list of anonymous accounts is just a list, but the same seven grouped under
+ * "launched from zero / turned around / scaled / kept winning" is a capabilities
+ * argument that happens to be backed by real accounts. A visitor self-selects
+ * into the group that matches their situation.
+ *
+ * No client is named anywhere. The verifiability line does the work the names
+ * used to do.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
-import LogoWall from '@/components/blocks/LogoWall.astro';
-import Testimonials from '@/components/blocks/Testimonials.astro';
+import AnswerBlock from '@/components/blocks/AnswerBlock.astro';
+import CaseStudyCard from '@/components/blocks/CaseStudyCard.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
-import { CASE_STUDIES } from '@/lib/caseStudies';
+import Button from '@/components/primitives/Button.astro';
+import { ARCHETYPES, CASE_STUDIES, CASE_STUDY_TOTALS, type Archetype } from '@/lib/caseStudies';
 import { base, webPage, breadcrumbs } from '@/lib/schema';
 
 const url = '/case-studies/';
-const title = 'Case Studies: Real D2C Growth Results | Scaling Socials';
+const title = 'Case Studies: Real D2C Ad Account Results | Scaling Socials';
 const description =
-  'Real, permissioned results from Scaling Socials: revenue driven for D2C and ecommerce brands across paid media, Shopify and web, in India and the UAE.';
-const modified = '2026-09-04';
+  "Seven real ad accounts Scaling Socials runs for Indian D2C brands: ₹2.77 crore tracked revenue on ₹42.1 lakh ad spend, and every account's worst month.";
+const modified = '2026-09-05';
 
-const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }), breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Case studies', url }])];
+const ORDER: Archetype[] = ['launch', 'turnaround', 'scale', 'sustain'];
+const groups = ORDER.map((key) => ({
+  key,
+  ...ARCHETYPES[key],
+  items: CASE_STUDIES.filter((c) => c.archetype === key),
+})).filter((g) => g.items.length > 0);
+
+const totals = [
+  { value: CASE_STUDY_TOTALS.revenue, label: 'Revenue tracked across these accounts' },
+  { value: CASE_STUDY_TOTALS.spend, label: 'Ad spend managed' },
+  { value: CASE_STUDY_TOTALS.roas, label: 'Blended return on ad spend' },
+  { value: CASE_STUDY_TOTALS.accounts, label: 'Accounts documented in full' },
+];
+
+const nodes = [
+  ...base(),
+  webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Case studies', url }]),
+];
 ---
 
 <BaseLayout>
@@ -29,36 +55,84 @@ const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb
 
   <Section size="lg">
     <span class="ss-eyebrow">Proof</span>
-    <h1 class="max-w-[18ch]">Real revenue, on the board</h1>
-    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
-      The results Scaling Socials publishes are real and permissioned. We won’t put a number on this
-      page we can’t stand behind, and that is exactly why they’re worth reading.
-    </p>
-    <ul class="mt-[var(--space-8)] grid gap-[var(--space-4)] sm:grid-cols-3">
-      {CASE_STUDIES.map((cs) => (
-        <li class="flex flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]">
-          <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{cs.result}</span>
-          <span class="text-body text-[var(--fg)]">{cs.metric} {cs.period}</span>
-          <span class="mt-auto border-t border-[var(--rule-c)] pt-[var(--space-3)] text-label text-[var(--fg-muted)]">{cs.work} — {cs.channels}</span>
+    <h1 class="max-w-[20ch]">Seven accounts, and the worst month of each</h1>
+    <AnswerBlock class="mt-[var(--space-4)]">
+      Scaling Socials runs paid media for D2C and ecommerce brands across India and the UAE. The
+      seven accounts documented here produced ₹2.77 crore in tracked revenue on ₹42.1 lakh of ad
+      spend, a blended 6.58x return. Every figure comes from the client’s own ad account, and every
+      case study names its softest month.
+    </AnswerBlock>
+    <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+      <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+      <Button href="/contact/" variant="secondary">Talk to us</Button>
+    </div>
+  </Section>
+
+  <!-- ink · the verified aggregate -->
+  <Section register="ink" size="md">
+    <ul class="ss-totals grid grid-cols-2 gap-px lg:grid-cols-4">
+      {totals.map((t) => (
+        <li class="flex flex-col gap-[0.25rem] bg-[var(--ground)] p-[var(--space-5)]">
+          <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{t.value}</span>
+          <span class="text-label text-[var(--fg-muted)]">{t.label}</span>
         </li>
       ))}
     </ul>
-    <p class="mt-[var(--space-4)] text-small text-[var(--fg-muted)]">Full write-ups, with the before→after tables, are being published with each client’s permission.</p>
+    <p class="mt-[var(--space-4)] max-w-[62ch] text-small text-[var(--fg-muted)]">
+      This is the sum of the seven accounts on this page and nothing else — not a lifetime agency
+      figure. Every rupee traces back to a client ad account we can produce on request.
+    </p>
   </Section>
 
-  <Section size="md" class="!bg-[var(--surface-c)]">
-    <span class="ss-eyebrow">In their words</span>
-    <h2 class="max-w-[22ch] text-h2 font-semibold">What our clients say</h2>
-    <div class="mt-[var(--space-6)]"><Testimonials /></div>
+  <!-- paper · why there are no names -->
+  <Section size="sm">
+    <div class="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-5)]">
+      <h2 class="text-h4 font-semibold text-[var(--fg)]">Why these brands aren’t named</h2>
+      <p class="mt-[var(--space-2)] max-w-[68ch] text-small leading-relaxed text-[var(--fg-muted)]">
+        These are high-performing accounts in competitive categories, and publishing the brand names
+        would hand their competitors a target list. Each account is identified by its niche and its
+        situation instead. The numbers, periods and channels are unchanged, and we will verify any
+        account on this page under NDA on a call.
+      </p>
+    </div>
   </Section>
 
-  <Section size="md">
-    <LogoWall heading="Brands we work with" />
-  </Section>
+  {groups.map((g) => (
+    <Section size="md">
+      <span class="ss-eyebrow">{g.items.length} {g.items.length === 1 ? 'account' : 'accounts'}</span>
+      <h2 class="max-w-[24ch] text-h2 font-semibold">{g.label}</h2>
+      <p class="mt-[var(--space-2)] max-w-[58ch] text-body text-[var(--fg-muted)]">{g.blurb}</p>
+      <ul class="mt-[var(--space-6)] grid gap-[var(--space-4)] md:grid-cols-2 lg:grid-cols-3">
+        {g.items.map((c) => (
+          <li>
+            <CaseStudyCard
+              client={c.niche}
+              period={c.period}
+              headline={c.headline}
+              category={c.channels}
+              metrics={c.delta ? [{ label: c.delta.metric, before: c.delta.before, after: c.delta.after }] : []}
+              href={`/case-studies/${c.slug}/`}
+              class="h-full bg-[var(--ground)]"
+            />
+          </li>
+        ))}
+      </ul>
+    </Section>
+  ))}
 
   <Section register="ink" size="md">
-    <CtaBand heading="Want results like these for your brand?" body="A written audit in three working days, whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" secondaryLabel="Contact us" secondaryHref="/contact/" />
+    <CtaBand
+      heading="Want your account to read like one of these?"
+      body="Send us your numbers and you get a written audit in three working days, whether or not you hire us."
+      ctaLabel="Get a free growth plan"
+      ctaHref="/audit/"
+      secondaryLabel="Contact us"
+      secondaryHref="/contact/"
+    />
   </Section>
 
-  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+  <style>
+    .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+    .ss-totals { background: var(--rule-c); border: 1px solid var(--rule-c); }
+  </style>
 </BaseLayout>

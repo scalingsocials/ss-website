@@ -1,0 +1,16 @@
+---
+/**
+ * /case-studies/[slug]/ — one anonymised account per page.
+ * Slugs describe the niche and the situation, never a brand.
+ */
+import CaseStudyLayout from '@/layouts/CaseStudyLayout.astro';
+import { CASE_STUDIES } from '@/lib/caseStudies';
+
+export function getStaticPaths() {
+  return CASE_STUDIES.map((study) => ({ params: { slug: study.slug }, props: { study } }));
+}
+
+const { study } = Astro.props;
+---
+
+<CaseStudyLayout study={study} />

@@ -24,7 +24,7 @@ import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import Glyph from '@/components/graphics/Glyph.astro';
 import DotField from '@/components/graphics/DotField.astro';
-import { CASE_STUDIES } from '@/lib/caseStudies';
+import { CASE_STUDY_HIGHLIGHTS } from '@/lib/caseStudies';
 import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
 import type { ServiceContent } from '@/lib/services';
 
@@ -101,7 +101,7 @@ const nodes = [
         <h1>{svc.h1}</h1>
         <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">{svc.answer}</p>
         <ul class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-6)]">
-          {CASE_STUDIES.map((cs) => (
+          {CASE_STUDY_HIGHLIGHTS.map((cs) => (
             <li class="flex flex-col gap-[2px]">
               <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{cs.result}</span>
               <span class="text-label text-[var(--fg-muted)]">{cs.metric} {cs.period}</span>

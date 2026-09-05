@@ -27,7 +27,7 @@ import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import { SERVICE_PILLARS } from '@/lib/nav';
-import { CASE_STUDIES } from '@/lib/caseStudies';
+import { CASE_STUDY_HIGHLIGHTS } from '@/lib/caseStudies';
 import { professionalService, website, webPage, breadcrumbs, faqPage, ORG_ID } from '@/lib/schema';
 
 const title = 'Ecommerce Growth & Ads Agency Bangalore | Scaling Socials';
@@ -177,7 +177,7 @@ const surface = '!bg-[var(--surface-c)]';
       <a href="/case-studies/" class="text-small font-medium text-[var(--accent-text)] no-underline">All case studies</a>
     </div>
     <ul class="mt-[var(--space-6)] grid gap-[var(--space-4)] sm:grid-cols-3">
-      {CASE_STUDIES.map((cs) => (
+      {CASE_STUDY_HIGHLIGHTS.map((cs) => (
         <li>
           <a href={cs.href} class="ss-case group flex h-full flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)] no-underline">
             <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{cs.result}</span>

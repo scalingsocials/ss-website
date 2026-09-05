@@ -1,0 +1,249 @@
+---
+/**
+ * CaseStudyLayout — one anonymised account, told as a state change.
+ *
+ * Register rhythm is paper → ink → paper → paper → ink → paper → ink (three ink
+ * bands, under the five-band cap in 08 §9). The ink bands are the "showing"
+ * moments: the Delta up top and the before→after outcome near the bottom.
+ *
+ * No client is ever named — `client` on the data is a niche descriptor, which is
+ * what satisfies Delta's mandatory attribution (CLAUDE.md §14). The schema
+ * CreativeWork is `about` the niche for the same reason.
+ *
+ * Accounts with no honest before→after (mature retainers) carry `held` instead
+ * of `delta` and render a steady-state proof. Never synthesise a Delta for them.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import Button from '@/components/primitives/Button.astro';
+import AnswerBlock from '@/components/blocks/AnswerBlock.astro';
+import Delta from '@/components/blocks/Delta.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import { ARCHETYPES, CASE_STUDIES, type CaseStudy } from '@/lib/caseStudies';
+import { base, caseStudy, webPage, breadcrumbs, articleId } from '@/lib/schema';
+
+export interface Props {
+  study: CaseStudy;
+}
+const { study: s } = Astro.props;
+
+const url = `/case-studies/${s.slug}/`;
+const published = '2026-09-05';
+const publishedLabel = 'September 2026';
+const arch = ARCHETYPES[s.archetype];
+const related = CASE_STUDIES.filter((c) => c.slug !== s.slug).slice(0, 3);
+
+const nodes = [
+  ...base(),
+  ...caseStudy({
+    url,
+    headline: s.headline,
+    description: s.answer,
+    datePublished: published,
+    dateModified: published,
+    clientName: s.niche, // never the brand — anonymity is deliberate
+    category: s.niche,
+  }),
+  webPage({
+    url,
+    name: s.title,
+    description: s.answer,
+    aboutId: articleId(url),
+    hasBreadcrumb: true,
+    dateModified: published,
+  }),
+  breadcrumbs(url, [
+    { name: 'Home', url: '/' },
+    { name: 'Case studies', url: '/case-studies/' },
+    { name: s.niche, url },
+  ]),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={s.title} description={s.description} type="article" modifiedTime={published} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <!-- 1 · paper — answer first -->
+  <Section size="lg">
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
+      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span> / </span>
+      <a href="/case-studies/" class="text-[var(--accent-text)] no-underline">Case studies</a><span> / </span>
+      <span>{s.niche}</span>
+    </nav>
+
+    <span class="ss-eyebrow">{s.niche} · {arch.label}</span>
+    <h1 class="max-w-[20ch]">{s.headline}</h1>
+
+    <AnswerBlock class="mt-[var(--space-4)]">{s.answer}</AnswerBlock>
+
+    <p class="mt-[var(--space-4)] text-label text-[var(--fg-muted)]" data-num>
+      {s.channels} · {s.period} · Published <time datetime={published}>{publishedLabel}</time>
+    </p>
+
+    <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+      <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+      <Button href="/case-studies/" variant="secondary">All case studies</Button>
+    </div>
+  </Section>
+
+  <!-- 2 · ink — the state change, and the numbers behind it -->
+  <Section register="ink" size="md">
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+      <div>
+        {s.delta ? (
+          <Delta
+            metric={s.delta.metric}
+            before={s.delta.before}
+            after={s.delta.after}
+            client={s.client}
+            period={s.period}
+            channel={s.channels}
+          />
+        ) : s.held ? (
+          <div>
+            <div class="text-label tracking-[0.03em] text-[var(--fg-muted)] mb-[var(--space-1)]">
+              {s.held.metric}
+            </div>
+            <div class="display-type text-data font-semibold tracking-[-0.025em] text-[var(--pos)]" data-num>
+              {s.held.value}
+            </div>
+            <p class="mt-[0.4rem] max-w-[34ch] text-label text-[var(--fg-muted)]">{s.held.note}</p>
+            <p class="mt-[var(--space-2)] text-label text-[var(--fg-muted)]">
+              {s.client}, {s.channels}, {s.period}
+            </p>
+          </div>
+        ) : null}
+      </div>
+
+      <ul class="ss-stats grid grid-cols-2 gap-px sm:grid-cols-4 lg:grid-cols-2">
+        {s.stats.map((st) => (
+          <li class="flex flex-col gap-[0.2rem] bg-[var(--ground)] p-[var(--space-4)]">
+            <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{st.value}</span>
+            <span class="text-label text-[var(--fg-muted)]">{st.label}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Section>
+
+  <!-- 3 · paper — where the account started -->
+  <Section size="md">
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.4fr_1fr] lg:items-start">
+      <div>
+        <span class="ss-eyebrow">The starting point</span>
+        <h2 class="max-w-[22ch] text-h2 font-semibold">Where the account was</h2>
+        <Prose class="mt-[var(--space-4)]"><p>{s.situation}</p></Prose>
+      </div>
+      <aside class="lg:sticky lg:top-[96px] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-5)]">
+        <span class="text-label font-semibold text-[var(--fg-muted)]">{arch.label}</span>
+        <p class="mt-[var(--space-2)] text-small leading-relaxed text-[var(--fg-muted)]">{arch.blurb}</p>
+        <p class="mt-[var(--space-4)] border-t border-[var(--rule-c)] pt-[var(--space-3)] text-label text-[var(--fg-muted)]">
+          Client name withheld to protect a competitive account. Figures come from the client’s own
+          ad account and can be verified under NDA on a call.
+        </p>
+      </aside>
+    </div>
+  </Section>
+
+  <!-- 4 · paper (surface) — what we actually did -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="ss-eyebrow">The work</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">What we did</h2>
+    <ol class="mt-[var(--space-6)] grid gap-[var(--space-4)] md:grid-cols-2">
+      {s.moves.map((m) => (
+        <li class="flex flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]">
+          <h3 class="text-h4 font-semibold text-[var(--fg)]">{m.title}</h3>
+          <p class="text-small leading-relaxed text-[var(--fg-muted)]">{m.body}</p>
+        </li>
+      ))}
+    </ol>
+  </Section>
+
+  <!-- 5 · ink — before → after -->
+  <Section register="ink" size="md">
+    <span class="ss-eyebrow">The outcome</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">Before and after</h2>
+    <table class="ss-outcome mt-[var(--space-6)] w-full border-collapse text-left">
+      <thead>
+        <tr>
+          <th scope="col" class="w-1/2 border-b border-[var(--rule-c)] pb-[var(--space-2)] text-label font-semibold text-[var(--fg-muted)]">
+            Before Scaling Socials
+          </th>
+          <th scope="col" class="w-1/2 border-b border-[var(--rule-c)] pb-[var(--space-2)] pl-[var(--space-4)] text-label font-semibold text-[var(--accent-text)]">
+            After
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {s.outcome.map((row) => (
+          <tr>
+            <td class="border-b border-[var(--rule-c)] py-[var(--space-3)] pr-[var(--space-4)] align-top text-small text-[var(--fg-muted)]">
+              {row.before}
+            </td>
+            <td class="border-b border-[var(--rule-c)] py-[var(--space-3)] pl-[var(--space-4)] align-top text-small font-medium text-[var(--fg)]">
+              {row.after}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </Section>
+
+  <!-- 6 · paper — the soft month, then the lesson -->
+  <Section size="md">
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-2 lg:items-start">
+      <div>
+        <span class="ss-eyebrow">The month we don’t hide</span>
+        <h2 class="max-w-[22ch] text-h2 font-semibold">The soft month</h2>
+        <p class="mt-[var(--space-4)] max-w-[54ch] text-body leading-relaxed text-[var(--fg-muted)]">
+          {s.honesty}
+        </p>
+      </div>
+      <div class="border-l-2 border-[var(--accent-fill)] pl-[var(--space-5)]">
+        <span class="ss-eyebrow">The takeaway</span>
+        <p class="max-w-[52ch] text-h4 leading-[1.5] text-[var(--fg)]">{s.takeaway}</p>
+      </div>
+    </div>
+  </Section>
+
+  <!-- 7 · paper (surface) — read another -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="ss-eyebrow">More proof</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">Other accounts</h2>
+    <ul class="mt-[var(--space-5)] grid gap-[var(--space-3)] sm:grid-cols-3">
+      {related.map((r) => (
+        <li>
+          <a href={`/case-studies/${r.slug}/`} class="ss-rel group flex h-full flex-col gap-[var(--space-1)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline">
+            <span class="text-label text-[var(--fg-muted)]">{r.niche}</span>
+            <span class="text-h4 font-semibold leading-snug text-[var(--fg)] group-hover:text-[var(--accent-text)]">{r.headline}</span>
+            <span class="mt-auto pt-[var(--space-3)] text-label text-[var(--fg-muted)]" data-num>{r.period}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section register="ink" size="md">
+    <CtaBand
+      heading="Want your account to read like this?"
+      body="Send us your numbers and you get a written audit in three working days, whether or not you hire us."
+      ctaLabel="Get a free growth plan"
+      ctaHref="/audit/"
+      secondaryLabel="Talk to us"
+      secondaryHref="/contact/"
+    />
+  </Section>
+
+  <style>
+    .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+    .ss-stats { background: var(--rule-c); border: 1px solid var(--rule-c); }
+    .ss-rel { transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
+    @media (prefers-reduced-motion: no-preference) {
+      .ss-rel:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); }
+    }
+  </style>
+</BaseLayout>
