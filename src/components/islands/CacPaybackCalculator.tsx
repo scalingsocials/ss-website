@@ -9,6 +9,7 @@
  * The calculator's own defaults are illustrative inputs, not client claims.
  */
 import { useEffect, useRef, useState } from 'react';
+import { toneClass } from './toneClass';
 
 interface Props {
   cac?: number;
@@ -106,8 +107,7 @@ export default function CacPaybackCalculator({ cac: cac0 = 800, aov: aov0 = 1500
         <div className="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-4)]">
           <div className="text-label font-medium text-[var(--fg-muted)]">Contribution per order</div>
           <div
-            className="display-type text-data-sm font-semibold"
-            style={{ color: `var(--${contribPerOrder - cac >= 0 ? 'pos' : 'fg'})` }}
+            className={`display-type text-data-sm font-semibold ${toneClass[contribPerOrder - cac >= 0 ? 'pos' : 'fg']}`}
           >
             {inr(contribPerOrder)}
           </div>

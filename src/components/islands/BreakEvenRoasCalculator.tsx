@@ -9,6 +9,7 @@
  * The calculator's own defaults are illustrative inputs, not client claims.
  */
 import { useEffect, useRef, useState } from 'react';
+import { toneClass } from './toneClass';
 
 interface Props {
   aov?: number;
@@ -101,8 +102,7 @@ export default function BreakEvenRoasCalculator({ aov: aov0 = 1500, margin: marg
         <div className="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-4)]">
           <div className="text-label font-medium text-[var(--fg-muted)]">Profit per order at {roas}× ROAS</div>
           <div
-            className="display-type text-data-sm font-semibold"
-            style={{ color: `var(--${profit >= 0 ? 'pos' : 'neg'})` }}
+            className={`display-type text-data-sm font-semibold ${toneClass[profit >= 0 ? 'pos' : 'neg']}`}
           >
             {inr(profit)}
           </div>

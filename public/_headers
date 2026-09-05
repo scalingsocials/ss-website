@@ -1,11 +1,30 @@
+# Security and caching headers for Cloudflare Pages.
+#
+# The full Content-Security-Policy is emitted per page as a <meta> tag by Astro
+# (experimental.csp in astro.config.mjs), which hashes every inline script and
+# style so the policy needs no 'unsafe-inline' or 'unsafe-eval'.
+#
+# frame-ancestors is IGNORED inside a meta CSP, so it has to be a real response
+# header — that is what the CSP line below is for. Keep it to frame-ancestors
+# only: a header policy and a meta policy are enforced as an intersection, so
+# adding anything else here would silently tighten every page twice over.
 /*
+  Content-Security-Policy: frame-ancestors 'none'
+  X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
 
+# Content-addressed build output — safe to cache forever.
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# The lead endpoint must never be cached anywhere.
+/api/*
+  Cache-Control: no-store
+  X-Robots-Tag: noindex

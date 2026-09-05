@@ -56,8 +56,10 @@ const { client, period, headline, category, metrics = [], href, class: className
             <span class="text-[var(--fg-muted)]">{m.before}</span>
             <span aria-hidden="true" class="text-[var(--rule-c)]">→</span>
             <span
-              class="font-semibold"
-              style={`color: var(--${m.direction === 'down' ? 'neg' : 'pos'})`}
+              class:list={[
+                'font-semibold',
+                m.direction === 'down' ? 'text-[var(--neg)]' : 'text-[var(--pos)]',
+              ]}
             >{m.after}</span>
           </dd>
         </div>

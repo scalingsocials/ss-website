@@ -1,0 +1,135 @@
+---
+/**
+ * /sitemap/ — human-readable index of every indexable page (03 §0 launch gate).
+ *
+ * Built from the same data the routes are, so it cannot drift out of sync: add a
+ * service, cluster or case study and it appears here on the next build. The
+ * noindex landers (blog, guides, glossary) and out-of-sitemap routes (styleguide,
+ * thank-you, lp, api) are deliberately absent — this page mirrors what the XML
+ * sitemap advertises.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import AnswerBlock from '@/components/blocks/AnswerBlock.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import { SERVICES } from '@/lib/services';
+import { CLUSTERS } from '@/lib/clusters';
+import { CASE_STUDIES } from '@/lib/caseStudies';
+import { base, webPage, breadcrumbs } from '@/lib/schema';
+
+const url = '/sitemap/';
+const title = 'Sitemap: Every Page on the Scaling Socials Website';
+const description =
+  'A human-readable index of every page Scaling Socials publishes: services, specialisms, free calculators, case studies, company pages and policies.';
+const modified = '2026-09-05';
+
+const groups: { heading: string; links: { label: string; href: string }[] }[] = [
+  {
+    heading: 'Main',
+    links: [
+      { label: 'Home', href: '/' },
+      { label: 'Get a free growth plan', href: '/audit/' },
+      { label: 'Contact', href: '/contact/' },
+    ],
+  },
+  {
+    heading: 'Services',
+    links: SERVICES.map((s) => ({ label: s.name, href: s.url })),
+  },
+  {
+    heading: 'Specialisms',
+    links: CLUSTERS.map((c) => ({ label: c.name, href: c.url })),
+  },
+  {
+    heading: 'Free tools',
+    links: [
+      { label: 'All tools', href: '/tools/' },
+      { label: 'Break-even ROAS calculator', href: '/tools/break-even-roas-calculator/' },
+      { label: 'D2C CAC payback calculator', href: '/tools/d2c-cac-payback-calculator/' },
+      { label: 'Meta ads budget planner', href: '/tools/meta-ads-budget-planner/' },
+      { label: 'Shopify speed grader', href: '/tools/shopify-speed-grader/' },
+    ],
+  },
+  {
+    heading: 'Case studies',
+    links: [
+      { label: 'All case studies', href: '/case-studies/' },
+      ...CASE_STUDIES.map((c) => ({
+        label: `${c.niche} — ${c.headline}`,
+        href: `/case-studies/${c.slug}/`,
+      })),
+    ],
+  },
+  {
+    heading: 'Company',
+    links: [
+      { label: 'About', href: '/about/' },
+      { label: 'Team', href: '/team/' },
+      { label: 'Work', href: '/work/' },
+      { label: 'Teardowns', href: '/teardowns/' },
+    ],
+  },
+  {
+    heading: 'Policies',
+    links: [
+      { label: 'Terms', href: '/terms/' },
+      { label: 'Privacy policy', href: '/privacy/' },
+      { label: 'Cookie policy', href: '/cookie-policy/' },
+      { label: 'Disclaimer', href: '/disclaimer/' },
+    ],
+  },
+];
+
+const total = groups.reduce((n, g) => n + g.links.length, 0);
+
+const nodes = [
+  ...base(),
+  webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Sitemap', url }]),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <span class="ss-eyebrow">Sitemap</span>
+    <h1 class="max-w-[20ch]">Every page on this site</h1>
+    <AnswerBlock class="mt-[var(--space-4)]">
+      This is a human-readable index of the {total} pages Scaling Socials publishes — services,
+      specialisms, free calculators, case studies, company pages and policies. The machine-readable
+      version for search engines lives at <a href="/sitemap-index.xml" class="text-[var(--accent-text)]">sitemap-index.xml</a>.
+    </AnswerBlock>
+  </Section>
+
+  {groups.map((g) => (
+    <Section size="sm">
+      <h2 class="text-h3 font-semibold">{g.heading}</h2>
+      <ul class="mt-[var(--space-4)] grid gap-x-[var(--space-6)] gap-y-[var(--space-2)] sm:grid-cols-2 lg:grid-cols-3">
+        {g.links.map((l) => (
+          <li class="border-b border-[var(--rule-c)] pb-[var(--space-2)]">
+            <a href={l.href} class="text-body text-[var(--fg)] no-underline hover:text-[var(--accent-text)]">
+              {l.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  ))}
+
+  <Section register="ink" size="md">
+    <CtaBand
+      heading="Can’t find what you were after?"
+      body="Tell us what you need and we’ll point you at the right page, or just answer the question."
+      ctaLabel="Get a free growth plan"
+      ctaHref="/audit/"
+      secondaryLabel="Contact us"
+      secondaryHref="/contact/"
+    />
+  </Section>
+
+  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+</BaseLayout>

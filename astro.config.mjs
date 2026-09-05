@@ -32,6 +32,25 @@ export default defineConfig({
         !page.includes('/glossary'),
     }),
   ],
+  experimental: {
+    csp: {
+      algorithm: 'SHA-256',
+      directives: [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        // frame-ancestors is IGNORED in a <meta> CSP, so it is set as a real
+        // header in public/_headers instead. Kept out of here deliberately.
+        "object-src 'none'",
+        "img-src 'self' data:",
+        "font-src 'self'",
+        "connect-src 'self' https://challenges.cloudflare.com",
+        "frame-src https://challenges.cloudflare.com",
+      ],
+      scriptDirective: { resources: ["'self'", 'https://challenges.cloudflare.com'] },
+      styleDirective: { resources: ["'self'"] },
+    },
+  },
   vite: { plugins: [tailwindcss()] },
   image: { formats: ['avif', 'webp'] },
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },

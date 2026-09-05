@@ -10,6 +10,7 @@
  * ?lcp=&sessions=&cr=&aov=&sens=.
  */
 import { useEffect, useRef, useState } from 'react';
+import { toneClass } from './toneClass';
 
 interface Props {
   lcp?: number;
@@ -107,7 +108,7 @@ export default function ShopifySpeedGrader({ lcp: lcp0 = 4.2, sessions: se0 = 40
       <div className="flex flex-col gap-[var(--space-3)]">
         <div className="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-4)]">
           <div className="text-label font-medium text-[var(--fg-muted)]">Core Web Vitals grade (LCP)</div>
-          <div className="display-type text-data-sm font-semibold" style={{ color: `var(--${g.tone})` }}>
+          <div className={`display-type text-data-sm font-semibold ${toneClass[g.tone]}`}>
             {g.label}
           </div>
           <p className="mt-[0.4rem] text-small text-[var(--fg-muted)]">
@@ -118,7 +119,7 @@ export default function ShopifySpeedGrader({ lcp: lcp0 = 4.2, sessions: se0 = 40
 
         <div className="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-4)]">
           <div className="text-label font-medium text-[var(--fg-muted)]">Modelled monthly revenue at 2.5s</div>
-          <div className="display-type text-data-sm font-semibold" style={{ color: `var(--${extraRevenue > 0 ? 'pos' : 'fg'})` }}>
+          <div className={`display-type text-data-sm font-semibold ${toneClass[extraRevenue > 0 ? 'pos' : 'fg']}`}>
             {secondsSaved > 0 ? '+' + inr(extraRevenue) : '—'}
           </div>
           <p className="mt-[0.4rem] text-small text-[var(--fg-muted)]">

@@ -30,7 +30,7 @@ const stats = CASE_STUDY_HIGHLIGHTS;
         from ₹25,000 a month.
       </p>
 
-      <ul class="hero__stats hero__line" style="animation-delay:0.36s" aria-label="Recent client results">
+      <ul class="hero__stats hero__line hero__line--4" aria-label="Recent client results">
         {stats.map((s) => (
           <li class="hero__stat">
             <span class="hero__stat-value" data-num>{s.result}</span>
@@ -39,7 +39,7 @@ const stats = CASE_STUDY_HIGHLIGHTS;
         ))}
       </ul>
 
-      <div class="hero__cta hero__line" style="animation-delay:0.48s">
+      <div class="hero__cta hero__line hero__line--6">
         <Button href="/audit/" variant="primary">Get a free growth plan</Button>
         <Button href="/case-studies/" variant="secondary">See case studies</Button>
       </div>
@@ -170,6 +170,8 @@ const stats = CASE_STUDY_HIGHLIGHTS;
     .hero__line--1 { animation-delay: 0.05s; }
     .hero__line--2 { animation-delay: 0.16s; }
     .hero__line--3 { animation-delay: 0.30s; }
+    .hero__line--4 { animation-delay: 0.36s; }
+    .hero__line--6 { animation-delay: 0.48s; }
     .hero__line--5 { animation-delay: 0.28s; transform: translateY(24px) scale(0.98); }
     .hero__line-path { animation: draw 1.2s var(--ease-out) 0.55s forwards; }
     .hero__area { animation: fadeIn 0.8s ease 1.15s forwards; }

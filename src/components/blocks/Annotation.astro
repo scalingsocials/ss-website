@@ -33,8 +33,10 @@ const { label, date, align = 'left', emphasis = false, class: className = '' } =
   data-annotation
 >
   <div
-    class="w-px shrink-0 self-stretch"
-    style={`background: var(--${emphasis ? 'accent-graphic' : 'rule-c'})`}
+    class:list={[
+      'w-px shrink-0 self-stretch',
+      emphasis ? 'bg-[var(--accent-graphic)]' : 'bg-[var(--rule-c)]',
+    ]}
     aria-hidden="true"
   ></div>
 

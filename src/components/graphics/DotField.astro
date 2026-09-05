@@ -11,15 +11,16 @@ export interface Props {
   class?: string;
 }
 const { origin = 'top-right', class: className = '' } = Astro.props;
-const pos = {
-  'top-right': '18% 0% at 92% 6%',
-  'top-left': '18% 0% at 8% 6%',
-  'bottom-right': '20% 0% at 90% 96%',
-  'bottom-left': '20% 0% at 10% 96%',
-}[origin];
 ---
-<div class:list={['ss-dotfield', className]} aria-hidden="true" style={`--glow:${pos}`}></div>
+<div class:list={['ss-dotfield', className]} aria-hidden="true" data-origin={origin}></div>
 <style>
+  /* --glow is set per origin in CSS rather than an inline style attribute, so the
+     page needs no 'unsafe-inline' in the CSP style-src (see astro.config.mjs). */
+  .ss-dotfield[data-origin='top-right'] { --glow: 18% 0% at 92% 6%; }
+  .ss-dotfield[data-origin='top-left'] { --glow: 18% 0% at 8% 6%; }
+  .ss-dotfield[data-origin='bottom-right'] { --glow: 20% 0% at 90% 96%; }
+  .ss-dotfield[data-origin='bottom-left'] { --glow: 20% 0% at 10% 96%; }
+
   .ss-dotfield {
     position: absolute;
     inset: 0;

@@ -56,8 +56,11 @@ const Wrapper = href ? 'a' : 'div';
     <span class="text-h4 text-[var(--fg-muted)]" data-delta-before>{before}</span>
     <span class="text-small text-[var(--rule-c)]" aria-hidden="true">&rarr;</span>
     <span
-      class:list={[valueSize, 'font-semibold tracking-[-0.025em]']}
-      style={`color: var(--${direction === 'up' ? 'pos' : 'neg'})`}
+      class:list={[
+        valueSize,
+        'font-semibold tracking-[-0.025em]',
+        direction === 'up' ? 'text-[var(--pos)]' : 'text-[var(--neg)]',
+      ]}
       data-delta-value
     >{after}</span>
   </div>
