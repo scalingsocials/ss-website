@@ -110,6 +110,20 @@ Deploy runbook: **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)**.
 - **`llms.txt` / `llms-full.txt`** — baseline generated; enrich from content collections.
 - **Lighthouse CI** — `lighthouserc.json` exists; add an `lh` step to the GH Actions
   workflow (needs Chrome in CI).
+- ⚠️ **CSP regression, found and fixed 2026-09-05.** The first CSP shipped broke
+  client-side navigation: Astro emits a *per-page* policy hashing only that
+  page's inline blocks, but a `<meta>` CSP is honoured only while the document
+  is first parsed, and `<ClientRouter />` swaps the DOM without reloading. So the
+  landing page's policy governed the whole session and every other page had its
+  inline `<style>` refused — pages rendered on a hard load and lost their
+  component styles when reached by a link (the homepage logo marquee, visibly).
+  Fixed by `scripts/unify-csp.mjs`, which rewrites every page to one shared
+  policy (the union of all hashes) after the build. `npm run check:csp` now
+  fails the build if the policies ever diverge again, if any page's inline block
+  is not covered by its own policy, or if anyone adds `unsafe-inline`.
+  **Lesson: full-page-load testing is not sufficient on a site with view
+  transitions — navigation must be exercised.**
+
 - ✅ **CSP** (2026-09-05) — a strict, hash-based policy with **no `unsafe-inline`
   and no `unsafe-eval`**, emitted per page via Astro's native CSP (SHA-256 hashes
   for every inline script and style). Getting there meant removing all 81 inline

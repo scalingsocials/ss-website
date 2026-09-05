@@ -103,10 +103,11 @@ in `legalAddress` is for invoices only and must never reach the website, schema 
 - `npm run check` — astro check + typecheck
 - `npm run check:perf` — perf budget gate
 - `npm run check:schema` — JSON-LD validation
+- `npm run check:csp` — CSP gate: one shared policy, every inline block hashed
 - `npm run check:links` — internal link + orphan check
 - `npm run lh` — Lighthouse CI
 
 ## Definition of done for any page
-`npm run check && npm run build && npm run check:perf && npm run check:schema && npm run lh`
+`npm run check && npm run build && npm run check:perf && npm run check:schema && npm run check:csp && npm run lh`
 all pass, Lighthouse mobile ≥ 98 on all four categories, the page renders correctly with JS
 disabled, schema validates in Google's Rich Results Test, and every internal link resolves.

@@ -4,13 +4,14 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && pagefind --site dist && node scripts/build-llms-txt.mjs",
+    "build": "astro build && node scripts/unify-csp.mjs && pagefind --site dist && node scripts/build-llms-txt.mjs",
     "preview": "astro preview",
     "check": "astro check && tsc --noEmit",
     "check:perf": "node scripts/check-perf-budget.mjs",
     "check:schema": "node scripts/validate-schema.mjs",
     "check:links": "node scripts/check-links.mjs",
-    "lh": "lhci autorun"
+    "lh": "lhci autorun",
+    "check:csp": "node scripts/check-csp.mjs"
   },
   "dependencies": {
     "astro": "^5.0.0",
