@@ -27,7 +27,8 @@ import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import { SERVICE_PILLARS } from '@/lib/nav';
-import { CASE_STUDY_HIGHLIGHTS } from '@/lib/caseStudies';
+import { ARCHETYPES, FEATURED_STUDIES } from '@/lib/caseStudies';
+import CaseStudyCard from '@/components/blocks/CaseStudyCard.astro';
 import { professionalService, website, webPage, breadcrumbs, faqPage, ORG_ID } from '@/lib/schema';
 
 const title = 'Ecommerce Growth & Ads Agency Bangalore | Scaling Socials';
@@ -177,19 +178,18 @@ const surface = '!bg-[var(--surface-c)]';
       <a href="/case-studies/" class="text-small font-medium text-[var(--accent-text)] no-underline">All case studies</a>
     </div>
     <ul class="mt-[var(--space-6)] grid gap-[var(--space-4)] sm:grid-cols-3">
-      {CASE_STUDY_HIGHLIGHTS.map((cs) => (
+      {FEATURED_STUDIES.map((cs) => (
         <li>
-          <a href={cs.href} class="ss-case group flex h-full flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)] no-underline">
-            <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{cs.result}</span>
-            <span class="text-body text-[var(--fg)]">{cs.metric} {cs.period}</span>
-            <span class="mt-auto border-t border-[var(--rule-c)] pt-[var(--space-3)] text-label text-[var(--fg-muted)]">
-              {cs.work} — {cs.channels}
-            </span>
-            <span class="inline-flex items-center gap-[0.35rem] text-small font-medium text-[var(--accent-text)]">
-              Read the case study
-              <svg class="ss-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-          </a>
+          <CaseStudyCard
+            client={cs.niche}
+            period={cs.period}
+            headline={cs.headline}
+            archetype={ARCHETYPES[cs.archetype].label}
+            category={cs.channels}
+            metrics={[{ label: cs.delta!.metric, before: cs.delta!.before, after: cs.delta!.after }]}
+            href={`/case-studies/${cs.slug}/`}
+            class="bg-[var(--ground)]"
+          />
         </li>
       ))}
     </ul>

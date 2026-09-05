@@ -485,32 +485,42 @@ export const CASE_STUDY_TOTALS = {
 } as const;
 
 /**
- * The three headline results used on the homepage hero, service pages and the
- * homepage proof row. Anonymised, and each links to its full case study.
+ * Homepage / service-page proof, DERIVED from CASE_STUDIES above rather than
+ * duplicated, so the numbers can never drift from the case studies themselves.
+ *
+ * Two different selections because they do two different jobs:
+ *   HERO_STATS         — the three biggest revenue figures, for scanning.
+ *   FEATURED_STUDIES   — one launch, one turnaround, one scale, each with a real
+ *                        before→after. The homepage proof cards are Deltas
+ *                        (08 §7.8: "real result tables, not thumbnails"), so a
+ *                        study without a `delta` cannot be featured there.
  */
-export const CASE_STUDY_HIGHLIGHTS = [
-  {
-    result: '₹1.19 Cr',
-    metric: 'in year one',
-    period: 'wellness D2C',
-    channels: 'Meta Ads',
-    work: 'Launched from zero',
-    href: '/case-studies/wellness-brand-zero-to-scale/',
-  },
-  {
-    result: '₹60.89 L',
-    metric: 'in 7 months',
-    period: 'kids accessories',
-    channels: 'Meta Ads',
-    work: 'Never below 6.95x',
-    href: '/case-studies/kids-accessories-seven-month-floor/',
-  },
-  {
-    result: '₹57.68 L',
-    metric: 'in 7 months',
-    period: "mid-luxury womenswear",
-    channels: 'Meta Ads',
-    work: 'Past a two-year ceiling',
-    href: '/case-studies/womenswear-breaking-the-ceiling/',
-  },
-] as const;
+const pick = (slug: string): CaseStudy => {
+  const c = CASE_STUDY_BY_SLUG[slug];
+  if (!c) throw new Error(`Unknown case study slug: ${slug}`);
+  return c;
+};
+
+export const HERO_STATS = [
+  'wellness-brand-zero-to-scale',
+  'kids-accessories-seven-month-floor',
+  'womenswear-breaking-the-ceiling',
+].map((slug) => {
+  const c = pick(slug);
+  return {
+    value: c.stats[0]!.value,
+    label: c.stats[0]!.label,
+    niche: c.niche,
+    href: `/case-studies/${c.slug}/`,
+  };
+});
+
+export const FEATURED_STUDIES = [
+  'wellness-brand-zero-to-scale',
+  'womens-fashion-account-turnaround',
+  'womenswear-breaking-the-ceiling',
+].map((slug) => {
+  const c = pick(slug);
+  if (!c.delta) throw new Error(`Featured study ${slug} has no delta to show.`);
+  return c;
+});

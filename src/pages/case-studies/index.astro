@@ -109,8 +109,10 @@ const nodes = [
               client={c.niche}
               period={c.period}
               headline={c.headline}
+              archetype={g.label}
               category={c.channels}
               metrics={c.delta ? [{ label: c.delta.metric, before: c.delta.before, after: c.delta.after }] : []}
+              stat={c.held ? { label: c.held.metric, value: c.held.value } : undefined}
               href={`/case-studies/${c.slug}/`}
               class="h-full bg-[var(--ground)]"
             />
