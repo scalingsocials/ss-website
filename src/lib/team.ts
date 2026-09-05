@@ -1,9 +1,18 @@
 /**
  * The four co-founders. See 11-SUPPLIED-CONTENT.md §1. Display spelling and bios
  * are as supplied. LinkedIn is the only social that exists — never ship a
- * fabricated Facebook/Twitter link (11 §1). Photos are pending (11 §1 TODO), so
- * the UI uses an initials tile, never a stock face on a named person.
+ * fabricated Facebook/Twitter link (11 §1).
+ *
+ * Photos are the founders' own, recovered from the previous WordPress team page
+ * (/elementor-6312/). See src/assets/founders/README.md. Never a stock face on a
+ * named person — if a photo is ever missing, fall back to the initials tile.
  */
+import type { ImageMetadata } from 'astro';
+import tayeb from '@/assets/founders/tayeb-khan.jpg';
+import jamal from '@/assets/founders/jamal-khan.jpg';
+import maaz from '@/assets/founders/maaz-khan.jpg';
+import khushal from '@/assets/founders/khushal-sharma.jpg';
+
 export interface Partner {
   slug: string;
   name: string;
@@ -11,11 +20,13 @@ export interface Partner {
   focus: string;
   linkedin: string;
   bio: string;
+  photo: ImageMetadata;
 }
 
 export const PARTNERS: Partner[] = [
   {
     slug: 'tayeb-khan',
+    photo: tayeb,
     name: 'Tayeb Khan',
     role: 'Co-founder',
     focus: 'Web development and finance',
@@ -24,6 +35,7 @@ export const PARTNERS: Partner[] = [
   },
   {
     slug: 'jamal-khan',
+    photo: jamal,
     name: 'Jamal Khan',
     role: 'Co-founder',
     focus: 'Paid media',
@@ -32,6 +44,7 @@ export const PARTNERS: Partner[] = [
   },
   {
     slug: 'maaz-khan',
+    photo: maaz,
     name: 'Maaz Khan',
     role: 'Co-founder',
     focus: 'Ecommerce growth',
@@ -40,6 +53,7 @@ export const PARTNERS: Partner[] = [
   },
   {
     slug: 'khushal-sharma',
+    photo: khushal,
     name: 'Khushal Sharma',
     role: 'Co-founder',
     focus: 'Brand and creator growth',

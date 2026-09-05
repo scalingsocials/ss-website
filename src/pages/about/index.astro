@@ -8,8 +8,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
+import { Image } from 'astro:assets';
 import Prose from '@/components/primitives/Prose.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
+import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
 import { PARTNERS } from '@/lib/team';
 import { base, webPage, breadcrumbs, person } from '@/lib/schema';
 
@@ -24,6 +26,37 @@ const values = [
   { t: 'We publish our pricing', b: 'Nobody else in this SERP does. Transparency filters the right clients in and the wrong ones out.' },
   { t: 'We say when not to hire us', b: 'Every service page has a real disqualifier list. Saying no is a trust signal, and it saves everyone time.' },
   { t: 'One team, one number', b: 'Media, creative, store and CRO under one roof, so nobody points fingers when a number moves.' },
+];
+
+// How the agency actually operates — each one is a direct answer to a failure
+// the founders hit when they were the client hiring an agency (owner-supplied).
+const standards = [
+  {
+    t: 'Realistic growth, month on month',
+    b: 'We plan to a number the account can actually hit, and say what it will take to get there. Nobody here will promise you 5x in thirty days — that pitch is how brands end up overspent and disappointed.',
+  },
+  {
+    t: 'Experienced managers, not juniors',
+    b: 'Every account is run by an ad manager with at least a year handling large budgets. The person who understands your account is the person actually working on it.',
+  },
+  {
+    t: 'Everything stays in-house',
+    b: 'Media, creative, store and CRO all sit under one roof. We do not outsource the work and put our name on it, because quality control ends the moment it leaves the building.',
+  },
+  {
+    t: 'Pricing matched to the work',
+    b: 'What we charge flexes with the real workload and the stage you are at, rather than a fixed retainer that ignores whether you are launching or scaling.',
+  },
+];
+
+// Real disqualifiers, in the founders' own terms. Saying no is a trust signal.
+const notForYou = [
+  'Brands without a working marketing budget. Below a real spend level we cannot get you the result you are expecting, and we would rather tell you now.',
+  'Brands treating marketing as a get-rich-quick scheme — expecting viral content or a high return inside the first month.',
+  'Brands with no long-term view. Growth compounds over quarters; it does not arrive in week three.',
+  'Brands unwilling to act on what we find. If the product, the pricing or the website is what is holding sales back, we will say so, and this only works if that gets fixed.',
+  'Anyone who wants budget deployed without a plan — a big launch spend or an expensive lifestyle shoot before there is any evidence it will return.',
+  'Anyone who treats our team badly. We have ended retainers over it and would do it again.',
 ];
 
 const nodes = [
@@ -53,20 +86,55 @@ const nodes = [
       <h2>How we started</h2>
       <p>
         Scaling Socials began as a partnership in 2021 and was incorporated as Scaling Socials Media
-        LLP in 2022. Four founders, an engineer, two MBAs and an operator who’d built his own online
-        businesses, came together around one shared frustration. Most agencies sell adjectives instead
-        of outcomes, and most founders can’t tell whether their marketing is actually making money.
+        LLP in 2022. It started because the four of us — an engineer, two MBAs and an operator who’d
+        built his own online businesses — went looking for an agency to run marketing for a brand of
+        our own, and kept running into the same things.
       </p>
       <p>
-        So we built the opposite. We start from your margins, we publish what we charge, and we hand
-        brands an audit they could take to a competitor. It’s a slower way to grow an agency and a
-        far more durable one, because the clients who choose us that way tend to stay.
+        Agencies promised 5x to 10x returns in timeframes nobody could deliver them in. The person
+        who sold us the retainer was never the person who ran the account, and the work went to
+        juniors who couldn’t answer a straight question about why a campaign was losing money.
+        Services we were paying for got quietly outsourced, so nobody could stand behind the quality.
+        And the pricing was vague — a number picked out of the air rather than one a startup could
+        plan around.
+      </p>
+      <p>
+        So we built the opposite, and the four standards below are each a direct answer to one of
+        those problems. We start from your margins, we publish what we charge, and we hand brands an
+        audit they could take to a competitor. It’s a slower way to grow an agency and a far more
+        durable one, because the clients who choose us that way tend to stay.
       </p>
       <p>
         Today we work with D2C brands across fashion, beauty, home, wellness and jewellery, in India
         and the UAE, running the whole funnel from the first ad impression to the checkout.
       </p>
     </Prose>
+  </Section>
+
+  <Section size="md">
+    <span class="ss-eyebrow">How we run accounts</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">Four standards we set after being the client</h2>
+    <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2">
+      {standards.map((v) => (
+        <li class="flex flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+          <h3 class="text-h4 font-semibold text-[var(--fg)]">{v.t}</h3>
+          <p class="text-small leading-relaxed text-[var(--fg-muted)]">{v.b}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section register="ink" size="md">
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1fr_1.2fr] lg:items-start">
+      <div>
+        <span class="ss-eyebrow">Being honest about fit</span>
+        <p class="max-w-[46ch] text-h4 leading-[1.5] text-[var(--fg)]">
+          We turn down work, and we say why. It saves both sides a quarter of finding out the
+          expensive way.
+        </p>
+      </div>
+      <NotForYouBlock heading="Who we’re not for" items={notForYou} />
+    </div>
   </Section>
 
   <Section size="md">
@@ -91,9 +159,16 @@ const nodes = [
     <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-4">
       {PARTNERS.map((p) => (
         <li class="flex flex-col items-start gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
-          <div class="grid h-[56px] w-[56px] place-items-center rounded-[var(--radius-card)] bg-[var(--accent-wash)] text-h4 font-semibold text-[var(--accent-text)]" aria-hidden="true">
-            {p.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}
-          </div>
+          <Image
+            src={p.photo}
+            alt={`${p.name}, ${p.role} at Scaling Socials`}
+            width={80}
+            height={100}
+            widths={[80, 160]}
+            sizes="80px"
+            loading="lazy"
+            class="h-[100px] w-[80px] rounded-[var(--radius-card)] bg-[var(--surface-c)] object-cover object-top"
+          />
           <div>
             <div class="font-semibold text-[var(--fg)]">{p.name}</div>
             <div class="text-small text-[var(--fg-muted)]">{p.focus}</div>
