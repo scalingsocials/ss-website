@@ -9,29 +9,52 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from '@astrojs/cloudflare';
 import tailwindcss from '@tailwindcss/vite';
+import markdoc from '@keystatic/astro';
+
+/**
+ * Keystatic is mounted in `astro dev` ONLY.
+ *
+ * The site builds `output: 'static'`, so the admin UI has no server to run on in
+ * production — and it should not have one. Editors run `npm run dev` and use
+ * http://localhost:4321/keystatic, which writes MDX straight into src/content/,
+ * so the files the editor touches are the files the build reads.
+ *
+ * Keeping it out of the production build means the public site ships none of
+ * Keystatic's JavaScript and /keystatic cannot be reached or indexed at all.
+ */
+const inDev = process.argv.includes('dev');
 
 export default defineConfig({
   site: 'https://scalingsocials.com',
   // Non-www is canonical. Enforce with a single edge 301, path -> matching path.
-  trailingSlash: 'always',
+  // Production is 'always' — canonicals, the redirect map and every internal
+  // link depend on it. Keystatic's SPA router and its /api/keystatic calls omit
+  // the trailing slash, so under 'always' the admin's API requests come back as
+  // an HTML 404 and every collection fails to load. Relaxing this in dev only
+  // leaves the built site, and every gate that runs against it, unchanged.
+  trailingSlash: inDev ? 'ignore' : 'always',
   output: 'static',
-  adapter: cloudflare({ imageService: 'compile' }),
+  // The Cloudflare adapter is a production concern. In dev it also tries to
+  // bundle Keystatic's API route, which imports astro:env/server and fails to
+  // resolve under its esbuild step — leaving the admin UI unable to reach its
+  // API. Dev serves on-demand routes without an adapter perfectly well.
+  ...(inDev ? {} : { adapter: cloudflare({ imageService: 'compile' }) }),
   integrations: [
     react(),
     mdx(),
+    ...(inDev ? [markdoc()] : []),
     sitemap({
       filter: (page) =>
         !page.includes('/lp/') &&
         !page.includes('/keystatic') &&
         !page.includes('/styleguide') &&
         !page.includes('/thank-you') &&
-        !page.includes('/404') &&
-        // noindex landers until their content collections ship (PENDING-WORK §D).
-        !page.includes('/blog') &&
-        !page.includes('/guides') &&
-        !page.includes('/glossary'),
+        !page.includes('/404'),
     }),
   ],
+  // Keystatic's API route imports getSecret from astro:env/server, so the env
+  // schema has to exist even though local mode needs no secrets.
+  env: { schema: {} },
   experimental: {
     csp: {
       algorithm: 'SHA-256',
@@ -51,7 +74,13 @@ export default defineConfig({
       styleDirective: { resources: ["'self'"] },
     },
   },
-  vite: { plugins: [tailwindcss()] },
+  vite: {
+    plugins: [tailwindcss()],
+    // Keystatic's API entry imports astro:env/server, a virtual module esbuild
+    // cannot resolve during dependency pre-bundling. Excluding it leaves the
+    // import to Astro at runtime, which does resolve it.
+    optimizeDeps: { exclude: ['@keystatic/astro/api', '@keystatic/astro/ui'] },
+  },
   image: { formats: ['avif', 'webp'] },
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   build: { inlineStylesheets: 'auto' },
