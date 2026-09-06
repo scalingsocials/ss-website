@@ -17,6 +17,7 @@ import CtaBand from '@/components/blocks/CtaBand.astro';
 import { SERVICES } from '@/lib/services';
 import { CLUSTERS } from '@/lib/clusters';
 import { CASE_STUDIES } from '@/lib/caseStudies';
+import { getCollection } from 'astro:content';
 import { base, webPage, breadcrumbs } from '@/lib/schema';
 
 const url = '/sitemap/';
@@ -24,6 +25,14 @@ const title = 'Sitemap: Every Page on the Scaling Socials Website';
 const description =
   'A human-readable index of every page Scaling Socials publishes: services, specialisms, free calculators, case studies, company pages and policies.';
 const modified = '2026-09-05';
+
+const posts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
+const guides = (await getCollection('guides')).filter((g) => !g.data.draft);
+const terms = (await getCollection('glossary'))
+  .filter((t) => !t.data.draft)
+  .sort((a, b) => a.data.term.localeCompare(b.data.term));
 
 const groups: { heading: string; links: { label: string; href: string }[] }[] = [
   {
@@ -60,6 +69,27 @@ const groups: { heading: string; links: { label: string; href: string }[] }[] = 
         label: `${c.niche} — ${c.headline}`,
         href: `/case-studies/${c.slug}/`,
       })),
+    ],
+  },
+  {
+    heading: 'Guides',
+    links: [
+      { label: 'All guides', href: '/guides/' },
+      ...guides.map((g) => ({ label: g.data.title, href: `/guides/${g.id}/` })),
+    ],
+  },
+  {
+    heading: 'Blog',
+    links: [
+      { label: 'All posts', href: '/blog/' },
+      ...posts.map((p) => ({ label: p.data.title, href: `/blog/${p.id}/` })),
+    ],
+  },
+  {
+    heading: 'Glossary',
+    links: [
+      { label: 'All terms', href: '/glossary/' },
+      ...terms.map((t) => ({ label: t.data.term, href: `/glossary/${t.id}/` })),
     ],
   },
   {

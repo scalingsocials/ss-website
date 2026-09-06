@@ -52,6 +52,10 @@ const { noindex = false, bare = false, class: className = '' } = Astro.props;
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href="/favicon-180.png" />
 
+    <!-- Feed discovery: readers and some crawlers look for these in the head. -->
+    <link rel="alternate" type="application/rss+xml" title="Scaling Socials — D2C growth notes" href="/rss.xml" />
+    <link rel="alternate" type="application/feed+json" title="Scaling Socials — D2C growth notes" href="/feed.json" />
+
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <!-- Page <head> tags: title, description, canonical, Open Graph. -->
