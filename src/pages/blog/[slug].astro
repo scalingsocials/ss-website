@@ -1,0 +1,46 @@
+---
+/**
+ * /blog/[slug]/ — posts. See 02 §5.3. No dates in the URL (02 §1).
+ */
+import { getCollection, render } from 'astro:content';
+import ArticleLayout from '@/layouts/ArticleLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('blog')).filter((p) => !p.data.draft);
+  const guides = (await getCollection('guides')).filter((g) => !g.data.draft);
+  const byId = new Map(posts.map((p) => [p.id, p]));
+
+  return posts.map((entry) => {
+    // Explicit related first, then same-tag posts, then a guide on the same tag.
+    const explicit = entry.data.related
+      .map((r) => byId.get(r))
+      .filter((p) => p !== undefined);
+    const sameTag = posts.filter(
+      (p) => p.id !== entry.id && !explicit.includes(p) && p.data.tags.some((t) => entry.data.tags.includes(t)),
+    );
+    const guide = guides.filter((g) => g.data.tags.some((t) => entry.data.tags.includes(t)));
+
+    const related = [
+      ...[...explicit, ...sameTag].map((p) => ({
+        title: p.data.title,
+        href: `/blog/${p.id}/`,
+        description: p.data.description,
+      })),
+      ...guide.map((g) => ({
+        title: g.data.title,
+        href: `/guides/${g.id}/`,
+        description: g.data.description,
+      })),
+    ].slice(0, 3);
+
+    return { params: { slug: entry.id }, props: { entry, related } };
+  });
+}
+
+const { entry, related } = Astro.props;
+const { Content, headings } = await render(entry);
+---
+
+<ArticleLayout kind="blog" slug={entry.id} data={entry.data} headings={headings} related={related}>
+  <Content />
+</ArticleLayout>

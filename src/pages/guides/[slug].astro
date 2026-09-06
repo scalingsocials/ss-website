@@ -1,0 +1,38 @@
+---
+/**
+ * /guides/[slug]/ — long-form evergreen pillars. See 02 §5.3.
+ */
+import { getCollection, render } from 'astro:content';
+import ArticleLayout from '@/layouts/ArticleLayout.astro';
+
+export async function getStaticPaths() {
+  const guides = (await getCollection('guides')).filter((g) => !g.data.draft);
+  const posts = (await getCollection('blog')).filter((p) => !p.data.draft);
+  return guides.map((entry) => {
+    const related = [
+      ...guides.filter((g) => entry.data.related.includes(g.id)).map((g) => ({
+        title: g.data.title,
+        href: `/guides/${g.id}/`,
+        description: g.data.description,
+      })),
+      // Fill out with blog posts that share a tag.
+      ...posts
+        .filter((p) => p.data.tags.some((t) => entry.data.tags.includes(t)))
+        .slice(0, 2)
+        .map((p) => ({
+          title: p.data.title,
+          href: `/blog/${p.id}/`,
+          description: p.data.description,
+        })),
+    ].slice(0, 3);
+    return { params: { slug: entry.id }, props: { entry, related } };
+  });
+}
+
+const { entry, related } = Astro.props;
+const { Content, headings } = await render(entry);
+---
+
+<ArticleLayout kind="guides" slug={entry.id} data={entry.data} headings={headings} related={related}>
+  <Content />
+</ArticleLayout>

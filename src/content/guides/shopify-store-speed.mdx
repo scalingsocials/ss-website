@@ -1,0 +1,73 @@
+---
+title: "Shopify store speed: what actually costs you orders in India"
+seoTitle: "Shopify Speed Guide: What Costs You Orders in India"
+description: "A practical guide to Shopify store speed for Indian D2C brands: which Core Web Vitals matter, how to find the real culprits, and what to fix in what order."
+answer: "Scaling Socials treats Shopify store speed as a revenue problem rather than a score. This guide explains which Core Web Vitals actually affect orders, how to find the gap between ad clicks and landing page views, and the fixes that matter in what order on Indian mobile networks."
+takeaways:
+  - "The gap between reported ad clicks and landing page views is the clearest speed signal you have, and it is often 30% or more."
+  - "Largest Contentful Paint on mobile is the metric that maps most directly to lost orders for Indian D2C traffic."
+  - "Apps are usually the largest single cost: every one you install adds scripts to every page, whether the page uses it or not."
+  - "Chase the specific element holding your LCP, not the overall score, because the score is an average of things you may not care about."
+author: "khushal-sharma"
+published: 2026-09-06
+tags: ["Shopify", "Core Web Vitals", "CRO"]
+sources:
+  - label: "web.dev — Largest Contentful Paint (LCP)"
+    href: "https://web.dev/articles/lcp"
+  - label: "web.dev — Interaction to Next Paint (INP)"
+    href: "https://web.dev/articles/inp"
+related: ["d2c-unit-economics"]
+hubOf: ["landing-page-cvr", "cvr", "checkout-abandonment"]
+---
+
+Store speed gets discussed as a score out of a hundred, which is the least useful way to think about it. The number that matters is orders, and the connection between the two is more specific than a score suggests.
+
+For Indian D2C brands the connection is also sharper than in most markets, because a large share of traffic arrives on mobile networks with real variability. A store that feels fine on office wifi can be losing a meaningful share of paid traffic before the page ever renders.
+
+## Find the leak before you optimise anything
+
+The most direct evidence is already in your ad account. Compare reported link clicks with landing page views.
+
+If Meta reports 10,000 clicks and only 7,000 landing page views, three thousand people left before the page finished loading. You paid for every one of them. No creative change fixes it, and no amount of campaign restructuring will either.
+
+That gap is the first thing worth measuring, because it converts an abstract score into a number of lost sessions and a rupee cost. At a ₹2 cost per click, three thousand abandoned loads is ₹6,000 of media spent on people who never saw the store.
+
+## The vitals worth caring about
+
+Google publishes three Core Web Vitals, and they are not equally important for an ecommerce store.
+
+**Largest Contentful Paint** is the one that maps most directly to lost orders. It measures when the biggest thing on screen — usually your hero image or product photo — finishes rendering. Until that happens the visitor is looking at an incomplete page and deciding whether to wait.
+
+**Interaction to Next Paint** measures responsiveness: how quickly the page reacts when someone taps. This one degrades quietly as you add apps and tracking scripts, and it is the vital most often broken by things installed for marketing reasons.
+
+**Cumulative Layout Shift** measures whether content jumps around as it loads. On mobile checkout it causes mis-taps, and mis-taps at the payment step are expensive.
+
+Chase the specific element holding your LCP rather than the overall score. The score is an average across things you may not care about; the LCP element is a single image or block you can name and fix.
+
+## Apps are usually the biggest cost
+
+The most common cause of a slow Shopify store is not the theme. It is the accumulated weight of apps.
+
+Each app typically injects scripts into every page, whether that page uses the feature or not. A review widget, a popup tool, an upsell app, a chat widget, three tracking pixels and a currency converter will together add more weight than every product image on the page.
+
+The audit worth doing is unglamorous: list every installed app, identify what each is genuinely earning, and remove the ones that are not. Uninstalling does not always remove the injected code, so the theme usually needs checking for leftovers afterwards.
+
+Tracking scripts deserve particular scrutiny, because they are added for marketing reasons and rarely reviewed again. Load them deferred or on interaction rather than blocking the initial render, and re-check responsiveness after each one lands.
+
+## Images, in the order that matters
+
+Images are the largest bytes on almost every D2C store, and the fixes are well understood.
+
+Serve modern formats. WebP and AVIF are substantially smaller than JPEG at equivalent quality, and Shopify will serve them.
+
+Size them for the device rather than shipping a 2,000-pixel-wide image to a phone that will display it at 400. Correct `srcset` handling is usually the single largest byte saving available.
+
+Give every image explicit width and height so the browser reserves the space before the file arrives — this is what stops layout shift.
+
+Lazy-load everything below the fold, and never lazy-load the hero. Lazy-loading the LCP element delays the exact thing you are trying to make fast, and it is a common and self-defeating mistake.
+
+## The order to work in
+
+Measure the click-to-landing-page-view gap so you know what the problem is worth. Identify the LCP element on mobile specifically. Audit apps and remove what is not earning its weight. Fix images: format, sizing, dimensions, lazy-loading. Defer marketing scripts. Then measure again on mobile, on a real connection.
+
+Speed work has a property most marketing work does not: it compounds across every campaign you will ever run, and it does not need to be bought again next month. Moving a landing page from 1.5% to 2% conversion cuts cost per purchase by a quarter with no additional media spend, and it keeps paying after the campaign that prompted it has ended.

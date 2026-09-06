@@ -1,27 +1,93 @@
 ---
 /**
- * /blog/ — index. noindex until the first posts land (thin-index rule, 03 §2).
- * Needs a content collection (MDX) — see the requirements doc.
+ * /blog/ — the index. Replaces the noindex lander now that posts exist.
+ * Grouped newest-first with the tag rail rendered as static links, not JS.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
+import AnswerBlock from '@/components/blocks/AnswerBlock.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
 import Button from '@/components/primitives/Button.astro';
+import { getCollection } from 'astro:content';
+import { PARTNER_BY_SLUG } from '@/lib/team';
+import { base, webPage, breadcrumbs } from '@/lib/schema';
+
+const url = '/blog/';
+const title = 'D2C Growth Notes From the Accounts We Actually Run';
+const description =
+  'Practical notes from Scaling Socials on Meta and Google Ads, unit economics, creative testing and CRO for Indian D2C brands, drawn from real client accounts.';
+const modified = '2026-09-06';
+
+const posts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
+
+const human = (d: Date) =>
+  d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+
+const nodes = [
+  ...base(),
+  webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Blog', url }]),
+];
 ---
-<BaseLayout noindex>
-  <Meta slot="meta" title="Blog | Scaling Socials — D2C growth notes" description="Practical notes on Meta and Google Ads, Shopify, SEO and CRO for Indian D2C brands, from the accounts Scaling Socials runs." noindex />
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
   <Section size="lg">
     <span class="ss-eyebrow">Blog</span>
-    <h1 class="max-w-[18ch]">Notes from the accounts we run</h1>
-    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
-      Practical writing on Meta and Google Ads, Shopify, SEO and CRO for Indian D2C brands — no
-      fluff, real numbers. Our first posts publish shortly. Until then, the service pages carry the
-      detail.
-    </p>
+    <h1 class="max-w-[22ch]">Notes from the accounts we run</h1>
+    <AnswerBlock class="mt-[var(--space-4)]">
+      Scaling Socials writes about what actually moves D2C accounts in India: the unit economics
+      behind a ROAS figure, how to test creative without wasting budget, and the questions worth
+      asking an agency before you sign. Every post comes from accounts we run.
+    </AnswerBlock>
     <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
-      <Button href="/audit/" variant="primary">Get a free growth plan</Button>
-      <Button href="/tools/" variant="secondary">Try the free tools</Button>
+      <Button href="/guides/" variant="primary">Read the long guides</Button>
+      <Button href="/glossary/" variant="secondary">Browse the glossary</Button>
     </div>
   </Section>
-  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+
+  <Section size="md">
+    <ul class="grid gap-[var(--space-4)] md:grid-cols-2 lg:grid-cols-3">
+      {posts.map((p) => {
+        const author = PARTNER_BY_SLUG[p.data.author];
+        return (
+          <li>
+            <a href={`/blog/${p.id}/`} class="ss-card group flex h-full flex-col gap-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)] no-underline">
+              <span class="text-label font-semibold text-[var(--accent-text)]">{p.data.tags[0]}</span>
+              <span class="text-h4 font-semibold leading-snug text-[var(--fg)] group-hover:text-[var(--accent-text)]">{p.data.title}</span>
+              <span class="text-small leading-relaxed text-[var(--fg-muted)]">{p.data.description}</span>
+              <span class="mt-auto border-t border-[var(--rule-c)] pt-[var(--space-3)] text-label text-[var(--fg-muted)]" data-num>
+                {author?.name} · <time datetime={p.data.published.toISOString().slice(0, 10)}>{human(p.data.published)}</time>
+              </span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </Section>
+
+  <Section register="ink" size="md">
+    <CtaBand
+      heading="Want this run on your account?"
+      body="A written audit in three working days, whether or not you hire us."
+      ctaLabel="Get a free growth plan"
+      ctaHref="/audit/"
+      secondaryLabel="See the case studies"
+      secondaryHref="/case-studies/"
+    />
+  </Section>
+
+  <style>
+    .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+    .ss-card { transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
+    @media (prefers-reduced-motion: no-preference) {
+      .ss-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); }
+    }
+  </style>
 </BaseLayout>
