@@ -1,0 +1,205 @@
+---
+/**
+ * GlossaryLayout — one term. See 02 §5.5 and 03 §6.
+ *
+ * Page order is the spec's, and it is deliberate: the H1 asks the question, and
+ * the very next element is a single self-contained sentence. That sentence is
+ * what an AI answer quotes, so it never depends on the heading above it and
+ * never opens with "It is…".
+ *
+ * The worked example in rupees is required by the schema, not optional, because
+ * it is the only thing separating these pages from the thousand US-centric
+ * definitions already indexed (03 §6).
+ *
+ * 03 §6 asks each term to link to a benchmark in the Index. The Index is PARKED
+ * by owner directive, so terms link to the calculator that works the number
+ * instead — a real page rather than a promise.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import Button from '@/components/primitives/Button.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import { base, definedTerm, definedTermSet, webPage, breadcrumbs } from '@/lib/schema';
+
+export interface Props {
+  slug: string;
+  data: {
+    term: string;
+    abbreviation?: string;
+    seoTitle: string;
+    description: string;
+    definition: string;
+    category: string;
+    formula?: string;
+    example: { scenario: string; working: string[]; result: string };
+    mistakes: string[];
+    service?: { label: string; href: string };
+    tool?: { label: string; href: string };
+    published: Date;
+    updated?: Date;
+  };
+  related: { term: string; slug: string; definition: string }[];
+}
+
+const { slug, data, related } = Astro.props;
+const url = `/glossary/${slug}/`;
+const updated = data.updated ?? data.published;
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const human = (d: Date) =>
+  d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+
+const nodes = [
+  ...base(),
+  definedTermSet(),
+  definedTerm({ slug, term: data.term, definition: data.definition, url }),
+  webPage({
+    url,
+    name: data.seoTitle,
+    description: data.description,
+    hasBreadcrumb: true,
+    dateModified: iso(updated),
+  }),
+  breadcrumbs(url, [
+    { name: 'Home', url: '/' },
+    { name: 'Glossary', url: '/glossary/' },
+    { name: data.term, url },
+  ]),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={data.seoTitle} description={data.description} type="article" modifiedTime={iso(updated)} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
+      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span> / </span>
+      <a href="/glossary/" class="text-[var(--accent-text)] no-underline">Glossary</a><span> / </span>
+      <span>{data.term}</span>
+    </nav>
+
+    <span class="ss-eyebrow">{data.category}</span>
+    <h1 class="max-w-[20ch]">What is {data.term}?</h1>
+
+    <!-- The quotable sentence. Self-contained by design. -->
+    <p class="mt-[var(--space-4)] max-w-[58ch] text-h4 leading-[1.5] text-[var(--fg)]" data-answer-block>
+      {data.definition}
+    </p>
+
+    <p class="mt-[var(--space-4)] text-label text-[var(--fg-muted)]" data-num>
+      Updated <time datetime={iso(updated)}>{human(updated)}</time>
+    </p>
+  </Section>
+
+  <Section size="md">
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1fr_minmax(220px,300px)] lg:items-start">
+      <div class="min-w-0 flex flex-col gap-[var(--space-6)]">
+        <Prose>
+          <slot />
+        </Prose>
+
+        {data.formula && (
+          <div>
+            <h2 class="text-h3 font-semibold text-[var(--fg)]">How {data.abbreviation ?? data.term} is calculated</h2>
+            <p class="ss-formula mt-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-4)] display-type text-body text-[var(--fg)]" data-num>
+              {data.formula}
+            </p>
+          </div>
+        )}
+
+        <div>
+          <h2 class="text-h3 font-semibold text-[var(--fg)]">A worked example</h2>
+          <p class="mt-[var(--space-3)] max-w-[62ch] text-body leading-relaxed text-[var(--fg-muted)]">
+            {data.example.scenario}
+          </p>
+          <ol class="mt-[var(--space-4)] flex flex-col gap-[var(--space-2)]">
+            {data.example.working.map((step) => (
+              <li class="flex gap-[var(--space-3)] border-b border-[var(--rule-c)] pb-[var(--space-2)] text-body text-[var(--fg)]" data-num>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+          <p class="mt-[var(--space-4)] display-type text-h4 font-semibold text-[var(--pos)]" data-num>
+            {data.example.result}
+          </p>
+        </div>
+
+        <div>
+          <h2 class="text-h3 font-semibold text-[var(--fg)]">Common mistakes</h2>
+          <ul class="mt-[var(--space-3)] flex flex-col">
+            {data.mistakes.map((m, i) => (
+              <li
+                class:list={[
+                  'flex gap-[var(--space-2)] py-[var(--space-2)] text-body text-[var(--fg)]',
+                  i > 0 && 'border-t border-[var(--rule-c)]',
+                ]}
+              >
+                <span aria-hidden="true" class="mt-[0.15em] shrink-0 text-[var(--neg)]">&times;</span>
+                <span>{m}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <aside class="lg:sticky lg:top-[96px] flex flex-col gap-[var(--space-4)]">
+        {data.tool && (
+          <div class="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-5)]">
+            <h2 class="text-h4 font-semibold text-[var(--fg)]">Work the number</h2>
+            <p class="mt-[var(--space-2)] text-small leading-relaxed text-[var(--fg-muted)]">
+              Put your own figures in and get the answer for your brand.
+            </p>
+            <div class="mt-[var(--space-4)]">
+              <Button href={data.tool.href} variant="primary">{data.tool.label}</Button>
+            </div>
+          </div>
+        )}
+
+        {data.service && (
+          <a href={data.service.href} class="ss-rel group flex flex-col gap-[0.2rem] rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-4)] no-underline">
+            <span class="text-label text-[var(--fg-muted)]">The service that fixes this</span>
+            <span class="text-h4 font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">{data.service.label}</span>
+          </a>
+        )}
+
+        {related.length > 0 && (
+          <div class="rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-4)]">
+            <h2 class="text-label font-semibold text-[var(--fg-muted)]">Related terms</h2>
+            <ul class="mt-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
+              {related.map((r) => (
+                <li>
+                  <a href={`/glossary/${r.slug}/`} class="text-small font-medium text-[var(--fg)] no-underline hover:text-[var(--accent-text)]">
+                    {r.term}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </aside>
+    </div>
+  </Section>
+
+  <Section register="ink" size="md">
+    <CtaBand
+      heading="Want these numbers working for your brand?"
+      body="A written audit in three working days, whether or not you hire us."
+      ctaLabel="Get a free growth plan"
+      ctaHref="/audit/"
+      secondaryLabel="See the free tools"
+      secondaryHref="/tools/"
+    />
+  </Section>
+
+  <style>
+    .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+    .ss-formula { font-variant-numeric: tabular-nums; }
+    .ss-rel { transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
+    @media (prefers-reduced-motion: no-preference) {
+      .ss-rel:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); }
+    }
+  </style>
+</BaseLayout>

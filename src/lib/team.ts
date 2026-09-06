@@ -61,3 +61,8 @@ export const PARTNERS: Partner[] = [
     bio: 'An entrepreneur who has built and grown online businesses of his own, with an audience of 60,000+ on Instagram. Khushal brings an operator perspective on brand and creator-led growth.',
   },
 ];
+
+/** Lookup for author bylines on articles and guides. */
+export const PARTNER_BY_SLUG: Record<string, Partner> = Object.fromEntries(
+  PARTNERS.map((p) => [p.slug, p]),
+);

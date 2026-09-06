@@ -1,27 +1,111 @@
 ---
+/**
+ * /glossary/ — the DefinedTermSet index. See 03 §6.
+ *
+ * Grouped by category rather than listed A–Z, because the grouping is itself
+ * information: it tells a founder which numbers belong to the ad account and
+ * which belong to the business. Every definition is printed here in full, so
+ * the index page is extractable on its own and not just a list of links.
+ */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
+import AnswerBlock from '@/components/blocks/AnswerBlock.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
 import Button from '@/components/primitives/Button.astro';
+import { getCollection } from 'astro:content';
+import { base, webPage, breadcrumbs, definedTermSet } from '@/lib/schema';
 
-// The 25 planned terms (03 §6). Definitions publish as DefinedTerm pages.
-const terms = ['ROAS', 'CAC', 'AOV', 'LTV', 'CPM', 'CPC', 'CTR', 'CVR', 'MER', 'Blended ROAS', 'Contribution margin', 'Advantage+ Shopping', 'Performance Max', 'Attribution window', 'Incrementality', 'Creative fatigue', 'Hook rate', 'Thumb-stop ratio', 'Retention cohort', 'Payback period', 'CLV:CAC ratio', 'Checkout abandonment'];
+const url = '/glossary/';
+const title = 'D2C Marketing Glossary: 25 Terms With Rupee Examples';
+const description =
+  'Plain definitions of the paid media and unit economics terms Indian D2C founders actually need, each with a formula and a worked example in rupees.';
+const modified = '2026-09-06';
+
+const terms = (await getCollection('glossary')).filter((t) => !t.data.draft);
+
+const ORDER = [
+  'Unit economics',
+  'Paid media metrics',
+  'Conversion',
+  'Measurement',
+  'Creative',
+  'Campaign types',
+  'Retention',
+] as const;
+
+const groups = ORDER.map((category) => ({
+  category,
+  items: terms
+    .filter((t) => t.data.category === category)
+    .sort((a, b) => a.data.term.localeCompare(b.data.term)),
+})).filter((g) => g.items.length > 0);
+
+const nodes = [
+  ...base(),
+  definedTermSet(),
+  webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Glossary', url }]),
+];
 ---
-<BaseLayout noindex>
-  <Meta slot="meta" title="D2C Marketing Glossary | Scaling Socials Bangalore" description="Plain-English definitions of D2C and ecommerce marketing metrics, each with a worked rupee example, from Scaling Socials." noindex />
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
   <Section size="lg">
     <span class="ss-eyebrow">Glossary</span>
-    <h1 class="max-w-[20ch]">Every D2C metric, defined with a rupee example</h1>
-    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
-      The metrics a founder actually needs, from ROAS and CAC to AOV and MER, each defined plainly,
-      with how it’s calculated and a worked example in rupees. Term pages publish shortly.
-    </p>
-    <ul class="mt-[var(--space-8)] flex flex-wrap gap-[var(--space-2)]">
-      {terms.map((t) => (
-        <li class="rounded-full border border-[var(--rule-c)] bg-[var(--surface-c)] px-[var(--space-3)] py-[0.4rem] text-small text-[var(--fg)]">{t}</li>
-      ))}
-    </ul>
-    <div class="mt-[var(--space-8)]"><Button href="/tools/break-even-roas-calculator/" variant="primary">Try the break-even ROAS calculator</Button></div>
+    <h1 class="max-w-[22ch]">The numbers that decide whether ads work</h1>
+    <AnswerBlock class="mt-[var(--space-4)]">
+      Scaling Socials maintains this glossary of {terms.length} paid media and unit economics terms
+      for Indian D2C founders. Each entry gives a one-sentence definition, the formula where there
+      is one, a worked example in rupees, and the mistakes we see most often on real accounts.
+    </AnswerBlock>
+    <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+      <Button href="/tools/" variant="primary">Try the free calculators</Button>
+      <Button href="/audit/" variant="secondary">Get a free growth plan</Button>
+    </div>
   </Section>
-  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+
+  {groups.map((g) => (
+    <Section size="md">
+      <span class="ss-eyebrow">{g.items.length} {g.items.length === 1 ? 'term' : 'terms'}</span>
+      <h2 class="max-w-[24ch] text-h2 font-semibold">{g.category}</h2>
+      <ul class="mt-[var(--space-5)] grid gap-[var(--space-3)] md:grid-cols-2">
+        {g.items.map((t) => (
+          <li>
+            <a
+              href={`/glossary/${t.id}/`}
+              class="ss-term group flex h-full flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline"
+            >
+              <span class="text-h4 font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">
+                {t.data.term}
+              </span>
+              <span class="text-small leading-relaxed text-[var(--fg-muted)]">{t.data.definition}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  ))}
+
+  <Section register="ink" size="md">
+    <CtaBand
+      heading="Want these numbers working on your account?"
+      body="A written audit in three working days, whether or not you hire us."
+      ctaLabel="Get a free growth plan"
+      ctaHref="/audit/"
+      secondaryLabel="See the case studies"
+      secondaryHref="/case-studies/"
+    />
+  </Section>
+
+  <style>
+    .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+    .ss-term { transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
+    @media (prefers-reduced-motion: no-preference) {
+      .ss-term:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); }
+    }
+  </style>
 </BaseLayout>

@@ -1,0 +1,29 @@
+---
+/**
+ * /glossary/[term]/ — one DefinedTerm per page. See 02 §5.5, 03 §6.
+ */
+import { getCollection, render } from 'astro:content';
+import GlossaryLayout from '@/layouts/GlossaryLayout.astro';
+
+export async function getStaticPaths() {
+  const terms = (await getCollection('glossary')).filter((t) => !t.data.draft);
+  const bySlug = new Map(terms.map((t) => [t.id, t]));
+  return terms.map((entry) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      related: entry.data.related
+        .map((r) => bySlug.get(r))
+        .filter((t) => t !== undefined)
+        .map((t) => ({ term: t.data.term, slug: t.id, definition: t.data.definition })),
+    },
+  }));
+}
+
+const { entry, related } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<GlossaryLayout slug={entry.id} data={entry.data} related={related}>
+  <Content />
+</GlossaryLayout>
