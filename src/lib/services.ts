@@ -1,10 +1,9 @@
 /**
  * Service pillar content — the six pages under ServiceLayout. See 02 §5.1.
  *
- * Real, owner-aligned copy. Performance marketing and SEO publish the confirmed
- * ₹25,000/month floor (11 §2); Shopify, web and social are scoped (no floor
- * figure supplied, so none is invented — 11 §2 / CLAUDE.md §15). Meta titles are
- * 50–60 chars and descriptions 140–158, enforced by the build (03 §0).
+ * Real, owner-aligned copy. No pricing is published on the site (owner directive,
+ * 2026-09-07): every service is scoped to the brief and no fee figures appear
+ * anywhere. Meta titles are 50–60 chars and descriptions 140–158 (build gate, 03 §0).
  */
 import type { Field } from '@/lib/formFields';
 
@@ -23,14 +22,12 @@ export interface ServiceContent {
   subheading: string;
   subservices: SubService[];
   comparison?: { heading: string; cols: string[]; rows: (string | number)[][]; highlightCol: number; caption?: string };
-  // Value-framed, not cost-framed. `price` is a quiet published floor; `included`
-  // is what the client actually gets for it.
-  value: { heading: string; lede: string; included: string[]; price?: string; note?: string };
+  // Value-framed. `included` is what the client actually gets; no fee is shown.
+  value: { heading: string; lede: string; included: string[]; note?: string };
   notForYou: string[];
   faqs: Faq[];
   formHeading: string;
   formQuestions: Field[];
-  offer?: { price: number; priceCurrency?: string; unitText?: string };
 }
 
 const spendQ: Field = { name: 'monthly_spend', label: 'Monthly ad spend', type: 'select', required: true, options: ['Under ₹1L', '₹1–3L', '₹3–5L', '₹5L+', 'Not running ads yet'] };
@@ -44,10 +41,10 @@ export const SERVICES: ServiceContent[] = [
     eyebrow: 'Performance marketing',
     title: 'Performance Marketing Agency in Bangalore | Scaling Socials',
     description:
-      'Scaling Socials runs Meta and Google Ads for D2C brands in India and the UAE, managed to your P&L. Performance marketing from ₹25,000 a month.',
+      'Scaling Socials runs Meta and Google Ads for D2C and ecommerce brands in India and the UAE, managed to your real P&L, with ad creative produced in-house.',
     h1: 'Performance marketing agency in Bangalore',
     answer:
-      'Scaling Socials is a Bangalore performance marketing agency that runs Meta and Google Ads for D2C and ecommerce brands across India and the UAE. We buy media against your real P&L, not the ROAS a platform reports back to itself. It starts at ₹25,000 a month, and your ad spend stays separate and is never marked up.',
+      'Scaling Socials is a Bangalore performance marketing agency that runs Meta and Google Ads for D2C and ecommerce brands across India and the UAE. We buy media against your real P&L, not the ROAS a platform reports back to itself. Your ad spend stays separate and is never marked up by us.',
     intro: {
       eyebrow: 'What it means for your P&L',
       heading: 'ROAS that shows up in your bank account, not just the dashboard',
@@ -77,7 +74,7 @@ export const SERVICES: ServiceContent[] = [
       caption: 'We reach for Advantage+ where it genuinely beats manual, and go manual where the control pays for itself.',
     },
     value: {
-      heading: 'What you get for your money',
+      heading: 'What you actually get',
       lede: 'One team running media, creative and CRO against your P&L, instead of a lone buyer optimising to a dashboard.',
       included: [
         'A senior team on the account across media, creative and CRO, never a junior running a template',
@@ -86,8 +83,7 @@ export const SERVICES: ServiceContent[] = [
         'Weekly optimisation against your break-even ROAS, plus a monthly strategy read',
         'Ad spend paid straight to the platforms, never marked up by us',
       ],
-      price: '₹25,000/month',
-      note: 'Where you land depends on ad spend and creative volume. Managing ₹1L a month and ₹20L a month are different jobs.',
+      note: 'Scope depends on ad spend and creative volume — running a lean account and a heavy one are different jobs, so we shape the engagement to yours.',
     },
     notForYou: [
       'Pre-launch brands with no data to work from. There is nothing to optimise in an empty account.',
@@ -95,7 +91,7 @@ export const SERVICES: ServiceContent[] = [
       'Brands unwilling to produce creative. On Meta the creative is the whole growth lever, and without a steady supply there is little for us to scale.',
     ],
     faqs: [
-      { q: 'How much does a performance marketing agency cost in India?', a: 'Scaling Socials starts performance marketing at ₹25,000 a month. What you actually pay depends on your ad spend, how many platforms you run, and how much creative you need us to produce. Ad spend is separate and goes straight to Meta or Google; we never mark it up.' },
+      { q: 'How does performance marketing pricing work?', a: 'We scope every engagement to the brand rather than a one-size package — it depends on your ad spend, how many platforms you run, and how much creative you need produced. Whatever the scope, your ad spend stays separate: it goes straight to Meta or Google and we never mark it up.' },
       { q: 'What ROAS can you promise?', a: 'None, and be careful with anyone who does. A fixed ROAS promise is a guess dressed up as a number. We target your break-even ROAS, which your margins set, and scale whatever clears it. You will see the maths in the first audit, so the target is yours rather than something we made up.' },
       { q: 'Do you make the ad creative?', a: 'Yes. We produce statics and video-led ads in-house and run them through a structured testing pipeline. Creative is the single biggest lever in paid today, so it sits at the centre of the engagement, not on the side as an add-on.' },
       { q: 'How soon do we see results?', a: 'The first audit lands in three working days. Real account changes need a testing cycle to read cleanly, usually 30 to 60 days, before we put weight behind what is working. We will not pour spend into unproven creative just to hand you an early number.' },
@@ -108,7 +104,6 @@ export const SERVICES: ServiceContent[] = [
       { name: 'platforms', label: 'Where you run ads', type: 'select', required: true, options: ['Meta only', 'Google only', 'Meta and Google', 'Not running yet'] },
       { name: 'goal', label: 'Main goal', type: 'select', required: false, options: ['Scale profitably', 'Lower CAC', 'Launch a new brand', 'Not sure yet'] },
     ],
-    offer: { price: 25000, priceCurrency: 'INR', unitText: 'MONTH' },
   },
   {
     slug: 'seo',
@@ -117,10 +112,10 @@ export const SERVICES: ServiceContent[] = [
     eyebrow: 'Search engine optimisation',
     title: 'SEO Agency in Bangalore for Ecommerce | Scaling Socials',
     description:
-      'Scaling Socials is an SEO agency in Bangalore for ecommerce brands: technical, on-page and local SEO that grows organic revenue. From ₹25,000 a month.',
+      'Scaling Socials is an SEO agency in Bangalore for ecommerce brands: technical, on-page and local SEO that grows organic revenue, not vanity rankings.',
     h1: 'SEO agency in Bangalore for ecommerce brands',
     answer:
-      'Scaling Socials is an SEO agency in Bangalore that grows organic traffic and revenue for D2C and ecommerce brands across India and the UAE. We cover technical, on-page and local SEO, plus answer-engine optimisation, and we tie all of it to revenue rather than rankings for their own sake. SEO starts at ₹25,000 a month.',
+      'Scaling Socials is an SEO agency in Bangalore that grows organic traffic and revenue for D2C and ecommerce brands across India and the UAE. We cover technical, on-page and local SEO, plus answer-engine optimisation, and we tie all of it to revenue rather than rankings for their own sake.',
     intro: {
       eyebrow: 'What it means for your P&L',
       heading: 'Rankings are a means. Organic revenue is the point',
@@ -138,7 +133,7 @@ export const SERVICES: ServiceContent[] = [
       { title: 'Answer engine optimisation', body: 'Structuring content so it gets cited in AI Overviews and by ChatGPT, Perplexity and Gemini.', href: '/answer-engine-optimisation-services/' },
     ],
     value: {
-      heading: 'What you get for your money',
+      heading: 'What you actually get',
       lede: 'Organic growth that compounds: technical foundations, content and authority, all pointed at revenue.',
       included: [
         'A full technical audit and the fixes that unblock rankings',
@@ -147,8 +142,7 @@ export const SERVICES: ServiceContent[] = [
         'Answer-engine optimisation, so you get cited in AI Overviews and ChatGPT',
         'A monthly report tied to organic revenue, not a vanity keyword count',
       ],
-      price: '₹25,000/month',
-      note: 'Where you land depends on keyword count and difficulty. SEO compounds over quarters, not weeks, so we scope it that way.',
+      note: 'Scope depends on keyword count and difficulty. SEO compounds over quarters, not weeks, so we plan the engagement that way.',
     },
     notForYou: [
       'Brands that need revenue this month. SEO compounds over quarters; if you need sales now, start with performance marketing.',
@@ -156,7 +150,7 @@ export const SERVICES: ServiceContent[] = [
       'Sites with no product-market fit yet. SEO amplifies demand that already exists; it does not create it.',
     ],
     faqs: [
-      { q: 'How much does SEO cost in India?', a: 'Scaling Socials starts SEO at ₹25,000 a month. The final figure comes down to how many keywords you target and how competitive they are, how many pages need writing, and how much technical and link work sits in the plan.' },
+      { q: 'How does SEO pricing work?', a: 'We scope it to your site rather than a fixed package. It comes down to how many keywords you target and how competitive they are, how many pages need writing, and how much technical and link work sits in the plan — so we map that out with you before anything starts.' },
       { q: 'How long does SEO take to work?', a: 'Expect the first ranking and traffic movement in roughly 8 to 12 weeks, and the meaningful revenue curve after two quarters. Anyone promising page one in 30 days is either buying risky links or targeting terms nobody searches for.' },
       { q: 'What is answer engine optimisation?', a: 'It is the work of getting your content quoted inside AI answers, such as Google’s AI Overviews and tools like ChatGPT and Perplexity. It rewards specific, well-structured, well-cited pages, and almost nobody in this market is doing it properly yet.' },
       { q: 'Do you do technical SEO?', a: 'Yes, and we usually start there. Crawlability, site speed, indexation, structured data and internal linking decide whether your content can rank at all. We run a full technical audit and fix the foundations before we scale any content.' },
@@ -169,7 +163,6 @@ export const SERVICES: ServiceContent[] = [
       { name: 'market', label: 'Where you want to rank', type: 'select', required: false, options: ['India', 'UAE', 'Both', 'A specific city'] },
       { name: 'goal', label: 'Main goal', type: 'select', required: false, options: ['Grow ecommerce category pages', 'Rank nationally', 'Local visibility', 'Get cited in AI answers'] },
     ],
-    offer: { price: 25000, priceCurrency: 'INR', unitText: 'MONTH' },
   },
   {
     slug: 'shopify-development',
@@ -181,7 +174,7 @@ export const SERVICES: ServiceContent[] = [
       'Scaling Socials is a Shopify development company in Bangalore: stores built to convert, plus migrations, speed optimisation and redesigns for D2C brands.',
     h1: 'Shopify development company in Bangalore',
     answer:
-      'Scaling Socials is a Shopify development company in Bangalore that builds, migrates and optimises stores for D2C and ecommerce brands across India and the UAE. We build for conversion and speed, not just for looks, because the store is where your ad spend either pays off or quietly leaks away. Pricing is scoped to the build.',
+      'Scaling Socials is a Shopify development company in Bangalore that builds, migrates and optimises stores for D2C and ecommerce brands across India and the UAE. We build for conversion and speed, not just for looks, because the store is where your ad spend either pays off or quietly leaks away. Every build is scoped to what your store needs.',
     intro: {
       eyebrow: 'What it means for your P&L',
       heading: 'A store that converts, not one that only photographs well',
@@ -199,7 +192,7 @@ export const SERVICES: ServiceContent[] = [
       { title: 'Store redesign', body: 'Rebuilding an existing store around what actually converts, guided by session and heatmap data.', href: '/shopify-store-redesign-services/' },
     ],
     value: {
-      heading: 'What you get for your money',
+      heading: 'What you actually get',
       lede: 'A store built around revenue per session: fast, clean to track, and made to convert paid traffic.',
       included: [
         'A theme built around the product page, cart and checkout',
@@ -208,7 +201,7 @@ export const SERVICES: ServiceContent[] = [
         'A build your team can run without a developer on standby',
         'Honest advice: if a template fits you better than custom, we will say so',
       ],
-      note: 'Priced by scope. A speed pass is a different job from a full custom build or a migration. We quote inside two working days.',
+      note: 'Scope depends on the job — a speed pass, a full custom build and a migration are very different — so tell us what you need and we will map it out.',
     },
     notForYou: [
       'Anyone after the cheapest possible theme install. A template store is fine, and you do not need us for that.',
@@ -216,7 +209,7 @@ export const SERVICES: ServiceContent[] = [
       'Marketplaces or platforms that genuinely need custom backend engineering beyond what Shopify does.',
     ],
     faqs: [
-      { q: 'How much does Shopify development cost?', a: 'It depends on scope. A speed optimisation pass, a full custom build, and a migration with thousands of SKUs are very different jobs. Tell us what you need and you will have a fixed quote within two working days. We never publish a number we cannot honour.' },
+      { q: 'How does Shopify development pricing work?', a: 'It is scoped to the job: a speed optimisation pass, a full custom build, and a migration with thousands of SKUs are very different pieces of work. Tell us what you need and we will scope it and come back within two working days.' },
       { q: 'Can you migrate my store to Shopify?', a: 'Yes. We migrate from WooCommerce, Wix, Magento and others while preserving your URLs and SEO with a proper 301 map, along with product data and order history. Losing rankings in a migration is avoidable, so we plan for it before we touch anything.' },
       { q: 'Will you make my store faster?', a: 'Yes. We run a dedicated speed pass targeting Core Web Vitals and real-world load time. Speed feeds conversion directly: a faster store turns more of your paid traffic into orders and lowers your effective ad cost at the same time.' },
       { q: 'Do you also run the ads for the store you build?', a: 'Often, yes. Because we run performance marketing as well, the store and the acquisition are built to work together. Landing pages match the creative and tracking is clean, so nothing falls through the gap between the media and the dev.' },
@@ -238,7 +231,7 @@ export const SERVICES: ServiceContent[] = [
       'Scaling Socials is a web development company in Bangalore building fast, measurable websites and landing pages that convert for D2C ecommerce brands.',
     h1: 'Web development company in Bangalore',
     answer:
-      'Scaling Socials is a web development company in Bangalore that builds fast, measurable websites and landing pages for D2C and ecommerce brands across India and the UAE. We build sites that sell: quick to load, clean to track, and designed around the one action you want a visitor to take. Pricing is scoped to the project.',
+      'Scaling Socials is a web development company in Bangalore that builds fast, measurable websites and landing pages for D2C and ecommerce brands across India and the UAE. We build sites that sell: quick to load, clean to track, and designed around the one action you want a visitor to take. Every project is scoped to what it needs.',
     intro: {
       eyebrow: 'What it means for your P&L',
       heading: 'A site is a sales tool, so we measure it like one',
@@ -256,7 +249,7 @@ export const SERVICES: ServiceContent[] = [
       { title: 'Analytics and tracking', body: 'Clean GA4, server-side events and dashboards, so decisions run on real data instead of guesses.' },
     ],
     value: {
-      heading: 'What you get for your money',
+      heading: 'What you actually get',
       lede: 'A site that sells: fast to load, clear on one action, and measurable so you can see what works.',
       included: [
         'Design around a single clear action, not decoration',
@@ -265,7 +258,7 @@ export const SERVICES: ServiceContent[] = [
         'Message-matched landing pages for your ad campaigns',
         'A stack your team can actually run and update',
       ],
-      note: 'Priced by scope. A few landing pages is a different job from a full brand-site rebuild. We quote inside two working days.',
+      note: 'Scope depends on the job — a few landing pages and a full brand-site rebuild are very different — so tell us what you need and we will map it out.',
     },
     notForYou: [
       'Anyone who just needs a one-page template site. A builder like Wix or Framer will serve you fine there.',
@@ -273,7 +266,7 @@ export const SERVICES: ServiceContent[] = [
       'Brands that want a redesign with no way to measure whether it worked. We build things to be measured.',
     ],
     faqs: [
-      { q: 'How much does a website cost?', a: 'It depends on scope. A few landing pages and a full brand-site rebuild are very different projects. Tell us what you need and you will have a fixed quote within two working days. We will not publish a headline price we cannot stand behind.' },
+      { q: 'How does website pricing work?', a: 'It is scoped to the project: a few landing pages and a full brand-site rebuild are very different pieces of work. Tell us what you need and we will scope it and come back within two working days.' },
       { q: 'Why does site speed matter?', a: 'Speed is money. A slow site loses visitors before they act, and on ad-driven pages it drags down your Quality Score and pushes your cost per click up. We build to load in well under two seconds, which protects both your conversion rate and your budget.' },
       { q: 'Can you rebuild my slow WordPress site?', a: 'Yes. We move brands off slow WordPress builds onto a fast modern stack while preserving SEO with a proper redirect map. You keep your rankings, you gain the speed, and your team can run the result without a developer on standby.' },
       { q: 'Do you build landing pages for ads?', a: 'Yes, and it is one of the highest-return things we do. A message-matched page that loads fast converts far better than pointing paid traffic at a generic homepage, and because we run the ads too, the page and the creative get built together.' },
@@ -295,7 +288,7 @@ export const SERVICES: ServiceContent[] = [
       'Scaling Socials is a social media marketing agency in Bangalore: content, community and creator-led growth that supports paid, for D2C brands.',
     h1: 'Social media marketing agency in Bangalore',
     answer:
-      'Scaling Socials is a social media marketing agency in Bangalore that handles content, community and creator-led growth for D2C and ecommerce brands across India and the UAE. We build organic social that supports paid and compounds the brand, rather than chasing vanity follower counts. Pricing is scoped to the work.',
+      'Scaling Socials is a social media marketing agency in Bangalore that handles content, community and creator-led growth for D2C and ecommerce brands across India and the UAE. We build organic social that supports paid and compounds the brand, rather than chasing vanity follower counts. The work is scoped to your brand and channels.',
     intro: {
       eyebrow: 'What it means for your P&L',
       heading: 'Organic social that feeds performance, not a follower chase',
@@ -313,7 +306,7 @@ export const SERVICES: ServiceContent[] = [
       { title: 'Channel strategy', body: 'The right platform mix for your brand and buyer, from Instagram to YouTube and beyond, not a fixed package.' },
     ],
     value: {
-      heading: 'What you get for your money',
+      heading: 'What you actually get',
       lede: 'Organic social that feeds performance, with one creative engine behind both your content and your ads.',
       included: [
         'A real content calendar, with reels and statics produced at volume',
@@ -322,7 +315,7 @@ export const SERVICES: ServiceContent[] = [
         'The right platform mix for your brand, not a fixed package',
         'Content built to be tested, so it makes your paid work harder',
       ],
-      note: 'Priced by scope: how much content, how many channels, and whether creators are in the mix. We quote inside two working days.',
+      note: 'Scope depends on how much content you need, how many channels you run, and whether creators are in the mix — tell us and we will map it out.',
     },
     notForYou: [
       'Brands chasing follower counts as the goal. We build social that supports revenue, and we will measure it that way.',
@@ -330,7 +323,7 @@ export const SERVICES: ServiceContent[] = [
       'Businesses with no interest in showing up as themselves. Founder-led social wins; faceless brand-speak rarely does.',
     ],
     faqs: [
-      { q: 'How much does social media management cost?', a: 'It is priced by scope: how much content you need each month, how many channels you run, and whether creators are involved. Tell us what you need and you will have a quote within two working days. We do not publish a one-size price because social scope varies so widely.' },
+      { q: 'How does social media pricing work?', a: 'It comes down to how much content you need each month, how many channels you run, and whether creators are involved. Social scope varies widely, so we shape it around your brand rather than a one-size package — tell us what you need and we will map it out.' },
       { q: 'Do followers actually matter?', a: 'Not on their own. We build organic social to do two jobs your P&L cares about: warm an audience so paid works harder, and produce the native content volume a testing pipeline needs. Follower count is a by-product of that, not the target we aim at.' },
       { q: 'Can social and paid ads work together?', a: 'That is exactly how we run it. One in-house creative engine feeds both organic and paid, so the content you post and the ads you run reinforce each other, and you get more out of every asset you produce.' },
       { q: 'Do you work with creators?', a: 'Yes. We source and run creator and UGC content that fuels both organic and paid. For founder- and creator-led brands we lean into that voice deliberately, because an operator’s perspective tends to beat polished brand-speak on social.' },
@@ -370,7 +363,7 @@ export const SERVICES: ServiceContent[] = [
       { title: 'Landing page testing', body: 'Message-matched pages for paid traffic, tested against real conversion instead of opinion.' },
     ],
     value: {
-      heading: 'What you get for your money',
+      heading: 'What you actually get',
       lede: 'More revenue from the traffic you already pay for, which is the cheapest growth you have.',
       included: [
         'A full funnel audit from session recordings, analytics and heatmaps',
@@ -379,7 +372,7 @@ export const SERVICES: ServiceContent[] = [
         'A/B tests run and read properly, so real winners actually ship',
         'A conversion lift that lowers your effective CAC across every channel',
       ],
-      note: 'Priced by scope and traffic. There has to be enough volume to test cleanly. We quote inside two working days.',
+      note: 'Scope depends on your traffic and how many tests we run — there has to be enough volume to test cleanly, so tell us your numbers and we will map it out.',
     },
     notForYou: [
       'Stores with too little traffic to test cleanly. Below a few thousand sessions a month, put the money into acquisition first.',
@@ -388,7 +381,7 @@ export const SERVICES: ServiceContent[] = [
     ],
     faqs: [
       { q: 'What is conversion rate optimisation?', a: 'CRO is the practice of getting more of your existing traffic to buy, by finding and fixing the friction between the click and the checkout. It is usually the cheapest growth available, because it lifts revenue on spend you are already making.' },
-      { q: 'How much does CRO cost?', a: 'It is priced by scope and by traffic. There has to be enough volume to test cleanly, and the work scales with how many tests you run and whether we build the variants for you. Tell us your store and monthly sessions and you will have a quote within two working days.' },
+      { q: 'How does CRO pricing work?', a: 'It comes down to your traffic and how many tests we run — there has to be enough volume to test cleanly, and it scales with whether we build the variants for you. Tell us your store and monthly sessions and we will scope it with you.' },
       { q: 'How much can CRO actually lift revenue?', a: 'It compounds fast. Moving from 1.5% to 2.2% conversion is roughly a 47% revenue increase on the same traffic and spend. It also lowers your effective CAC across every channel, which is what lets performance marketing scale further.' },
       { q: 'Do I need enough traffic for CRO?', a: 'Yes. CRO needs a few thousand sessions a month to test cleanly. If you are below that, we will say so plainly and point you at acquisition first, then bring CRO in once there is enough volume to read a result you can trust.' },
     ],

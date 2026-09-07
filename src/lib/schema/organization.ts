@@ -64,7 +64,6 @@ export function professionalService(): SchemaNode {
     logo: ORG.logo,
     email: ORG.email,
     telephone: ORG.telephone,
-    priceRange: ORG.priceRange,
     address: postalAddress(),
     geo: {
       '@type': 'GeoCoordinates',

@@ -1,18 +1,16 @@
 ---
 /**
- * PricingBlock — value-framed. See 11 §2. Leads with the worth of what's included,
- * not the "cost". The published floor stays (transparency is the differentiator,
- * 11 §2) but as a quiet "from" line, so the reader feels the value before the price.
- * The number renders as real text in the HTML (CLAUDE.md §10). Register-agnostic.
+ * PricingBlock — value-framed. Leads with the worth of what's included; no fee is
+ * shown anywhere (owner directive, 2026-09-07). The name is historical; this block
+ * carries no price. Register-agnostic.
  */
 export interface Props {
   lede: string; // the value statement (headline)
   included: string[]; // what you actually get
-  price?: string; // e.g. "₹25,000/month" — shown as a quiet "from" line
   note?: string;
   class?: string;
 }
-const { lede, included, price, note, class: className = '' } = Astro.props;
+const { lede, included, note, class: className = '' } = Astro.props;
 ---
 
 <div
@@ -24,12 +22,6 @@ const { lede, included, price, note, class: className = '' } = Astro.props;
 >
   <div class="flex flex-col gap-[var(--space-3)]">
     <p class="text-h3 font-semibold leading-snug text-[var(--fg)]">{lede}</p>
-    {price && (
-      <p class="text-small text-[var(--fg-muted)]">
-        Plans start from <span class="font-semibold text-[var(--fg)]" data-num>{price}</span>.
-        We publish this because nobody else in this SERP does.
-      </p>
-    )}
     {note && <p class="text-small text-[var(--fg-muted)]">{note}</p>}
   </div>
 

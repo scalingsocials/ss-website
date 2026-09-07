@@ -148,8 +148,8 @@ These are small but they unblock schema and trust signals:
   and Shopify Partner listing links, to verify the badges and add to `sameAs`.
 - **Aggregate proof stats**, if you want a proof bar: total managed spend, number
   of brands, average ROAS — with how ROAS is calculated.
-- **Starting prices** for Shopify / web / social, if you want a figure shown
-  instead of "scoped" (performance and SEO already publish ₹25,000/month).
+- _(Pricing is no longer published on the site — owner directive, 2026-09-07. Every
+  service is scoped to the brief and no fee figures appear anywhere. See CLAUDE.md §18.)_
 - **Compressed creative videos** (≤1.5 MB, ≤8 s, mp4 + webm) for the creative
   wall — see the ffmpeg recipe we shared. They auto-wire in once dropped into
   `src/assets/Creatives/`.

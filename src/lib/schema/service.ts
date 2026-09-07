@@ -1,11 +1,11 @@
 /**
  * Service node. See 03 §1.2–1.3.
  *
- * provider → the Organization (@id). Pillar pages add an Offer with a
- * priceSpecification (the published ₹25,000/month floor, 11 §2) and a
- * hasOfferCatalog listing the sub-services that link to cluster pages.
+ * provider → the Organization (@id). Pillar pages add a hasOfferCatalog listing
+ * the sub-services that link to cluster pages.
  *
- * Never mark up a price you would not honour (11 §2 / CLAUDE.md §15).
+ * No pricing is published on the site (owner directive, 2026-09-07), so no Offer
+ * carries a price; the OfferInput type is retained but unused.
  */
 import { ORG_ID, abs, serviceId, type SchemaNode } from './ids';
 

@@ -25,11 +25,8 @@ export function webApplication(input: WebApplicationInput): SchemaNode {
     operatingSystem: 'Web',
     browserRequirements: 'Requires JavaScript',
     publisher: { '@id': ORG_ID },
-    offers: {
-      '@type': 'Offer',
-      price: 0,
-      priceCurrency: 'INR',
-    },
+    // No priced Offer (owner directive: no pricing anywhere). isAccessibleForFree
+    // still signals the tool is free without emitting a price figure.
     isAccessibleForFree: true,
   };
 }

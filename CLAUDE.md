@@ -86,6 +86,12 @@ and a period — never a big number with a small label.
 16. Never add an npm dependency without telling me what it costs in KB and why nothing
     installed already does the job.
 17. Secrets never enter the repo. The Supabase service key exists only in the Worker env.
+18. **Never publish pricing (owner directive, 2026-09-07).** No fee figures, floors,
+    "from ₹X", `Offer`/`priceSpecification`/`priceRange`, or "we publish our pricing"
+    claims anywhere on the site. Every service is scoped to the brief; cost questions
+    are answered with scope, never a number. This overrides the older 11 §2 / spec
+    guidance that recommended publishing the ₹25,000/month floor. Calculator inputs
+    and case-study result figures are not pricing and stay.
 
 ## Voice
 Plain, specific, confident. Indian units — ₹2L, ₹1.5Cr, never "₹1 Million". No "in today's

@@ -30,7 +30,7 @@ export const CLUSTERS: Cluster[] = [
       { heading: 'Advantage+ where it earns its place', body: 'We reach for Advantage+ Shopping when it genuinely beats a manual structure, and stay manual where the control pays for itself. Your data and your margin make that call, never a fixed package, and everything gets held to your break-even ROAS.' },
     ],
     faqs: [
-      { q: 'How much do Meta ads cost with an agency in India?', a: 'Scaling Socials starts performance marketing at ₹25,000 a month, and your fee scales with ad spend and creative volume. Your Meta ad spend is separate, goes straight to Meta, and is never marked up by us.' },
+      { q: 'How does pricing work for a Meta ads agency in India?', a: 'We scope every engagement to the brand rather than a fixed package — it reflects your ad spend and creative volume. Whatever the scope, your Meta ad spend stays separate: it goes straight to Meta and is never marked up by us.' },
       { q: 'Do you make the Meta ad creative?', a: 'Yes. We produce statics and video-led ads in-house and test them in a structured pipeline. Creative is the single biggest lever on Meta right now, so it sits at the core of the engagement rather than off to the side as an add-on.' },
       { q: 'Should I use Advantage+ or manual campaigns?', a: 'It depends on your catalogue and your funnel. We run Advantage+ where it beats manual and stay manual where control pays off, and we test both against your break-even ROAS instead of following a rule of thumb.' },
       { q: 'My Meta ads get traffic but no sales. Is it the ads?', a: 'Often it is not. The most common mistake we see in Indian D2C is blaming Meta for a problem sitting somewhere else — when traffic is healthy and purchases are not, the cause is usually the product, the price, the website or the content, and no amount of campaign restructuring fixes any of those. Scaling Socials checks the whole path from ad to checkout before rebuilding an account, and will tell you when the ads are not what is holding sales back.' },
@@ -47,7 +47,7 @@ export const CLUSTERS: Cluster[] = [
       { heading: 'Performance Max, on a leash', body: 'Performance Max can scale, and it can also quietly spend on the wrong things. We feed it clean data, fence it with the right structure and exclusions, and hold it to your break-even ROAS, so it works for your P&L rather than for Google’s.' },
     ],
     faqs: [
-      { q: 'How much does a Google Ads agency cost in India?', a: 'Scaling Socials starts performance marketing at ₹25,000 a month, depending on your spend and scope. Your Google ad spend is separate, paid straight to Google, and never marked up by us.' },
+      { q: 'How does pricing work for a Google Ads agency in India?', a: 'We scope it to your account and spend rather than a fixed package. Whatever the scope, your Google ad spend stays separate, paid straight to Google, and is never marked up by us.' },
       { q: 'Do you run Performance Max?', a: 'Yes, where it fits, with clean data, the right exclusions and a sensible structure, all held to your break-even ROAS. We do not hand it a blank cheque; it earns its budget by clearing your margin.' },
       { q: 'Search or Shopping, which do I need?', a: 'For most ecommerce brands the answer is both: Search for high-intent queries, and Shopping and Performance Max for catalogue-led buying. We recommend the mix from your products and margins rather than a template.' },
     ],
@@ -64,7 +64,7 @@ export const CLUSTERS: Cluster[] = [
     ],
     faqs: [
       { q: 'What is ecommerce PPC?', a: 'Ecommerce PPC is paid advertising built around a product catalogue, spanning Meta, Google Shopping, Performance Max and Search, and optimised to sell SKUs profitably rather than just drive clicks. It ties directly to your feed, your margins and your seasonality.' },
-      { q: 'How much does ecommerce PPC cost?', a: 'Scaling Socials starts at ₹25,000 a month, depending on spend and scope. Your ad spend is separate, paid to the platforms directly, and never marked up.' },
+      { q: 'How does ecommerce PPC pricing work?', a: 'We scope it to your catalogue, spend and channels rather than a fixed package. Your ad spend stays separate, paid to the platforms directly, and is never marked up.' },
       { q: 'Do you manage the product feed?', a: 'Yes. A clean, well-structured product feed is half of ecommerce PPC. We optimise it so Shopping and Performance Max have the data they need to sell your catalogue efficiently.' },
     ],
   },
@@ -80,7 +80,7 @@ export const CLUSTERS: Cluster[] = [
     ],
     faqs: [
       { q: 'How is ecommerce SEO different from normal SEO?', a: 'It centres on category and product pages, product structured data, faceted navigation and internal linking across a whole catalogue. Those are the things that decide whether a store ranks and converts, rather than a handful of blog posts.' },
-      { q: 'How much does ecommerce SEO cost?', a: 'Scaling Socials starts SEO at ₹25,000 a month, depending on keyword count, difficulty and how many pages need work. It compounds over quarters rather than paying off overnight.' },
+      { q: 'How does ecommerce SEO pricing work?', a: 'We scope it to your store — how many keywords you target and how competitive they are, and how many pages need work. It compounds over quarters rather than paying off overnight, so we plan it that way.' },
       { q: 'Does SEO work with my paid ads?', a: 'Yes, and the two feed each other. SEO lowers your reliance on paid over time, while the query and conversion data from your ads sharpens which organic terms are worth prioritising.' },
     ],
   },
@@ -96,7 +96,7 @@ export const CLUSTERS: Cluster[] = [
     ],
     faqs: [
       { q: 'What does a technical SEO audit cover?', a: 'Crawlability and indexation, site speed and Core Web Vitals, site architecture, structured data, internal linking, duplicate content and mobile usability. Together these are the technical foundations that decide whether your content can rank at all.' },
-      { q: 'How much does a technical SEO audit cost?', a: 'It is part of an SEO engagement, which starts at ₹25,000 a month, or it can be scoped as a one-off audit. Tell us your site and we will quote.' },
+      { q: 'How does a technical SEO audit fit into an engagement?', a: 'It is part of an SEO engagement, or it can be scoped as a one-off audit. Tell us your site and we will map out what it needs.' },
       { q: 'Will you fix the issues or just report them?', a: 'Either. You get a prioritised fix list you could hand to any developer, and we are happy to implement the fixes ourselves if you would rather we handled it.' },
     ],
   },
@@ -105,14 +105,14 @@ export const CLUSTERS: Cluster[] = [
     title: 'Local SEO Services in Bangalore for Brands | Scaling Socials',
     description: 'Scaling Socials runs local SEO in Bangalore: Google Business Profile, citations and local pages that get brands found by nearby, ready-to-buy customers.',
     h1: 'Local SEO services in Bangalore',
-    answer: 'Scaling Socials runs local SEO for brands that also sell or serve in a city. We optimise your Google Business Profile, build consistent citations, and create local pages so nearby buyers with real intent find you first. It sits inside an SEO engagement from ₹25,000 a month.',
+    answer: 'Scaling Socials runs local SEO for brands that also sell or serve in a city. We optimise your Google Business Profile, build consistent citations, and create local pages so nearby buyers with real intent find you first. It sits inside a broader SEO engagement, scoped to your locations and category.',
     sections: [
       { heading: 'The map pack is its own game', body: 'Ranking in Google’s local map pack runs on different signals from regular organic. It comes down to your Business Profile, consistent name, address and phone details across the web, and genuine reviews. We handle all three rather than treating local as an afterthought.' },
       { heading: 'Consistency wins', body: 'Inconsistent listings are the most common reason local rankings stall. We make your NAP identical everywhere it appears and keep your profile complete and active, which is exactly what local ranking rewards.' },
     ],
     faqs: [
       { q: 'What is local SEO?', a: 'Local SEO is the work of getting found by nearby searchers, in Google’s map pack and local results, through your Google Business Profile, consistent citations, reviews and location pages. It matters for any brand with a real presence in a city.' },
-      { q: 'How much does local SEO cost?', a: 'It is part of an SEO engagement, from ₹25,000 a month, scoped to how many locations you run and how competitive your city and category are.' },
+      { q: 'How does local SEO pricing work?', a: 'It is part of an SEO engagement, scoped to how many locations you run and how competitive your city and category are.' },
       { q: 'Do reviews matter for local SEO?', a: 'A great deal. Review count, recency and rating are strong signals for both local ranking and conversion. We help you build a systematic review request into your offboarding and your quarterly check-ins.' },
     ],
   },
@@ -137,7 +137,7 @@ export const CLUSTERS: Cluster[] = [
     title: 'Shopify Store Migration Services | Scaling Socials',
     description: 'Scaling Socials migrates stores to Shopify from WooCommerce, Wix and Magento without losing SEO, URLs or order history: a planned, rankings-safe migration.',
     h1: 'Shopify store migration services',
-    answer: 'Scaling Socials migrates D2C stores to Shopify from WooCommerce, Wix, Magento and others without losing SEO, URLs or order history. Losing rankings in a migration is avoidable, so we plan the redirect map and data transfer up front, which means you keep your traffic and gain Shopify. It is priced by scope.',
+    answer: 'Scaling Socials migrates D2C stores to Shopify from WooCommerce, Wix, Magento and others without losing SEO, URLs or order history. Losing rankings in a migration is avoidable, so we plan the redirect map and data transfer up front, which means you keep your traffic and gain Shopify. It is scoped to your catalogue and the platform you are moving from.',
     sections: [
       { heading: 'The redirect map is everything', body: 'Most migrations lose traffic for one reason: old URLs quietly start returning 404s. We map every old URL to its new Shopify equivalent with clean 301s, so your rankings and the link equity behind them carry across intact.' },
       { heading: 'Data, not just design', body: 'Products, variants, customers and order history all have to move cleanly, not just the theme. We handle the data migration alongside the rebuild so nothing important gets stranded on the old platform.' },
@@ -145,7 +145,7 @@ export const CLUSTERS: Cluster[] = [
     faqs: [
       { q: 'Will I lose SEO when migrating to Shopify?', a: 'Not with a planned migration. We build a complete redirect map from your old URLs to the new ones with proper 301s, so rankings and link equity transfer across. Lost traffic in a migration is almost always avoidable.' },
       { q: 'What can you migrate from?', a: 'WooCommerce, Wix, Magento, custom builds and others. We move products, variants, customers and order history, and rebuild the theme on Shopify around conversion rather than just copying the old design.' },
-      { q: 'How long does a Shopify migration take?', a: 'It depends on your catalogue size and any custom features. We scope it up front and give you a fixed timeline and quote before we start anything.' },
+      { q: 'How long does a Shopify migration take?', a: 'It depends on your catalogue size and any custom features. We scope it up front and give you a clear plan and timeline before we start anything.' },
     ],
   },
   {
@@ -153,14 +153,14 @@ export const CLUSTERS: Cluster[] = [
     title: 'Shopify Speed Optimisation Services | Scaling Socials',
     description: 'Scaling Socials runs Shopify speed optimisation: a dedicated pass on Core Web Vitals and load time, because a faster store converts more paid traffic.',
     h1: 'Shopify speed optimisation services',
-    answer: 'Scaling Socials runs Shopify speed optimisation, a dedicated pass on Core Web Vitals and real-world load time. Speed feeds conversion directly: a faster store turns more of your paid traffic into orders and lowers your effective ad cost. It is priced by scope, and it usually pays for itself quickly.',
+    answer: 'Scaling Socials runs Shopify speed optimisation, a dedicated pass on Core Web Vitals and real-world load time. Speed feeds conversion directly: a faster store turns more of your paid traffic into orders and lowers your effective ad cost. It is scoped to your store, and it usually pays for itself quickly.',
     sections: [
       { heading: 'Speed is money', body: 'A store that takes four seconds to load has lost buyers before they even see the product, and it pushes your ad costs up at the same time. We go after the things that actually move load time, meaning images, apps, theme code and third-party scripts, not a vanity score in a testing tool.' },
       { heading: 'Real Core Web Vitals, not a lab number', body: 'We optimise for the field metrics that Google and your customers actually experience, and then we measure the effect on conversion rather than stopping at a speed grade.' },
     ],
     faqs: [
       { q: 'Why does Shopify store speed matter?', a: 'Speed feeds straight into conversion and ad costs. Slow stores lose buyers before they act and get marked down on ad quality, so a faster store makes the same traffic worth more. It is often the cheapest conversion win on the table.' },
-      { q: 'How much does Shopify speed optimisation cost?', a: 'It is scoped to your store, based on how heavy your theme, apps and images are. Tell us your store and we will quote within two working days.' },
+      { q: 'How does Shopify speed optimisation pricing work?', a: 'It is scoped to your store, based on how heavy your theme, apps and images are. Tell us your store and we will map it out within two working days.' },
       { q: 'What slows a Shopify store down?', a: 'Usually oversized images, too many apps, heavy third-party scripts and bloated theme code. We audit all of them and fix the ones costing you the most load time and conversion first.' },
     ],
   },
@@ -176,7 +176,7 @@ export const CLUSTERS: Cluster[] = [
     ],
     faqs: [
       { q: 'When should I redesign my Shopify store?', a: 'When your conversion rate has plateaued, your store has gone slow, or the design is fighting your growth. We look at your session and analytics data first and tell you honestly whether a full redesign or a set of targeted fixes is the better use of your money.' },
-      { q: 'How much does a Shopify redesign cost?', a: 'It is scoped to the work, since a targeted rebuild of key pages is a different job from a full store redesign. Tell us your store and goals and we will quote within two working days.' },
+      { q: 'How does a Shopify redesign scope work?', a: 'It is scoped to the work, since a targeted rebuild of key pages is a different job from a full store redesign. Tell us your store and goals and we will map it out within two working days.' },
       { q: 'Will a redesign improve conversion?', a: 'Only if it is built from data. We base the redesign on where buyers actually drop off and test the changes, instead of redesigning on gut feel, which is how redesigns so often end up losing conversion.' },
     ],
   },

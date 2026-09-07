@@ -70,7 +70,6 @@ export const ORG = {
   primaryCategory: 'Marketing agency',
 
   areaServed: ['IN', 'AE'],
-  priceRange: '₹₹',
 
   /**
    * sameAs — the entity graph. Every profile that describes this business.

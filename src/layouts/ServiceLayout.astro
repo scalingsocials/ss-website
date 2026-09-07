@@ -4,9 +4,9 @@
  *
  * Renders a full service page from a ServiceContent object: answer-first hero
  * with an inline service-specific lead form, real proof, education, sub-services,
- * comparison, process, transparent pricing, a genuine disqualifier list, FAQ, and
- * a CTA band. Emits one @graph (Service + WebPage + BreadcrumbList + FAQPage,
- * with an Offer where a price floor is published).
+ * comparison, process, a value block, a genuine disqualifier list, FAQ, and
+ * a CTA band. Emits one @graph (Service + WebPage + BreadcrumbList + FAQPage).
+ * No pricing is shown anywhere (owner directive).
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Meta from '@/components/seo/Meta.astro';
@@ -76,7 +76,6 @@ const nodes = [
     description: svc.description,
     serviceType: svc.name,
     areaServed: ['IN', 'AE'],
-    ...(svc.offer ? { offer: svc.offer } : {}),
     offerCatalog: svc.subservices.map((s) => ({ name: s.title, url: s.href ?? url })),
   }),
   webPage({ url, name: svc.title, description: svc.description, aboutId: serviceId(url), hasBreadcrumb: true, datePublished: published, dateModified: modified }),
@@ -170,11 +169,11 @@ const nodes = [
     <div class="mt-[var(--space-5)]"><ProcessSteps steps={process} /></div>
   </Section>
 
-  <!-- VALUE (was "pricing" — value-framed, full width) -->
+  <!-- VALUE — what you get, full width. No fee shown. -->
   <Section size="md">
     <span class="ss-eyebrow">The value</span>
     <h2 class="max-w-[24ch] text-h2 font-semibold">{svc.value.heading}</h2>
-    <div class="mt-[var(--space-5)]"><PricingBlock lede={svc.value.lede} included={svc.value.included} price={svc.value.price} note={svc.value.note} /></div>
+    <div class="mt-[var(--space-5)]"><PricingBlock lede={svc.value.lede} included={svc.value.included} note={svc.value.note} /></div>
   </Section>
 
   <!-- NOT FOR YOU (2-col: honest disqualifiers + the flip side, so the row fills) -->

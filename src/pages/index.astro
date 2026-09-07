@@ -73,16 +73,15 @@ const comparisonRows = [
 ];
 
 const value = {
-  lede: 'A full growth department across ads, SEO, Shopify, creative and CRO, for less than the cost of one senior in-house hire.',
+  lede: 'A full growth department across ads, SEO, Shopify, creative and CRO, under one team instead of five separate hires.',
   included: [
     'A senior team across media, creative, SEO, store and CRO',
     'Ad creative and content produced in-house, tested every week',
     'A shared Slack channel and a live dashboard, so you always know what changed',
     'Everything run against your real margins, not vanity metrics',
-    'Transparent pricing, and never a markup on your ad spend',
+    'One team accountable to one number, and never a markup on your ad spend',
   ],
-  price: '₹25,000/month',
-  note: 'Performance marketing and SEO start at ₹25,000 a month. Shopify, web and social are scoped to the project.',
+  note: 'Every service is scoped to your brand and stage — tell us what you need and we will map the engagement out with you.',
 };
 
 const notForYou = [
@@ -92,10 +91,10 @@ const notForYou = [
 ];
 
 const faqItems = [
-  { q: 'How much does performance marketing cost in India?', a: 'Scaling Socials starts performance marketing at ₹25,000 a month. Where you land depends on your monthly ad spend, how many platforms you run, and how much creative you need produced. Ad spend is separate and paid directly to the platforms; we never mark it up.' },
+  { q: 'How does performance marketing pricing work in India?', a: 'We scope every engagement to the brand rather than a fixed package — it depends on your monthly ad spend, how many platforms you run, and how much creative you need produced. Whatever the scope, your ad spend is separate and paid directly to the platforms; we never mark it up.' },
   { q: 'Do you work with brands outside India?', a: 'Scaling Socials works with D2C and ecommerce brands across India and the UAE. UAE engagements account for the local platform mix, VAT on ad spend, and seasonality like Ramadan and DSF, rather than being a copy of the India playbook.' },
   { q: 'What do you need from me to get started?', a: 'Read-only access to your Meta Ads, Google Ads, and Shopify or GA4, plus a 20-minute call on what you sell and what your margins are. From there the first audit takes three working days.' },
-  { q: 'What makes you different from other agencies?', a: 'Scaling Socials works to your P&L, not to platform-reported ROAS. We publish our pricing, tell you when not to hire us, and hand you an audit you could take to another agency. We also publish honest public teardowns of real D2C brands.' },
+  { q: 'What makes you different from other agencies?', a: 'Scaling Socials works to your P&L, not to platform-reported ROAS. We tell you when not to hire us, hand you an audit you could take to another agency, and keep media, creative, store and CRO on one team. We also publish honest public teardowns of real D2C brands.' },
 ];
 
 const schemaNodes = [
@@ -228,7 +227,7 @@ const surface = '!bg-[var(--surface-c)]';
     <span class={eyebrow}>The value</span>
     <h2 class="max-w-[24ch] text-h2 font-semibold">What you get for your money</h2>
     <div class="mt-[var(--space-5)]">
-      <PricingBlock lede={value.lede} included={value.included} price={value.price} note={value.note} />
+      <PricingBlock lede={value.lede} included={value.included} note={value.note} />
     </div>
     <p class="mt-[var(--space-4)] text-body text-[var(--fg-muted)]">
       Want to see the maths on what a customer is worth to you?

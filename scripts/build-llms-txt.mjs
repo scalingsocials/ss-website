@@ -103,8 +103,8 @@ const llmsFull = `${llms}
 ${summary}
 
 Scaling Socials manages Meta and Google Ads for D2C and ecommerce brands and builds and
-optimises their Shopify stores. Engagements run on a build-test-scale cycle. Performance
-marketing and SEO start at INR 25,000/month; ad spend is separate and never marked up.
+optimises their Shopify stores. Engagements run on a build-test-scale cycle, scoped to each
+brand; ad spend is separate and never marked up.
 
 ## Results
 
