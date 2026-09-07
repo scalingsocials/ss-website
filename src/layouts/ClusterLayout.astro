@@ -29,6 +29,20 @@ const modified = '2026-09-04';
 const parent = SERVICE_BY_SLUG[c.parentSlug];
 const siblings = CLUSTERS.filter((x) => x.parentSlug === c.parentSlug && x.slug !== c.slug);
 
+// Graph metrics relevant to each page: a rising metric (periwinkle) and a
+// falling-is-good metric (teal). Slug overrides win over the pillar default.
+const METRICS_BY_PARENT: Record<string, { primary: string; secondary: string }> = {
+  'performance-marketing': { primary: 'ROAS', secondary: 'CAC' },
+  seo: { primary: 'Organic revenue', secondary: 'Blended CAC' },
+  'shopify-development': { primary: 'Conversion rate', secondary: 'Load time' },
+};
+const METRICS_BY_SLUG: Record<string, { primary: string; secondary: string }> = {
+  'shopify-speed-optimisation': { primary: 'Conversion', secondary: 'LCP' },
+  'answer-engine-optimisation': { primary: 'AI citations', secondary: 'Blended CAC' },
+  'local-seo': { primary: 'Store visits', secondary: 'Cost per lead' },
+};
+const metrics = METRICS_BY_SLUG[c.slug] ?? METRICS_BY_PARENT[c.parentSlug] ?? { primary: 'ROAS', secondary: 'CAC' };
+
 const nodes = [
   ...base(),
   service({ url, name: c.name, description: c.description, serviceType: c.name, areaServed: ['IN', 'AE'] }),
@@ -70,7 +84,7 @@ const nodes = [
         {c.sections.map((s) => (<><h2>{s.heading}</h2><p>{s.body}</p></>))}
       </Prose>
       <aside class="lg:sticky lg:top-[96px] flex flex-col gap-[var(--space-4)]">
-        <PanelMotif label={`${c.slug}.live`} tag={c.name} />
+        <PanelMotif label={`${c.slug}.live`} tag={c.name} primary={metrics.primary} secondary={metrics.secondary} />
         <a href={c.parentUrl} class="ss-rel group flex items-center gap-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline">
           <span class="ss-svc-glyph shrink-0"><Glyph name="layers" size={20} /></span>
           <span class="flex flex-col">

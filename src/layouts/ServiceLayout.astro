@@ -60,14 +60,6 @@ function glyphFor(title: string): string {
   return 'spark';
 }
 
-const process = [
-  { title: 'Audit', body: 'We read your accounts and your store and find where spend leaks and where it can scale.' },
-  { title: 'Plan', body: 'A 30-60-90 plan: the first things we would change, in order, with the reasoning.' },
-  { title: 'Build', body: 'The work itself, whether campaigns, pages, content or code, built so it can be tested.' },
-  { title: 'Test', body: 'We test against your real margins, not a vanity benchmark.' },
-  { title: 'Scale', body: 'What works gets more; what doesn’t gets cut. Then we run the loop again.' },
-];
-
 const nodes = [
   ...base(),
   service({
@@ -166,7 +158,7 @@ const nodes = [
   <Section size="md" class="!bg-[var(--surface-c)]">
     <span class="ss-eyebrow">How it works</span>
     <h2 class="max-w-[22ch] text-h2 font-semibold">How an engagement runs</h2>
-    <div class="mt-[var(--space-5)]"><ProcessSteps steps={process} /></div>
+    <div class="mt-[var(--space-5)]"><ProcessSteps steps={svc.process} /></div>
   </Section>
 
   <!-- VALUE — what you get, full width. No fee shown. -->
@@ -184,7 +176,7 @@ const nodes = [
         <span class="ss-svc-glyph mb-[var(--space-3)]"><Glyph name="handshake" size={20} /></span>
         <h3 class="text-h4 font-semibold text-[var(--fg)]">A good fit if this sounds like you</h3>
         <ul class="mt-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
-          {['You’re a D2C or ecommerce brand with some trading data to work from', 'You can keep a steady supply of creative and offers coming', 'You want growth measured against your margins, not a dashboard', 'You’d rather see the maths than be handed a promise'].map((f) => (
+          {svc.goodFit.map((f) => (
             <li class="flex gap-[var(--space-2)] text-small leading-relaxed text-[var(--fg-muted)]">
               <span class="mt-[3px] shrink-0 text-[var(--accent-graphic)]"><Glyph name="scale" size={16} /></span>
               <span>{f}</span>

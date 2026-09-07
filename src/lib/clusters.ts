@@ -30,10 +30,10 @@ export const CLUSTERS: Cluster[] = [
       { heading: 'Advantage+ where it earns its place', body: 'We reach for Advantage+ Shopping when it genuinely beats a manual structure, and stay manual where the control pays for itself. Your data and your margin make that call, never a fixed package, and everything gets held to your break-even ROAS.' },
     ],
     faqs: [
-      { q: 'How does pricing work for a Meta ads agency in India?', a: 'We scope every engagement to the brand rather than a fixed package — it reflects your ad spend and creative volume. Whatever the scope, your Meta ad spend stays separate: it goes straight to Meta and is never marked up by us.' },
+      { q: 'How does pricing work for a Meta ads agency in India?', a: 'We scope every engagement to the brand rather than a fixed package, it reflects your ad spend and creative volume. Whatever the scope, your Meta ad spend stays separate: it goes straight to Meta and is never marked up by us.' },
       { q: 'Do you make the Meta ad creative?', a: 'Yes. We produce statics and video-led ads in-house and test them in a structured pipeline. Creative is the single biggest lever on Meta right now, so it sits at the core of the engagement rather than off to the side as an add-on.' },
       { q: 'Should I use Advantage+ or manual campaigns?', a: 'It depends on your catalogue and your funnel. We run Advantage+ where it beats manual and stay manual where control pays off, and we test both against your break-even ROAS instead of following a rule of thumb.' },
-      { q: 'My Meta ads get traffic but no sales. Is it the ads?', a: 'Often it is not. The most common mistake we see in Indian D2C is blaming Meta for a problem sitting somewhere else — when traffic is healthy and purchases are not, the cause is usually the product, the price, the website or the content, and no amount of campaign restructuring fixes any of those. Scaling Socials checks the whole path from ad to checkout before rebuilding an account, and will tell you when the ads are not what is holding sales back.' },
+      { q: 'My Meta ads get traffic but no sales. Is it the ads?', a: 'Often it is not. The most common mistake we see in Indian D2C is blaming Meta for a problem sitting somewhere else, when traffic is healthy and purchases are not, the cause is usually the product, the price, the website or the content, and no amount of campaign restructuring fixes any of those. Scaling Socials checks the whole path from ad to checkout before rebuilding an account, and will tell you when the ads are not what is holding sales back.' },
     ],
   },
   {
@@ -80,7 +80,7 @@ export const CLUSTERS: Cluster[] = [
     ],
     faqs: [
       { q: 'How is ecommerce SEO different from normal SEO?', a: 'It centres on category and product pages, product structured data, faceted navigation and internal linking across a whole catalogue. Those are the things that decide whether a store ranks and converts, rather than a handful of blog posts.' },
-      { q: 'How does ecommerce SEO pricing work?', a: 'We scope it to your store — how many keywords you target and how competitive they are, and how many pages need work. It compounds over quarters rather than paying off overnight, so we plan it that way.' },
+      { q: 'How does ecommerce SEO pricing work?', a: 'We scope it to your store, how many keywords you target and how competitive they are, and how many pages need work. It compounds over quarters rather than paying off overnight, so we plan it that way.' },
       { q: 'Does SEO work with my paid ads?', a: 'Yes, and the two feed each other. SEO lowers your reliance on paid over time, while the query and conversion data from your ads sharpens which organic terms are worth prioritising.' },
     ],
   },

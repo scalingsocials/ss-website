@@ -71,7 +71,7 @@
   --text-h3:       1.5rem;
   --text-h4:       1.1875rem;
   --text-body:     1.125rem;
-  --text-small:    0.9375rem;
+  --text-small:    1rem;
   --text-label:    0.75rem;
   --text-data:     clamp(2rem, 4.5vw, 3.25rem);
   --text-data-sm:  1.625rem;
