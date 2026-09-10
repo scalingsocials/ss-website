@@ -160,7 +160,20 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    /* The header is position:fixed, so its shrink-on-scroll never reflows the
+       page. Disabling scroll anchoring stops the browser from counter-scrolling
+       when layout changes near the top — the combination is what removes the
+       "shake" a shrinking sticky header otherwise causes. */
+    overflow-anchor: none;
+    /* Anchor jumps clear the fixed header. */
+    scroll-padding-top: var(--hh, 68px);
   }
+
+  /* Reserve space for the fixed header so page content starts below it. Uses the
+     general sibling selector so `bare` pages (no header) get no offset. --hh is
+     the header's full height, published by motion.ts and constant while
+     scrolling, so this never changes mid-scroll. */
+  .ss-header ~ main { padding-top: var(--hh, 68px); }
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }

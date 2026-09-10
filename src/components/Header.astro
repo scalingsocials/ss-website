@@ -20,10 +20,10 @@ import { NAV, NAV_CTA } from '@/lib/nav';
 const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+/g, '-')}`;
 ---
 
-<header data-register="paper" transition:persist="site-header" class="ss-header sticky top-0 z-50 border-b border-[var(--rule-c)]">
+<header data-register="paper" transition:persist="site-header" class="ss-header fixed inset-x-0 top-0 z-50 border-b border-[var(--rule-c)]">
   <!-- Scroll-progress rule under the header. CSS scroll-driven, zero JS. -->
   <div class="ss-header__progress" aria-hidden="true"></div>
-  <div class="ss-header__bar mx-auto flex w-full max-w-[var(--container)] items-center gap-[var(--space-4)] px-[var(--space-3)] py-[var(--space-2)] md:px-[var(--space-4)]">
+  <div class="ss-header__bar mx-auto flex w-full max-w-[var(--container)] items-center gap-[var(--space-4)] px-[var(--space-3)] md:px-[var(--space-4)]">
     <a href="/" class="ss-header__logo shrink-0 no-underline" aria-label="Scaling Socials — home">
       <Image src={lockup} alt="Scaling Socials" height={28} width={Math.round(28 * (lockup.width / lockup.height))} densities={[1, 2]} loading="eager" />
     </a>
@@ -224,7 +224,13 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
   /* On scroll the WHOLE header compacts: less vertical padding, a smaller logo,
      tighter nav and a smaller CTA — so the bar itself gets shorter, not just the
      logo. Everything eases together for a single, cohesive shrink. */
-  .ss-header__bar { transition: padding var(--dur-base) var(--ease-out); }
+  /* Base vertical padding lives here (not a Tailwind utility) so the is-scrolled
+     override always wins the cascade. */
+  .ss-header__bar {
+    padding-top: var(--space-2);
+    padding-bottom: var(--space-2);
+    transition: padding var(--dur-base) var(--ease-out);
+  }
   .ss-header__logo {
     display: inline-flex;
     transform-origin: left center;

@@ -94,11 +94,13 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   .hero {
     position: relative;
     overflow: hidden;
-    /* Fills exactly the viewport below the sticky header (which sits in flow, so
-       it already offsets the hero — no big top gap needed). --hh is the header
-       height; the whole hero then fits in one screen. */
-    min-height: calc(100svh - var(--hh, 68px));
-    padding-top: var(--space-5);
+    /* The header is fixed and floats over the page; pull the dark hero full-bleed
+       up behind it (cancelling main's reserved padding) so the header shrink
+       reveals more of the hero instead of leaving a gap. Content is padded down
+       to clear the header. Fills exactly one screen. */
+    margin-top: calc(-1 * var(--hh, 68px));
+    min-height: 100svh;
+    padding-top: calc(var(--hh, 68px) + var(--space-4));
     padding-bottom: var(--space-5);
     display: flex;
     flex-direction: column;
