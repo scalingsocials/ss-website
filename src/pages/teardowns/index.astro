@@ -8,6 +8,7 @@ import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import Teardowns from '@/components/blocks/Teardowns.astro';
+import HeroMotif from '@/components/graphics/HeroMotif.astro';
 import { base, webPage, breadcrumbs } from '@/lib/schema';
 
 const url = '/teardowns/';
@@ -24,13 +25,18 @@ const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb
   <SchemaGraph slot="schema" nodes={nodes} />
 
   <Section size="lg">
-    <span class="ss-eyebrow">Teardowns</span>
-    <h1 class="max-w-[20ch]">Honest teardowns of real D2C brands</h1>
-    <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">
-      Every month we pull apart a real Indian D2C brand — their live store and their public ad
-      creatives, all public information — and show exactly what we’d change and why. Constructive and
-      specific, never a hit piece.
-    </p>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div>
+        <span class="ss-eyebrow">Teardowns</span>
+        <h1 class="max-w-[20ch]">Honest teardowns of real D2C brands</h1>
+        <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">
+          Every month we pull apart a real Indian D2C brand — their live store and their public ad
+          creatives, all public information — and show exactly what we’d change and why. Constructive and
+          specific, never a hit piece.
+        </p>
+      </div>
+      <div class="hidden lg:block"><HeroMotif variant="teardown" /></div>
+    </div>
   </Section>
 
   <Section register="ink" size="lg">

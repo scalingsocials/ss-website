@@ -19,6 +19,7 @@ import AnswerBlock from '@/components/blocks/AnswerBlock.astro';
 import CaseStudyCard from '@/components/blocks/CaseStudyCard.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import Button from '@/components/primitives/Button.astro';
+import HeroMotif from '@/components/graphics/HeroMotif.astro';
 import { ARCHETYPES, CASE_STUDIES, CASE_STUDY_TOTALS, type Archetype } from '@/lib/caseStudies';
 import { base, webPage, breadcrumbs } from '@/lib/schema';
 
@@ -54,17 +55,22 @@ const nodes = [
   <SchemaGraph slot="schema" nodes={nodes} />
 
   <Section size="lg">
-    <span class="ss-eyebrow">Proof</span>
-    <h1 class="max-w-[20ch]">Seven accounts, and the worst month of each</h1>
-    <AnswerBlock class="mt-[var(--space-4)]">
-      Scaling Socials runs paid media for D2C and ecommerce brands across India and the UAE. The
-      seven accounts documented here produced ₹2.77 crore in tracked revenue on ₹42.1 lakh of ad
-      spend, a blended 6.58x return. Every figure comes from the client’s own ad account, and every
-      case study names its softest month.
-    </AnswerBlock>
-    <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
-      <Button href="/audit/" variant="primary">Get a free growth plan</Button>
-      <Button href="/contact/" variant="secondary">Talk to us</Button>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div>
+        <span class="ss-eyebrow">Proof</span>
+        <h1 class="max-w-[20ch]">Seven accounts, and the worst month of each</h1>
+        <AnswerBlock class="mt-[var(--space-4)]">
+          Scaling Socials runs paid media for D2C and ecommerce brands across India and the UAE. The
+          seven accounts documented here produced ₹2.77 crore in tracked revenue on ₹42.1 lakh of ad
+          spend, a blended 6.58x return. Every figure comes from the client’s own ad account, and every
+          case study names its softest month.
+        </AnswerBlock>
+        <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+          <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+          <Button href="/contact/" variant="secondary">Talk to us</Button>
+        </div>
+      </div>
+      <div class="hidden lg:block"><HeroMotif variant="growth" /></div>
     </div>
   </Section>
 

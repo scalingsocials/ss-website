@@ -15,7 +15,7 @@ import { CREATIVES } from '@/lib/creatives';
 
 export interface Props {
   limit?: number;
-  variant?: 'rail' | 'marquee';
+  variant?: 'rail' | 'marquee' | 'grid';
   class?: string;
 }
 const { limit, variant = 'rail', class: className = '' } = Astro.props;
@@ -30,6 +30,24 @@ const loop = variant === 'marquee' ? [...items, ...items] : items;
       TODO: [creatives] — drop stills into <code>src/assets/Creatives/</code>.
     </p>
   </div>
+) : variant === 'grid' ? (
+  <ul data-creative-wall class:list={['ss-cgrid', className]}>
+    {items.map((c) => (
+      <li class="ss-cgrid__item">
+        <Image
+          src={c.src}
+          alt={c.alt}
+          width={c.src.width}
+          height={c.src.height}
+          widths={[300, 600]}
+          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 360px"
+          loading="lazy"
+          decoding="async"
+          class="ss-cgrid__img"
+        />
+      </li>
+    ))}
+  </ul>
 ) : variant === 'marquee' ? (
   <div data-creative-wall class:list={['ss-marquee', className]}>
     <ul class="ss-marquee__track">
@@ -146,5 +164,30 @@ const loop = variant === 'marquee' ? [...items, ...items] : items;
   @media (prefers-reduced-motion: reduce) {
     .ss-marquee { overflow-x: auto; scrollbar-width: none; }
     .ss-marquee::-webkit-scrollbar { display: none; }
+  }
+
+  /* --- grid variant: 3-in-a-row gallery ----------------------------------- */
+  .ss-cgrid {
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 1024px) { .ss-cgrid { grid-template-columns: repeat(3, 1fr); } }
+  .ss-cgrid__item {
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid var(--rule-c);
+    background: var(--surface-c);
+    transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+  }
+  .ss-cgrid__img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    display: block;
+    background: var(--surface-c);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ss-cgrid__item:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); }
   }
 </style>

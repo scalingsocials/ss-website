@@ -9,6 +9,7 @@ import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import { Image } from 'astro:assets';
 import CtaBand from '@/components/blocks/CtaBand.astro';
+import HeroMotif from '@/components/graphics/HeroMotif.astro';
 import { PARTNERS } from '@/lib/team';
 import { base, webPage, breadcrumbs, person } from '@/lib/schema';
 
@@ -31,17 +32,22 @@ const nodes = [
   <SchemaGraph slot="schema" nodes={nodes} />
 
   <Section size="lg">
-    <span class="ss-eyebrow">The team</span>
-    <h1 class="max-w-[18ch]">Four founders, four disciplines, one team</h1>
-    <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">
-      Scaling Socials is run by its four co-founders, not by account managers you never meet. Between
-      them they cover paid media, ecommerce growth, web and finance, and brand, so your account has
-      the full range under one roof.
-    </p>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div>
+        <span class="ss-eyebrow">The team</span>
+        <h1 class="max-w-[18ch]">Four founders, four disciplines, one team</h1>
+        <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">
+          Scaling Socials is run by its four co-founders, not by account managers you never meet. Between
+          them they cover paid media, ecommerce growth, web and finance, and brand, so your account has
+          the full range under one roof.
+        </p>
+      </div>
+      <div class="hidden lg:block"><HeroMotif variant="team" /></div>
+    </div>
   </Section>
 
   <Section size="md">
-    <ul class="grid gap-[var(--space-4)] sm:grid-cols-2">
+    <ul class="mx-auto grid max-w-[880px] gap-[var(--space-4)] sm:grid-cols-2">
       {PARTNERS.map((p) => (
         <li id={p.slug} class="flex gap-[var(--space-4)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]">
           <Image
@@ -58,7 +64,10 @@ const nodes = [
             <h2 class="text-h4 font-semibold text-[var(--fg)]">{p.name}</h2>
             <p class="text-small font-medium text-[var(--accent-text)]">{p.role} — {p.focus}</p>
             <p class="mt-[var(--space-1)] text-small leading-relaxed text-[var(--fg-muted)]">{p.bio}</p>
-            <a href={p.linkedin} target="_blank" rel="noopener" class="mt-[var(--space-1)] w-fit text-small font-medium text-[var(--accent-text)]">LinkedIn</a>
+            <a href={p.linkedin} target="_blank" rel="noopener" class="ss-li mt-[var(--space-1)] inline-flex w-fit items-center gap-[0.35rem] text-small font-medium text-[var(--accent-text)] no-underline">
+              <svg class="ss-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              LinkedIn
+            </a>
           </div>
         </li>
       ))}
@@ -69,5 +78,9 @@ const nodes = [
     <CtaBand heading="Work with the founders, not a middle layer" body="A written audit in three working days, whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" secondaryLabel="Contact us" secondaryHref="/contact/" />
   </Section>
 
-  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+  <style>
+    .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+    .ss-li .ss-arrow { transition: transform var(--dur-fast) var(--ease-out); }
+    .ss-li:hover .ss-arrow { transform: translateX(3px); }
+  </style>
 </BaseLayout>

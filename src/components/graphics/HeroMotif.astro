@@ -1,0 +1,133 @@
+---
+/**
+ * HeroMotif — a decorative, framed illustration for interior-page hero right
+ * columns, so a page isn't a wall of text (08 §6). Same "instrument panel"
+ * language as PanelMotif/Hero, varied per page by `variant`. Reads semantic vars
+ * only, works in either register, and is purely decorative (aria-hidden).
+ */
+export interface Props {
+  variant?: 'growth' | 'teardown' | 'guide' | 'glossary' | 'team';
+  label?: string;
+  class?: string;
+}
+const { variant = 'growth', label, class: className = '' } = Astro.props;
+const labels: Record<string, string> = {
+  growth: 'results.live',
+  teardown: 'teardown.live',
+  guide: 'library.live',
+  glossary: 'glossary.live',
+  team: 'team.live',
+};
+const cap = label ?? labels[variant];
+---
+<div class:list={['ss-motif', className]} aria-hidden="true">
+  <div class="ss-motif__head">
+    <span class="ss-motif__dot"></span><span class="ss-motif__dot"></span><span class="ss-motif__dot"></span>
+    <span class="ss-motif__label">{cap}</span>
+  </div>
+  <div class="ss-motif__body">
+    {variant === 'growth' && (
+      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg">
+        <g class="ss-motif__grid"><line x1="0" y1="150" x2="320" y2="150"/><line x1="0" y1="110" x2="320" y2="110"/><line x1="0" y1="70" x2="320" y2="70"/></g>
+        <rect class="ss-motif__bar" x="26" y="120" width="30" height="30" rx="3"/>
+        <rect class="ss-motif__bar" x="86" y="96" width="30" height="54" rx="3"/>
+        <rect class="ss-motif__bar" x="146" y="70" width="30" height="80" rx="3"/>
+        <rect class="ss-motif__bar" x="206" y="44" width="30" height="106" rx="3"/>
+        <rect class="ss-motif__bar ss-motif__bar--hot" x="266" y="24" width="30" height="126" rx="3"/>
+        <path class="ss-motif__line" d="M20 128 C 80 112, 120 96, 170 72 C 210 52, 250 40, 300 20"/>
+        <path class="ss-motif__arrow" d="M286 20h16v16"/>
+      </svg>
+    )}
+    {variant === 'teardown' && (
+      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg">
+        <g class="ss-motif__grid"><line x1="0" y1="140" x2="320" y2="140"/><line x1="0" y1="96" x2="320" y2="96"/><line x1="0" y1="52" x2="320" y2="52"/></g>
+        <path class="ss-motif__line ss-motif__line--warn" d="M12 60 C 60 70, 90 120, 140 118 C 190 116, 210 60, 260 66"/>
+        <path class="ss-motif__line" d="M12 130 C 70 120, 110 96, 170 84 C 220 74, 260 56, 300 40"/>
+        <circle class="ss-motif__lens" cx="206" cy="108" r="34"/>
+        <line class="ss-motif__lens-h" x1="230" y1="132" x2="256" y2="158"/>
+      </svg>
+    )}
+    {variant === 'guide' && (
+      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg">
+        <rect class="ss-motif__doc ss-motif__doc--back" x="70" y="34" width="150" height="130" rx="6"/>
+        <rect class="ss-motif__doc ss-motif__doc--mid" x="88" y="26" width="150" height="130" rx="6"/>
+        <rect class="ss-motif__doc" x="106" y="18" width="150" height="130" rx="6"/>
+        <line class="ss-motif__row" x1="124" y1="46" x2="238" y2="46"/>
+        <line class="ss-motif__row" x1="124" y1="66" x2="238" y2="66"/>
+        <line class="ss-motif__row ss-motif__row--short" x1="124" y1="86" x2="196" y2="86"/>
+        <line class="ss-motif__row" x1="124" y1="112" x2="238" y2="112"/>
+        <path class="ss-motif__arrow" d="M188 124l14 8-14 8"/>
+      </svg>
+    )}
+    {variant === 'glossary' && (
+      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg">
+        <rect class="ss-motif__doc" x="40" y="30" width="240" height="130" rx="8"/>
+        <line class="ss-motif__spine" x1="160" y1="30" x2="160" y2="160"/>
+        <text class="ss-motif__az" x="86" y="106" text-anchor="middle">A</text>
+        <text class="ss-motif__az ss-motif__az--z" x="234" y="106" text-anchor="middle">Z</text>
+        <line class="ss-motif__row" x1="70" y1="128" x2="130" y2="128"/>
+        <line class="ss-motif__row" x1="192" y1="128" x2="252" y2="128"/>
+      </svg>
+    )}
+    {variant === 'team' && (
+      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg">
+        <line class="ss-motif__link" x1="160" y1="95" x2="70" y2="52"/>
+        <line class="ss-motif__link" x1="160" y1="95" x2="250" y2="52"/>
+        <line class="ss-motif__link" x1="160" y1="95" x2="70" y2="138"/>
+        <line class="ss-motif__link" x1="160" y1="95" x2="250" y2="138"/>
+        <g class="ss-motif__node"><circle cx="160" cy="95" r="24"/><circle cx="160" cy="88" r="7"/><path d="M148 108a12 12 0 0 1 24 0"/></g>
+        <g class="ss-motif__node"><circle cx="70" cy="52" r="18"/><circle cx="70" cy="47" r="5"/><path d="M61 63a9 9 0 0 1 18 0"/></g>
+        <g class="ss-motif__node"><circle cx="250" cy="52" r="18"/><circle cx="250" cy="47" r="5"/><path d="M241 63a9 9 0 0 1 18 0"/></g>
+        <g class="ss-motif__node"><circle cx="70" cy="138" r="18"/><circle cx="70" cy="133" r="5"/><path d="M61 149a9 9 0 0 1 18 0"/></g>
+        <g class="ss-motif__node"><circle cx="250" cy="138" r="18"/><circle cx="250" cy="133" r="5"/><path d="M241 149a9 9 0 0 1 18 0"/></g>
+      </svg>
+    )}
+    <span class="ss-motif__pill">{variant === 'teardown' ? 'What we found' : variant === 'growth' ? 'Compounding' : 'Scaling Socials'}</span>
+  </div>
+</div>
+<style>
+  .ss-motif {
+    position: relative;
+    border: 1px solid var(--rule-c);
+    border-radius: var(--radius-card);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--surface-c) 92%, transparent), var(--surface-c));
+    padding: var(--space-3);
+    box-shadow: 0 30px 70px -44px color-mix(in srgb, var(--accent-fill) 45%, transparent);
+    overflow: hidden;
+  }
+  .ss-motif__head { display: flex; align-items: center; gap: 6px; padding-bottom: var(--space-2); }
+  .ss-motif__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-c); }
+  .ss-motif__label { margin-left: auto; font-size: var(--text-label); color: var(--fg-muted); letter-spacing: 0.02em; }
+  .ss-motif__body { position: relative; }
+  .ss-motif__svg { width: 100%; height: auto; display: block; aspect-ratio: 320 / 190; }
+
+  .ss-motif__grid line { stroke: var(--rule-c); stroke-width: 1; }
+  .ss-motif__bar { fill: color-mix(in srgb, var(--accent-graphic) 22%, transparent); stroke: color-mix(in srgb, var(--accent-graphic) 45%, transparent); stroke-width: 1; }
+  .ss-motif__bar--hot { fill: color-mix(in srgb, var(--accent-graphic) 45%, transparent); stroke: var(--accent-graphic); }
+  .ss-motif__line { stroke: var(--accent-graphic); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .ss-motif__line--warn { stroke: var(--accent-graphic-2); stroke-width: 2; opacity: 0.85; }
+  .ss-motif__arrow { stroke: var(--accent-graphic); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+
+  .ss-motif__lens { stroke: var(--accent-graphic); stroke-width: 2.5; fill: color-mix(in srgb, var(--accent-fill) 8%, transparent); }
+  .ss-motif__lens-h { stroke: var(--accent-graphic); stroke-width: 4; stroke-linecap: round; }
+
+  .ss-motif__doc { fill: var(--ground); stroke: var(--rule-c); stroke-width: 1.5; }
+  .ss-motif__doc--back { opacity: 0.5; }
+  .ss-motif__doc--mid { opacity: 0.75; }
+  .ss-motif__row { stroke: color-mix(in srgb, var(--fg-muted) 55%, transparent); stroke-width: 3; stroke-linecap: round; }
+  .ss-motif__row--short { opacity: 0.7; }
+  .ss-motif__spine { stroke: var(--rule-c); stroke-width: 1.5; }
+  .ss-motif__az { fill: var(--accent-graphic); font-family: var(--font-display); font-weight: 700; font-size: 42px; }
+  .ss-motif__az--z { fill: var(--accent-graphic-2); }
+
+  .ss-motif__link { stroke: color-mix(in srgb, var(--accent-graphic) 45%, transparent); stroke-width: 1.5; }
+  .ss-motif__node circle { fill: color-mix(in srgb, var(--accent-fill) 10%, var(--ground)); stroke: var(--accent-graphic); stroke-width: 2; }
+  .ss-motif__node path { fill: none; stroke: var(--accent-graphic); stroke-width: 2; }
+
+  .ss-motif__pill {
+    position: absolute; top: 4%; right: 5%;
+    font-size: var(--text-label); color: var(--fg);
+    background: var(--ground); border: 1px solid var(--rule-c);
+    border-radius: 999px; padding: 2px 10px;
+  }
+</style>

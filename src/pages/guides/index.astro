@@ -9,6 +9,7 @@ import Section from '@/components/primitives/Section.astro';
 import AnswerBlock from '@/components/blocks/AnswerBlock.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import Button from '@/components/primitives/Button.astro';
+import HeroMotif from '@/components/graphics/HeroMotif.astro';
 import { getCollection } from 'astro:content';
 import { PARTNER_BY_SLUG } from '@/lib/team';
 import { base, webPage, breadcrumbs } from '@/lib/schema';
@@ -35,16 +36,21 @@ const nodes = [
   <SchemaGraph slot="schema" nodes={nodes} />
 
   <Section size="lg">
-    <span class="ss-eyebrow">Guides</span>
-    <h1 class="max-w-[20ch]">The long reads worth your time</h1>
-    <AnswerBlock class="mt-[var(--space-4)]">
-      Scaling Socials publishes long-form guides on the three things that decide whether a D2C brand
-      grows profitably: the unit economics behind every ROAS figure, how to test Meta creative
-      without wasting budget, and what store speed actually costs you in orders.
-    </AnswerBlock>
-    <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
-      <Button href="/tools/" variant="primary">Try the free calculators</Button>
-      <Button href="/glossary/" variant="secondary">Read the glossary</Button>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div>
+        <span class="ss-eyebrow">Guides</span>
+        <h1 class="max-w-[20ch]">The long reads worth your time</h1>
+        <AnswerBlock class="mt-[var(--space-4)]">
+          Scaling Socials publishes long-form guides on the three things that decide whether a D2C brand
+          grows profitably: the unit economics behind every ROAS figure, how to test Meta creative
+          without wasting budget, and what store speed actually costs you in orders.
+        </AnswerBlock>
+        <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+          <Button href="/tools/" variant="primary">Try the free calculators</Button>
+          <Button href="/glossary/" variant="secondary">Read the glossary</Button>
+        </div>
+      </div>
+      <div class="hidden lg:block"><HeroMotif variant="guide" /></div>
     </div>
   </Section>
 
