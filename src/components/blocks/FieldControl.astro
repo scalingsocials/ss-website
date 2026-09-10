@@ -1,0 +1,48 @@
+---
+/**
+ * FieldControl — one labelled form control for LeadForm. Renders an input, a
+ * (optionally grouped, optionally pre-selected) select, or a textarea from a
+ * Field, plus the inline error slot leadform.ts writes into. Kept tiny so both
+ * form steps render fields the same way.
+ */
+import type { Field } from '@/lib/formFields';
+
+export interface Props {
+  field: Field;
+  /** The submitted name (e.g. prefixed q_ for service-specific questions). */
+  name: string;
+}
+const { field: f, name } = Astro.props;
+const inputType: 'text' | 'email' | 'tel' | 'url' =
+  f.type && f.type !== 'select' && f.type !== 'textarea' ? f.type : 'text';
+const isSel = (o: string) => f.defaultValue !== undefined && o === f.defaultValue;
+---
+<label class="flex flex-col gap-[0.3rem]">
+  <span class="text-small font-medium text-[var(--fg)]">
+    {f.label}{f.required && <span class="text-[var(--neg)]"> *</span>}
+  </span>
+  {f.type === 'select' ? (
+    <select name={name} required={f.required} class="ss-input">
+      <option value="" selected={f.defaultValue === undefined}>Select…</option>
+      {f.optgroups
+        ? f.optgroups.map((g) => (
+            <optgroup label={g.label}>
+              {g.options.map((o) => <option value={o} selected={isSel(o)}>{o}</option>)}
+            </optgroup>
+          ))
+        : (f.options ?? []).map((o) => <option value={o} selected={isSel(o)}>{o}</option>)}
+    </select>
+  ) : f.type === 'textarea' ? (
+    <textarea name={name} required={f.required} rows="3" placeholder={f.placeholder} class="ss-input"></textarea>
+  ) : (
+    <input
+      type={inputType}
+      name={name}
+      required={f.required}
+      placeholder={f.placeholder}
+      autocomplete={f.autocomplete}
+      class="ss-input"
+    />
+  )}
+  <span class="ss-err text-label text-[var(--neg)]" data-err hidden></span>
+</label>

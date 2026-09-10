@@ -9,5 +9,9 @@ export interface Field {
   required?: boolean;
   placeholder?: string;
   autocomplete?: string;
-  options?: string[]; // for select
+  options?: string[]; // for a flat select
+  /** Grouped select: <optgroup> sections, each with its own options. */
+  optgroups?: { label: string; options: string[] }[];
+  /** Pre-selected value for a select (renders that option `selected`). */
+  defaultValue?: string;
 }

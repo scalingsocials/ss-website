@@ -13,6 +13,7 @@ import LeadForm from '@/components/blocks/LeadForm.astro';
 import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
 import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
+import { CATEGORY_FIELD } from '@/lib/serviceCategory';
 import { base, webPage, breadcrumbs, faqPage } from '@/lib/schema';
 
 const url = '/audit/';
@@ -58,10 +59,20 @@ const nodes = [
   faqPage(url, faqs),
 ];
 
-const auditQuestions = [
-  { name: 'monthly_spend', label: 'Monthly ad spend', type: 'select' as const, required: true, options: ['Under ₹1L', '₹1–3L', '₹3–5L', '₹5L+', 'Not running ads yet'] },
-  { name: 'store_url', label: 'Store or website URL', type: 'text' as const, required: true, placeholder: 'yourbrand.com' },
-  { name: 'selling', label: 'What do you sell?', type: 'text' as const, required: false, placeholder: 'e.g. skincare, fashion, home' },
+import type { Field } from '@/lib/formFields';
+
+// "Claim your free audit" form. Mandatory: email, phone, category. Optional:
+// name, the URL to audit, location, budget, and a message.
+const auditStep1: Field[] = [
+  { name: 'email', label: 'Email', type: 'email', required: true, autocomplete: 'email' },
+  { name: 'phone', label: 'Phone or WhatsApp', type: 'tel', required: true, autocomplete: 'tel' },
+  CATEGORY_FIELD,
+];
+const auditStep2: Field[] = [
+  { name: 'name', label: 'Name (optional)', type: 'text', required: false, autocomplete: 'name' },
+  { name: 'audit_url', label: 'What should we audit? Website, Meta or Instagram (optional)', type: 'text', required: false, placeholder: 'yourbrand.com or @handle' },
+  { name: 'location', label: 'Location (optional)', type: 'text', required: false, autocomplete: 'address-level2', placeholder: 'City' },
+  { name: 'budget', label: 'Monthly budget (optional)', type: 'select', required: false, options: ['Not sure yet', 'Under ₹50k', '₹50k–1L', '₹1–3L', '₹3L+'] },
 ];
 ---
 
@@ -81,7 +92,15 @@ const auditQuestions = [
         </p>
       </div>
       <div class="lg:sticky lg:top-[88px]">
-        <LeadForm source="audit" heading="Claim your free audit" subheading="Three working days. No obligation." questions={auditQuestions} submitLabel="Get my free audit" />
+        <LeadForm
+          source="audit"
+          heading="Claim your free audit"
+          subheading="Three working days. No obligation."
+          step1Fields={auditStep1}
+          step2Lead={auditStep2}
+          messageLabel="Message or note (optional)"
+          submitLabel="Get my free audit"
+        />
       </div>
     </div>
   </Section>

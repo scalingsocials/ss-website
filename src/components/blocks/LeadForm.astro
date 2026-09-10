@@ -11,6 +11,7 @@
  * (Shopify-style abandoned capture). Step 2 questions are service-specific.
  */
 import type { Field } from '@/lib/formFields';
+import FieldControl from '@/components/blocks/FieldControl.astro';
 export type { Field };
 
 export interface Props {
@@ -20,6 +21,15 @@ export interface Props {
   submitLabel?: string;
   /** Service-specific step-2 questions. Their names are prefixed q_ on submit. */
   questions?: Field[];
+  /** Pre-selected "service you're interested in" dropdown (service pages). */
+  service?: { options: string[]; value: string };
+  /** Override the default step-1 fields (name/email/phone). */
+  step1Fields?: Field[];
+  /** Override the default step-2 lead fields (company/website). */
+  step2Lead?: Field[];
+  /** Show the free-text message textarea at the end of step 2 (default true). */
+  showMessage?: boolean;
+  messageLabel?: string;
   class?: string;
 }
 
@@ -29,12 +39,17 @@ const {
   subheading = 'A written audit in three working days, whether or not you hire us.',
   submitLabel = 'Get my free growth plan',
   questions = [],
+  service,
+  step1Fields,
+  step2Lead: step2LeadProp,
+  showMessage = true,
+  messageLabel = 'Anything else? (optional)',
   class: className = '',
 } = Astro.props;
 
-// Step 1 asks only for who they are — three fields, so the whole form fits one
-// screen and the `partial` record captures a reachable lead immediately.
-const step1: Field[] = [
+// Step 1 asks only for who they are — kept short so the form fits one screen and
+// the `partial` record captures a reachable lead immediately.
+const step1: Field[] = step1Fields ?? [
   { name: 'name', label: 'Full name', type: 'text', required: true, autocomplete: 'name' },
   { name: 'email', label: 'Work email', type: 'email', required: true, autocomplete: 'email' },
   { name: 'phone', label: 'Phone or WhatsApp', type: 'tel', required: true, autocomplete: 'tel' },
@@ -42,14 +57,18 @@ const step1: Field[] = [
 
 // Brand + website move to step 2 as standard lead fields (not q_ answers), so
 // step 1 stays short but we still capture them on a completed submission.
-const step2Lead: Field[] = [
+const step2Lead: Field[] = step2LeadProp ?? [
   { name: 'company', label: 'Brand or company', type: 'text', required: true, autocomplete: 'organization' },
   { name: 'website', label: 'Website or Instagram', type: 'text', required: false, autocomplete: 'url', placeholder: 'yourbrand.com' },
 ];
 
+// Pre-selected service dropdown (service pages tag the lead with the page's own
+// service, still changeable). Rendered at the top of step 1.
+const serviceField: Field | null = service
+  ? { name: 'service', label: 'Service you’re interested in', type: 'select', required: false, options: service.options, defaultValue: service.value }
+  : null;
+
 const field = (f: Field, prefix = '') => ({ ...f, key: `${prefix}${f.name}` });
-const inputType = (t?: Field['type']): 'text' | 'email' | 'tel' | 'url' =>
-  t === 'select' || t === 'textarea' || !t ? 'text' : t;
 const s1 = step1.map((f) => field(f));
 const s2lead = step2Lead.map((f) => field(f));
 const s2 = questions.map((f) => field(f, 'q_'));
@@ -83,22 +102,8 @@ const s2 = questions.map((f) => field(f, 'q_'));
 
   <fieldset data-step="1" class="ss-lf-step flex flex-col gap-[var(--space-3)]">
     <legend class="sr-only">Your details</legend>
-    {s1.map((f) => (
-      <label class="flex flex-col gap-[0.3rem]">
-        <span class="text-small font-medium text-[var(--fg)]">
-          {f.label}{f.required && <span class="text-[var(--neg)]"> *</span>}
-        </span>
-        <input
-          type={inputType(f.type)}
-          name={f.key}
-          required={f.required}
-          placeholder={f.placeholder}
-          autocomplete={f.autocomplete}
-          class="ss-input"
-        />
-        <span class="ss-err text-label text-[var(--neg)]" data-err hidden></span>
-      </label>
-    ))}
+    {serviceField && <FieldControl field={serviceField} name={serviceField.name} />}
+    {s1.map((f) => <FieldControl field={f} name={f.key} />)}
     <div class="ss-lf-nav flex justify-end">
       <button type="button" data-next class="ss-btn-primary">Next</button>
     </div>
@@ -106,44 +111,14 @@ const s2 = questions.map((f) => field(f, 'q_'));
 
   <fieldset data-step="2" class="ss-lf-step flex flex-col gap-[var(--space-3)]">
     <legend class="sr-only">About your brand</legend>
-    {s2lead.map((f) => (
+    {s2lead.map((f) => <FieldControl field={f} name={f.key} />)}
+    {s2.map((f) => <FieldControl field={f} name={f.key} />)}
+    {showMessage && (
       <label class="flex flex-col gap-[0.3rem]">
-        <span class="text-small font-medium text-[var(--fg)]">
-          {f.label}{f.required && <span class="text-[var(--neg)]"> *</span>}
-        </span>
-        <input
-          type={inputType(f.type)}
-          name={f.key}
-          required={f.required}
-          placeholder={f.placeholder}
-          autocomplete={f.autocomplete}
-          class="ss-input"
-        />
-        <span class="ss-err text-label text-[var(--neg)]" data-err hidden></span>
+        <span class="text-small font-medium text-[var(--fg)]">{messageLabel}</span>
+        <textarea name="message" rows="2" class="ss-input" placeholder="Context, links, targets…"></textarea>
       </label>
-    ))}
-    {s2.map((f) => (
-      <label class="flex flex-col gap-[0.3rem]">
-        <span class="text-small font-medium text-[var(--fg)]">
-          {f.label}{f.required && <span class="text-[var(--neg)]"> *</span>}
-        </span>
-        {f.type === 'select' ? (
-          <select name={f.key} required={f.required} class="ss-input">
-            <option value="">Select…</option>
-            {(f.options ?? []).map((o) => <option value={o}>{o}</option>)}
-          </select>
-        ) : f.type === 'textarea' ? (
-          <textarea name={f.key} required={f.required} rows="3" placeholder={f.placeholder} class="ss-input"></textarea>
-        ) : (
-          <input type={inputType(f.type)} name={f.key} required={f.required} placeholder={f.placeholder} class="ss-input" />
-        )}
-        <span class="ss-err text-label text-[var(--neg)]" data-err hidden></span>
-      </label>
-    ))}
-    <label class="flex flex-col gap-[0.3rem]">
-      <span class="text-small font-medium text-[var(--fg)]">Anything else? (optional)</span>
-      <textarea name="message" rows="2" class="ss-input" placeholder="Context, links, targets…"></textarea>
-    </label>
+    )}
     <!-- Cloudflare Turnstile (spam). Public site key; rendered by leadform.ts so
          it survives View Transitions. No-JS submits fall back to the honeypot. -->
     <div class="ss-turnstile" data-sitekey="0x4AAAAAAEnPLoBC02N8dQMm"></div>

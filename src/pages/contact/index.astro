@@ -9,7 +9,10 @@ import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import LeadForm from '@/components/blocks/LeadForm.astro';
 import DotField from '@/components/graphics/DotField.astro';
+import BrandIcon from '@/components/graphics/BrandIcon.astro';
 import { ORG } from '@/lib/schema/entity';
+import { CATEGORY_FIELD } from '@/lib/serviceCategory';
+import type { Field } from '@/lib/formFields';
 import { base, webPage, breadcrumbs } from '@/lib/schema';
 
 const url = '/contact/';
@@ -26,6 +29,20 @@ const nodes = [
   ...base(),
   webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }),
   breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Contact', url }]),
+];
+
+// Mandatory: email, phone, category. Optional: name, the URL to audit, location,
+// budget, and a message.
+const contactStep1: Field[] = [
+  { name: 'email', label: 'Email', type: 'email', required: true, autocomplete: 'email' },
+  { name: 'phone', label: 'Phone or WhatsApp', type: 'tel', required: true, autocomplete: 'tel' },
+  CATEGORY_FIELD,
+];
+const contactStep2: Field[] = [
+  { name: 'name', label: 'Name (optional)', type: 'text', required: false, autocomplete: 'name' },
+  { name: 'audit_url', label: 'Want a free audit? Website or social URL (optional)', type: 'text', required: false, placeholder: 'yourbrand.com or @handle' },
+  { name: 'location', label: 'Location (optional)', type: 'text', required: false, autocomplete: 'address-level2', placeholder: 'City' },
+  { name: 'budget', label: 'Monthly budget (optional)', type: 'select', required: false, options: ['Not sure yet', 'Under ₹50k', '₹50k–1L', '₹1–3L', '₹3L+'] },
 ];
 ---
 
@@ -46,11 +63,23 @@ const nodes = [
       <div class="flex flex-col gap-[var(--space-5)]">
         <div>
           <h2 class="text-small font-semibold text-[var(--fg-muted)]">Call or WhatsApp</h2>
-          <a href={`tel:${tel}`} class="text-h4 font-semibold text-[var(--fg)] no-underline" data-num>{ORG.telephone}</a>
+          <div class="flex items-center gap-[var(--space-2)]">
+            <a href={`tel:${tel}`} class="text-h4 font-semibold text-[var(--fg)] no-underline" data-num>{ORG.telephone}</a>
+            <button type="button" class="ss-copy" data-copy={ORG.telephone} aria-label="Copy phone number">
+              <svg class="ss-copy__i" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.6"/></svg>
+              <svg class="ss-copy__ok" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
         </div>
         <div>
           <h2 class="text-small font-semibold text-[var(--fg-muted)]">Email</h2>
-          <a href={`mailto:${ORG.email}`} class="text-h4 font-semibold text-[var(--fg)] no-underline">{ORG.email}</a>
+          <div class="flex items-center gap-[var(--space-2)]">
+            <a href={`mailto:${ORG.email}`} class="text-h4 font-semibold text-[var(--fg)] no-underline">{ORG.email}</a>
+            <button type="button" class="ss-copy" data-copy={ORG.email} aria-label="Copy email address">
+              <svg class="ss-copy__i" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.6"/></svg>
+              <svg class="ss-copy__ok" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
         </div>
         <div>
           <h2 class="text-small font-semibold text-[var(--fg-muted)]">Office</h2>
@@ -65,17 +94,75 @@ const nodes = [
         </div>
         <div>
           <h2 class="text-small font-semibold text-[var(--fg-muted)]">Follow</h2>
-          <ul class="flex flex-wrap gap-[var(--space-3)]">
-            <li><a href="https://www.linkedin.com/company/scaling-socials/" target="_blank" rel="noopener" class="text-body text-[var(--accent-text)]">LinkedIn</a></li>
-            <li><a href="https://www.instagram.com/scalingsocialsofficial/" target="_blank" rel="noopener" class="text-body text-[var(--accent-text)]">Instagram</a></li>
-            <li><a href="https://www.facebook.com/scalingsocials/" target="_blank" rel="noopener" class="text-body text-[var(--accent-text)]">Facebook</a></li>
+          <ul class="flex flex-wrap items-center gap-[var(--space-3)]">
+            <li><a href="https://www.linkedin.com/company/scaling-socials/" target="_blank" rel="noopener" aria-label="LinkedIn" class="ss-brand grid h-[40px] w-[40px] place-items-center rounded-full border border-[var(--rule-c)] bg-[var(--ground)]"><BrandIcon name="linkedin" size={22} /></a></li>
+            <li><a href="https://www.instagram.com/scalingsocialsofficial/" target="_blank" rel="noopener" aria-label="Instagram" class="ss-brand grid h-[40px] w-[40px] place-items-center rounded-full border border-[var(--rule-c)] bg-[var(--ground)]"><BrandIcon name="instagram" size={22} /></a></li>
+            <li><a href="https://www.facebook.com/scalingsocials/" target="_blank" rel="noopener" aria-label="Facebook" class="ss-brand grid h-[40px] w-[40px] place-items-center rounded-full border border-[var(--rule-c)] bg-[var(--ground)]"><BrandIcon name="facebook" size={22} /></a></li>
           </ul>
         </div>
       </div>
 
-      <LeadForm source="contact" heading="Send us your brand" subheading="We reply within one working day." submitLabel="Send" questions={[{ name: 'interest', label: 'What do you need?', type: 'select', required: false, options: ['Performance marketing', 'SEO', 'Shopify or web', 'Social media', 'CRO', 'Not sure yet'] }]} />
+      <LeadForm
+        source="contact"
+        heading="Send us your brand"
+        subheading="We reply within one working day."
+        step1Fields={contactStep1}
+        step2Lead={contactStep2}
+        messageLabel="Message or note (optional)"
+        submitLabel="Send"
+      />
     </div>
   </Section>
 
-  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+  <script>
+    // Copy-to-clipboard for phone/email. Swaps the icon to a tick briefly.
+    document.querySelectorAll<HTMLButtonElement>('.ss-copy').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const text = btn.dataset.copy ?? '';
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const t = document.createElement('textarea');
+          t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+          document.body.appendChild(t); t.select();
+          try { document.execCommand('copy'); } catch { /* ignore */ }
+          t.remove();
+        }
+        btn.classList.add('is-copied');
+        setTimeout(() => btn.classList.remove('is-copied'), 1400);
+      });
+    });
+  </script>
+
+  <style>
+    .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+
+    /* Copy button next to phone/email. */
+    .ss-copy {
+      display: grid; place-items: center;
+      width: 32px; height: 32px;
+      border-radius: var(--radius-input);
+      border: 1px solid var(--rule-c);
+      background: var(--ground);
+      color: var(--fg-muted);
+      transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+    }
+    .ss-copy:hover { color: var(--accent-text); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); }
+    .ss-copy:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+    .ss-copy.is-copied { color: var(--pos); border-color: color-mix(in srgb, var(--pos) 55%, var(--rule-c)); }
+    .ss-copy__ok { display: none; }
+    .ss-copy.is-copied .ss-copy__i { display: none; }
+    .ss-copy.is-copied .ss-copy__ok { display: block; }
+
+    /* Social marks: greyscale by default, true brand colour on hover. */
+    .ss-brand :global(.ss-brandicon) {
+      filter: grayscale(1); opacity: 0.72;
+      transition: filter var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
+    }
+    .ss-brand { transition: border-color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+    .ss-brand:hover :global(.ss-brandicon), .ss-brand:focus-visible :global(.ss-brandicon) { filter: none; opacity: 1; }
+    @media (prefers-reduced-motion: no-preference) {
+      .ss-brand:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent-fill) 45%, var(--rule-c)); }
+    }
+  </style>
 </BaseLayout>

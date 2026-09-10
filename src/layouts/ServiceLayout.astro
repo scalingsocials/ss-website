@@ -25,6 +25,7 @@ import CtaBand from '@/components/blocks/CtaBand.astro';
 import Glyph from '@/components/graphics/Glyph.astro';
 import DotField from '@/components/graphics/DotField.astro';
 import { HERO_STATS } from '@/lib/caseStudies';
+import { SERVICE_NAMES } from '@/lib/serviceCategory';
 import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
 import type { ServiceContent } from '@/lib/services';
 
@@ -35,6 +36,19 @@ const { svc } = Astro.props;
 const url = svc.url;
 const published = '2026-09-01';
 const modified = '2026-09-04';
+
+// Hero highlights. Performance marketing shows its real Meta results (HERO_STATS);
+// every other pillar has no verified per-service numbers, so it defines its own
+// honest, non-metric `heroStats` (scope facts, not invented figures) — see §15.
+const heroStats =
+  svc.heroStats ??
+  HERO_STATS.map((cs) => ({ value: cs.value, label: `${cs.label}, ${cs.niche.toLowerCase()}` }));
+
+// Pre-selected service for the lead form: match the page to a canonical name.
+const svcDefault =
+  SERVICE_NAMES.find((n) => n.toLowerCase() === svc.name.toLowerCase()) ??
+  SERVICE_NAMES.find((n) => n.toLowerCase().includes(svc.name.toLowerCase().split(' ')[0]!)) ??
+  SERVICE_NAMES[0];
 
 // Map a sub-service title to one shared glyph, so every card carries a line
 // icon in the site's single drawing hand. Keyword match, falls back to spark.
@@ -92,10 +106,10 @@ const nodes = [
         <h1>{svc.h1}</h1>
         <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">{svc.answer}</p>
         <ul class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-6)]">
-          {HERO_STATS.map((cs) => (
+          {heroStats.map((s) => (
             <li class="flex flex-col gap-[2px]">
-              <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{cs.value}</span>
-              <span class="text-label text-[var(--fg-muted)]">{cs.label}, {cs.niche.toLowerCase()}</span>
+              <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{s.value}</span>
+              <span class="text-label text-[var(--fg-muted)]">{s.label}</span>
             </li>
           ))}
         </ul>
@@ -105,7 +119,7 @@ const nodes = [
         </div>
       </div>
       <div class="lg:sticky lg:top-[88px]">
-        <LeadForm source={svc.slug} heading={svc.formHeading} questions={svc.formQuestions} submitLabel="Get my free plan" />
+        <LeadForm source={svc.slug} heading={svc.formHeading} questions={svc.formQuestions} service={{ options: [...SERVICE_NAMES], value: svcDefault }} submitLabel="Get my free plan" />
       </div>
     </div>
   </Section>

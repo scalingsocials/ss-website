@@ -28,6 +28,10 @@ export interface ServiceContent {
   subheading: string;
   subservices: SubService[];
   comparison?: { heading: string; cols: string[]; rows: (string | number)[][]; highlightCol: number; caption?: string };
+  // Hero highlights. Optional: performance marketing omits this and shows the
+  // real Meta results (HERO_STATS). Every other pillar sets its own honest,
+  // non-metric facts here rather than borrowing paid-media numbers (§15).
+  heroStats?: { value: string; label: string }[];
   // Value-framed. `included` is what the client actually gets; no fee is shown.
   value: { heading: string; lede: string; included: string[]; note?: string };
   // The five engagement phases, specific to this service.
@@ -132,6 +136,11 @@ export const SERVICES: ServiceContent[] = [
     slug: 'seo',
     url: '/seo-agency-bangalore/',
     name: 'SEO',
+    heroStats: [
+      { value: 'Technical + content', label: 'Both sides of SEO, in one team' },
+      { value: 'India + UAE', label: 'Markets we rank brands in' },
+      { value: '3 working days', label: 'From access to a written audit' },
+    ],
     eyebrow: 'Search engine optimisation',
     title: 'SEO Agency in Bangalore for Ecommerce | Scaling Socials',
     description:
@@ -204,6 +213,11 @@ export const SERVICES: ServiceContent[] = [
     slug: 'shopify-development',
     url: '/shopify-development-company-bangalore/',
     name: 'Shopify development',
+    heroStats: [
+      { value: 'Design to deploy', label: 'Built in-house, one team' },
+      { value: 'Speed-first', label: 'Core Web Vitals built in' },
+      { value: 'India + UAE', label: 'Stores we build and run' },
+    ],
     eyebrow: 'Shopify development',
     title: 'Shopify Development Company in Bangalore | Scaling Socials',
     description:
@@ -274,6 +288,11 @@ export const SERVICES: ServiceContent[] = [
     slug: 'web-development',
     url: '/web-development-company-bangalore/',
     name: 'Web development',
+    heroStats: [
+      { value: 'Web + apps', label: 'Sites and mobile apps' },
+      { value: 'Design to deploy', label: 'One in-house build team' },
+      { value: 'Headless-ready', label: 'A modern, fast stack' },
+    ],
     eyebrow: 'Web & app development',
     title: 'Web Development Company in Bangalore | Scaling Socials',
     description:
@@ -345,6 +364,11 @@ export const SERVICES: ServiceContent[] = [
     slug: 'social-media-marketing',
     url: '/social-media-marketing-agency-bangalore/',
     name: 'Social media marketing',
+    heroStats: [
+      { value: 'You shoot', label: 'We plan, edit and post' },
+      { value: 'Monthly calendar', label: 'Planned a month ahead' },
+      { value: 'Grid to Reels', label: 'Full post-production' },
+    ],
     eyebrow: 'Social media',
     title: 'Social Media Marketing Agency Bangalore | Scaling Socials',
     description:
@@ -416,6 +440,11 @@ export const SERVICES: ServiceContent[] = [
     slug: 'conversion-rate-optimisation',
     url: '/conversion-rate-optimisation-services/',
     name: 'Conversion rate optimisation',
+    heroStats: [
+      { value: 'Click to cart', label: 'Where we find the lift' },
+      { value: 'Test-led', label: 'Decisions from data, not opinion' },
+      { value: '3 working days', label: 'From access to a written audit' },
+    ],
     eyebrow: 'Conversion rate optimisation',
     title: 'Conversion Rate Optimisation Services | Scaling Socials',
     description:
