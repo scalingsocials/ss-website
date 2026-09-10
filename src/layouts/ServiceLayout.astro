@@ -16,6 +16,8 @@ import Prose from '@/components/primitives/Prose.astro';
 import Button from '@/components/primitives/Button.astro';
 import LeadForm from '@/components/blocks/LeadForm.astro';
 import LogoWall from '@/components/blocks/LogoWall.astro';
+import SiteShowcase from '@/components/blocks/SiteShowcase.astro';
+import CreativeWall from '@/components/blocks/CreativeWall.astro';
 import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
 import PricingBlock from '@/components/blocks/PricingBlock.astro';
 import ComparisonTable from '@/components/blocks/ComparisonTable.astro';
@@ -128,6 +130,21 @@ const nodes = [
   <Section size="sm" class="!bg-[var(--surface-c)]">
     <LogoWall heading="Brands we work with" />
   </Section>
+
+  {(svc.slug === 'shopify-development' || svc.slug === 'web-development') && (
+    <Section size="md">
+      <span class="ss-eyebrow">Recent work</span>
+      <SiteShowcase heading="Stores and sites we've built" />
+    </Section>
+  )}
+
+  {svc.slug === 'social-media-marketing' && (
+    <Section size="md">
+      <span class="ss-eyebrow">Content we make</span>
+      <h2 class="mb-[var(--space-5)] max-w-[24ch] text-h2 font-semibold">Social content, edited and posted in-house</h2>
+      <CreativeWall variant="grid" limit={9} />
+    </Section>
+  )}
 
   <!-- EDUCATION (2-col: heading left, prose right — fills the width) -->
   <Section size="md">

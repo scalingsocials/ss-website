@@ -1,0 +1,138 @@
+---
+/**
+ * SiteShowcase — a scrolling wall of real client store/site screenshots, desktop
+ * and mobile, so the Shopify and Web/App pages show the look, not just describe
+ * it. Screenshots live in src/assets/sites/<name>-desktop.png and -mobile.png
+ * (captured from live client sites) and are optimised by astro:assets.
+ *
+ * Each card frames the desktop shot in a minimal browser chrome with the phone
+ * shot inset in the corner. Horizontal scroll rail — swipe/drag, no JS.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+export interface Props {
+  heading?: string;
+  class?: string;
+}
+const { heading = 'The look, on real stores', class: className = '' } = Astro.props;
+
+const desktops = import.meta.glob<{ default: ImageMetadata }>('/src/assets/sites/*-desktop.webp', { eager: true });
+const mobiles = import.meta.glob<{ default: ImageMetadata }>('/src/assets/sites/*-mobile.webp', { eager: true });
+
+// Nice brand labels for the known client sites; falls back to a title-cased slug.
+const LABELS: Record<string, string> = {
+  koshkulture: 'Kosh Kulture',
+  chinmaya: 'Chinmaya Mission',
+  eazywagon: 'Eazy Wagon',
+  joliindia: 'Joli India',
+  younglings: 'Younglings',
+  sanyamalik: 'Sanya Malik',
+};
+const title = (slug: string) => LABELS[slug] ?? slug.replace(/(^|[-_])(\w)/g, (_, __, c) => ' ' + c.toUpperCase()).trim();
+
+const byName = (rec: Record<string, { default: ImageMetadata }>) =>
+  Object.fromEntries(Object.entries(rec).map(([p, m]) => [p.split('/').pop()!.replace(/-(desktop|mobile)\.webp$/, ''), m.default]));
+const d = byName(desktops);
+const m = byName(mobiles);
+
+const sites = Object.keys(d)
+  .sort()
+  .map((name) => ({ name, label: title(name), desktop: d[name]!, mobile: m[name] }));
+---
+
+{sites.length > 0 && (
+  <div class:list={['ss-shots', className]}>
+    <h2 class="mb-[var(--space-5)] max-w-[24ch] text-h2 font-semibold">{heading}</h2>
+    <div class="ss-shots__rail">
+      <ul class="ss-shots__track">
+        {sites.map((s) => (
+          <li class="ss-shots__item">
+            <figure class="ss-frame">
+              <div class="ss-frame__bar" aria-hidden="true">
+                <span class="ss-frame__dot"></span><span class="ss-frame__dot"></span><span class="ss-frame__dot"></span>
+              </div>
+              <Image
+                src={s.desktop}
+                alt={`${s.label} — a store designed and built by Scaling Socials, desktop view`}
+                width={s.desktop.width}
+                height={s.desktop.height}
+                widths={[520, 900]}
+                sizes="(max-width: 640px) 84vw, 460px"
+                loading="lazy"
+                decoding="async"
+                class="ss-frame__desktop"
+              />
+              {s.mobile && (
+                <Image
+                  src={s.mobile}
+                  alt={`${s.label} on mobile`}
+                  width={s.mobile.width}
+                  height={s.mobile.height}
+                  widths={[140, 280]}
+                  sizes="120px"
+                  loading="lazy"
+                  decoding="async"
+                  class="ss-frame__mobile"
+                />
+              )}
+              <figcaption class="ss-frame__cap">{s.label}</figcaption>
+            </figure>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+)}
+
+<style>
+  .ss-shots__rail {
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    margin-inline: calc(-1 * var(--space-3));
+    padding-inline: var(--space-3);
+    padding-bottom: var(--space-2);
+  }
+  .ss-shots__rail::-webkit-scrollbar { display: none; }
+  .ss-shots__track { display: flex; gap: var(--space-4); width: max-content; }
+  .ss-shots__item { flex: none; width: min(460px, 84vw); scroll-snap-align: start; }
+
+  .ss-frame {
+    position: relative;
+    margin: 0;
+    border: 1px solid var(--rule-c);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: var(--surface-c);
+    box-shadow: 0 30px 60px -40px color-mix(in srgb, var(--accent-fill) 40%, transparent);
+  }
+  .ss-frame__bar {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px var(--space-3);
+    background: var(--ground);
+    border-bottom: 1px solid var(--rule-c);
+  }
+  .ss-frame__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-c); }
+  .ss-frame__desktop { display: block; width: 100%; height: auto; aspect-ratio: 1440 / 900; object-fit: cover; object-position: top; }
+  .ss-frame__mobile {
+    position: absolute;
+    right: var(--space-3);
+    bottom: calc(var(--space-3) + 1.4rem);
+    width: 22%;
+    height: auto;
+    border-radius: 10px;
+    border: 2px solid var(--ground);
+    box-shadow: 0 12px 24px -12px color-mix(in srgb, var(--color-black) 60%, transparent);
+    background: var(--ground);
+  }
+  .ss-frame__cap {
+    padding: 0.55rem var(--space-3);
+    background: var(--ground);
+    border-top: 1px solid var(--rule-c);
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--fg);
+  }
+</style>
