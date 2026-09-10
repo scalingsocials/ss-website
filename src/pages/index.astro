@@ -13,7 +13,6 @@ import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import Hero from '@/components/Hero.astro';
-import PartnerBadges from '@/components/blocks/PartnerBadges.astro';
 import LogoWall from '@/components/blocks/LogoWall.astro';
 import CreativeWall from '@/components/blocks/CreativeWall.astro';
 import Teardowns from '@/components/blocks/Teardowns.astro';
@@ -115,12 +114,9 @@ const surface = '!bg-[var(--surface-c)]';
   <!-- HERO (ink) -->
   <Hero />
 
-  <!-- TRUST: official partners + client logo marquee (paper) -->
+  <!-- TRUST: client logo marquee (paper). Official partners now live in the hero. -->
   <Section size="sm" data-reveal>
-    <PartnerBadges />
-    <div class="mt-[var(--space-6)]">
-      <LogoWall heading="Brands we work with" />
-    </div>
+    <LogoWall heading="Brands we work with" />
   </Section>
 
   <!-- SERVICES (surface) -->

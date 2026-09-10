@@ -10,7 +10,14 @@
  */
 import Section from '@/components/primitives/Section.astro';
 import Button from '@/components/primitives/Button.astro';
+import BrandIcon from '@/components/graphics/BrandIcon.astro';
 import { HERO_STATS } from '@/lib/caseStudies';
+
+const partners = [
+  { name: 'Google', icon: 'google' as const },
+  { name: 'Meta', icon: 'meta' as const },
+  { name: 'Shopify', icon: 'shopify' as const },
+];
 
 const chips = ['Paid media', 'SEO', 'Shopify', 'Web', 'Social', 'CRO'];
 const stats = HERO_STATS;
@@ -45,6 +52,15 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
         <Button href="/audit/" variant="primary">Get a free growth plan</Button>
         <Button href="/case-studies/" variant="secondary">See case studies</Button>
       </div>
+
+      <div class="hero__partners hero__line hero__line--6">
+        <span class="hero__partners-label">Official partner</span>
+        <ul class="hero__partners-list">
+          {partners.map((p) => (
+            <li class="hero__partner"><BrandIcon name={p.icon} size={18} /><span>{p.name}</span></li>
+          ))}
+        </ul>
+      </div>
     </div>
 
     <!-- Results panel: an animated dashboard motif, not a data claim. -->
@@ -76,10 +92,12 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   .hero {
     position: relative;
     overflow: hidden;
-    /* Full-viewport hero that auto-adjusts to the screen, with top clearance so
-       the sticky header never sits over the headline. */
-    min-height: 100svh;
-    padding-top: clamp(140px, 16vh, 200px);
+    /* Fills exactly the viewport below the sticky header (which sits in flow, so
+       it already offsets the hero — no big top gap needed). --hh is the header
+       height; the whole hero then fits in one screen. */
+    min-height: calc(100svh - var(--hh, 68px));
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-5);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -142,6 +160,20 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   .hero__stat-label { font-size: var(--text-label); color: var(--fg-muted); }
 
   .hero__cta { margin-top: var(--space-5); display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+  /* Compact "official partner" strip, moved into the hero. */
+  .hero__partners { margin-top: var(--space-5); display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2) var(--space-3); }
+  .hero__partners-label { font-size: var(--text-label); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-muted); }
+  .hero__partners-list { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .hero__partner {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+    background: color-mix(in srgb, var(--ground) 60%, transparent);
+    font-size: var(--text-label); font-weight: 600; color: var(--fg);
+  }
+  .hero__partner :global(.ss-brandicon) { display: block; }
 
   /* ---- results panel ---------------------------------------------------- */
   .hero__panel {

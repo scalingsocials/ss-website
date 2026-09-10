@@ -30,6 +30,8 @@ export interface Props {
   /** Show the free-text message textarea at the end of step 2 (default true). */
   showMessage?: boolean;
   messageLabel?: string;
+  /** Prominent, elevated card treatment (service-page heroes). */
+  elevated?: boolean;
   class?: string;
 }
 
@@ -44,6 +46,7 @@ const {
   step2Lead: step2LeadProp,
   showMessage = true,
   messageLabel = 'Anything else? (optional)',
+  elevated = false,
   class: className = '',
 } = Astro.props;
 
@@ -79,7 +82,7 @@ const s2 = questions.map((f) => field(f, 'q_'));
   data-source={source}
   action="/api/lead/"
   method="post"
-  class:list={['ss-leadform flex flex-col gap-[var(--space-4)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]', className]}
+  class:list={['ss-leadform flex flex-col gap-[var(--space-4)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]', elevated && 'ss-leadform--elevated', className]}
   novalidate
 >
   <input type="hidden" name="lead_id" value="" />
@@ -138,18 +141,27 @@ const s2 = questions.map((f) => field(f, 'q_'));
 
 <style>
   .ss-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  /* Elevated treatment for service-page heroes: a prominent, lifted card. */
+  .ss-leadform--elevated {
+    box-shadow: 0 40px 80px -48px color-mix(in srgb, var(--accent-fill) 55%, transparent),
+                0 2px 8px -4px color-mix(in srgb, var(--color-black) 30%, transparent);
+    padding: var(--space-6);
+  }
+  .ss-leadform--elevated :global(.ss-input) { padding: 0.72rem var(--space-3); }
   .ss-input {
     width: 100%;
-    border: 1px solid var(--fg-muted);
+    border: 1px solid color-mix(in srgb, var(--fg-muted) 65%, transparent);
     border-radius: var(--radius-input);
     background: var(--ground);
     color: var(--fg);
-    padding: 0.6rem var(--space-3);
+    padding: 0.62rem var(--space-3);
     font-size: var(--text-body);
     font-family: inherit;
+    transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
   }
   .ss-input::placeholder { color: var(--fg-muted); }
-  .ss-input:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 1px; }
+  .ss-input:hover { border-color: var(--fg-muted); }
+  .ss-input:focus-visible { outline: none; border-color: var(--accent-text); box-shadow: 0 0 0 3px var(--accent-wash); }
   .ss-input[aria-invalid='true'] { border-color: var(--neg); }
   .ss-btn-primary {
     border-radius: var(--radius-button);

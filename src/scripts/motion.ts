@@ -31,9 +31,17 @@ function setupPage(): void {
   const header = document.querySelector<El>('.ss-header');
   if (header && !header.dataset.scrollBound) {
     header.dataset.scrollBound = '1';
-    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+    // Publish the live header height as --hh so a full-viewport hero can size to
+    // exactly the space below it (and follow the header as it shrinks on scroll).
+    const setHH = () =>
+      document.documentElement.style.setProperty('--hh', `${header.offsetHeight}px`);
+    const onScroll = () => {
+      header.classList.toggle('is-scrolled', window.scrollY > 8);
+      setHH();
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', setHH, { passive: true });
   }
 
   // --- scroll reveals --------------------------------------------------------

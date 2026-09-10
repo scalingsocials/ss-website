@@ -221,8 +221,9 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
     border-color: color-mix(in srgb, var(--rule-c) 70%, transparent);
   }
 
-  /* On scroll the bar and logo shrink to 0.7x, so the header takes less of the
-     viewport once the reader is into the page. Transform keeps the logo crisp. */
+  /* On scroll the WHOLE header compacts: less vertical padding, a smaller logo,
+     tighter nav and a smaller CTA — so the bar itself gets shorter, not just the
+     logo. Everything eases together for a single, cohesive shrink. */
   .ss-header__bar { transition: padding var(--dur-base) var(--ease-out); }
   .ss-header__logo {
     display: inline-flex;
@@ -230,11 +231,29 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
     transition: transform var(--dur-base) var(--ease-out);
     will-change: transform;
   }
-  .ss-header.is-scrolled .ss-header__bar {
-    padding-top: calc(var(--space-2) * 0.7);
-    padding-bottom: calc(var(--space-2) * 0.7);
+  .ss-nav-desktop > a,
+  .ss-nav-trigger,
+  .ss-header :global(.ss-btn),
+  .ss-header :global(a[class*='inline-flex']) {
+    transition: font-size var(--dur-base) var(--ease-out), padding var(--dur-base) var(--ease-out);
   }
-  .ss-header.is-scrolled .ss-header__logo { transform: scale(0.7); }
+  .ss-header.is-scrolled .ss-header__bar {
+    padding-top: calc(var(--space-2) * 0.42);
+    padding-bottom: calc(var(--space-2) * 0.42);
+  }
+  .ss-header.is-scrolled .ss-header__logo { transform: scale(0.82); }
+  .ss-header.is-scrolled .ss-nav-desktop > a,
+  .ss-header.is-scrolled .ss-nav-trigger {
+    font-size: 0.9rem;
+    padding-top: calc(var(--space-2) * 0.6);
+    padding-bottom: calc(var(--space-2) * 0.6);
+  }
+  /* the primary CTA (an <a> Button) compacts too */
+  .ss-header.is-scrolled :global(a[class*='inline-flex']) {
+    font-size: 0.85rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+  }
 
   /* Animated underline on the top-level nav items — premium, quiet. */
   .ss-nav-desktop > a,

@@ -96,18 +96,19 @@ const nodes = [
   <Meta slot="meta" title={svc.title} description={svc.description} type="website" modifiedTime={modified} />
   <SchemaGraph slot="schema" nodes={nodes} />
 
-  <!-- HERO -->
-  <Section size="lg" class="relative overflow-hidden">
+  <!-- HERO — sized to fit one screen below the header, form-forward (like a
+       classic performance-marketing landing hero). -->
+  <Section size="lg" class="svc-hero relative overflow-hidden">
     <DotField origin="top-right" />
-    <nav aria-label="Breadcrumb" class="relative mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
+    <nav aria-label="Breadcrumb" class="relative mb-[var(--space-3)] text-small text-[var(--fg-muted)]">
       <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span> / </span><span>{svc.name}</span>
     </nav>
-    <div class="relative grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+    <div class="svc-hero__grid relative grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
       <div>
         <span class="ss-eyebrow">{svc.eyebrow}</span>
         <h1>{svc.h1}</h1>
-        <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">{svc.answer}</p>
-        <ul class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-6)]">
+        <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.45] text-[var(--fg)]">{svc.answer}</p>
+        <ul class="mt-[var(--space-5)] flex flex-wrap gap-[var(--space-5)]">
           {heroStats.map((s) => (
             <li class="flex flex-col gap-[2px]">
               <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{s.value}</span>
@@ -115,13 +116,13 @@ const nodes = [
             </li>
           ))}
         </ul>
-        <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+        <div class="mt-[var(--space-5)] flex flex-wrap gap-[var(--space-2)]">
           <Button href="/audit/" variant="primary">Get a free growth plan</Button>
           <Button href="/case-studies/" variant="secondary">See case studies</Button>
         </div>
       </div>
-      <div class="lg:sticky lg:top-[88px]">
-        <LeadForm source={svc.slug} heading={svc.formHeading} questions={svc.formQuestions} service={{ options: [...SERVICE_NAMES], value: svcDefault }} submitLabel="Get my free plan" />
+      <div>
+        <LeadForm source={svc.slug} heading={svc.formHeading} questions={svc.formQuestions} service={{ options: [...SERVICE_NAMES], value: svcDefault }} submitLabel="Get my free plan" elevated />
       </div>
     </div>
   </Section>
@@ -255,6 +256,17 @@ const nodes = [
 
   <style>
     .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+    /* Hero fills the screen below the sticky header, so the copy + form land in
+       one view. Padding is trimmed from the Section default to help it fit. */
+    .svc-hero {
+      min-height: calc(100svh - var(--hh, 68px));
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: var(--space-5) !important;
+      padding-bottom: var(--space-5) !important;
+    }
+    .svc-hero__grid { width: 100%; }
     .ss-svc-glyph {
       display: grid;
       place-items: center;
