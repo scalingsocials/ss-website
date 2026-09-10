@@ -31,14 +31,25 @@ function setupPage(): void {
   const header = document.querySelector<El>('.ss-header');
   if (header && !header.dataset.scrollBound) {
     header.dataset.scrollBound = '1';
-    // Publish the live header height as --hh so a full-viewport hero can size to
-    // exactly the space below it (and follow the header as it shrinks on scroll).
-    const setHH = () =>
+    // Publish the header height as --hh so a full-viewport hero can size below it.
+    // MUST be measured only when NOT scrolled and NEVER on every scroll frame:
+    // reading offsetHeight while the header animates its shrink, and feeding that
+    // back into the hero's min-height, makes the page height oscillate (a shake).
+    const setHH = () => {
+      const was = header.classList.contains('is-scrolled');
+      if (was) header.classList.remove('is-scrolled');
       document.documentElement.style.setProperty('--hh', `${header.offsetHeight}px`);
-    const onScroll = () => {
-      header.classList.toggle('is-scrolled', window.scrollY > 8);
-      setHH();
+      if (was) header.classList.add('is-scrolled');
     };
+    // Hysteresis: turn the compact state ON past 24px and OFF below 6px. The dead
+    // zone stops it flipping back and forth when a scroll lands near the boundary.
+    let scrolled = false;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (!scrolled && y > 24) { scrolled = true; header.classList.add('is-scrolled'); }
+      else if (scrolled && y < 6) { scrolled = false; header.classList.remove('is-scrolled'); }
+    };
+    setHH();
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', setHH, { passive: true });
