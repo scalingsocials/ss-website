@@ -12,8 +12,8 @@ export interface Props {
 const { stats, class: className = '' } = Astro.props;
 ---
 <ul class:list={['ss-sg grid grid-cols-2 gap-[var(--space-3)] sm:grid-cols-4', className]}>
-  {stats.map((s, i) => (
-    <li class="ss-sg__card" data-reveal style={`--i:${i}`}>
+  {stats.map((s) => (
+    <li class="ss-sg__card" data-reveal>
       <span class="ss-sg__val display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num data-countup>{s.value}</span>
       <span class="ss-sg__label text-label leading-snug text-[var(--fg-muted)]">{s.label}</span>
     </li>
@@ -40,6 +40,8 @@ const { stats, class: className = '' } = Astro.props;
     background: var(--accent-graphic);
   }
   .ss-sg__val { font-variant-numeric: tabular-nums; }
-  /* Stagger the reveal by card index (works with the global [data-reveal] fade). */
-  .js-reveal .ss-sg__card[data-reveal] { transition-delay: calc(var(--i, 0) * 70ms); }
+  /* Stagger the reveal by position (nth-child — inline styles are CSP-blocked). */
+  .js-reveal .ss-sg__card[data-reveal]:nth-child(2) { transition-delay: 70ms; }
+  .js-reveal .ss-sg__card[data-reveal]:nth-child(3) { transition-delay: 140ms; }
+  .js-reveal .ss-sg__card[data-reveal]:nth-child(4) { transition-delay: 210ms; }
 </style>

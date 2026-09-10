@@ -24,20 +24,6 @@ const description =
   "Seven real ad accounts Scaling Socials runs for Indian D2C brands: ₹2.77 crore tracked revenue on ₹42.1 lakh ad spend, and every account's worst month.";
 const modified = '2026-09-05';
 
-// Editorial poster palette for the index cards (deliberate, colourful — a
-// component-local choice, it does not touch the site's global tokens). A varied
-// dark/light rhythm like a magazine contact sheet. The chart on each card is
-// recoloured to the card's own foreground, so it reads as texture, not a grey box.
-const PALETTE = [
-  { bg: '#14141A', fg: '#ECECEE' }, // ink
-  { bg: '#4F52DB', fg: '#FFFFFF' }, // periwinkle (brand)
-  { bg: '#ECE4D6', fg: '#23201A' }, // warm sand
-  { bg: '#17544F', fg: '#EAF3F1' }, // deep teal
-  { bg: '#F3D9DE', fg: '#4A2230' }, // blush
-  { bg: '#3B2E63', fg: '#EDE9F7' }, // plum
-  { bg: '#F2E3A8', fg: '#3A3212' }, // butter
-];
-
 // Short, honest kicker per study — our voice, one line under the headline.
 const KICKERS: Record<string, string> = {
   'wellness-brand-zero-to-scale': 'The two months most agencies edit out.',
@@ -49,11 +35,14 @@ const KICKERS: Record<string, string> = {
   'kidswear-campaign-longevity': 'One campaign, eight months, no rebuild.',
 };
 
+// Colours come from CSS classes (ss-cscard--c0..c6) below, NOT inline styles:
+// the site's hash-based CSP has no 'unsafe-inline', so inline style attributes
+// are stripped by the browser. `colorIndex` picks the class.
 const cards = CASE_STUDIES_ORDERED.map((c, i) => ({
   study: c,
   arch: ARCHETYPES[c.archetype].label,
   bigStat: c.delta ? c.delta.after : c.held ? c.held.value : c.stats[0]!.value,
-  color: PALETTE[i % PALETTE.length]!,
+  colorIndex: i % 7,
   kicker: KICKERS[c.slug] ?? '',
 }));
 
@@ -120,8 +109,7 @@ const nodes = [
         <li>
           <a
             href={`/case-studies/${c.study.slug}/`}
-            class="ss-cscard group no-underline"
-            style={`background:${c.color.bg};color:${c.color.fg};--card-bg:${c.color.bg};--card-fg:${c.color.fg}`}
+            class:list={['ss-cscard group no-underline', `ss-cscard--c${c.colorIndex}`]}
           >
             <!-- chart recoloured to the card's own foreground: texture, not a chart box -->
             <div class="ss-cscard__thumb" aria-hidden="true"><CaseVisual visual={c.study.heroVisual} variant="thumb" /></div>
@@ -181,12 +169,20 @@ const nodes = [
       min-height: 420px;
       height: 100%;
       border-radius: 18px;               /* poster radius — intentional for this card */
-      background: var(--card-bg);        /* inline background/color also set (bulletproof) */
-      color: var(--card-fg);
+      background: var(--card-bg, var(--surface-c));
+      color: var(--card-fg, var(--fg));
       overflow: hidden;
       isolation: isolate;
       transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
     }
+    /* Colour posters — set via classes (CSP blocks inline style attributes). */
+    .ss-cscard--c0 { --card-bg: #14141A; --card-fg: #ECECEE; } /* ink */
+    .ss-cscard--c1 { --card-bg: #4F52DB; --card-fg: #FFFFFF; } /* periwinkle */
+    .ss-cscard--c2 { --card-bg: #ECE4D6; --card-fg: #23201A; } /* warm sand */
+    .ss-cscard--c3 { --card-bg: #17544F; --card-fg: #EAF3F1; } /* deep teal */
+    .ss-cscard--c4 { --card-bg: #F3D9DE; --card-fg: #4A2230; } /* blush */
+    .ss-cscard--c5 { --card-bg: #3B2E63; --card-fg: #EDE9F7; } /* plum */
+    .ss-cscard--c6 { --card-bg: #F2E3A8; --card-fg: #3A3212; } /* butter */
     /* the chart, bleeding along the bottom, recoloured to the card's own tone */
     .ss-cscard__thumb {
       position: absolute;

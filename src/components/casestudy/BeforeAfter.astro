@@ -18,8 +18,8 @@ const { rows, class: className = '' } = Astro.props;
     </tr>
   </thead>
   <tbody>
-    {rows.map((r, i) => (
-      <tr data-reveal style={`--i:${i}`}>
+    {rows.map((r) => (
+      <tr data-reveal>
         <td class="ss-ba__before">{r.before}</td>
         <td class="ss-ba__after"><span class="ss-ba__after-inner">{r.after}</span></td>
       </tr>
@@ -60,8 +60,10 @@ const { rows, class: className = '' } = Astro.props;
     opacity: 0;
     transform: translateX(-22px);
     transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
-    transition-delay: calc(var(--i, 0) * 70ms);
   }
+  .js-reveal .ss-ba tbody tr[data-reveal]:nth-child(2) .ss-ba__after-inner { transition-delay: 70ms; }
+  .js-reveal .ss-ba tbody tr[data-reveal]:nth-child(3) .ss-ba__after-inner { transition-delay: 140ms; }
+  .js-reveal .ss-ba tbody tr[data-reveal]:nth-child(4) .ss-ba__after-inner { transition-delay: 210ms; }
   .js-reveal .ss-ba tbody tr[data-reveal].is-visible .ss-ba__after-inner {
     opacity: 1;
     transform: none;

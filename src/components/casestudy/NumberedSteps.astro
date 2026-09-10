@@ -12,7 +12,7 @@ const pad = (n: number) => String(n + 1).padStart(2, '0');
 ---
 <ol class:list={['ss-steps grid gap-[var(--space-4)] md:grid-cols-2', className]}>
   {steps.map((s, i) => (
-    <li class="ss-steps__card" data-reveal style={`--i:${i}`}>
+    <li class="ss-steps__card" data-reveal>
       <span class="ss-steps__num display-type" aria-hidden="true">{pad(i)}</span>
       <div class="ss-steps__body">
         <h3 class="text-h4 font-semibold text-[var(--fg)]">{s.title}</h3>
@@ -49,5 +49,8 @@ const pad = (n: number) => String(n + 1).padStart(2, '0');
     letter-spacing: -0.03em;
     flex: none;
   }
-  .js-reveal .ss-steps__card[data-reveal] { transition-delay: calc(var(--i, 0) * 80ms); }
+  .js-reveal .ss-steps__card[data-reveal]:nth-child(2) { transition-delay: 80ms; }
+  .js-reveal .ss-steps__card[data-reveal]:nth-child(3) { transition-delay: 160ms; }
+  .js-reveal .ss-steps__card[data-reveal]:nth-child(4) { transition-delay: 240ms; }
+  .js-reveal .ss-steps__card[data-reveal]:nth-child(5) { transition-delay: 320ms; }
 </style>

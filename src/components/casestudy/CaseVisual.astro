@@ -66,7 +66,7 @@ const note = 'note' in v ? v.note : v.type === 'stepMarkers' ? v.spendNote : und
             const y = yFor(p.v, max);
             return (
               <g>
-                <rect class="cv__bar cv__bar--rise" x={round(x - bw / 2)} y={y} width={round(bw)} height={round(yBase - y)} rx="4" style={`--i:${i}`}>
+                <rect class="cv__bar cv__bar--rise" x={round(x - bw / 2)} y={y} width={round(bw)} height={round(yBase - y)} rx="4">
                   <title>{p.label}: {p.display} ROAS</title>
                 </rect>
                 <circle class="cv__dot" cx={x} cy={y} r={thumb ? 4 : 5} />
@@ -168,7 +168,7 @@ const note = 'note' in v ? v.note : v.type === 'stepMarkers' ? v.spendNote : und
             const y = yR(p.v);
             return (
               <g>
-                <rect class="cv__bar cv__bar--muted" x={x} y={y} width={bw} height={round(rBase - y)} rx="3" style={`--i:${i}`}><title>{v.prior.label} {p.label}: {p.display}</title></rect>
+                <rect class="cv__bar cv__bar--muted" x={x} y={y} width={bw} height={round(rBase - y)} rx="3"><title>{v.prior.label} {p.label}: {p.display}</title></rect>
                 {!thumb && <text class="cv__val cv__val--muted" x={x + bw / 2} y={y - 8} text-anchor="middle">{p.display}</text>}
                 {!thumb && <text class="cv__lbl" x={x + bw / 2} y={rBase + 18} text-anchor="middle">{p.label}</text>}
               </g>
