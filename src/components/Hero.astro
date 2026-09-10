@@ -52,8 +52,10 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
         <Button href="/audit/" variant="primary">Get a free growth plan</Button>
         <Button href="/case-studies/" variant="secondary">See case studies</Button>
       </div>
+    </div>
 
-      <div class="hero__partners hero__line hero__line--6">
+    <div class="hero__right">
+      <div class="hero__partners hero__line hero__line--5">
         <span class="hero__partners-label">Official partner</span>
         <ul class="hero__partners-list">
           {partners.map((p) => (
@@ -61,10 +63,9 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
           ))}
         </ul>
       </div>
-    </div>
 
-    <!-- Results panel: an animated dashboard motif, not a data claim. -->
-    <div class="hero__panel hero__line hero__line--5" aria-hidden="true">
+      <!-- Results panel: an animated dashboard motif, not a data claim. -->
+      <div class="hero__panel hero__line hero__line--5" aria-hidden="true">
       <div class="hero__panelhead">
         <span class="hero__dot"></span><span class="hero__dot"></span><span class="hero__dot"></span>
         <span class="hero__panellabel">performance.live</span>
@@ -84,6 +85,7 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
       {chips.map((c, i) => (
         <span class={`hero__chip hero__chip--${i + 1}`}>{c}</span>
       ))}
+      </div>
     </div>
   </div>
 </Section>
@@ -161,8 +163,11 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
 
   .hero__cta { margin-top: var(--space-5); display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
-  /* Compact "official partner" strip, moved into the hero. */
-  .hero__partners { margin-top: var(--space-5); display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2) var(--space-3); }
+  /* Right column: partner strip stacked above the dashboard panel. */
+  .hero__right { display: flex; flex-direction: column; gap: var(--space-3); }
+
+  /* Compact "official partner" strip, sitting above the graphic. */
+  .hero__partners { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2) var(--space-3); }
   .hero__partners-label { font-size: var(--text-label); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-muted); }
   .hero__partners-list { display: flex; flex-wrap: wrap; gap: var(--space-2); }
   .hero__partner {
