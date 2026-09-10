@@ -183,6 +183,25 @@ const nodes = [
     .ss-cscard--c4 { --card-bg: #F3D9DE; --card-fg: #4A2230; } /* blush */
     .ss-cscard--c5 { --card-bg: #3B2E63; --card-fg: #EDE9F7; } /* plum */
     .ss-cscard--c6 { --card-bg: #F2E3A8; --card-fg: #3A3212; } /* butter */
+
+    /* Editorial layout: staggered columns + a larger feature card top-left, so
+       it reads like a magazine board, not an aligned grid. Transform-only (no
+       layout shift, CSP-safe); collapses to a plain stack on small screens. */
+    .ss-csgrid { align-items: start; }
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .ss-csgrid { padding-bottom: var(--space-8); }
+      .ss-csgrid > li:nth-child(2n) { transform: translateY(var(--space-6)); }
+    }
+    @media (min-width: 1024px) {
+      .ss-csgrid { padding-bottom: var(--space-10); }
+      .ss-csgrid > li:nth-child(3n + 2) { transform: translateY(var(--space-8)); }
+      .ss-csgrid > li:nth-child(3n) { transform: translateY(var(--space-4)); }
+      /* feature the strongest card (top-left) */
+      .ss-csgrid > li:first-child .ss-cscard { min-height: 500px; }
+      .ss-csgrid > li:first-child .ss-cscard__headline { font-size: clamp(1.625rem, 1.2vw + 1.2rem, 2.125rem); }
+      .ss-csgrid > li:first-child .ss-cscard__stat { font-size: clamp(2.75rem, 3.4vw, 3.75rem); }
+      .ss-csgrid > li:first-child .ss-cscard__thumb { height: 46%; }
+    }
     /* the chart, bleeding along the bottom, recoloured to the card's own tone */
     .ss-cscard__thumb {
       position: absolute;
