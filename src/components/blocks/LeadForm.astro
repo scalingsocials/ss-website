@@ -143,7 +143,9 @@ const gap = compact ? 'gap-[var(--space-2)]' : 'gap-[var(--space-3)]';
   import '@/scripts/leadform.ts';
 </script>
 
-<style>
+<!-- Global: these class-scoped rules must reach the inputs rendered by the
+     FieldControl child component, so they are intentionally not Astro-scoped. -->
+<style is:global>
   .ss-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .ss-input {
     width: 100%;
@@ -178,10 +180,12 @@ const gap = compact ? 'gap-[var(--space-2)]' : 'gap-[var(--space-3)]';
   }
   .ss-leadform--compact { gap: var(--space-3); }
   .ss-leadform--compact .ss-input {
-    border: 1px solid color-mix(in srgb, var(--fg-muted) 55%, var(--ground));
+    border: 1.5px solid color-mix(in srgb, var(--fg-muted) 78%, var(--ground));
     border-radius: 9px;
     padding: 0.72rem 0.9rem;
     font-size: 1rem;
+    background: var(--ground);
+    box-shadow: inset 0 1px 2px color-mix(in srgb, var(--color-black) 4%, transparent);
   }
   .ss-leadform--compact .ss-input:focus-visible { border-color: var(--accent-text); box-shadow: 0 0 0 3px var(--accent-wash); }
   .ss-leadform--compact .ss-btn-primary {

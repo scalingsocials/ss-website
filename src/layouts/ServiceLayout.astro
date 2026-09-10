@@ -100,19 +100,19 @@ const nodes = [
        classic performance-marketing landing hero). -->
   <Section size="lg" class="svc-hero relative overflow-hidden">
     <DotField origin="top-right" />
-    <nav aria-label="Breadcrumb" class="relative mb-[var(--space-3)] text-small text-[var(--fg-muted)]">
-      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span> / </span><span>{svc.name}</span>
+    <nav aria-label="Breadcrumb" class="svc-hero__crumb relative text-label text-[var(--fg-muted)]">
+      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span class="mx-[0.35rem]">/</span><span>{svc.name}</span>
     </nav>
     <div class="svc-hero__grid relative grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
       <div>
         <span class="ss-eyebrow">{svc.eyebrow}</span>
         <h1>{svc.h1}</h1>
         <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.45] text-[var(--fg)]">{svc.answer}</p>
-        <ul class="mt-[var(--space-5)] flex flex-wrap gap-[var(--space-5)]">
+        <ul class="svc-hero__stats mt-[var(--space-5)] grid grid-cols-3 gap-x-[var(--space-3)] gap-y-[var(--space-2)]">
           {heroStats.map((s) => (
-            <li class="flex flex-col gap-[2px]">
-              <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{s.value}</span>
-              <span class="text-label text-[var(--fg-muted)]">{s.label}</span>
+            <li class="flex flex-col gap-[3px]">
+              <span class="svc-hero__stat-val display-type font-bold leading-none text-[var(--fg)]" data-num>{s.value}</span>
+              <span class="text-label leading-snug text-[var(--fg-muted)]">{s.label}</span>
             </li>
           ))}
         </ul>
@@ -267,6 +267,11 @@ const nodes = [
       padding-bottom: var(--space-5) !important;
     }
     .svc-hero__grid { width: 100%; }
+    /* Compact breadcrumb — a tight, subtle line, not a full row of space. */
+    .svc-hero__crumb { margin-bottom: var(--space-3); }
+    /* Three stats always share one row; the value scales so they never wrap out. */
+    .svc-hero__stat-val { font-size: clamp(1.05rem, 1.5vw, 1.5rem); }
+    @media (max-width: 480px) { .svc-hero__stat-val { font-size: 1rem; } }
     .ss-svc-glyph {
       display: grid;
       place-items: center;
