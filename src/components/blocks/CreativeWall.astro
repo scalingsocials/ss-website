@@ -1,26 +1,56 @@
 ---
 /**
- * CreativeWall — a horizontal slider of real ad creatives. See 08 §7, 02 §1.2.
+ * CreativeWall — real ad creatives, shown WHOLE (mixed aspect ratios) at a fixed
+ * height. Two variants:
+ *   - 'rail'    (default): a scroll-snap rail — drag/scroll/swipe, no motion.
+ *   - 'marquee': a slow, infinite horizontal loop (the homepage treatment). The
+ *     track is duplicated so the loop is seamless; it pauses on hover and reverts
+ *     to a plain scrollable rail under prefers-reduced-motion.
  *
- * Creatives are different aspect ratios, so a cropped grid loses the artwork.
- * This shows each one WHOLE at a fixed height (natural width) in a scroll-snap
- * rail — drag/scroll/swipe, no JS, fast, and good on mobile. Images optimised by
- * astro:assets. Videos are held until compressed to the 1.5MB clip budget (08 §8).
- *
- * Ink register. Client permission required before any client creative appears.
+ * Images optimised by astro:assets. Videos are held until compressed to the
+ * 1.5MB clip budget (08 §8). Ink register. Client permission required (02 §1.2).
  */
 import { Image } from 'astro:assets';
 import { CREATIVES } from '@/lib/creatives';
 
 export interface Props {
   limit?: number;
+  variant?: 'rail' | 'marquee';
   class?: string;
 }
-const { limit, class: className = '' } = Astro.props;
+const { limit, variant = 'rail', class: className = '' } = Astro.props;
 const items = typeof limit === 'number' ? CREATIVES.slice(0, limit) : CREATIVES;
+// A seamless loop needs two identical passes of the track.
+const loop = variant === 'marquee' ? [...items, ...items] : items;
 ---
 
-{items.length > 0 ? (
+{items.length === 0 ? (
+  <div class:list={['rounded-[var(--radius-card)] border border-dashed border-[var(--rule-c)] p-[var(--space-6)] text-center', className]}>
+    <p class="text-small text-[var(--fg-muted)]">
+      TODO: [creatives] — drop stills into <code>src/assets/Creatives/</code>.
+    </p>
+  </div>
+) : variant === 'marquee' ? (
+  <div data-creative-wall class:list={['ss-marquee', className]}>
+    <ul class="ss-marquee__track">
+      {loop.map((c, i) => (
+        <li class="ss-marquee__item" aria-hidden={i >= items.length ? 'true' : undefined}>
+          <Image
+            src={c.src}
+            alt={c.alt}
+            width={c.src.width}
+            height={c.src.height}
+            widths={[300, 600]}
+            sizes="320px"
+            loading="lazy"
+            decoding="async"
+            class="ss-rail__img"
+          />
+        </li>
+      ))}
+    </ul>
+  </div>
+) : (
   <div data-creative-wall class:list={['ss-rail', className]}>
     <ul class="ss-rail__track">
       {items.map((c) => (
@@ -39,12 +69,6 @@ const items = typeof limit === 'number' ? CREATIVES.slice(0, limit) : CREATIVES;
         </li>
       ))}
     </ul>
-  </div>
-) : (
-  <div class:list={['rounded-[var(--radius-card)] border border-dashed border-[var(--rule-c)] p-[var(--space-6)] text-center', className]}>
-    <p class="text-small text-[var(--fg-muted)]">
-      TODO: [creatives] — drop stills into <code>src/assets/Creatives/</code>.
-    </p>
   </div>
 )}
 
@@ -83,5 +107,44 @@ const items = typeof limit === 'number' ? CREATIVES.slice(0, limit) : CREATIVES;
   }
   @media (prefers-reduced-motion: no-preference) {
     .ss-rail__item:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); }
+  }
+
+  /* --- marquee variant: infinite horizontal loop -------------------------- */
+  .ss-marquee {
+    overflow: hidden;
+    margin-inline: calc(-1 * var(--space-3));
+    /* fade the two edges so items enter/leave gracefully */
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  }
+  .ss-marquee__track {
+    display: flex;
+    gap: var(--space-3);
+    width: max-content;
+    padding-block: 2px;
+    padding-inline: calc(var(--space-3) / 2);
+  }
+  .ss-marquee__item {
+    flex: none;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid var(--rule-c);
+    background: var(--surface-c);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ss-marquee__track {
+      /* two identical passes → translate by exactly half for a seamless loop */
+      animation: ssMarquee 60s linear infinite;
+    }
+    .ss-marquee:hover .ss-marquee__track { animation-play-state: paused; }
+    @keyframes ssMarquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+  }
+  /* No motion: fall back to a plain horizontal scroll of the (doubled) track. */
+  @media (prefers-reduced-motion: reduce) {
+    .ss-marquee { overflow-x: auto; scrollbar-width: none; }
+    .ss-marquee::-webkit-scrollbar { display: none; }
   }
 </style>

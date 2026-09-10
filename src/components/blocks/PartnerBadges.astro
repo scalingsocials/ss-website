@@ -7,25 +7,40 @@
  * official badge SVGs + a link to each public partner-directory listing when
  * available. Register-agnostic.
  */
+import BrandIcon from '@/components/graphics/BrandIcon.astro';
+
 export interface Props {
   label?: string;
   class?: string;
 }
 const { label = 'Official partners', class: className = '' } = Astro.props;
 
-const partners = ['Google Partner', 'Meta Business Partner', 'Shopify Partner'];
+const partners = [
+  { name: 'Google Partner', icon: 'google' as const },
+  { name: 'Meta Business Partner', icon: 'meta' as const },
+  { name: 'Shopify Partner', icon: 'shopify' as const },
+];
 ---
 
 <div data-partner-badges class:list={['flex flex-col items-center gap-[var(--space-4)]', className]}>
   <span class="text-small font-medium text-[var(--fg-muted)]">{label}</span>
   <ul class="flex flex-wrap items-center justify-center gap-[var(--space-3)]">
     {partners.map((p) => (
-      <li class="flex items-center gap-[0.5rem] rounded-full border border-[var(--rule-c)] bg-[var(--ground)] px-[var(--space-3)] py-[0.55rem]">
-        <span class="grid h-[18px] w-[18px] place-items-center rounded-full bg-[var(--accent-fill)]">
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 6.2 5 8.6l4.5-5" stroke="var(--accent-on)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <li class="ss-partner flex items-center gap-[0.6rem] rounded-full border border-[var(--rule-c)] bg-[var(--ground)] px-[var(--space-3)] py-[0.5rem]">
+        <span class="grid h-[22px] w-[22px] shrink-0 place-items-center">
+          <BrandIcon name={p.icon} size={20} />
         </span>
-        <span class="text-small font-semibold text-[var(--fg)]">{p}</span>
+        <span class="text-small font-semibold text-[var(--fg)]">{p.name}</span>
       </li>
     ))}
   </ul>
 </div>
+
+<style>
+  /* Partner marks read in full brand colour (they are proof, not decoration),
+     with a quiet lift on hover to match the card language. */
+  .ss-partner { transition: border-color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+  @media (prefers-reduced-motion: no-preference) {
+    .ss-partner:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent-fill) 45%, var(--rule-c)); }
+  }
+</style>

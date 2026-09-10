@@ -14,6 +14,8 @@ import { HERO_STATS } from '@/lib/caseStudies';
 
 const chips = ['Paid media', 'SEO', 'Shopify', 'Web', 'Social', 'CRO'];
 const stats = HERO_STATS;
+// 3 stats → single row; 4 → 2x2 grid. Layout follows the data, not a fixed count.
+const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
 ---
 
 <Section register="ink" size="md" class="hero" as="section">
@@ -30,7 +32,7 @@ const stats = HERO_STATS;
         measured by the revenue we drive rather than the impressions we buy.
       </p>
 
-      <ul class="hero__stats hero__line hero__line--4" aria-label="Recent client results">
+      <ul class:list={['hero__stats hero__line hero__line--4', statsLayout]} aria-label="Recent client results">
         {stats.map((s) => (
           <li class="hero__stat">
             <span class="hero__stat-value" data-num>{s.value}</span>
@@ -74,7 +76,10 @@ const stats = HERO_STATS;
   .hero {
     position: relative;
     overflow: hidden;
-    min-height: min(94svh, 860px);
+    /* Full-viewport hero that auto-adjusts to the screen, with top clearance so
+       the sticky header never sits over the headline. */
+    min-height: 100svh;
+    padding-top: clamp(140px, 16vh, 200px);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -116,9 +121,15 @@ const stats = HERO_STATS;
 
   .hero__stats {
     margin-top: var(--space-5);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-5);
+    display: grid;
+    gap: var(--space-4) var(--space-6);
+    width: fit-content;
+  }
+  /* 3 stats sit in one row; 4 fold into a 2x2 grid. */
+  .hero__stats--3 { grid-template-columns: repeat(3, auto); }
+  .hero__stats--4 { grid-template-columns: repeat(2, auto); }
+  @media (max-width: 560px) {
+    .hero__stats--3, .hero__stats--4 { grid-template-columns: repeat(2, auto); }
   }
   .hero__stat { display: flex; flex-direction: column; gap: 2px; }
   .hero__stat-value {

@@ -23,8 +23,8 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
 <header data-register="paper" transition:persist="site-header" class="ss-header sticky top-0 z-50 border-b border-[var(--rule-c)]">
   <!-- Scroll-progress rule under the header. CSS scroll-driven, zero JS. -->
   <div class="ss-header__progress" aria-hidden="true"></div>
-  <div class="mx-auto flex w-full max-w-[var(--container)] items-center gap-[var(--space-4)] px-[var(--space-3)] py-[var(--space-2)] md:px-[var(--space-4)]">
-    <a href="/" class="shrink-0 no-underline" aria-label="Scaling Socials — home">
+  <div class="ss-header__bar mx-auto flex w-full max-w-[var(--container)] items-center gap-[var(--space-4)] px-[var(--space-3)] py-[var(--space-2)] md:px-[var(--space-4)]">
+    <a href="/" class="ss-header__logo shrink-0 no-underline" aria-label="Scaling Socials — home">
       <Image src={lockup} alt="Scaling Socials" height={28} width={Math.round(28 * (lockup.width / lockup.height))} densities={[1, 2]} loading="eager" />
     </a>
 
@@ -220,6 +220,21 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
     box-shadow: 0 10px 30px -18px color-mix(in srgb, var(--color-black) 55%, transparent);
     border-color: color-mix(in srgb, var(--rule-c) 70%, transparent);
   }
+
+  /* On scroll the bar and logo shrink to 0.7x, so the header takes less of the
+     viewport once the reader is into the page. Transform keeps the logo crisp. */
+  .ss-header__bar { transition: padding var(--dur-base) var(--ease-out); }
+  .ss-header__logo {
+    display: inline-flex;
+    transform-origin: left center;
+    transition: transform var(--dur-base) var(--ease-out);
+    will-change: transform;
+  }
+  .ss-header.is-scrolled .ss-header__bar {
+    padding-top: calc(var(--space-2) * 0.7);
+    padding-bottom: calc(var(--space-2) * 0.7);
+  }
+  .ss-header.is-scrolled .ss-header__logo { transform: scale(0.7); }
 
   /* Animated underline on the top-level nav items — premium, quiet. */
   .ss-nav-desktop > a,

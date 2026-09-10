@@ -3,7 +3,9 @@
  * Testimonials — real client quotes in a compact scroll rail (shorter than a
  * stacked grid). Migrated from scalingsocials.com; named, public, spanning
  * services (Shopify / web / brand / performance). Genuine, not invented (§15).
- * Register-agnostic.
+ *
+ * The rail is swipeable/scrollable on its own; prev/next arrows are progressive
+ * enhancement (a small bundled script scrolls by one card). Register-agnostic.
  */
 export interface Props {
   class?: string;
@@ -18,25 +20,68 @@ const testimonials = [
 ];
 ---
 
-<div data-testimonials class:list={['ss-trail', className]}>
-  <ul class="ss-trail__track">
-    {testimonials.map((t) => (
-      <li class="ss-trail__item flex flex-col gap-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
-        <span class="w-fit rounded-full bg-[var(--accent-wash)] px-[0.7rem] py-[0.2rem] text-label font-semibold text-[var(--accent-text)]">{t.tag}</span>
-        <blockquote class="text-body leading-relaxed text-[var(--fg)]">“{t.quote}”</blockquote>
-        <figcaption class="mt-auto flex items-baseline gap-[var(--space-2)] text-small">
-          <span class="font-semibold text-[var(--fg)]">{t.name}</span>
-          <span class="text-[var(--fg-muted)]">{t.brand}</span>
-        </figcaption>
-      </li>
-    ))}
-  </ul>
+<div class:list={['ss-tst', className]}>
+  <div class="ss-tst__head flex items-center justify-end gap-[var(--space-2)]">
+    <button type="button" data-tprev aria-label="Previous testimonial" class="ss-tst__nav">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button type="button" data-tnext aria-label="Next testimonial" class="ss-tst__nav">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+  <div data-testimonials class="ss-trail">
+    <ul class="ss-trail__track">
+      {testimonials.map((t) => (
+        <li class="ss-trail__item flex flex-col gap-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+          <span class="w-fit rounded-full bg-[var(--accent-wash)] px-[0.7rem] py-[0.2rem] text-label font-semibold text-[var(--accent-text)]">{t.tag}</span>
+          <blockquote class="text-body leading-relaxed text-[var(--fg)]">“{t.quote}”</blockquote>
+          <figcaption class="mt-auto flex items-baseline gap-[var(--space-2)] text-small">
+            <span class="font-semibold text-[var(--fg)]">{t.name}</span>
+            <span class="text-[var(--fg-muted)]">{t.brand}</span>
+          </figcaption>
+        </li>
+      ))}
+    </ul>
+  </div>
 </div>
 
+<script>
+  // Progressive enhancement: wire the prev/next arrows to scroll the rail by one
+  // card. The rail is already usable (swipe/scroll) without this.
+  document.querySelectorAll<HTMLElement>('.ss-tst').forEach((root) => {
+    const rail = root.querySelector<HTMLElement>('[data-testimonials]');
+    if (!rail) return;
+    const step = () => {
+      const item = rail.querySelector<HTMLElement>('.ss-trail__item');
+      const gap = parseFloat(getComputedStyle(rail.querySelector('.ss-trail__track')!).columnGap || '0');
+      return item ? item.getBoundingClientRect().width + gap : rail.clientWidth * 0.8;
+    };
+    root.querySelector('[data-tprev]')?.addEventListener('click', () => rail.scrollBy({ left: -step(), behavior: 'smooth' }));
+    root.querySelector('[data-tnext]')?.addEventListener('click', () => rail.scrollBy({ left: step(), behavior: 'smooth' }));
+  });
+</script>
+
 <style>
+  .ss-tst__head { margin-bottom: var(--space-3); }
+  .ss-tst__nav {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid var(--rule-c);
+    background: var(--ground);
+    color: var(--fg);
+    transition: border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .ss-tst__nav:hover { color: var(--accent-text); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); }
+  .ss-tst__nav:active { transform: scale(0.94); }
+  .ss-tst__nav:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+
   .ss-trail {
     overflow-x: auto;
-    scroll-snap-type: x proximity;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
     scrollbar-width: none;
     margin-inline: calc(-1 * var(--space-3));
     padding-inline: var(--space-3);
