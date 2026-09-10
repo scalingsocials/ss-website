@@ -372,7 +372,7 @@ export const SERVICES: ServiceContent[] = [
     eyebrow: 'Social media',
     title: 'Social Media Marketing Agency Bangalore | Scaling Socials',
     description:
-      'Scaling Socials plans, edits and posts organic social for D2C brands in India and the UAE: ideation, content calendar, editing and grid, and community.',
+      'Scaling Socials plans, edits and posts organic social for D2C brands in India and the UAE: ideation, content calendar, editing, grid planning and posting.',
     h1: 'Social media marketing agency in Bangalore',
     answer:
       'Scaling Socials is a social media marketing agency in Bangalore that plans, edits and runs organic social for D2C and ecommerce brands across India and the UAE. We handle the ideas, the monthly content calendar, the editing and the posting; you capture the raw footage from a shot list we give you.',
@@ -382,14 +382,14 @@ export const SERVICES: ServiceContent[] = [
       paras: [
         'Followers don’t pay invoices. We build organic social to warm an audience so paid works harder, and to produce the native content a testing pipeline runs on. It shares one creative engine with your ads, so nothing gets made twice.',
         'Here is how it actually works. We plan the whole month’s content in advance and hand you a shot list, what to film, how, and why. You capture the raw footage and photos on your end; we take it from there, editing the reels and statics, planning the grid, then scheduling and posting.',
-        'We also run the community, because the comments and DMs are where trust and repeat purchase get built. For founder- and creator-led brands we lean into your voice on purpose, and on creators we give you the ideas and a shortlist rather than running cold outreach.',
+        'For founder- and creator-led brands we lean into your voice on purpose, so the content sounds like you rather than like every other D2C account. On creators we give you the ideas and a shortlist rather than running cold outreach.',
       ],
     },
     subheading: 'What social media marketing with us includes',
     subservices: [
       { title: 'Ideation & content calendar', body: 'A month of content planned in advance, angles, hooks and a shot list of exactly what to capture.' },
       { title: 'Editing & production', body: 'You send the raw footage; we cut the reels, statics and short-form, and plan the grid.' },
-      { title: 'Posting & community', body: 'Scheduling, posting and grid management, plus comments and DMs handled like the retention channel they are.' },
+      { title: 'Grid planning & posting', body: 'Scheduling, posting and grid management, so the feed goes out on time and stays visually cohesive.' },
       { title: 'Creator & UGC direction', body: 'Ideas, briefs and a creator shortlist that fuel organic and paid, direction, not cold outreach.' },
     ],
     process: [
@@ -397,16 +397,15 @@ export const SERVICES: ServiceContent[] = [
       { title: 'Calendar', body: 'A full month planned in advance, with a shot list of exactly what to capture and why.' },
       { title: 'You capture', body: 'You film the raw footage and photos on your end, from the shot list we give you.' },
       { title: 'Edit & produce', body: 'We cut the reels, statics and short-form from your footage, and plan the grid.' },
-      { title: 'Post & manage', body: 'We schedule, post and run the community, then read what worked into next month’s plan.' },
+      { title: 'Post & measure', body: 'We schedule and post to the plan, then read what worked into next month’s calendar.' },
     ],
     value: {
       heading: 'What you actually get',
-      lede: 'Organic social that feeds performance, one team on the ideas, the editing, the posting and the community.',
+      lede: 'Organic social that feeds performance, one team on the ideas, the editing, the grid and the posting.',
       included: [
         'A month of content planned ahead, with a clear shot list for you to capture',
         'Reels, statics and short-form edited and produced in-house from your footage',
         'Grid planning, scheduling and posting handled end to end',
-        'Community management on comments and DMs, where trust gets built',
         'Creator and UGC direction that fuels organic and paid alike',
       ],
       note: 'Scope depends on how much content you need, how many channels you run, and whether creators are in the mix, tell us and we will map it out.',
@@ -424,7 +423,7 @@ export const SERVICES: ServiceContent[] = [
     ],
     faqs: [
       { q: 'Do you shoot the content?', a: 'No, you capture the raw footage and photos, and we do everything around it. We plan the month, give you a shot list of what to film and how, then edit the reels and statics, plan the grid, and schedule and post. You film; we handle the rest.' },
-      { q: 'What exactly do you handle each month?', a: 'Ideation and the content calendar up front, then editing, grid planning, scheduling, posting and community management. You supply raw footage against the shot list we send; we turn it into finished content and run the channels.' },
+      { q: 'What exactly do you handle each month?', a: 'Ideation and the content calendar up front, then editing, grid planning, scheduling and posting. You supply raw footage against the shot list we send; we turn it into finished content and publish it on schedule.' },
       { q: 'How does social media pricing work?', a: 'It comes down to how much content you need each month, how many channels you run, and whether creators are involved. Social scope varies widely, so we shape it around your brand rather than a one-size package, tell us what you need and we will map it out.' },
       { q: 'Do followers actually matter?', a: 'Not on their own. We build organic social to warm an audience so paid works harder, and to produce the native content a testing pipeline needs. Follower count is a by-product of that, not the target we aim at.' },
       { q: 'Do you work with creators?', a: 'Yes, but as direction rather than cold outreach. We give you the ideas, the briefs and a shortlist of creators to work with, and we fold the content that comes back into both organic and paid.' },
@@ -433,7 +432,7 @@ export const SERVICES: ServiceContent[] = [
     formHeading: 'Get a free social review',
     formQuestions: [
       { name: 'platforms', label: 'Channels you care about', type: 'select', required: true, options: ['Instagram', 'YouTube', 'Instagram and YouTube', 'Other'] },
-      { name: 'need', label: 'What you need', type: 'select', required: false, options: ['Content and editing', 'Posting and community', 'Both', 'Creator/UGC direction'] },
+      { name: 'need', label: 'What you need', type: 'select', required: false, options: ['Content and editing', 'Posting and grid planning', 'Both', 'Creator/UGC direction'] },
     ],
   },
   {

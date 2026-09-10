@@ -166,14 +166,18 @@ const loop = variant === 'marquee' ? [...items, ...items] : items;
     .ss-marquee::-webkit-scrollbar { display: none; }
   }
 
-  /* --- grid variant: 3-in-a-row gallery ----------------------------------- */
+  /* --- grid variant: masonry gallery, images shown WHOLE (never cropped) --- */
   .ss-cgrid {
-    display: grid;
-    gap: var(--space-3);
-    grid-template-columns: repeat(2, 1fr);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    columns: 2;
+    column-gap: var(--space-3);
   }
-  @media (min-width: 1024px) { .ss-cgrid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 1024px) { .ss-cgrid { columns: 3; } }
   .ss-cgrid__item {
+    break-inside: avoid;
+    margin-bottom: var(--space-3);
     border-radius: var(--radius-card);
     overflow: hidden;
     border: 1px solid var(--rule-c);
@@ -182,8 +186,7 @@ const loop = variant === 'marquee' ? [...items, ...items] : items;
   }
   .ss-cgrid__img {
     width: 100%;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
+    height: auto;          /* keep each creative's real aspect ratio */
     display: block;
     background: var(--surface-c);
   }
