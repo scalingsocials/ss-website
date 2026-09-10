@@ -1,17 +1,16 @@
 ---
 /**
- * CaseStudyLayout — one anonymised account, told as a state change.
+ * CaseStudyLayout — one anonymised account, told as a state change, with an
+ * interactive hand-rolled SVG hero visual chosen to fit the data this account
+ * actually has (see caseStudies.ts `tier` / `heroVisual`).
  *
- * Register rhythm is paper → ink → paper → paper → ink → paper → ink (three ink
- * bands, under the five-band cap in 08 §9). The ink bands are the "showing"
- * moments: the Delta up top and the before→after outcome near the bottom.
+ * No client is ever named — `client`/`niche` are descriptors, which is what
+ * satisfies the anonymity requirement. Every figure rendered comes from the study
+ * object; nothing is fabricated to fill a chart.
  *
- * No client is ever named — `client` on the data is a niche descriptor, which is
- * what satisfies Delta's mandatory attribution (CLAUDE.md §14). The schema
- * CreativeWork is `about` the niche for the same reason.
- *
- * Accounts with no honest before→after (mature retainers) carry `held` instead
- * of `delta` and render a steady-state proof. Never synthesise a Delta for them.
+ * Register rhythm keeps three ink bands (StatGrid, Before/After, CTA) — under the
+ * five-band cap. Motion is CSS + one IntersectionObserver and respects
+ * prefers-reduced-motion; every animated figure has its exact value as static text.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Meta from '@/components/seo/Meta.astro';
@@ -20,9 +19,15 @@ import Section from '@/components/primitives/Section.astro';
 import Prose from '@/components/primitives/Prose.astro';
 import Button from '@/components/primitives/Button.astro';
 import AnswerBlock from '@/components/blocks/AnswerBlock.astro';
-import Delta from '@/components/blocks/Delta.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
-import { ARCHETYPES, CASE_STUDIES, type CaseStudy } from '@/lib/caseStudies';
+import RangeStat from '@/components/casestudy/RangeStat.astro';
+import StatGrid from '@/components/casestudy/StatGrid.astro';
+import CaseVisual from '@/components/casestudy/CaseVisual.astro';
+import NumberedSteps from '@/components/casestudy/NumberedSteps.astro';
+import BeforeAfter from '@/components/casestudy/BeforeAfter.astro';
+import PullQuote from '@/components/casestudy/PullQuote.astro';
+import RelatedRow from '@/components/casestudy/RelatedRow.astro';
+import { ARCHETYPES, CASE_STUDIES_ORDERED, type CaseStudy } from '@/lib/caseStudies';
 import { base, caseStudy, webPage, breadcrumbs, articleId } from '@/lib/schema';
 
 export interface Props {
@@ -34,7 +39,7 @@ const url = `/case-studies/${s.slug}/`;
 const published = '2026-09-05';
 const publishedLabel = 'September 2026';
 const arch = ARCHETYPES[s.archetype];
-const related = CASE_STUDIES.filter((c) => c.slug !== s.slug).slice(0, 3);
+const related = CASE_STUDIES_ORDERED.filter((c) => c.slug !== s.slug).slice(0, 3);
 
 const nodes = [
   ...base(),
@@ -44,17 +49,10 @@ const nodes = [
     description: s.answer,
     datePublished: published,
     dateModified: published,
-    clientName: s.niche, // never the brand — anonymity is deliberate
+    clientName: s.niche,
     category: s.niche,
   }),
-  webPage({
-    url,
-    name: s.title,
-    description: s.answer,
-    aboutId: articleId(url),
-    hasBreadcrumb: true,
-    dateModified: published,
-  }),
+  webPage({ url, name: s.title, description: s.answer, aboutId: articleId(url), hasBreadcrumb: true, dateModified: published }),
   breadcrumbs(url, [
     { name: 'Home', url: '/' },
     { name: 'Case studies', url: '/case-studies/' },
@@ -67,78 +65,70 @@ const nodes = [
   <Meta slot="meta" title={s.title} description={s.description} type="article" modifiedTime={published} />
   <SchemaGraph slot="schema" nodes={nodes} />
 
-  <!-- 1 · paper — answer first -->
-  <Section size="lg">
-    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
-      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span> / </span>
-      <a href="/case-studies/" class="text-[var(--accent-text)] no-underline">Case studies</a><span> / </span>
-      <span>{s.niche}</span>
-    </nav>
+  <!-- 1 · paper — hero -->
+  <Section size="lg" class="ss-cs-hero relative overflow-hidden">
+    <!-- subtle per-archetype backdrop motif, draws in on load -->
+    <svg class="ss-cs-hero__bg" viewBox="0 0 600 300" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+      {s.archetype === 'launch' && <path class="ss-cs-hero__draw" d="M20 270 C 140 265, 200 230, 300 170 C 400 110, 470 60, 580 30" />}
+      {s.archetype === 'turnaround' && <><path class="ss-cs-hero__draw" d="M20 210 C 120 205, 200 200, 290 195" /><path class="ss-cs-hero__draw ss-cs-hero__draw--2" d="M310 200 C 400 150, 470 90, 580 40" /><line class="ss-cs-hero__rule" x1="300" y1="30" x2="300" y2="280" /></>}
+      {s.archetype === 'scale' && <><rect class="ss-cs-hero__band" x="20" y="150" width="560" height="70" /><path class="ss-cs-hero__draw" d="M20 235 C 160 210, 280 150, 400 110 C 480 84, 530 66, 580 50" /></>}
+      {s.archetype === 'sustain' && <><line class="ss-cs-hero__floor" x1="20" y1="180" x2="580" y2="180" /><circle class="ss-cs-hero__pt" cx="160" cy="130" r="5" /><circle class="ss-cs-hero__pt" cx="320" cy="150" r="5" /><circle class="ss-cs-hero__pt" cx="470" cy="120" r="5" /></>}
+    </svg>
 
-    <span class="ss-eyebrow">{s.niche} · {arch.label}</span>
-    <h1 class="max-w-[20ch]">{s.headline}</h1>
+    <div class="relative">
+      <nav aria-label="Breadcrumb" class="mb-[var(--space-3)] text-label text-[var(--fg-muted)]">
+        <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span class="mx-[0.35rem]">/</span>
+        <a href="/case-studies/" class="text-[var(--accent-text)] no-underline">Case studies</a><span class="mx-[0.35rem]">/</span>
+        <span>{s.niche}</span>
+      </nav>
 
-    <AnswerBlock class="mt-[var(--space-4)]">{s.answer}</AnswerBlock>
-
-    <p class="mt-[var(--space-4)] text-label text-[var(--fg-muted)]" data-num>
-      {s.channels} · {s.period} · Published <time datetime={published}>{publishedLabel}</time>
-    </p>
-
-    <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
-      <Button href="/audit/" variant="primary">Get a free growth plan</Button>
-      <Button href="/case-studies/" variant="secondary">All case studies</Button>
-    </div>
-  </Section>
-
-  <!-- 2 · ink — the state change, and the numbers behind it -->
-  <Section register="ink" size="md">
-    <div class="grid gap-[var(--space-8)] lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-      <div>
-        {s.delta ? (
-          <Delta
-            metric={s.delta.metric}
-            before={s.delta.before}
-            after={s.delta.after}
-            client={s.client}
-            period={s.period}
-            channel={s.channels}
-          />
-        ) : s.held ? (
-          <div>
-            <div class="text-label tracking-[0.03em] text-[var(--fg-muted)] mb-[var(--space-1)]">
-              {s.held.metric}
-            </div>
-            <div class="display-type text-data font-semibold tracking-[-0.025em] text-[var(--pos)]" data-num>
-              {s.held.value}
-            </div>
-            <p class="mt-[0.4rem] max-w-[34ch] text-label text-[var(--fg-muted)]">{s.held.note}</p>
-            <p class="mt-[var(--space-2)] text-label text-[var(--fg-muted)]">
-              {s.client}, {s.channels}, {s.period}
-            </p>
+      <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div>
+          <span class="ss-eyebrow">{s.niche} · {arch.label}</span>
+          <h1 class="max-w-[18ch]">{s.headline}</h1>
+          <AnswerBlock class="mt-[var(--space-4)]">{s.answer}</AnswerBlock>
+          <p class="mt-[var(--space-4)] text-label text-[var(--fg-muted)]" data-num>
+            {s.channels} · {s.period} · Published <time datetime={published}>{publishedLabel}</time>
+          </p>
+          <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+            <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+            <Button href="/case-studies/" variant="secondary">All case studies</Button>
           </div>
-        ) : null}
+        </div>
+        <div class="ss-cs-hero__stat rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-6)]">
+          {s.delta ? (
+            <RangeStat label={s.delta.metric} from={s.delta.before} to={s.delta.after} />
+          ) : s.held ? (
+            <RangeStat label={s.held.metric} value={s.held.value} caption={s.held.note} />
+          ) : null}
+        </div>
       </div>
-
-      <ul class="ss-stats grid grid-cols-2 gap-px sm:grid-cols-4 lg:grid-cols-2">
-        {s.stats.map((st) => (
-          <li class="flex flex-col gap-[0.2rem] bg-[var(--ground)] p-[var(--space-4)]">
-            <span class="display-type text-data-sm font-bold leading-none text-[var(--fg)]" data-num>{st.value}</span>
-            <span class="text-label text-[var(--fg-muted)]">{st.label}</span>
-          </li>
-        ))}
-      </ul>
     </div>
   </Section>
 
-  <!-- 3 · paper — where the account started -->
+  <!-- 2 · ink — the four figures -->
+  <Section register="ink" size="md">
+    <span class="ss-eyebrow">The numbers</span>
+    <h2 class="max-w-[22ch] text-h2 font-semibold">What the account did</h2>
+    <div class="mt-[var(--space-6)]"><StatGrid stats={s.stats} /></div>
+  </Section>
+
+  <!-- 3 · paper — the interactive hero visual -->
   <Section size="md">
+    <span class="ss-eyebrow">The shape of it</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">How the account actually moved</h2>
+    <div class="mt-[var(--space-6)]"><CaseVisual visual={s.heroVisual} /></div>
+  </Section>
+
+  <!-- 4 · surface — where it started -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
     <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.4fr_1fr] lg:items-start">
       <div>
         <span class="ss-eyebrow">The starting point</span>
         <h2 class="max-w-[22ch] text-h2 font-semibold">Where the account was</h2>
         <Prose class="mt-[var(--space-4)]"><p>{s.situation}</p></Prose>
       </div>
-      <aside class="lg:sticky lg:top-[96px] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] p-[var(--space-5)]">
+      <aside class="lg:sticky lg:top-[96px] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]">
         <span class="text-label font-semibold text-[var(--fg-muted)]">{arch.label}</span>
         <p class="mt-[var(--space-2)] text-small leading-relaxed text-[var(--fg-muted)]">{arch.blurb}</p>
         <p class="mt-[var(--space-4)] border-t border-[var(--rule-c)] pt-[var(--space-3)] text-label text-[var(--fg-muted)]">
@@ -149,84 +139,41 @@ const nodes = [
     </div>
   </Section>
 
-  <!-- 4 · paper (surface) — what we actually did -->
-  <Section size="md" class="!bg-[var(--surface-c)]">
+  <!-- 5 · paper — what we did -->
+  <Section size="md">
     <span class="ss-eyebrow">The work</span>
     <h2 class="max-w-[24ch] text-h2 font-semibold">What we did</h2>
-    <ol class="mt-[var(--space-6)] grid gap-[var(--space-4)] md:grid-cols-2">
-      {s.moves.map((m) => (
-        <li class="flex flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]">
-          <h3 class="text-h4 font-semibold text-[var(--fg)]">{m.title}</h3>
-          <p class="text-small leading-relaxed text-[var(--fg-muted)]">{m.body}</p>
-        </li>
-      ))}
-    </ol>
+    <div class="mt-[var(--space-6)]"><NumberedSteps steps={s.moves} /></div>
   </Section>
 
-  <!-- 5 · ink — before → after -->
+  <!-- 6 · ink — before → after -->
   <Section register="ink" size="md">
     <span class="ss-eyebrow">The outcome</span>
     <h2 class="max-w-[24ch] text-h2 font-semibold">Before and after</h2>
-    <table class="ss-outcome mt-[var(--space-6)] w-full border-collapse text-left">
-      <thead>
-        <tr>
-          <th scope="col" class="w-1/2 border-b border-[var(--rule-c)] pb-[var(--space-2)] text-label font-semibold text-[var(--fg-muted)]">
-            Before Scaling Socials
-          </th>
-          <th scope="col" class="w-1/2 border-b border-[var(--rule-c)] pb-[var(--space-2)] pl-[var(--space-4)] text-label font-semibold text-[var(--accent-text)]">
-            After
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {s.outcome.map((row) => (
-          <tr>
-            <td class="border-b border-[var(--rule-c)] py-[var(--space-3)] pr-[var(--space-4)] align-top text-small text-[var(--fg-muted)]">
-              {row.before}
-            </td>
-            <td class="border-b border-[var(--rule-c)] py-[var(--space-3)] pl-[var(--space-4)] align-top text-small font-medium text-[var(--fg)]">
-              {row.after}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div class="mt-[var(--space-6)]"><BeforeAfter rows={s.outcome} /></div>
   </Section>
 
-  <!-- 6 · paper — the soft month, then the lesson -->
+  <!-- 7 · paper — the soft month + takeaway -->
   <Section size="md">
-    <div class="grid gap-[var(--space-8)] lg:grid-cols-2 lg:items-start">
-      <div>
-        <span class="ss-eyebrow">The month we don’t hide</span>
-        <h2 class="max-w-[22ch] text-h2 font-semibold">The soft month</h2>
-        <p class="mt-[var(--space-4)] max-w-[54ch] text-body leading-relaxed text-[var(--fg-muted)]">
-          {s.honesty}
-        </p>
-      </div>
-      <div class="border-l-2 border-[var(--accent-fill)] pl-[var(--space-5)]">
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-2 lg:items-center">
+      <PullQuote text={s.honesty} context="The soft month" />
+      <div class="lg:pl-[var(--space-4)]">
         <span class="ss-eyebrow">The takeaway</span>
-        <p class="max-w-[52ch] text-h4 leading-[1.5] text-[var(--fg)]">{s.takeaway}</p>
+        <p class="max-w-[50ch] text-h4 leading-[1.5] text-[var(--fg)]">{s.takeaway}</p>
       </div>
     </div>
   </Section>
 
-  <!-- 7 · paper (surface) — read another -->
+  <!-- 8 · surface — read another -->
   <Section size="md" class="!bg-[var(--surface-c)]">
     <span class="ss-eyebrow">More proof</span>
     <h2 class="max-w-[24ch] text-h2 font-semibold">Other accounts</h2>
-    <ul class="mt-[var(--space-5)] grid gap-[var(--space-3)] sm:grid-cols-3">
-      {related.map((r) => (
-        <li>
-          <a href={`/case-studies/${r.slug}/`} class="ss-rel group flex h-full flex-col gap-[var(--space-1)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline">
-            <span class="text-label text-[var(--fg-muted)]">{r.niche}</span>
-            <span class="text-h4 font-semibold leading-snug text-[var(--fg)] group-hover:text-[var(--accent-text)]">{r.headline}</span>
-            <span class="mt-auto pt-[var(--space-3)] text-label text-[var(--fg-muted)]" data-num>{r.period}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
+    <div class="mt-[var(--space-5)]">
+      <RelatedRow items={related.map((r) => ({ href: `/case-studies/${r.slug}/`, niche: r.niche, headline: r.headline, period: r.period }))} />
+    </div>
   </Section>
 
+  <!-- 9 · ink — CTA -->
   <Section register="ink" size="md">
     <CtaBand
       heading="Want your account to read like this?"
@@ -238,12 +185,35 @@ const nodes = [
     />
   </Section>
 
+  <script>
+    import '@/scripts/caseviz.ts';
+  </script>
+
   <style>
     .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
-    .ss-stats { background: var(--rule-c); border: 1px solid var(--rule-c); }
-    .ss-rel { transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
-    @media (prefers-reduced-motion: no-preference) {
-      .ss-rel:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); }
+
+    /* hero backdrop motif */
+    .ss-cs-hero__bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.5;
+      pointer-events: none;
+      -webkit-mask-image: radial-gradient(120% 100% at 80% 0%, #000 30%, transparent 78%);
+              mask-image: radial-gradient(120% 100% at 80% 0%, #000 30%, transparent 78%);
     }
+    .ss-cs-hero__draw, .ss-cs-hero__draw--2 { fill: none; stroke: color-mix(in srgb, var(--accent-graphic) 40%, transparent); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 900; stroke-dashoffset: 900; }
+    .ss-cs-hero__rule { stroke: color-mix(in srgb, var(--rule-c) 90%, transparent); stroke-width: 1.5; stroke-dasharray: 4 5; }
+    .ss-cs-hero__band { fill: color-mix(in srgb, var(--accent-fill) 8%, transparent); }
+    .ss-cs-hero__floor { stroke: color-mix(in srgb, var(--accent-graphic) 45%, transparent); stroke-width: 2.5; stroke-linecap: round; }
+    .ss-cs-hero__pt { fill: color-mix(in srgb, var(--accent-graphic) 55%, transparent); }
+    @media (prefers-reduced-motion: no-preference) {
+      .ss-cs-hero__draw { animation: ssCsDraw 1.6s var(--ease-out) 0.2s forwards; }
+      .ss-cs-hero__draw--2 { animation-delay: 0.5s; }
+      @keyframes ssCsDraw { to { stroke-dashoffset: 0; } }
+    }
+
+    .ss-cs-hero__stat { box-shadow: 0 24px 60px -40px color-mix(in srgb, var(--accent-fill) 40%, transparent); }
   </style>
 </BaseLayout>

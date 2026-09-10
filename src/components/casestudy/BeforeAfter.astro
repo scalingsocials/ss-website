@@ -1,0 +1,69 @@
+---
+/**
+ * BeforeAfter — muted "Before" vs accent "After", the After value sliding in from
+ * the Before side on scroll. Built as a real <table> so it is fully accessible
+ * with JS off; the motion is pure CSS keyed on the global .is-visible state.
+ */
+export interface Props {
+  rows: { before: string; after: string }[];
+  class?: string;
+}
+const { rows, class: className = '' } = Astro.props;
+---
+<table class:list={['ss-ba', className]}>
+  <thead>
+    <tr>
+      <th scope="col" class="ss-ba__head">Before Scaling Socials</th>
+      <th scope="col" class="ss-ba__head ss-ba__head--after">After</th>
+    </tr>
+  </thead>
+  <tbody>
+    {rows.map((r, i) => (
+      <tr data-reveal style={`--i:${i}`}>
+        <td class="ss-ba__before">{r.before}</td>
+        <td class="ss-ba__after"><span class="ss-ba__after-inner">{r.after}</span></td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+<style>
+  .ss-ba { width: 100%; border-collapse: collapse; text-align: left; }
+  .ss-ba__head {
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--rule-c);
+    font-size: var(--text-label);
+    font-weight: 600;
+    color: var(--fg-muted);
+  }
+  .ss-ba__head--after { padding-left: var(--space-4); color: var(--accent-text); }
+  .ss-ba__before {
+    width: 50%;
+    padding: var(--space-3) var(--space-4) var(--space-3) 0;
+    border-bottom: 1px solid var(--rule-c);
+    vertical-align: top;
+    font-size: var(--text-small);
+    color: var(--fg-muted);
+  }
+  .ss-ba__after {
+    width: 50%;
+    padding: var(--space-3) 0 var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--rule-c);
+    border-left: 2px solid color-mix(in srgb, var(--accent-fill) 40%, var(--rule-c));
+    vertical-align: top;
+    font-size: var(--text-small);
+    font-weight: 500;
+    color: var(--fg);
+  }
+  .ss-ba__after-inner { display: inline-block; }
+  /* After slides in from the Before side on reveal. */
+  .js-reveal .ss-ba tbody tr[data-reveal] .ss-ba__after-inner {
+    opacity: 0;
+    transform: translateX(-22px);
+    transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 70ms);
+  }
+  .js-reveal .ss-ba tbody tr[data-reveal].is-visible .ss-ba__after-inner {
+    opacity: 1;
+    transform: none;
+  }
+</style>

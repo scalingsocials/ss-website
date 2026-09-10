@@ -52,8 +52,40 @@ export interface OutcomeRow {
   after: string;
 }
 
+/**
+ * Hero visual config. Each variant carries ONLY the real anchor numbers the page
+ * states in its copy — nothing is fabricated to fill a chart. `v` fields are the
+ * plotted number; `display` is the exact label rendered as text. Tier drives which
+ * shape a page earns (A = real series, B = discrete real points, C = headline/band).
+ */
+export type VizPoint = { label: string; v: number; display: string; dip?: boolean; peak?: boolean; worst?: boolean; inflection?: boolean; dead?: boolean };
+export type HeroVisual =
+  // Tier B — discrete revenue nodes with connectors (wellness): plot only real points.
+  | { type: 'stepMarkers'; unit: '₹'; nodes: { label: string; value: string; v: number; roas?: string; dead?: boolean; inflection?: boolean }[]; spendNote?: string }
+  // Tier A — ascending ROAS climb on flat spend (gifting): rising bars, spend is a caption.
+  | { type: 'climb'; unit: 'x'; points: VizPoint[]; note: string }
+  // Tier A — ROAS journey line with a named dip (indo-western): plotted line + average ref.
+  | { type: 'journey'; unit: 'x'; points: VizPoint[]; avgLine: { v: number; display: string }; note: string }
+  // Tier A/B — prior-agency points vs our real markers + revenue bars (women's fashion).
+  | {
+      type: 'splitCompare';
+      prior: { label: string; points: VizPoint[]; avg: { v: number; display: string } };
+      ours: { label: string; peak: VizPoint; avg: { v: number; display: string }; worst: { v: number; display: string } };
+      revenue: { beforeV: number; before: string; afterV: number; after: string };
+    }
+  // Tier B/C — a shaded "before" range with every real "after" point sitting above it (womenswear ceiling).
+  | { type: 'bandCompare'; before: { label: string; range: [number, number]; display: string }; after: { label: string; points: VizPoint[]; avg: { v: number; display: string } } }
+  // Tier C — a bold floor threshold with the operating band and real points riding above it (kids accessories).
+  | { type: 'floorDial'; floor: { v: number; display: string }; band: [number, number]; average: { v: number; display: string }; points: { label: string; roas?: number; roasDisplay?: string; spend?: string; revenue?: string; floor?: boolean }[]; note: string }
+  // Tier C — an 8-month duration ribbon through a seasonal cycle with a tight consistency band (kidswear).
+  | { type: 'longevity'; startLabel: string; endLabel: string; monthsCount: number; band: [number, number]; bandDisplay: string; avg: { v: number; display: string }; note: string };
+
 export interface CaseStudy {
   slug: string;
+  /** Data-availability tier — drives which hero visual the page earns. */
+  tier: 'A' | 'B' | 'C';
+  /** Per-page interactive hero visual, fed only by this study's real numbers. */
+  heroVisual: HeroVisual;
   /** Public identity. Never a brand name. */
   niche: string;
   /** Attribution string passed to Delta/CaseStudyCard in place of a name. */
@@ -104,6 +136,18 @@ export const ARCHETYPES: Record<Archetype, { label: string; blurb: string }> = {
 export const CASE_STUDIES: CaseStudy[] = [
   {
     slug: 'wellness-brand-zero-to-scale',
+    tier: 'B',
+    heroVisual: {
+      type: 'stepMarkers',
+      unit: '₹',
+      nodes: [
+        { label: 'First 2 months', value: '₹0', v: 0, dead: true },
+        { label: 'Feb', value: '₹42,000', v: 42000 },
+        { label: 'Mar', value: '₹3,00,000', v: 300000, roas: '11.54x', inflection: true },
+        { label: 'Run-rate', value: '₹3,50,000/mo', v: 350000, roas: '6.00x' },
+      ],
+      spendNote: 'Spend ₹7,800 → ₹26,000 at the inflection; ₹8,000 → ₹3,50,000 overall (44x).',
+    },
     niche: 'Wellness D2C',
     client: 'A wellness D2C brand',
     archetype: 'launch',
@@ -155,6 +199,26 @@ export const CASE_STUDIES: CaseStudy[] = [
 
   {
     slug: 'womens-fashion-account-turnaround',
+    tier: 'A',
+    heroVisual: {
+      type: 'splitCompare',
+      prior: {
+        label: 'Prior agency',
+        points: [
+          { label: 'Feb', v: 1.30, display: '1.30x' },
+          { label: 'Mar', v: 2.00, display: '2.00x' },
+          { label: 'Apr', v: 1.63, display: '1.63x' },
+        ],
+        avg: { v: 1.75, display: '1.75x' },
+      },
+      ours: {
+        label: 'With us',
+        peak: { label: 'May', v: 5.26, display: '5.26x' },
+        avg: { v: 3.94, display: '3.94x' },
+        worst: { v: 3.59, display: '3.59x' },
+      },
+      revenue: { beforeV: 2.5, before: '₹2.50 L', afterV: 7.6, after: '₹7.60 L' },
+    },
     niche: "Women's fashion",
     client: "A women's fashion label",
     archetype: 'turnaround',
@@ -206,6 +270,17 @@ export const CASE_STUDIES: CaseStudy[] = [
 
   {
     slug: 'gifting-brand-new-concept-launch',
+    tier: 'A',
+    heroVisual: {
+      type: 'climb',
+      unit: 'x',
+      points: [
+        { label: 'May', v: 9.62, display: '9.62x' },
+        { label: 'Jun', v: 11.40, display: '11.40x' },
+        { label: 'Jul', v: 14.23, display: '14.23x' },
+      ],
+      note: 'Spend held flat across the quarter (₹80,646); return climbed every month.',
+    },
     niche: 'Gifting',
     client: 'A gifting brand',
     archetype: 'launch',
@@ -257,6 +332,21 @@ export const CASE_STUDIES: CaseStudy[] = [
 
   {
     slug: 'womenswear-breaking-the-ceiling',
+    tier: 'B',
+    heroVisual: {
+      type: 'bandCompare',
+      before: { label: '2025 operating range', range: [3, 5], display: '3–5x' },
+      after: {
+        label: '2026 months',
+        points: [
+          { label: 'Mar', v: 5.83, display: '5.83x', worst: true },
+          { label: 'May', v: 8.59, display: '8.59x', peak: true },
+          { label: 'Jun', v: 6.99, display: '6.99x' },
+          { label: 'Jul', v: 6.14, display: '6.14x' },
+        ],
+        avg: { v: 7.09, display: '7.09x' },
+      },
+    },
     niche: "Mid-luxury women's western wear",
     client: "A mid-luxury women's western wear label",
     archetype: 'scale',
@@ -308,6 +398,20 @@ export const CASE_STUDIES: CaseStudy[] = [
 
   {
     slug: 'kids-accessories-seven-month-floor',
+    tier: 'C',
+    heroVisual: {
+      type: 'floorDial',
+      floor: { v: 6.95, display: '6.95x' },
+      band: [6.95, 8.75],
+      average: { v: 7.47, display: '7.47x' },
+      points: [
+        { label: 'Feb · lowest spend', roas: 8.75, roasDisplay: '8.75x' },
+        { label: 'Apr · the floor', roas: 6.95, roasDisplay: '6.95x', floor: true },
+        { label: 'Mar', spend: '₹1,31,000', revenue: '₹9,74,000' },
+        { label: 'May', spend: '₹1,31,000', revenue: '₹10,00,000' },
+      ],
+      note: 'Budget flexed ₹89,000–₹1,31,000 (a 47% swing) while ROAS stayed inside a 1.8x band.',
+    },
     niche: 'Kids accessories',
     client: 'A kids accessories brand',
     archetype: 'sustain',
@@ -363,6 +467,18 @@ export const CASE_STUDIES: CaseStudy[] = [
 
   {
     slug: 'indo-western-launch-90-days',
+    tier: 'A',
+    heroVisual: {
+      type: 'journey',
+      unit: 'x',
+      points: [
+        { label: 'Month 1', v: 7.31, display: '7.31x' },
+        { label: 'Month 2', v: 7.00, display: '7.00x' },
+        { label: 'Month 3', v: 4.83, display: '4.83x', dip: true },
+      ],
+      avgLine: { v: 6.33, display: '6.33x' },
+      note: 'Month three dipped to 4.83x; the quarter still closed at 6.33x average, above the 6x line.',
+    },
     niche: 'Premium Indo-western occasion wear',
     client: 'A premium Indo-western occasion wear label',
     archetype: 'launch',
@@ -414,6 +530,17 @@ export const CASE_STUDIES: CaseStudy[] = [
 
   {
     slug: 'kidswear-campaign-longevity',
+    tier: 'C',
+    heroVisual: {
+      type: 'longevity',
+      startLabel: 'Dec',
+      endLabel: 'Jul',
+      monthsCount: 8,
+      band: [5.20, 5.76],
+      bandDisplay: '5.20x–5.76x',
+      avg: { v: 5.39, display: '5.39x' },
+      note: 'One campaign, live since December, through a full seasonal cycle without a rebuild.',
+    },
     niche: 'Kidswear',
     client: 'A kidswear brand',
     archetype: 'sustain',
@@ -471,6 +598,26 @@ export const CASE_STUDIES: CaseStudy[] = [
 export const CASE_STUDY_BY_SLUG: Record<string, CaseStudy> = Object.fromEntries(
   CASE_STUDIES.map((c) => [c.slug, c]),
 );
+
+/**
+ * Listing order — lead with the strongest proof (owner-confirmed), not the array
+ * order. The index renders a plain grid in exactly this sequence.
+ */
+export const INDEX_ORDER = [
+  'wellness-brand-zero-to-scale',
+  'womenswear-breaking-the-ceiling',
+  'kids-accessories-seven-month-floor',
+  'womens-fashion-account-turnaround',
+  'gifting-brand-new-concept-launch',
+  'indo-western-launch-90-days',
+  'kidswear-campaign-longevity',
+] as const;
+
+export const CASE_STUDIES_ORDERED: CaseStudy[] = INDEX_ORDER.map((slug) => {
+  const c = CASE_STUDY_BY_SLUG[slug];
+  if (!c) throw new Error(`INDEX_ORDER references unknown slug: ${slug}`);
+  return c;
+});
 
 /**
  * Verified aggregate — the sum of the seven accounts documented above, and

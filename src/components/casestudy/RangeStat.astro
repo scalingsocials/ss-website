@@ -1,0 +1,47 @@
+---
+/**
+ * RangeStat — the hero figure. Two modes:
+ *  - range: a from → to change; the big number is `to` and counts up (from the
+ *    numeric `from` when it is a single number, else from 0), with "from → to"
+ *    shown as static context.
+ *  - single: one value + caption (mature-retainer stories).
+ * The exact real values are always present as static text.
+ */
+export interface Props {
+  label: string;
+  from?: string;
+  to?: string;
+  value?: string;
+  caption?: string;
+  class?: string;
+}
+const { label, from, to, value, caption, class: className = '' } = Astro.props;
+const single = !!value;
+// Count up from a numeric `from` (e.g. 9.62x → 14.23x); skip for non-numeric froms (₹0, 3–5x).
+const numericFrom = from && /^[^\d-]*-?[\d.,]+[^–-]*$/.test(from) && !from.includes('–') ? from : undefined;
+---
+<div class:list={['ss-rangestat', className]} data-reveal>
+  <span class="ss-rangestat__label text-label font-semibold tracking-[0.03em] text-[var(--accent-text)]">{label}</span>
+  {single ? (
+    <>
+      <span class="ss-rangestat__big display-type font-bold leading-none tracking-[-0.03em] text-[var(--fg)]" data-num data-countup>{value}</span>
+      {caption && <p class="ss-rangestat__cap mt-[var(--space-2)] max-w-[40ch] text-small leading-relaxed text-[var(--fg-muted)]">{caption}</p>}
+    </>
+  ) : (
+    <>
+      <span class="ss-rangestat__big display-type font-bold leading-none tracking-[-0.03em] text-[var(--pos)]" data-num data-countup data-countup-from={numericFrom}>{to}</span>
+      <span class="ss-rangestat__from mt-[var(--space-2)] inline-flex items-center gap-[0.5rem] text-h4 text-[var(--fg-muted)]" data-num>
+        <span>{from}</span>
+        <svg width="26" height="12" viewBox="0 0 26 12" fill="none" aria-hidden="true"><path d="M1 6h22M18 2l5 4-5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="font-semibold text-[var(--fg)]">{to}</span>
+      </span>
+      {caption && <p class="ss-rangestat__cap mt-[var(--space-2)] max-w-[40ch] text-small leading-relaxed text-[var(--fg-muted)]">{caption}</p>}
+      <span class="sr-only">{label}: {from} to {to}.</span>
+    </>
+  )}
+</div>
+<style>
+  .ss-rangestat { display: flex; flex-direction: column; gap: 0.5rem; }
+  .ss-rangestat__label { display: inline-block; }
+  .ss-rangestat__big { font-size: var(--text-data); font-variant-numeric: tabular-nums; }
+</style>

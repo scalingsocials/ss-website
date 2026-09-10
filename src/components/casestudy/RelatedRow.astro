@@ -1,0 +1,33 @@
+---
+/**
+ * RelatedRow — other accounts as a card row: niche + headline hook + period,
+ * hover lift. No client names (anonymity), consistent with the rest of the system.
+ */
+export interface Props {
+  items: { href: string; niche: string; headline: string; period: string }[];
+  class?: string;
+}
+const { items, class: className = '' } = Astro.props;
+---
+<ul class:list={['grid gap-[var(--space-3)] sm:grid-cols-3', className]}>
+  {items.map((r) => (
+    <li>
+      <a href={r.href} class="ss-related group flex h-full flex-col gap-[var(--space-1)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline">
+        <span class="text-label text-[var(--fg-muted)]">{r.niche}</span>
+        <span class="text-h4 font-semibold leading-snug text-[var(--fg)] group-hover:text-[var(--accent-text)]">{r.headline}</span>
+        <span class="mt-auto inline-flex items-center gap-[0.35rem] pt-[var(--space-3)] text-label text-[var(--fg-muted)]" data-num>
+          {r.period}
+          <svg class="ss-related__go" width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+    </li>
+  ))}
+</ul>
+<style>
+  .ss-related { transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
+  .ss-related__go { transition: transform var(--dur-fast) var(--ease-out); }
+  @media (prefers-reduced-motion: no-preference) {
+    .ss-related:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); }
+    .ss-related:hover .ss-related__go { transform: translateX(3px); }
+  }
+</style>

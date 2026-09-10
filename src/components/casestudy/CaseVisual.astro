@@ -1,0 +1,381 @@
+---
+/**
+ * CaseVisual — the per-page interactive hero visual, one component with a variant
+ * per archetype. Hand-rolled inline SVG (no chart library). Every plotted number
+ * comes from the study's real `heroVisual` config; nothing is fabricated to fill
+ * a chart. Each point carries a native <title> for hover detail and a visible
+ * label, and the whole thing is mirrored in a visually-hidden data table.
+ *
+ * `variant="thumb"` renders a compact, static, label-free version for the index
+ * cards — same data, same shapes, so a thumbnail can never drift from its page.
+ *
+ * Draw-in animates via the site's [data-reveal] → .is-visible observer and is
+ * disabled under prefers-reduced-motion by the global rule in theme.css.
+ */
+import type { HeroVisual } from '@/lib/caseStudies';
+
+export interface Props {
+  visual: HeroVisual;
+  variant?: 'full' | 'thumb';
+  class?: string;
+}
+const { visual: v, variant = 'full', class: className = '' } = Astro.props;
+const thumb = variant === 'thumb';
+
+// Shared plot frame.
+const W = 680;
+const H = 360;
+const L = 46;
+const R = 40;
+const T = 56;
+const B = 58;
+const plotW = W - L - R;
+const plotH = H - T - B;
+const yBase = H - B;
+const round = (n: number) => Math.round(n * 100) / 100;
+const xEven = (i: number, n: number) => (n <= 1 ? L + plotW / 2 : L + (plotW * i) / (n - 1));
+const yFor = (val: number, max: number, min = 0) => round(yBase - ((val - min) / (max - min)) * plotH);
+
+// Per-type derived geometry (only what each visual needs).
+let aria = 'Case study chart';
+if (v.type === 'climb') aria = `ROAS climbing ${v.points.map((p) => p.display).join(' to ')}`;
+else if (v.type === 'journey') aria = `ROAS by month ${v.points.map((p) => p.display).join(', ')}, average ${v.avgLine.display}`;
+else if (v.type === 'stepMarkers') aria = `Revenue by stage ${v.nodes.map((n) => n.value).join(', ')}`;
+else if (v.type === 'splitCompare') aria = `ROAS ${v.prior.avg.display} under the prior agency versus ${v.ours.avg.display} with us`;
+else if (v.type === 'bandCompare') aria = `Every 2026 month above the ${v.before.display} range of 2025`;
+else if (v.type === 'floorDial') aria = `ROAS held above a ${v.floor.display} floor, average ${v.average.display}`;
+else if (v.type === 'longevity') aria = `One campaign live ${v.monthsCount} months at ${v.avg.display} average`;
+
+const note = 'note' in v ? v.note : v.type === 'stepMarkers' ? v.spendNote : undefined;
+---
+<figure class:list={['cv', `cv--${v.type}`, thumb && 'cv--thumb', className]} data-reveal>
+  <svg class="cv__svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={aria}>
+    {/* ---------- CLIMB: ascending ROAS bars (gifting) ---------- */}
+    {v.type === 'climb' && (() => {
+      const max = Math.max(...v.points.map((p) => p.v)) * 1.12;
+      const n = v.points.length;
+      const bw = Math.min(96, (plotW / n) * 0.5);
+      const cx = (i: number) => L + (plotW * (i + 0.5)) / n;
+      const tops = v.points.map((p) => ({ x: cx(v.points.indexOf(p)), y: yFor(p.v, max), p }));
+      return (
+        <g>
+          <line class="cv__axis" x1={L} y1={yBase} x2={W - R} y2={yBase} />
+          <polyline class="cv__trend" points={tops.map((t) => `${t.x},${t.y}`).join(' ')} />
+          {v.points.map((p, i) => {
+            const x = cx(i);
+            const y = yFor(p.v, max);
+            return (
+              <g>
+                <rect class="cv__bar cv__bar--rise" x={round(x - bw / 2)} y={y} width={round(bw)} height={round(yBase - y)} rx="4" style={`--i:${i}`}>
+                  <title>{p.label}: {p.display} ROAS</title>
+                </rect>
+                <circle class="cv__dot" cx={x} cy={y} r={thumb ? 4 : 5} />
+                {!thumb && <text class="cv__val" x={x} y={y - 14} text-anchor="middle">{p.display}</text>}
+                {!thumb && <text class="cv__lbl" x={x} y={yBase + 22} text-anchor="middle">{p.label}</text>}
+              </g>
+            );
+          })}
+        </g>
+      );
+    })()}
+
+    {/* ---------- JOURNEY: ROAS line with a named dip + average ref (indo-western) ---------- */}
+    {v.type === 'journey' && (() => {
+      const max = Math.max(...v.points.map((p) => p.v), v.avgLine.v) * 1.18;
+      const n = v.points.length;
+      const pts = v.points.map((p, i) => ({ x: xEven(i, n), y: yFor(p.v, max), p }));
+      const line = pts.map((pt) => `${pt.x},${pt.y}`).join(' ');
+      const area = `${pts[0].x},${yBase} ${line} ${pts[pts.length - 1].x},${yBase}`;
+      const avgY = yFor(v.avgLine.v, max);
+      return (
+        <g>
+          <line class="cv__axis" x1={L} y1={yBase} x2={W - R} y2={yBase} />
+          <line class="cv__avg" x1={L} y1={avgY} x2={W - R} y2={avgY} />
+          {!thumb && <text class="cv__avglbl" x={W - R} y={avgY - 8} text-anchor="end">Avg {v.avgLine.display}</text>}
+          <polygon class="cv__area" points={area} />
+          <polyline class="cv__line" points={line} />
+          {pts.map((pt, i) => (
+            <g>
+              <circle class:list={['cv__dot', pt.p.dip && 'cv__dot--neg']} cx={pt.x} cy={pt.y} r={thumb ? 4 : 6}>
+                <title>{pt.p.label}: {pt.p.display} ROAS{pt.p.dip ? ' (dip)' : ''}</title>
+              </circle>
+              {!thumb && <text class:list={['cv__val', pt.p.dip && 'cv__val--neg']} x={pt.x} y={pt.y - 16} text-anchor="middle">{pt.p.display}</text>}
+              {!thumb && <text class="cv__lbl" x={pt.x} y={yBase + 22} text-anchor="middle">{pt.p.label}</text>}
+            </g>
+          ))}
+        </g>
+      );
+    })()}
+
+    {/* ---------- STEP MARKERS: real revenue nodes with connectors (wellness) ---------- */}
+    {v.type === 'stepMarkers' && (() => {
+      const max = Math.max(...v.nodes.map((nd) => nd.v)) * 1.16;
+      const n = v.nodes.length;
+      const pts = v.nodes.map((nd, i) => ({ x: xEven(i, n), y: yFor(nd.v, max), nd }));
+      const path = pts.map((pt) => `${pt.x},${pt.y}`).join(' ');
+      const deadX = pts[0].x;
+      const deadX2 = pts[1] ? (pts[0].x + pts[1].x) / 2 : deadX;
+      return (
+        <g>
+          <line class="cv__axis" x1={L} y1={yBase} x2={W - R} y2={yBase} />
+          <rect class="cv__dead" x={L} y={T} width={round(deadX2 - L)} height={round(yBase - T)} />
+          {!thumb && <text class="cv__deadlbl" x={(L + deadX2) / 2} y={T + 18} text-anchor="middle">Two dead months</text>}
+          <polyline class="cv__line" points={path} />
+          {pts.map((pt, i) => (
+            <g>
+              <circle class:list={['cv__dot', pt.nd.inflection && 'cv__dot--peak']} cx={pt.x} cy={pt.y} r={thumb ? 4 : pt.nd.inflection ? 7 : 5}>
+                <title>{pt.nd.label}: {pt.nd.value}{pt.nd.roas ? ` at ${pt.nd.roas}` : ''}</title>
+              </circle>
+              {!thumb && <text class="cv__val" x={pt.x} y={pt.y - 16} text-anchor="middle">{pt.nd.value}</text>}
+              {!thumb && pt.nd.roas && <text class="cv__sub" x={pt.x} y={pt.y - 32} text-anchor="middle">{pt.nd.roas}</text>}
+              {!thumb && <text class="cv__lbl" x={pt.x} y={yBase + 22} text-anchor="middle">{pt.nd.label}</text>}
+            </g>
+          ))}
+          {!thumb && pts[2] && <text class="cv__annot" x={pts[2].x} y={pts[2].y - 50} text-anchor="middle">Inflection</text>}
+        </g>
+      );
+    })()}
+
+    {/* ---------- SPLIT COMPARE: prior agency vs us + revenue bars (women's fashion) ---------- */}
+    {v.type === 'splitCompare' && (() => {
+      const roasMax = Math.max(v.ours.peak.v, ...v.prior.points.map((p) => p.v)) * 1.2;
+      const rTop = T;
+      const rBase = 232; // ROAS panel baseline
+      const rH = rBase - rTop;
+      const yR = (val: number) => round(rBase - (val / roasMax) * rH);
+      const mid = W / 2;
+      const priorN = v.prior.points.length;
+      const bw = 46;
+      const priorX = (i: number) => L + 30 + (i * (mid - L - 60)) / priorN;
+      const ourX = mid + (W - R - mid) / 2;
+      const priorAvgY = yR(v.prior.avg.v);
+      const ourAvgY = yR(v.ours.avg.v);
+      // revenue strip
+      const revBase = yBase;
+      const revTop = 268;
+      const revMax = v.revenue.afterV * 1.15;
+      const revH = revBase - revTop;
+      const rvY = (val: number) => round(revBase - (val / revMax) * revH);
+      return (
+        <g>
+          <line class="cv__axis" x1={L} y1={rBase} x2={W - R} y2={rBase} />
+          <line class="cv__divider" x1={mid} y1={rTop - 6} x2={mid} y2={revBase} />
+          {!thumb && <text class="cv__grouplbl" x={(L + mid) / 2} y={rTop - 12} text-anchor="middle">{v.prior.label}</text>}
+          {!thumb && <text class="cv__grouplbl cv__grouplbl--accent" x={(mid + W - R) / 2} y={rTop - 12} text-anchor="middle">{v.ours.label}</text>}
+          {/* prior bars */}
+          {v.prior.points.map((p, i) => {
+            const x = priorX(i);
+            const y = yR(p.v);
+            return (
+              <g>
+                <rect class="cv__bar cv__bar--muted" x={x} y={y} width={bw} height={round(rBase - y)} rx="3" style={`--i:${i}`}><title>{v.prior.label} {p.label}: {p.display}</title></rect>
+                {!thumb && <text class="cv__val cv__val--muted" x={x + bw / 2} y={y - 8} text-anchor="middle">{p.display}</text>}
+                {!thumb && <text class="cv__lbl" x={x + bw / 2} y={rBase + 18} text-anchor="middle">{p.label}</text>}
+              </g>
+            );
+          })}
+          <line class="cv__avg cv__avg--muted" x1={L} y1={priorAvgY} x2={mid} y2={priorAvgY} />
+          {!thumb && <text class="cv__avglbl" x={L + 4} y={priorAvgY - 6}>Avg {v.prior.avg.display}</text>}
+          {/* our peak bar + avg + worst */}
+          <rect class="cv__bar cv__bar--peak" x={round(ourX - bw / 2)} y={yR(v.ours.peak.v)} width={bw} height={round(rBase - yR(v.ours.peak.v))} rx="3"><title>{v.ours.label} {v.ours.peak.label}: {v.ours.peak.display} (peak)</title></rect>
+          {!thumb && <text class="cv__val" x={ourX} y={yR(v.ours.peak.v) - 8} text-anchor="middle">{v.ours.peak.display}</text>}
+          {!thumb && <text class="cv__lbl" x={ourX} y={rBase + 18} text-anchor="middle">{v.ours.peak.label} peak</text>}
+          <line class="cv__avg" x1={mid} y1={ourAvgY} x2={W - R} y2={ourAvgY} />
+          {!thumb && <text class="cv__avglbl cv__avglbl--accent" x={W - R} y={ourAvgY - 6} text-anchor="end">Avg {v.ours.avg.display}</text>}
+          <line class="cv__worst" x1={mid} y1={yR(v.ours.worst.v)} x2={W - R} y2={yR(v.ours.worst.v)} />
+          {!thumb && <text class="cv__avglbl" x={W - R} y={yR(v.ours.worst.v) + 16} text-anchor="end">Worst {v.ours.worst.display}</text>}
+          {/* revenue strip */}
+          {!thumb && <text class="cv__striplbl" x={L} y={revTop - 8}>Quarterly revenue</text>}
+          <rect class="cv__bar cv__bar--muted" x={mid - 150} y={rvY(v.revenue.beforeV)} width="54" height={round(revBase - rvY(v.revenue.beforeV))} rx="3"><title>Before: {v.revenue.before}</title></rect>
+          {!thumb && <text class="cv__val cv__val--muted" x={mid - 123} y={rvY(v.revenue.beforeV) - 8} text-anchor="middle">{v.revenue.before}</text>}
+          <rect class="cv__bar cv__bar--peak" x={mid + 96} y={rvY(v.revenue.afterV)} width="54" height={round(revBase - rvY(v.revenue.afterV))} rx="3"><title>After: {v.revenue.after}</title></rect>
+          {!thumb && <text class="cv__val" x={mid + 123} y={rvY(v.revenue.afterV) - 8} text-anchor="middle">{v.revenue.after}</text>}
+        </g>
+      );
+    })()}
+
+    {/* ---------- BAND COMPARE: 2025 range shaded, every 2026 point above it (womenswear) ---------- */}
+    {v.type === 'bandCompare' && (() => {
+      const max = Math.max(...v.after.points.map((p) => p.v), v.before.range[1]) * 1.16;
+      const n = v.after.points.length;
+      const bandTop = yFor(v.before.range[1], max);
+      const bandBot = yFor(v.before.range[0], max);
+      const avgY = yFor(v.after.avg.v, max);
+      const pts = v.after.points.map((p, i) => ({ x: xEven(i, n), y: yFor(p.v, max), p }));
+      return (
+        <g>
+          <line class="cv__axis" x1={L} y1={yBase} x2={W - R} y2={yBase} />
+          <rect class="cv__band" x={L} y={bandTop} width={plotW} height={round(bandBot - bandTop)} />
+          {!thumb && <text class="cv__bandlbl" x={L + 8} y={round((bandTop + bandBot) / 2 + 4)}>{v.before.label} · {v.before.display}</text>}
+          <line class="cv__avg" x1={L} y1={avgY} x2={W - R} y2={avgY} />
+          {!thumb && <text class="cv__avglbl cv__avglbl--accent" x={W - R} y={avgY - 8} text-anchor="end">Avg {v.after.avg.display}</text>}
+          {pts.map((pt) => (
+            <g>
+              <line class="cv__stem" x1={pt.x} y1={bandTop} x2={pt.x} y2={pt.y} />
+              <circle class:list={['cv__dot', pt.p.peak && 'cv__dot--peak', pt.p.worst && 'cv__dot--worst']} cx={pt.x} cy={pt.y} r={thumb ? 4 : 6}>
+                <title>{pt.p.label} 2026: {pt.p.display}{pt.p.peak ? ' (peak)' : pt.p.worst ? ' (worst)' : ''}</title>
+              </circle>
+              {!thumb && <text class="cv__val" x={pt.x} y={pt.y - 14} text-anchor="middle">{pt.p.display}</text>}
+              {!thumb && <text class="cv__lbl" x={pt.x} y={yBase + 22} text-anchor="middle">{pt.p.label}</text>}
+            </g>
+          ))}
+        </g>
+      );
+    })()}
+
+    {/* ---------- FLOOR DIAL: bold floor line, band, points riding above (kids accessories) ---------- */}
+    {v.type === 'floorDial' && (() => {
+      const max = v.band[1] * 1.14;
+      const min = v.band[0] * 0.82;
+      const y = (val: number) => yFor(val, max, min);
+      const bandTop = y(v.band[1]);
+      const bandBot = y(v.band[0]);
+      const floorY = y(v.floor.v);
+      const avgY = y(v.average.v);
+      const roasPts = v.points.filter((p) => typeof p.roas === 'number');
+      const n = roasPts.length;
+      return (
+        <g>
+          <rect class="cv__band" x={L} y={bandTop} width={plotW} height={round(bandBot - bandTop)} />
+          <line class="cv__avg" x1={L} y1={avgY} x2={W - R} y2={avgY} />
+          {!thumb && <text class="cv__avglbl cv__avglbl--accent" x={W - R} y={avgY - 8} text-anchor="end">Avg {v.average.display}</text>}
+          <line class="cv__floor" x1={L} y1={floorY} x2={W - R} y2={floorY} />
+          {!thumb && <text class="cv__floorlbl" x={L} y={floorY + 22}>Floor {v.floor.display} — no month below it</text>}
+          {roasPts.map((p, i) => {
+            const x = xEven(i, Math.max(n, 2)) + (n === 1 ? 0 : 40);
+            const yy = y(p.roas as number);
+            return (
+              <g>
+                <line class="cv__stem" x1={x} y1={floorY} x2={x} y2={yy} />
+                <circle class:list={['cv__dot', p.floor ? 'cv__dot--worst' : 'cv__dot--peak']} cx={x} cy={yy} r={thumb ? 4 : 6}><title>{p.label}: {p.roasDisplay}</title></circle>
+                {!thumb && <text class="cv__val" x={x} y={yy - 14} text-anchor="middle">{p.roasDisplay}</text>}
+                {!thumb && <text class="cv__lbl" x={x} y={yy + 24} text-anchor="middle">{p.label}</text>}
+              </g>
+            );
+          })}
+        </g>
+      );
+    })()}
+
+    {/* ---------- LONGEVITY: 8-month duration ribbon + tight consistency band (kidswear) ---------- */}
+    {v.type === 'longevity' && (() => {
+      const ribY = 150;
+      const ribH = 54;
+      const segN = v.monthsCount;
+      const segW = plotW / segN;
+      const bandY = 250;
+      const bandH = 40;
+      return (
+        <g>
+          {/* the ribbon */}
+          <rect class="cv__ribbon" x={L} y={ribY} width={plotW} height={ribH} rx="10" />
+          {Array.from({ length: segN - 1 }).map((_, i) => (
+            <line class="cv__tick" x1={round(L + segW * (i + 1))} y1={ribY} x2={round(L + segW * (i + 1))} y2={ribY + ribH} />
+          ))}
+          <circle class="cv__live" cx={round(W - R)} cy={ribY + ribH / 2} r={thumb ? 6 : 9} />
+          {!thumb && <text class="cv__ribstart" x={L} y={ribY - 14}>{v.startLabel}</text>}
+          {!thumb && <text class="cv__ribend" x={W - R} y={ribY - 14} text-anchor="end">{v.endLabel} · still live</text>}
+          {!thumb && <text class="cv__ribcount display-type" x={L + plotW / 2} y={ribY + ribH / 2 + 8} text-anchor="middle">{v.monthsCount} months, one campaign</text>}
+          {/* tight consistency band */}
+          <rect class="cv__band" x={L} y={bandY} width={plotW} height={bandH} />
+          <line class="cv__avg" x1={L} y1={bandY + bandH / 2} x2={W - R} y2={bandY + bandH / 2} />
+          {!thumb && <text class="cv__bandlbl" x={L + 8} y={bandY + bandH / 2 - 8}>ROAS {v.bandDisplay}</text>}
+          {!thumb && <text class="cv__avglbl cv__avglbl--accent" x={W - R} y={bandY + bandH / 2 - 8} text-anchor="end">Avg {v.avg.display}</text>}
+        </g>
+      );
+    })()}
+  </svg>
+
+  {!thumb && note && <figcaption class="cv__note">{note}</figcaption>}
+
+  {/* Accessible mirror of every figure. */}
+  {!thumb && (
+    <table class="sr-only">
+      <caption>{aria}</caption>
+      {v.type === 'climb' && <tbody>{v.points.map((p) => <tr><th scope="row">{p.label}</th><td>{p.display} ROAS</td></tr>)}<tr><th scope="row">Spend</th><td>{v.note}</td></tr></tbody>}
+      {v.type === 'journey' && <tbody>{v.points.map((p) => <tr><th scope="row">{p.label}</th><td>{p.display} ROAS{p.dip ? ' (dip)' : ''}</td></tr>)}<tr><th scope="row">Average</th><td>{v.avgLine.display}</td></tr></tbody>}
+      {v.type === 'stepMarkers' && <tbody>{v.nodes.map((n) => <tr><th scope="row">{n.label}</th><td>{n.value}{n.roas ? ` at ${n.roas}` : ''}</td></tr>)}</tbody>}
+      {v.type === 'splitCompare' && <tbody>{v.prior.points.map((p) => <tr><th scope="row">{v.prior.label} {p.label}</th><td>{p.display}</td></tr>)}<tr><th scope="row">{v.prior.label} average</th><td>{v.prior.avg.display}</td></tr><tr><th scope="row">{v.ours.label} {v.ours.peak.label}</th><td>{v.ours.peak.display}</td></tr><tr><th scope="row">{v.ours.label} average</th><td>{v.ours.avg.display}</td></tr><tr><th scope="row">{v.ours.label} worst</th><td>{v.ours.worst.display}</td></tr><tr><th scope="row">Revenue</th><td>{v.revenue.before} to {v.revenue.after}</td></tr></tbody>}
+      {v.type === 'bandCompare' && <tbody><tr><th scope="row">{v.before.label}</th><td>{v.before.display}</td></tr>{v.after.points.map((p) => <tr><th scope="row">{p.label} 2026</th><td>{p.display}</td></tr>)}<tr><th scope="row">2026 average</th><td>{v.after.avg.display}</td></tr></tbody>}
+      {v.type === 'floorDial' && <tbody><tr><th scope="row">Floor</th><td>{v.floor.display}</td></tr><tr><th scope="row">Average</th><td>{v.average.display}</td></tr>{v.points.map((p) => <tr><th scope="row">{p.label}</th><td>{p.roasDisplay ?? `${p.spend} to ${p.revenue}`}</td></tr>)}</tbody>}
+      {v.type === 'longevity' && <tbody><tr><th scope="row">Run</th><td>{v.monthsCount} months ({v.startLabel} to {v.endLabel})</td></tr><tr><th scope="row">ROAS band</th><td>{v.bandDisplay}</td></tr><tr><th scope="row">Average</th><td>{v.avg.display}</td></tr></tbody>}
+    </table>
+  )}
+</figure>
+
+<style>
+  .cv {
+    margin: 0;
+    border: 1px solid var(--rule-c);
+    border-radius: var(--radius-card);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--surface-c) 60%, var(--ground)), var(--ground));
+    padding: var(--space-4);
+  }
+  .cv__svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .cv__note {
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--rule-c);
+    font-size: var(--text-small);
+    line-height: 1.5;
+    color: var(--fg-muted);
+  }
+
+  /* structure */
+  .cv__axis { stroke: var(--rule-c); stroke-width: 1.5; }
+  .cv__divider { stroke: var(--rule-c); stroke-width: 1.5; stroke-dasharray: 4 5; }
+
+  /* bars */
+  .cv__bar { fill: var(--accent-graphic); transform-box: fill-box; transform-origin: bottom; transform: scaleY(0); }
+  .cv__bar--muted { fill: color-mix(in srgb, var(--fg-muted) 45%, transparent); }
+  .cv__bar--peak { fill: var(--accent-graphic); }
+  .cv__bar--rise { fill: color-mix(in srgb, var(--accent-graphic) 82%, transparent); }
+  .cv.is-visible .cv__bar { transform: scaleY(1); transition: transform 0.8s var(--ease-out); transition-delay: calc(var(--i, 0) * 90ms); }
+
+  /* lines / areas */
+  .cv__line { fill: none; stroke: var(--accent-graphic); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1400; stroke-dashoffset: 1400; }
+  .cv.is-visible .cv__line { stroke-dashoffset: 0; transition: stroke-dashoffset 1.2s var(--ease-out); }
+  .cv__trend { fill: none; stroke: color-mix(in srgb, var(--accent-graphic) 60%, transparent); stroke-width: 2; stroke-dasharray: 3 5; stroke-linecap: round; }
+  .cv__area { fill: color-mix(in srgb, var(--accent-fill) 12%, transparent); opacity: 0; }
+  .cv.is-visible .cv__area { opacity: 1; transition: opacity 0.9s ease 0.5s; }
+  .cv__avg { stroke: var(--accent-graphic-2); stroke-width: 2; stroke-dasharray: 5 5; }
+  .cv__avg--muted { stroke: var(--fg-muted); opacity: 0.7; }
+  .cv__floor { stroke: var(--accent-graphic); stroke-width: 3.5; stroke-linecap: round; }
+  .cv__worst { stroke: var(--neg); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0.8; }
+  .cv__stem { stroke: var(--rule-c); stroke-width: 1.5; }
+  .cv__band { fill: color-mix(in srgb, var(--accent-fill) 12%, transparent); stroke: color-mix(in srgb, var(--accent-graphic) 30%, transparent); stroke-width: 1; }
+  .cv__dead { fill: color-mix(in srgb, var(--fg-muted) 14%, transparent); }
+
+  /* dots */
+  .cv__dot { fill: var(--accent-graphic); stroke: var(--ground); stroke-width: 2; }
+  .cv__dot--peak { fill: var(--pos); }
+  .cv__dot--neg, .cv__dot--worst { fill: var(--neg); }
+
+  /* ribbon (longevity) */
+  .cv__ribbon { fill: color-mix(in srgb, var(--accent-fill) 22%, var(--ground)); stroke: var(--accent-graphic); stroke-width: 1.5; transform-box: fill-box; transform-origin: left; transform: scaleX(0); }
+  .cv.is-visible .cv__ribbon { transform: scaleX(1); transition: transform 1.1s var(--ease-out); }
+  .cv__tick { stroke: color-mix(in srgb, var(--accent-graphic) 35%, transparent); stroke-width: 1; }
+  .cv__live { fill: var(--pos); }
+  .cv.is-visible .cv__live { animation: cvPulse 2s ease-in-out infinite 1s; }
+  @keyframes cvPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* text */
+  .cv__val { fill: var(--fg); font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+  .cv__val--muted { fill: var(--fg-muted); font-weight: 600; }
+  .cv__val--neg { fill: var(--neg); }
+  .cv__sub { fill: var(--accent-text); font-family: var(--font-display); font-weight: 600; font-size: 13px; }
+  .cv__lbl, .cv__avglbl, .cv__bandlbl, .cv__floorlbl, .cv__deadlbl, .cv__grouplbl, .cv__striplbl, .cv__ribstart, .cv__ribend, .cv__annot { fill: var(--fg-muted); font-family: var(--font-display); font-size: 12px; font-weight: 500; }
+  .cv__avglbl--accent { fill: var(--accent-text); font-weight: 600; }
+  .cv__grouplbl { font-weight: 600; letter-spacing: 0.02em; }
+  .cv__grouplbl--accent { fill: var(--accent-text); }
+  .cv__floorlbl { fill: var(--accent-text); font-weight: 600; }
+  .cv__annot { fill: var(--pos); font-weight: 600; }
+  .cv__ribcount { fill: var(--fg); font-weight: 700; font-size: 17px; }
+  .cv__ribend { fill: var(--pos); font-weight: 600; }
+
+  /* thumbnail: compact, static, no labels */
+  .cv--thumb { padding: var(--space-2); background: var(--surface-c); }
+  .cv--thumb .cv__val, .cv--thumb .cv__lbl, .cv--thumb .cv__note { display: none; }
+
+  /* motion is disabled globally under prefers-reduced-motion (theme.css) */
+</style>

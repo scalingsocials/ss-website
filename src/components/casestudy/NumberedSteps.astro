@@ -1,0 +1,53 @@
+---
+/**
+ * NumberedSteps — "What we did", as oversized 01–04 numerals with a hairline
+ * accent on each card. Staggered reveal via the global [data-reveal] observer.
+ */
+export interface Props {
+  steps: { title: string; body: string }[];
+  class?: string;
+}
+const { steps, class: className = '' } = Astro.props;
+const pad = (n: number) => String(n + 1).padStart(2, '0');
+---
+<ol class:list={['ss-steps grid gap-[var(--space-4)] md:grid-cols-2', className]}>
+  {steps.map((s, i) => (
+    <li class="ss-steps__card" data-reveal style={`--i:${i}`}>
+      <span class="ss-steps__num display-type" aria-hidden="true">{pad(i)}</span>
+      <div class="ss-steps__body">
+        <h3 class="text-h4 font-semibold text-[var(--fg)]">{s.title}</h3>
+        <p class="mt-[var(--space-1)] text-small leading-relaxed text-[var(--fg-muted)]">{s.body}</p>
+      </div>
+    </li>
+  ))}
+</ol>
+<style>
+  .ss-steps__card {
+    position: relative;
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+    padding: var(--space-5);
+    padding-top: calc(var(--space-5) + 2px);
+    border: 1px solid var(--rule-c);
+    border-radius: var(--radius-card);
+    background: var(--ground);
+    overflow: hidden;
+  }
+  .ss-steps__card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--accent-graphic);
+  }
+  .ss-steps__num {
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 700;
+    line-height: 0.9;
+    color: color-mix(in srgb, var(--accent-graphic) 32%, transparent);
+    letter-spacing: -0.03em;
+    flex: none;
+  }
+  .js-reveal .ss-steps__card[data-reveal] { transition-delay: calc(var(--i, 0) * 80ms); }
+</style>
