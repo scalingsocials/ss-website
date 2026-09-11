@@ -288,9 +288,12 @@ const note = 'note' in v ? v.note : v.type === 'stepMarkers' ? v.spendNote : und
 
   {!thumb && note && <figcaption class="cv__note">{note}</figcaption>}
 
-  {/* Accessible mirror of every figure. */}
+  {/* Accessible mirror of every figure. Wrapped in a div.sr-only because a bare
+      <table> ignores width:1px and would extend the page's scroll width on mobile;
+      the div clips it (overflow:hidden) so it never causes horizontal overflow. */}
   {!thumb && (
-    <table class="sr-only">
+    <div class="sr-only">
+    <table>
       <caption>{aria}</caption>
       {v.type === 'climb' && <tbody>{v.points.map((p) => <tr><th scope="row">{p.label}</th><td>{p.display} ROAS</td></tr>)}<tr><th scope="row">Spend</th><td>{v.note}</td></tr></tbody>}
       {v.type === 'journey' && <tbody>{v.points.map((p) => <tr><th scope="row">{p.label}</th><td>{p.display} ROAS{p.dip ? ' (dip)' : ''}</td></tr>)}<tr><th scope="row">Average</th><td>{v.avgLine.display}</td></tr></tbody>}
@@ -300,6 +303,7 @@ const note = 'note' in v ? v.note : v.type === 'stepMarkers' ? v.spendNote : und
       {v.type === 'floorDial' && <tbody><tr><th scope="row">Floor</th><td>{v.floor.display}</td></tr><tr><th scope="row">Average</th><td>{v.average.display}</td></tr>{v.points.map((p) => <tr><th scope="row">{p.label}</th><td>{p.roasDisplay ?? `${p.spend} to ${p.revenue}`}</td></tr>)}</tbody>}
       {v.type === 'longevity' && <tbody><tr><th scope="row">Run</th><td>{v.monthsCount} months ({v.startLabel} to {v.endLabel})</td></tr><tr><th scope="row">ROAS band</th><td>{v.bandDisplay}</td></tr><tr><th scope="row">Average</th><td>{v.avg.display}</td></tr></tbody>}
     </table>
+    </div>
   )}
 </figure>
 

@@ -57,11 +57,20 @@ function initMobileNav(): void {
   const closeBtn = document.querySelector<HTMLButtonElement>('[data-mobile-close]');
   if (!dialog || !openBtn) return;
 
-  openBtn.addEventListener('click', () => dialog.showModal());
+  openBtn.addEventListener('click', () => {
+    dialog.showModal();
+    // Lock background scroll while the menu is open (iOS still scrolls behind a
+    // modal <dialog> otherwise). Unlocked on the dialog's `close` event below.
+    document.documentElement.style.overflow = 'hidden';
+  });
   closeBtn?.addEventListener('click', () => dialog.close());
   // Click on the backdrop (the dialog element itself, outside its content) closes.
   dialog.addEventListener('click', (e) => {
     if (e.target === dialog) dialog.close();
+  });
+  // Fires for every close path (button, backdrop, Esc) — restore scroll here.
+  dialog.addEventListener('close', () => {
+    document.documentElement.style.overflow = '';
   });
 }
 

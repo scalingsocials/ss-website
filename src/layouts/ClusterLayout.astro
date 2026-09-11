@@ -57,9 +57,9 @@ const nodes = [
   <SchemaGraph slot="schema" nodes={nodes} />
 
   <Section size="lg">
-    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] text-small text-[var(--fg-muted)]">
-      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span> / </span>
-      <a href={c.parentUrl} class="text-[var(--accent-text)] no-underline">{c.parentName}</a><span> / </span>
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] flex flex-wrap items-center gap-x-[0.15rem] text-small text-[var(--fg-muted)]">
+      <a href="/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Home</a><span> / </span>
+      <a href={c.parentUrl} class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">{c.parentName}</a><span> / </span>
       <span>{c.name}</span>
     </nav>
     <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-start">

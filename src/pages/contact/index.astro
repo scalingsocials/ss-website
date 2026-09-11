@@ -64,7 +64,7 @@ const contactStep2: Field[] = [
         <div>
           <h2 class="text-small font-semibold text-[var(--fg-muted)]">Call or WhatsApp</h2>
           <div class="flex items-center gap-[var(--space-2)]">
-            <a href={`tel:${tel}`} class="text-h4 font-semibold text-[var(--fg)] no-underline" data-num>{ORG.telephone}</a>
+            <a href={`tel:${tel}`} class="inline-flex min-h-[44px] items-center text-h4 font-semibold text-[var(--fg)] no-underline" data-num>{ORG.telephone}</a>
             <button type="button" class="ss-copy" data-copy={ORG.telephone} aria-label="Copy phone number">
               <svg class="ss-copy__i" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.6"/></svg>
               <svg class="ss-copy__ok" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -74,7 +74,7 @@ const contactStep2: Field[] = [
         <div>
           <h2 class="text-small font-semibold text-[var(--fg-muted)]">Email</h2>
           <div class="flex items-center gap-[var(--space-2)]">
-            <a href={`mailto:${ORG.email}`} class="text-h4 font-semibold text-[var(--fg)] no-underline">{ORG.email}</a>
+            <a href={`mailto:${ORG.email}`} class="inline-flex min-h-[44px] items-center break-all text-h4 font-semibold text-[var(--fg)] no-underline">{ORG.email}</a>
             <button type="button" class="ss-copy" data-copy={ORG.email} aria-label="Copy email address">
               <svg class="ss-copy__i" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.6"/></svg>
               <svg class="ss-copy__ok" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -86,7 +86,7 @@ const contactStep2: Field[] = [
           <address class="not-italic text-body text-[var(--fg)]">
             {a.streetAddress}<br />{a.addressLocality}, {a.addressRegion} {a.postalCode}
           </address>
-          <a href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`} target="_blank" rel="noopener" class="mt-[var(--space-1)] inline-block text-small font-medium text-[var(--accent-text)]">Get directions</a>
+          <a href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`} target="_blank" rel="noopener" class="mt-[var(--space-1)] inline-flex min-h-[44px] items-center text-small font-medium text-[var(--accent-text)]">Get directions</a>
         </div>
         <div>
           <h2 class="text-small font-semibold text-[var(--fg-muted)]">Hours</h2>
@@ -95,9 +95,9 @@ const contactStep2: Field[] = [
         <div>
           <h2 class="text-small font-semibold text-[var(--fg-muted)]">Follow</h2>
           <ul class="flex flex-wrap items-center gap-[var(--space-3)]">
-            <li><a href="https://www.linkedin.com/company/scaling-socials/" target="_blank" rel="noopener" aria-label="LinkedIn" class="ss-brand grid h-[40px] w-[40px] place-items-center rounded-full border border-[var(--rule-c)] bg-[var(--ground)]"><BrandIcon name="linkedin" size={22} /></a></li>
-            <li><a href="https://www.instagram.com/scalingsocialsofficial/" target="_blank" rel="noopener" aria-label="Instagram" class="ss-brand grid h-[40px] w-[40px] place-items-center rounded-full border border-[var(--rule-c)] bg-[var(--ground)]"><BrandIcon name="instagram" size={22} /></a></li>
-            <li><a href="https://www.facebook.com/scalingsocials/" target="_blank" rel="noopener" aria-label="Facebook" class="ss-brand grid h-[40px] w-[40px] place-items-center rounded-full border border-[var(--rule-c)] bg-[var(--ground)]"><BrandIcon name="facebook" size={22} /></a></li>
+            <li><a href="https://www.linkedin.com/company/scaling-socials/" target="_blank" rel="noopener" aria-label="LinkedIn" class="ss-brand grid h-[44px] w-[44px] place-items-center rounded-full border border-[var(--rule-c)] bg-[var(--ground)]"><BrandIcon name="linkedin" size={22} /></a></li>
+            <li><a href="https://www.instagram.com/scalingsocialsofficial/" target="_blank" rel="noopener" aria-label="Instagram" class="ss-brand grid h-[44px] w-[44px] place-items-center rounded-full border border-[var(--rule-c)] bg-[var(--ground)]"><BrandIcon name="instagram" size={22} /></a></li>
+            <li><a href="https://www.facebook.com/scalingsocials/" target="_blank" rel="noopener" aria-label="Facebook" class="ss-brand grid h-[44px] w-[44px] place-items-center rounded-full border border-[var(--rule-c)] bg-[var(--ground)]"><BrandIcon name="facebook" size={22} /></a></li>
           </ul>
         </div>
       </div>
@@ -140,7 +140,7 @@ const contactStep2: Field[] = [
     /* Copy button next to phone/email. */
     .ss-copy {
       display: grid; place-items: center;
-      width: 32px; height: 32px;
+      width: 44px; height: 44px;
       border-radius: var(--radius-input);
       border: 1px solid var(--rule-c);
       background: var(--ground);

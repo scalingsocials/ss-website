@@ -320,13 +320,13 @@ const surface = '!bg-[var(--surface-c)]';
     .ss-arrow { transition: transform var(--dur-fast) var(--ease-out); }
     .ss-svc-card:hover .ss-arrow { transform: translateX(3px); }
     /* Inline text links (e.g. "All case studies") that carry a trailing arrow. */
-    .ss-link-arrow { transition: gap var(--dur-fast) var(--ease-out); }
+    .ss-link-arrow { min-height: 44px; transition: gap var(--dur-fast) var(--ease-out); }
     .ss-link-arrow .ss-arrow { transition: transform var(--dur-fast) var(--ease-out); }
     .ss-link-arrow:hover .ss-arrow { transform: translateX(3px); }
 
     /* Sticky mini-CTA — shown by motion.ts once the hero scrolls out. */
     .ss-sticky-cta {
-      position: fixed; left: 50%; bottom: var(--space-3); transform: translate(-50%, 160%);
+      position: fixed; left: 50%; bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 160%);
       z-index: 40; display: flex; align-items: center; gap: var(--space-3);
       border: 1px solid var(--rule-c); border-radius: 999px;
       background: color-mix(in srgb, var(--ground) 92%, transparent);

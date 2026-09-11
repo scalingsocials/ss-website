@@ -49,9 +49,10 @@ const social = [
   { label: 'Facebook', href: 'https://www.facebook.com/scalingsocials/', icon: 'facebook' as const },
 ];
 
-const colClass = 'flex flex-col gap-[var(--space-2)]';
-const headClass = 'text-small font-semibold text-[var(--fg-muted)]';
-const linkClass = 'text-small text-[var(--fg)] no-underline hover:text-[var(--accent-text)]';
+const colClass = 'flex flex-col';
+const headClass = 'mb-[var(--space-1)] text-small font-semibold text-[var(--fg-muted)]';
+// Links are ≥44px touch targets (WCAG 2.5.8): min-height + flex-centred.
+const linkClass = 'flex min-h-[44px] items-center text-small text-[var(--fg)] no-underline hover:text-[var(--accent-text)]';
 ---
 
 <footer data-register="ink" transition:persist="site-footer" class="border-t border-[var(--rule-c)]">
@@ -59,18 +60,18 @@ const linkClass = 'text-small text-[var(--fg)] no-underline hover:text-[var(--ac
     <div class="grid grid-cols-2 gap-[var(--space-6)] md:grid-cols-4 lg:grid-cols-6">
       <!-- Brand + NAP -->
       <div class="col-span-2 flex flex-col gap-[var(--space-3)]">
-        <a href="/" class="no-underline" aria-label="Scaling Socials — home">
+        <a href="/" class="inline-flex min-h-[44px] w-fit items-center no-underline" aria-label="Scaling Socials — home">
           <Image src={lockupWhite} alt="Scaling Socials" height={30} width={Math.round(30 * (lockupWhite.width / lockupWhite.height))} densities={[1, 2]} loading="lazy" />
         </a>
         <p class="max-w-[36ch] text-small text-[var(--fg-muted)]">
           Performance marketing and ecommerce development for D2C brands in India and the UAE.
         </p>
-        <address class="flex flex-col gap-[var(--space-1)] text-small not-italic text-[var(--fg)]">
-          <span>{a.streetAddress}, {a.addressLocality}, {a.addressRegion} {a.postalCode}</span>
+        <address class="flex flex-col text-small not-italic text-[var(--fg)]">
+          <span class="mb-[var(--space-1)]">{a.streetAddress}, {a.addressLocality}, {a.addressRegion} {a.postalCode}</span>
           <a href={`tel:${ORG.telephone.replace(/[^+\d]/g, '')}`} class={linkClass} data-num>{ORG.telephone}</a>
           <a href={`mailto:${ORG.email}`} class={linkClass}>{ORG.email}</a>
         </address>
-        <ul class="flex flex-wrap items-center gap-[var(--space-3)]">
+        <ul class="flex flex-wrap items-center gap-[var(--space-2)]">
           {social.map((s) => (
             <li>
               <a
@@ -78,9 +79,9 @@ const linkClass = 'text-small text-[var(--fg)] no-underline hover:text-[var(--ac
                 target="_blank"
                 rel="noopener"
                 aria-label={s.label}
-                class="ss-brand grid h-[36px] w-[36px] place-items-center rounded-full border border-[var(--rule-c)] bg-[var(--ground)]"
+                class="ss-brand grid h-[44px] w-[44px] place-items-center rounded-full border border-[var(--rule-c)] bg-[var(--ground)]"
               >
-                <BrandIcon name={s.icon} size={20} />
+                <BrandIcon name={s.icon} size={22} />
               </a>
             </li>
           ))}
@@ -120,10 +121,10 @@ const linkClass = 'text-small text-[var(--fg)] no-underline hover:text-[var(--ac
       <p class="text-label text-[var(--fg-muted)]" data-num>
         © {year} {ORG.legalName}. All rights reserved.
       </p>
-      <ul class="flex flex-wrap gap-[var(--space-3)]">
+      <ul class="flex flex-wrap items-center gap-x-[var(--space-2)]">
         {legal.map((l) => (
           <li>
-            <a href={l.href} class="text-label text-[var(--fg-muted)] no-underline hover:text-[var(--accent-text)]">{l.label}</a>
+            <a href={l.href} class="inline-flex min-h-[44px] items-center text-label text-[var(--fg-muted)] no-underline hover:text-[var(--accent-text)]">{l.label}</a>
           </li>
         ))}
       </ul>

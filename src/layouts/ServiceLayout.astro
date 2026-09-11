@@ -100,8 +100,8 @@ const nodes = [
        classic performance-marketing landing hero). -->
   <Section size="lg" class="svc-hero relative overflow-hidden">
     <DotField origin="top-right" />
-    <nav aria-label="Breadcrumb" class="svc-hero__crumb relative text-label text-[var(--fg-muted)]">
-      <a href="/" class="text-[var(--accent-text)] no-underline">Home</a><span class="mx-[0.35rem]">/</span><span>{svc.name}</span>
+    <nav aria-label="Breadcrumb" class="svc-hero__crumb relative flex flex-wrap items-center text-label text-[var(--fg-muted)]">
+      <a href="/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Home</a><span class="mx-[0.35rem]">/</span><span>{svc.name}</span>
     </nav>
     <div class="svc-hero__grid relative grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
       <div>
@@ -170,7 +170,7 @@ const nodes = [
           <span class="ss-svc-glyph"><Glyph name={glyphFor(s.title)} size={20} /></span>
           <h3 class="text-h4 font-semibold text-[var(--fg)]">{s.title}</h3>
           <p class="text-small leading-relaxed text-[var(--fg-muted)]">{s.body}</p>
-          {s.href && <a href={s.href} class="mt-auto pt-[var(--space-1)] text-small font-medium text-[var(--accent-text)] no-underline">Learn more</a>}
+          {s.href && <a href={s.href} class="ss-learn mt-auto inline-flex min-h-[44px] items-center text-small font-medium text-[var(--accent-text)] no-underline">Learn more</a>}
         </li>
       ))}
     </ul>

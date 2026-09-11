@@ -134,7 +134,7 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
         data-mobile-open
         aria-label="Open menu"
         aria-haspopup="dialog"
-        class="flex items-center justify-center rounded-[var(--radius-button)] p-[0.4rem] text-[var(--fg)] hover:bg-[var(--surface-c)]"
+        class="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[var(--radius-button)] p-[0.4rem] text-[var(--fg)] hover:bg-[var(--surface-c)]"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none">
           <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
@@ -152,7 +152,7 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
           type="button"
           data-mobile-close
           aria-label="Close menu"
-          class="flex items-center justify-center rounded-[var(--radius-button)] p-[0.4rem] text-[var(--fg)] hover:bg-[var(--surface-c)]"
+          class="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[var(--radius-button)] p-[0.4rem] text-[var(--fg)] hover:bg-[var(--surface-c)]"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none">
             <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
@@ -210,6 +210,8 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
   .ss-header {
     background: color-mix(in srgb, var(--ground) 82%, transparent);
     backdrop-filter: saturate(1.4) blur(12px);
+    /* Clear the notch on fixed header (notched devices). */
+    padding-top: env(safe-area-inset-top, 0px);
     transition: box-shadow var(--dur-base) var(--ease-out),
                 background var(--dur-base) var(--ease-out),
                 border-color var(--dur-base) var(--ease-out);
@@ -233,6 +235,8 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
   }
   .ss-header__logo {
     display: inline-flex;
+    align-items: center;
+    min-height: 44px; /* ≥44px touch target (home link) */
     transform-origin: left center;
     transition: transform var(--dur-base) var(--ease-out);
     will-change: transform;
