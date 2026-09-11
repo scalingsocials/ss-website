@@ -23,6 +23,9 @@ import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
 import PartnerBadges from '@/components/blocks/PartnerBadges.astro';
 import Glyph from '@/components/graphics/Glyph.astro';
 import DotField from '@/components/graphics/DotField.astro';
+import { Image } from 'astro:assets';
+import lockup from '@/assets/brand/lockup-black.png';
+import { readdirSync } from 'node:fs';
 import { ORG } from '@/lib/schema/entity';
 import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
 import type { LandingContent } from '@/lib/landings';
@@ -34,6 +37,22 @@ const { content: c } = Astro.props;
 const url = c.url;
 const tel = ORG.telephone.replace(/[^+\d]/g, '');
 const wa = c.whatsapp ? `https://wa.me/${c.whatsapp.number}?text=${encodeURIComponent(c.whatsapp.text)}` : null;
+
+// Scan a /public sub-folder for slider assets (owner drops files in later). Empty
+// or missing folder → empty list → the slider renders a placeholder row.
+const listPublic = (dir: string): string[] => {
+  try {
+    return readdirSync(`public/${dir}`)
+      .filter((f) => /\.(png|jpe?g|webp|mp4)$/i.test(f))
+      .sort()
+      .map((f) => `/${dir}/${f}`);
+  } catch {
+    return [];
+  }
+};
+const proofShots = c.proof ? listPublic('lp/proof') : [];
+const creativeFiles = c.creatives ? listPublic('lp/creatives') : [];
+const isVideo = (p: string) => /\.mp4$/i.test(p);
 const published = '2026-09-11';
 const modified = '2026-09-11';
 
@@ -60,8 +79,7 @@ const nodes = [
   <header class="lp-head">
     <div class="lp-head__in">
       <span class="lp-brand" aria-label="Scaling Socials">
-        <span class="lp-brand__mark">S</span>
-        <span class="lp-brand__word">Scaling Socials</span>
+        <Image src={lockup} alt="Scaling Socials" height={30} width={Math.round(30 * (lockup.width / lockup.height))} densities={[1, 2]} loading="eager" />
       </span>
       <div class="lp-head__cta">
         <a href={`tel:${tel}`} class="lp-tel lp-tel--icon" aria-label={`${c.phoneCtaLabel} ${ORG.telephone}`}>
@@ -128,7 +146,7 @@ const nodes = [
   {c.nextSteps && (
     <Section size="sm" class="!bg-[var(--surface-c)]">
       <span class="lp-eyebrow">What happens next</span>
-      <h2 class="lp-h2">No sales deck. Just an audit.</h2>
+      <h2 class="lp-h2">No deck, just a call.</h2>
       <ol class="lp-steps">
         {c.nextSteps.map((s) => (
           <li class="lp-step">
@@ -169,6 +187,52 @@ const nodes = [
           </li>
         ))}
       </ul>
+
+      {/* Row 2 — auto-scrolling Ads Manager screenshots from /public/lp/proof/ */}
+      <div class="lp-slider lp-slider--proof mt-[var(--space-6)]" data-slider>
+        {proofShots.length > 0 ? (
+          <div class="lp-slider__track">
+            {[...proofShots, ...proofShots].map((src, i) => (
+              <button type="button" class="lp-slider__item lp-shot" data-shot={src} data-alt="Ads Manager screenshot from a client account, brand name hidden" aria-hidden={i >= proofShots.length ? 'true' : undefined}>
+                <img src={src} alt={i < proofShots.length ? 'Ads Manager screenshot from a client account, brand name hidden' : ''} loading="lazy" decoding="async" />
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div class="lp-slider__empty">
+            {[0, 1, 2].map(() => <span class="lp-shot lp-shot--ph">Ads Manager screenshot</span>)}
+          </div>
+        )}
+      </div>
+      <p class="lp-slider__cap">Screenshots from client Meta Ads Manager accounts. Brand names hidden.</p>
+
+      <div class="lp-cta-row"><a href="#lead" class="lp-btn">{c.ctaLabel}</a></div>
+    </Section>
+  )}
+
+  {/* ── CREATIVES SLIDER ─────────────────────────────────────────────────────── */}
+  {c.creatives && (
+    <Section size="md" class="!bg-[var(--surface-c)]">
+      <span class="lp-eyebrow">Creative we ship</span>
+      <h2 class="lp-h2">Ads we've made and scaled</h2>
+      <p class="lp-lede">Shot, cut and tested in-house. Creative is the lever — this is what ours looks like.</p>
+      <div class="lp-slider lp-slider--creatives mt-[var(--space-6)]" data-slider>
+        {creativeFiles.length > 0 ? (
+          <div class="lp-slider__track">
+            {[...creativeFiles, ...creativeFiles].map((src, i) => (
+              <div class="lp-slider__item lp-creative" aria-hidden={i >= creativeFiles.length ? 'true' : undefined}>
+                {isVideo(src)
+                  ? <video src={src} muted loop playsinline autoplay preload="none"></video>
+                  : <img src={src} alt={i < creativeFiles.length ? 'Ad creative made by Scaling Socials' : ''} loading="lazy" decoding="async" />}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div class="lp-slider__empty">
+            {[0, 1, 2, 3].map(() => <span class="lp-creative lp-creative--ph">Ad creative</span>)}
+          </div>
+        )}
+      </div>
       <div class="lp-cta-row"><a href="#lead" class="lp-btn">{c.ctaLabel}</a></div>
     </Section>
   )}
@@ -187,12 +251,19 @@ const nodes = [
     <span class="lp-eyebrow">{c.benefits.eyebrow}</span>
     <h2 class="lp-h2">{c.benefits.heading}</h2>
     <p class="lp-lede">{c.benefits.sub}</p>
-    <ul class="lp-cards">
+    <ul class:list={['lp-cards', c.benefits.items.some((i) => i.list) && 'lp-cards--2x2']}>
       {c.benefits.items.map((it) => (
         <li class="lp-card">
           <span class="lp-card__glyph"><Glyph name={it.glyph} size={20} /></span>
           <h3 class="lp-card__title">{it.title}</h3>
           <p class="lp-card__body">{it.body}</p>
+          {it.list && (
+            <ul class="lp-card__list">
+              {it.list.map((li) => (
+                <li><span class="lp-card__tick" aria-hidden="true"><Glyph name="scale" size={13} /></span>{li}</li>
+              ))}
+            </ul>
+          )}
         </li>
       ))}
     </ul>
@@ -209,33 +280,82 @@ const nodes = [
   <Section size="md" class="!bg-[var(--surface-c)]">
     <span class="lp-eyebrow">{c.why.eyebrow}</span>
     <h2 class="lp-h2">{c.why.heading}</h2>
-    <ul class="lp-why">
-      {c.why.points.map((p) => (
-        <li class="lp-why__item">
-          <span class="lp-card__glyph"><Glyph name={p.glyph} size={20} /></span>
-          <div>
-            <h3 class="lp-card__title">{p.title}</h3>
-            <p class="lp-card__body">{p.body}</p>
-          </div>
-        </li>
-      ))}
-    </ul>
+    {c.why.pointers ? (
+      <ul class="lp-pointers">
+        {c.why.pointers.map((p) => (
+          <li class="lp-pointer">
+            <span class="lp-pointer__tick" aria-hidden="true"><Glyph name="scale" size={15} /></span>
+            <span>{p}</span>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <ul class="lp-why">
+        {(c.why.points ?? []).map((p) => (
+          <li class="lp-why__item">
+            <span class="lp-card__glyph"><Glyph name={p.glyph} size={20} /></span>
+            <div>
+              <h3 class="lp-card__title">{p.title}</h3>
+              <p class="lp-card__body">{p.body}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
   </Section>
+
+  <!-- ── FOUNDER NOTE ───────────────────────────────────────────────────────── -->
+  {c.founderNote && (
+    <Section size="md">
+      <span class="lp-eyebrow">A note from the founders</span>
+      <div class="lp-note">
+        <div class="lp-note__photo">
+          {c.founderNote.photo && <img src={c.founderNote.photo} alt="The Scaling Socials founders" loading="lazy" decoding="async" class="lp-note__img" />}
+          <span class="lp-note__ph">Founder photo</span>
+        </div>
+        <blockquote class="lp-note__q">
+          <p>{c.founderNote.quote}</p>
+          <cite class="lp-note__cite">— {c.founderNote.attribution}</cite>
+        </blockquote>
+      </div>
+    </Section>
+  )}
 
   <!-- ── WHO IT'S FOR / NOT FOR ─────────────────────────────────────────────── -->
   {c.fit && (
     <Section size="md">
       <span class="lp-eyebrow">Honest about fit</span>
-      <h2 class="lp-h2">Who this is for, and who it isn't</h2>
+      <h2 class="lp-h2">Who we do our best work with</h2>
       <div class="lp-fit">
         <div class="lp-fit__col lp-fit__col--good">
-          <h3 class="lp-fit__h"><span class="lp-fit__badge lp-fit__badge--yes" aria-hidden="true">✓</span> A strong fit if you</h3>
+          <h3 class="lp-fit__h"><span class="lp-fit__badge lp-fit__badge--yes" aria-hidden="true">✓</span> You're a strong fit if you</h3>
           <ul>{c.fit.good.map((g) => <li>{g}</li>)}</ul>
         </div>
         <div class="lp-fit__col lp-fit__col--bad">
-          <h3 class="lp-fit__h"><span class="lp-fit__badge lp-fit__badge--no" aria-hidden="true">✕</span> Probably not a fit if you</h3>
+          <h3 class="lp-fit__h"><span class="lp-fit__badge lp-fit__badge--no" aria-hidden="true">✕</span> We're probably not the best fit yet if you</h3>
           <ul>{c.fit.bad.map((g) => <li>{g}</li>)}</ul>
+          {c.fit.note && <p class="lp-fit__note">{c.fit.note}</p>}
         </div>
+      </div>
+    </Section>
+  )}
+
+  <!-- ── WHERE YOU'RE STARTING FROM ─────────────────────────────────────────── -->
+  {c.startingFrom && (
+    <Section size="md" class="!bg-[var(--surface-c)]">
+      <span class="lp-eyebrow">Sound familiar?</span>
+      <h2 class="lp-h2">Most brands come to us from one of these</h2>
+      <ul class="lp-from">
+        {c.startingFrom.map((s) => (
+          <li class="lp-from__card">
+            <h3 class="lp-from__t">{s.title}</h3>
+            <p class="lp-from__b">{s.body}</p>
+          </li>
+        ))}
+      </ul>
+      <div class="lp-from__foot">
+        <span>Whichever one it is, the call is the same 30 minutes.</span>
+        <a href="#lead" class="lp-btn">{c.ctaLabel}</a>
       </div>
     </Section>
   )}
@@ -244,7 +364,7 @@ const nodes = [
   <Section size="md">
     <span class="lp-eyebrow">What clients say</span>
     <h2 class="lp-h2">Founders who let us run it</h2>
-    <div class="mt-[var(--space-5)]"><Testimonials filter={c.proof ? ['Performance marketing'] : undefined} /></div>
+    <div class="mt-[var(--space-5)]"><Testimonials variant={c.proof ? 'slider' : 'rail'} /></div>
   </Section>
 
   <!-- ── FAQ ────────────────────────────────────────────────────────────────── -->
@@ -254,32 +374,12 @@ const nodes = [
     <div class="mt-[var(--space-5)] max-w-[62ch]"><FaqAccordion items={c.faqs} openFirst /></div>
   </Section>
 
-  <!-- ── SAMPLE AUDIT ───────────────────────────────────────────────────────── -->
-  {c.sampleAudit && (
+  <!-- ── GETTING STARTED ────────────────────────────────────────────────────── -->
+  {c.gettingStarted && (
     <Section size="md">
-      <span class="lp-eyebrow">What your audit looks like</span>
-      <h2 class="lp-h2">A written audit, not a sales call</h2>
-      <div class="lp-sample">
-        <div class="lp-sample__head">
-          <span class="lp-sample__tag">Sample audit</span>
-          <div class="lp-sample__score">
-            <span class="lp-sample__score-n display-type">{c.sampleAudit.score}</span>
-            <span class="lp-sample__score-l">Account health score</span>
-          </div>
-        </div>
-        <div class="lp-sample__findings">
-          {c.sampleAudit.findings.map((f) => (
-            <div class="lp-sample__finding">
-              <span class:list={['lp-chip', `lp-chip--${f.severity.toLowerCase()}`]}>{f.severity}</span>
-              <span>{f.text}</span>
-            </div>
-          ))}
-        </div>
-        <div class="lp-sample__next">
-          <h3 class="lp-sample__nexth">What we'd change first</h3>
-          <ol>{c.sampleAudit.changes.map((ch) => <li>{ch}</li>)}</ol>
-        </div>
-      </div>
+      <span class="lp-eyebrow">Getting started</span>
+      <h2 class="lp-h2">From first call to live campaigns in 10 days</h2>
+      <div class="mt-[var(--space-5)]"><ProcessSteps steps={c.gettingStarted} /></div>
     </Section>
   )}
 
@@ -321,7 +421,10 @@ const nodes = [
   <!-- ── LP FOOTER (slim) ───────────────────────────────────────────────────── -->
   <footer class="lp-foot">
     <div class="lp-foot__in">
-      <span>© {new Date().getFullYear()} {ORG.legalName}</span>
+      <span class="lp-foot__brand">
+        <Image src={lockup} alt="Scaling Socials" height={24} width={Math.round(24 * (lockup.width / lockup.height))} densities={[1, 2]} loading="lazy" />
+        <span>© {new Date().getFullYear()} {ORG.legalName}</span>
+      </span>
       <nav class="lp-foot__nav" aria-label="Legal">
         <a href="/privacy/">Privacy</a>
         <a href="/terms/">Terms</a>
@@ -349,19 +452,25 @@ const nodes = [
   </dialog>
 
   <script>
-    // Proof screenshots: hide any that fail to load (revealing the placeholder),
-    // and open the rest full-size in a native <dialog>. No library, CSP-safe.
+    // Images that may not exist yet (placeholders shown until the owner adds them)
+    // hide themselves on error so the placeholder behind shows. Screenshots open
+    // full-size in a native <dialog>. No library, CSP-safe.
     const dlg = document.querySelector('dialog[data-lightbox]') as HTMLDialogElement | null;
     const big = dlg?.querySelector('[data-lightbox-img]') as HTMLImageElement | null;
-    document.querySelectorAll<HTMLImageElement>('.lp-proof__img').forEach((img) => {
-      const markMissing = () => img.closest('.lp-proof__shot')?.classList.add('is-missing');
-      if (img.complete && img.naturalWidth === 0) markMissing();
-      img.addEventListener('error', markMissing);
-    });
-    document.querySelectorAll<HTMLButtonElement>('.lp-proof__shot').forEach((btn) => {
+    const hideOnError = (sel: string, missingTarget: (img: HTMLImageElement) => Element | null | undefined) => {
+      document.querySelectorAll<HTMLImageElement>(sel).forEach((img) => {
+        const mark = () => missingTarget(img)?.classList.add('is-missing');
+        if (img.complete && img.naturalWidth === 0) mark();
+        img.addEventListener('error', mark);
+      });
+    };
+    hideOnError('.lp-proof__img', (img) => img.closest('.lp-proof__shot'));
+    hideOnError('.lp-shot img', (img) => img.closest('.lp-shot'));
+    hideOnError('.lp-note__img', (img) => img);
+    document.querySelectorAll<HTMLButtonElement>('.lp-proof__shot, .lp-shot').forEach((btn) => {
       btn.addEventListener('click', () => {
-        if (btn.classList.contains('is-missing') || !dlg || !big) return;
-        big.src = btn.dataset.shot || '';
+        if (btn.classList.contains('is-missing') || !btn.dataset.shot || !dlg || !big) return;
+        big.src = btn.dataset.shot;
         big.alt = btn.dataset.alt || '';
         dlg.showModal();
       });
@@ -526,6 +635,70 @@ const nodes = [
     .lp-lightbox__img { display:block; width:100%; height:auto; border-radius: var(--radius-card); }
     .lp-lightbox__close { position:fixed; top:3vh; right:4vw; width:44px; height:44px; border-radius:50%; border:none; background:#fff; color:#000; font-size:18px; line-height:1; cursor:pointer; }
 
-    @media (prefers-reduced-motion: reduce) { .lp-btn, .lp-sticky__cta { transition:none; } }
+    /* Logo */
+    .lp-brand img { display:block; height:30px; width:auto; }
+    .lp-foot__brand { display:inline-flex; align-items:center; gap: var(--space-3); }
+    .lp-foot__brand img { display:block; height:24px; width:auto; }
+
+    /* ── Sliders (CSS keyframes on a duplicated track; pause on hover/focus; a
+          static wrapped grid under reduced motion) ─────────────────────────── */
+    .lp-slider { overflow:hidden; }
+    .lp-slider__track { display:flex; gap: var(--space-3); width:max-content; animation: lpScroll 40s linear infinite; will-change: transform; }
+    .lp-slider:hover .lp-slider__track, .lp-slider:focus-within .lp-slider__track { animation-play-state: paused; }
+    @keyframes lpScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .lp-slider__empty { display:flex; flex-wrap:wrap; gap: var(--space-3); }
+    .lp-slider__cap { margin-top: var(--space-2); font-size: var(--text-label); color: var(--fg-muted); }
+    /* proof screenshots */
+    .lp-shot { flex:none; height:220px; border:1px solid var(--rule-c); border-radius: var(--radius-card); overflow:hidden; background: var(--surface-c); padding:0; cursor: zoom-in; }
+    .lp-shot img { height:100%; width:auto; display:block; }
+    @media (min-width:768px){ .lp-shot { height:320px; } }
+    .lp-shot--ph { display:grid; place-items:center; width:min(440px,82vw); color: var(--fg-muted); font-size: var(--text-label); cursor:default;
+      background: repeating-linear-gradient(45deg, var(--surface-c), var(--surface-c) 10px, color-mix(in srgb, var(--fg-muted) 8%, var(--surface-c)) 10px, color-mix(in srgb, var(--fg-muted) 8%, var(--surface-c)) 20px); }
+    /* creatives (portrait 9:16) */
+    .lp-creative { flex:none; height:260px; aspect-ratio:9/16; border:1px solid var(--rule-c); border-radius: var(--radius-card); overflow:hidden; background: var(--ground); }
+    .lp-creative img, .lp-creative video { width:100%; height:100%; object-fit:cover; display:block; }
+    @media (min-width:768px){ .lp-creative { height:360px; } }
+    .lp-creative--ph { display:grid; place-items:center; color: var(--fg-muted); font-size: var(--text-label); }
+
+    /* Founder note */
+    .lp-note { margin-top: var(--space-5); display:grid; gap: var(--space-5); grid-template-columns:1fr; align-items:center; }
+    @media (min-width:768px){ .lp-note { grid-template-columns: 300px 1fr; gap: var(--space-7); } }
+    .lp-note__photo { position:relative; aspect-ratio:4/3; border:1px solid var(--rule-c); border-radius: var(--radius-card); overflow:hidden; background: var(--surface-c); }
+    .lp-note__img { position:relative; z-index:1; width:100%; height:100%; object-fit:cover; display:block; }
+    .lp-note__img.is-missing { display:none; }
+    .lp-note__ph { position:absolute; inset:0; display:grid; place-items:center; color: var(--fg-muted); font-size: var(--text-label); }
+    .lp-note__q p { font-size: var(--text-h4); line-height:1.55; color: var(--fg); }
+    .lp-note__cite { display:block; margin-top: var(--space-3); font-weight:600; color: var(--fg-muted); font-style:normal; }
+
+    /* Why pointers */
+    .lp-pointers { margin-top: var(--space-6); display:grid; gap: var(--space-3); grid-template-columns:1fr; }
+    @media (min-width:768px){ .lp-pointers { grid-template-columns:1fr 1fr; gap: var(--space-3) var(--space-6); } }
+    .lp-pointer { display:flex; gap: var(--space-3); align-items:flex-start; font-size: var(--text-body); color: var(--fg); }
+    .lp-pointer__tick { display:grid; place-items:center; width:24px; height:24px; flex:none; margin-top:1px; border-radius:6px; background: var(--accent-wash); color: var(--accent-graphic); }
+
+    /* What-you-get checklist cards */
+    .lp-cards--2x2 { grid-template-columns:1fr; }
+    @media (min-width:768px){ .lp-cards--2x2 { grid-template-columns:1fr 1fr; } }
+    .lp-cards--2x2 .lp-card { background: color-mix(in srgb, var(--accent-wash) 55%, var(--ground)); border-color: color-mix(in srgb, var(--accent-graphic) 14%, var(--rule-c)); }
+    .lp-card__list { margin-top: var(--space-3); display:flex; flex-direction:column; gap: var(--space-2); }
+    .lp-card__list li { display:flex; gap:0.5rem; align-items:flex-start; font-size: var(--text-small); color: var(--fg); }
+    .lp-card__tick { display:inline-flex; flex:none; margin-top:2px; color: var(--accent-graphic); }
+
+    /* Where you're starting from */
+    .lp-from { margin-top: var(--space-6); display:grid; gap: var(--space-3); grid-template-columns:1fr; }
+    @media (min-width:768px){ .lp-from { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    .lp-from__card { border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-5); }
+    .lp-from__t { font-size: var(--text-h4); font-weight:700; margin-bottom: var(--space-2); }
+    .lp-from__b { font-size: var(--text-small); line-height:1.55; color: var(--fg-muted); }
+    .lp-from__foot { margin-top: var(--space-6); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap: var(--space-3); }
+    .lp-from__foot span { font-size: var(--text-body); color: var(--fg); }
+
+    .lp-fit__note { margin-top: var(--space-3); font-size: var(--text-small); color: var(--fg-muted); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .lp-btn, .lp-sticky__cta { transition:none; }
+      .lp-slider__track { animation:none; flex-wrap:wrap; width:auto; justify-content:center; }
+      .lp-slider__track > [aria-hidden="true"] { display:none; }
+    }
   </style>
 </BaseLayout>

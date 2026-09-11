@@ -31,6 +31,8 @@ export interface LandingCard {
   glyph: string;
   title: string;
   body: string;
+  /** Optional checklist under the summary (What-you-get cards). */
+  list?: string[];
 }
 
 /** WhatsApp secondary CTA config. */
@@ -56,6 +58,8 @@ export interface LandingSampleAudit {
 export interface LandingFit {
   good: string[];
   bad: string[];
+  /** Optional softer line under the "not a fit" column. */
+  note?: string;
 }
 
 export interface LandingContent {
@@ -97,11 +101,20 @@ export interface LandingContent {
   showcase?: boolean;
   benefits: { eyebrow: string; heading: string; sub: string; items: LandingCard[] };
   process: { title: string; body: string }[];
-  why: { eyebrow: string; heading: string; points: LandingCard[] };
+  /** Why-us: either explained cards (points) or a plain pointer list. */
+  why: { eyebrow: string; heading: string; points?: LandingCard[]; pointers?: string[] };
   /** Optional "strong fit / not a fit" columns after why-us. */
   fit?: LandingFit;
   /** Optional labelled sample-audit block before the final CTA. */
   sampleAudit?: LandingSampleAudit;
+  /** "Where you're starting from" cards. */
+  startingFrom?: { title: string; body: string }[];
+  /** "Getting started" timeline (rendered with the ProcessSteps component). */
+  gettingStarted?: { title: string; body: string }[];
+  /** A short founder note (photo + quote). */
+  founderNote?: { quote: string; attribution: string; photo?: string };
+  /** Show the in-house creative slider (reads /public/lp/creatives/). */
+  creatives?: boolean;
   faqs: Faq[];
   /** Optional distinct bullets for the bottom CTA (else reuses hero bullets). */
   finalBullets?: string[];
@@ -128,7 +141,13 @@ const faqsByKeyword = (slug: string, keys: string[]): Faq[] => {
 // pricing is published anywhere, per CLAUDE.md §18).
 const MIN_SPEND_FAQ: Faq = {
   q: 'What monthly ad spend do you work with?',
-  a: 'We are the best fit for brands able to put at least ₹1,000 a day into paid ads, roughly ₹30,000 a month, so there is enough budget to test, find the winners and scale them. Below that, paid rarely has the room to prove itself and we would usually tell you to keep testing organically first. If you are close to that level and growing, talk to us anyway and we will be straight about whether it is worth starting.',
+  a: "We start most brands at a ₹40–60 K monthly testing budget. That's enough for Meta and Google to learn, and for us to find two or three creative angles that clear your break-even ROAS before we scale. If you're below that today, book the call anyway — we'll tell you what to fix on the store first so the budget works when you're ready.",
+};
+
+// "What happens on the strategy call?" (Task 1e).
+const CALL_FAQ: Faq = {
+  q: 'What happens on the strategy call?',
+  a: "We open your Ads Manager and store with you, show you where spend is leaking and what we'd change first, and tell you honestly whether we're the right fit. No deck, no pressure.",
 };
 
 export const LANDINGS: LandingContent[] = [
@@ -138,10 +157,10 @@ export const LANDINGS: LandingContent[] = [
     source: 'lp-performance-marketing',
     title: 'Scale Meta & Google Ads Profitably | Scaling Socials',
     description:
-      'Performance marketing for D2C & ecommerce, managed to your real margins. Creative made in-house, spend never marked up. Free audit in 3 working days.',
+      'Performance marketing for D2C & ecommerce, managed to your real margins. Creative made in-house, ad spend never marked up. Book a free 30-min strategy call.',
     phoneCtaLabel: 'Call us',
-    ctaLabel: 'Get my free growth audit',
-    ctaLabelShort: 'Free growth audit',
+    ctaLabel: 'Book my free strategy call',
+    ctaLabelShort: 'Book a call',
     hero: {
       eyebrow: 'Performance marketing for D2C & ecommerce',
       h1: 'Scale Meta & Google ads that actually turn a profit',
@@ -149,20 +168,20 @@ export const LANDINGS: LandingContent[] = [
       bullets: [
         'Media, creative & CRO on one senior team',
         'Ad spend paid straight to the platforms — never marked up',
-        'A written audit in 3 working days, whether or not you hire us',
+        '400+ ecommerce brands worked with across India and the UAE',
       ],
-      qualifier: 'Best fit for brands spending at least ₹1,000 a day on ads.',
-      // TODO(owner): replace the third stat with a real agency-wide spend or
-      // revenue figure. The three below are all true, derived from the seven
-      // documented case studies (CASE_STUDY_TOTALS) so nothing is invented.
+      qualifier: 'Best fit for brands ready to put at least ₹40–60 K a month into testing.',
+      // "400+" is a worked-with count across services (owner to confirm it is
+      // defensible on the call). The other two are true, derived from the seven
+      // documented case studies (CASE_STUDY_TOTALS).
       stats: [
-        { value: CASE_STUDY_TOTALS.roas, label: 'Average blended ROAS' },
+        { value: '400+', label: 'Ecommerce brands worked with' },
+        { value: CASE_STUDY_TOTALS.roas, label: 'Average ROAS, documented ad accounts' },
         { value: CASE_STUDY_TOTALS.revenue, label: 'Tracked revenue driven' },
-        { value: CASE_STUDY_TOTALS.accounts, label: 'D2C accounts documented in full' },
       ],
-      formHeading: 'Get your free growth audit',
-      formSub: 'A written audit of what to change first — in 3 working days.',
-      submitLabel: 'Send me my audit',
+      formHeading: 'Book your free strategy call',
+      formSub: "30 minutes. We look at your account live and tell you what we'd change first.",
+      submitLabel: 'Book my call',
       questions: perf.formQuestions,
     },
     trustLine: 'Trusted by D2C & ecommerce brands across India and the UAE',
@@ -174,17 +193,18 @@ export const LANDINGS: LandingContent[] = [
       ],
       step2: [
         { name: 'website', label: 'Website or Instagram URL', type: 'text', required: false, autocomplete: 'url', placeholder: 'yourbrand.com or @handle' },
-        { name: 'ad_spend', label: 'Monthly ad spend', type: 'select', required: false, options: ['Under ₹1 L', '₹1–5 L', '₹5–20 L', '₹20 L+'] },
+        { name: 'ad_spend', label: 'Monthly ad spend', type: 'select', required: false, options: ['Under ₹40 K', '₹40–60 K', '₹60 K–2 L', '₹2–5 L', '₹5 L+'] },
       ],
       showMessage: false,
       redirect: '/lp/performance-marketing/thanks/',
     },
-    whatsapp: { number: '919606713608', text: "Hi, I'd like a free growth audit for my brand" },
+    whatsapp: { number: '919606713608', text: "Hi, I'd like a free strategy call for my brand" },
     nextSteps: [
-      { n: '01', text: 'We reply within one working day.' },
-      { n: '02', text: 'You share ad-account access (read-only is fine).' },
-      { n: '03', text: 'Written audit in your inbox within 3 working days. No sales deck, no obligation.' },
+      { n: '01', text: 'We reply within one working day to fix a time.' },
+      { n: '02', text: 'Send us read-only access before the call so we come prepared.' },
+      { n: '03', text: '30 minutes, your account on screen, a clear first-30-days plan.' },
     ],
+    creatives: true,
     proof: [
       { ...proofFrom('womens-fashion-account-turnaround'), stillRunning: true, image: '/lp/proof/case-1.png', imageAlt: "Meta Ads Manager showing account ROAS rising from 1.75x to 3.94x, women's fashion label" },
       { ...proofFrom('wellness-brand-zero-to-scale'), image: '/lp/proof/case-2.png', imageAlt: 'Meta Ads Manager showing revenue growing from zero to ₹1.19 crore in year one, wellness D2C brand' },
@@ -195,63 +215,98 @@ export const LANDINGS: LandingContent[] = [
       heading: 'One team on media, creative and the store — not a lone buyer',
       sub: 'Everything that actually moves a paid account, run by senior people against your P&L.',
       items: [
-        { glyph: 'target', title: 'Meta & Instagram ads', body: 'Full-funnel prospecting and retargeting, Advantage+ where it beats manual, fed by a weekly creative pipeline.' },
-        { glyph: 'search', title: 'Google Search, Shopping & PMax', body: 'Built around real buying intent and your margin — not impression share for its own sake.' },
-        { glyph: 'spark', title: 'Ad creative, made in-house', body: 'You send raw footage; we cut video-led ads and statics and test them every week. Creative is the lever.' },
-        { glyph: 'funnel', title: 'Conversion rate optimisation', body: 'We close the leaks between the click and the checkout so the traffic you pay for actually converts.' },
+        { glyph: 'target', title: 'Meta & Instagram ads', body: 'Full-funnel buying across every campaign type Meta offers, run against your margin.', list: [
+          'Prospecting, retargeting and retention structures',
+          'Advantage+ Shopping, manual and hybrid — whichever wins your account',
+          'Catalog / DPA for your full range',
+          'Weekly creative refresh so fatigue never sets in',
+          'Daily budget moves against break-even ROAS',
+        ] },
+        { glyph: 'search', title: 'Google Search, Shopping & PMax', body: 'Built around buying intent, not impression share.', list: [
+          'Brand and non-brand Search',
+          'Standard Shopping and Performance Max with proper feed structure',
+          'YouTube and Demand Gen when the funnel needs it',
+          'Negative keyword and placement hygiene, weekly',
+          'Merchant Center and feed optimisation',
+        ] },
+        { glyph: 'spark', title: 'Ad creative, made in-house', body: 'You send raw footage; we send back ads that get tested every week.', list: [
+          'UGC-style and founder-led video edits',
+          'Statics, carousels and catalog overlays',
+          'Hook, angle and offer variations for every winner',
+          'Landing-page-matched creative',
+          'A creative scorecard every week',
+        ] },
+        { glyph: 'funnel', title: 'Conversion rate optimisation', body: "More clicks won't fix a leaking store.", list: [
+          'Product page and landing page fixes',
+          'Checkout and cart drop-off analysis',
+          'Offer, bundle and AOV testing',
+          'Speed and mobile UX passes',
+          'Tracking and pixel/CAPI setup done properly',
+        ] },
       ],
     },
-    process: perf.process,
+    // Offer is a call now, so the first phase is an "account review" on the LP
+    // (the only allowed use of that phrase) — the service page keeps "Audit".
+    process: perf.process.map((s) => (s.title === 'Audit' ? { ...s, title: 'Account review' } : s)),
     why: {
       eyebrow: 'Why brands switch to us',
       heading: 'The difference you feel in the P&L',
-      points: [
-        { glyph: 'gauge', title: 'Bought against break-even ROAS', body: 'We buy to the number your margin sets — not the flattering ROAS the platform reports back to itself.' },
-        { glyph: 'shield', title: 'No lock-in, no markup, no vanity promises', body: 'Your spend goes straight to Meta and Google. We will not promise a ROAS we cannot control.' },
-        { glyph: 'chart', title: 'Scale only what clears', body: 'Winners get budget, losers get cut, testing stays cheap. Then we run the loop again.' },
-        { glyph: 'handshake', title: 'A free audit, hire us or not', body: 'Send us access and you get a written audit in three working days. No sales deck, no obligation.' },
+      pointers: [
+        "We buy to your break-even ROAS, not the platform's flattering one",
+        'Your spend goes straight to Meta and Google — we never mark it up',
+        'Media, creative and CRO on one team, so nobody blames the other',
+        'Winners get budget, losers get cut, every week',
+        "No lock-in. Stay because it's working",
+        'You talk to the people running your account, not an account manager',
       ],
+    },
+    founderNote: {
+      quote: "We started Scaling Socials in 2021 because we kept watching good products die in bad ad accounts — spend going to campaigns nobody was reading, agencies reporting a ROAS the P&L didn't recognise. Six years and a few hundred brands later, the approach hasn't changed: know your margins, buy against your break-even, make creative every week, and scale only what earns it. If you book a call, you get one of us on it, not a sales rep.",
+      attribution: 'Tayeb & Jamal, Co-founders',
+      photo: '/lp/founders.jpg',
     },
     fit: {
       good: [
-        'You already sell online',
-        'You spend at least ₹1,000 a day on Meta or Google',
-        'You have margin to scale',
-        'You can send us raw creative footage',
-        'You care about contribution margin, not just platform ROAS',
+        'Own the decision and want to take the brand to the next level',
+        'Are already selling online and want to scale, not start from zero',
+        'Can put at least ₹40–60 K a month into the testing phase',
+        'Can shoot raw footage for us every month — creative is half the work',
+        'Care about profit and contribution margin, not just a ROAS number',
       ],
       bad: [
-        'You want a guaranteed ROAS',
-        'You want ads run with no creative input from you',
-        'You have not yet validated demand for the product',
+        "Want a fixed ROAS promised before we've seen the account",
+        "Aren't able to invest in creative yet",
+        'Are still validating whether people want the product',
       ],
+      note: "If that's where you are today, book the call anyway. We'll tell you what to fix first so the money works when you're ready.",
     },
-    // Static, clearly-labelled sample. Owner will replace the copy with a real
-    // redacted audit; the text here is generic on purpose.
-    sampleAudit: {
-      score: '62 / 100',
-      findings: [
-        { text: 'Spend concentrated in one fatigued audience; frequency past 3.5 with falling CTR.', severity: 'High' },
-        { text: 'Retargeting and prospecting share one campaign, so the platform over-credits branded traffic.', severity: 'Medium' },
-        { text: 'Product-page load over 3s on mobile is quietly costing you paid conversions.', severity: 'Low' },
-      ],
-      changes: [
-        'Split prospecting and retargeting so each is judged on its own return.',
-        'Refresh the top creative and set a weekly testing slot to stop fatigue recurring.',
-        'Fix the mobile product-page speed before adding any more budget.',
-      ],
-    },
-    // B2B FAQ removed from this page (5a); min-spend qualifier added on top (5b).
-    faqs: [MIN_SPEND_FAQ, ...faqsByKeyword('performance-marketing', ['what roas', 'make the ad creative', 'how soon', 'pricing work'])],
+    startingFrom: [
+      { title: 'Running ads in-house and stuck', body: "You've hit a ceiling. Spend goes up, ROAS goes down, and nobody has time to make new creative." },
+      { title: 'Working with a freelancer', body: "Campaigns run, but there's no plan to scale, no creative pipeline, and no one accountable when it dips." },
+      { title: 'Already with an agency, not seeing growth', body: "Reports look fine, the P&L doesn't. The team keeps changing and you're never sure who's actually on your account." },
+    ],
+    gettingStarted: [
+      { title: 'Day 0 — Strategy call', body: 'Your account on screen, first-30-days plan agreed.' },
+      { title: 'Day 1–3 — Access & review', body: 'Read-only access, tracking check, margins and break-even ROAS confirmed.' },
+      { title: 'Day 4–7 — Creative & build', body: 'First batch of ads cut from your footage, campaigns structured.' },
+      { title: 'Day 8–10 — Live', body: 'Testing starts. Weekly report from week one.' },
+    ],
+    faqs: [
+      MIN_SPEND_FAQ,
+      CALL_FAQ,
+      { q: 'What ROAS can you promise?', a: "None, and be careful with anyone who does. A fixed ROAS promise is a guess dressed up as a number. We target your break-even ROAS, which your margins set, and scale whatever clears it. We'll show you the maths on the call." },
+      { q: 'Do you make the ad creative?', a: 'Yes, we edit and produce it in-house. You supply the raw footage and product shots against a brief we give you; we cut the statics and video-led ads and run them through a structured testing pipeline. Creative is the single biggest lever in paid today, so it sits at the centre of the engagement.' },
+      { q: 'How soon do we see results?', a: 'You leave the strategy call with a first-30-days plan. Real account changes need a testing cycle to read cleanly, usually 30 to 60 days, before we put weight behind what is working. We will not pour spend into unproven creative just to hand you an early number.' },
+    ],
     finalBullets: [
-      "What's working, what's wasting money, and what we'd change first",
+      'Where your spend is leaking and why',
       'Your break-even ROAS, with the maths shown',
-      "Where we'd scale next, whether or not you hire us",
+      "What we'd change in the first 30 days",
     ],
     finalCta: {
       heading: 'Find out what is leaking money',
-      body: 'Send us access to your ad accounts and store. Within three working days you get a written audit of what is working, what is not, and what we would change first — whether or not you hire us.',
-      ctaLabel: 'Get your free growth audit',
+      body: 'Book a 30-minute call. We look at your ad accounts and store with you and show you what we would change first — you leave with a plan either way.',
+      ctaLabel: 'Book your free strategy call',
     },
   },
   {
