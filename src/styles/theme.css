@@ -168,6 +168,13 @@
     /* Anchor jumps clear the fixed header. */
     scroll-padding-top: var(--hh, 68px);
   }
+  /* Never allow a horizontal scroll on mobile/tablet — `clip` contains any stray
+     sub-pixel/decorative overflow (seen on iOS Safari) WITHOUT establishing a
+     scroll container, so nothing else breaks. Scoped below the desktop breakpoint
+     so the desktop sticky asides are untouched. */
+  @media (max-width: 1023px) {
+    html, body { overflow-x: clip; max-width: 100%; }
+  }
 
   /* Reserve space for the fixed header so page content starts below it. Uses the
      general sibling selector so `bare` pages (no header) get no offset. --hh is

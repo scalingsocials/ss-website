@@ -124,11 +124,15 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
       </Button>
     </nav>
 
-    <!-- Mobile: CTA + hamburger -->
+    <!-- Mobile: CTA (≥sm only) + hamburger. The CTA sits in a wrapper span that
+         controls its visibility — a Button's own `hidden` loses to its base
+         `inline-flex`, so on phones the CTA would otherwise crowd the hamburger. -->
     <div class="ml-auto flex items-center gap-[var(--space-2)] lg:hidden">
-      <Button href={NAV_CTA.href} variant="primary" size="sm" class="hidden sm:inline-flex">
-        {NAV_CTA.label}
-      </Button>
+      <span class="hidden sm:inline-flex">
+        <Button href={NAV_CTA.href} variant="primary" size="sm">
+          {NAV_CTA.label}
+        </Button>
+      </span>
       <button
         type="button"
         data-mobile-open

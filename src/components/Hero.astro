@@ -213,7 +213,9 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   .hero__chip--1 { top: 5%; left: -6%; } .hero__chip--2 { top: 26%; right: -8%; }
   .hero__chip--3 { top: 52%; left: -8%; } .hero__chip--4 { bottom: 20%; right: -6%; }
   .hero__chip--5 { bottom: 4%; left: 8%; } .hero__chip--6 { top: 1%; right: 12%; }
-  @media (max-width: 640px) { .hero__chip--3, .hero__chip--5, .hero__chip--6 { display: none; } }
+  /* Hide the floating chips on mobile — their negative offsets can bleed past the
+     viewport edge on iOS Safari, and they're purely decorative. */
+  @media (max-width: 640px) { .hero__chip { display: none; } }
 
   @media (prefers-reduced-motion: no-preference) {
     .hero__line { opacity: 0; transform: translateY(14px); animation: heroIn 0.7s var(--ease-out) forwards; }
