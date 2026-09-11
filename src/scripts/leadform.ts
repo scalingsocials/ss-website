@@ -21,7 +21,9 @@ function gaIds(): { clientId: string; sessionId: string } {
   const ga = read(/(?:^|;\s*)_ga=([^;]+)/);
   const clientId = ga ? ga.split('.').slice(-2).join('.') : '';
   const ses = read(/(?:^|;\s*)_ga_DQH1656N5W=([^;]+)/);
-  const sessionId = ses ? ses.split('.')[2] ?? '' : '';
+  // Session cookie is either the newer "GS2.1.s<sid>$o1$…" or the older
+  // "GS1.1.<sid>.<n>" format — pull the numeric session id from whichever.
+  const sessionId = ses ? (ses.match(/s(\d+)/)?.[1] ?? ses.split('.')[2] ?? '') : '';
   return { clientId, sessionId };
 }
 
