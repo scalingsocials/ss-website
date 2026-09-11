@@ -1,9 +1,11 @@
 ---
 /**
  * HeroMotif — a decorative, framed illustration for interior-page hero right
- * columns, so a page isn't a wall of text (08 §6). Same "instrument panel"
- * language as PanelMotif/Hero, varied per page by `variant`. Reads semantic vars
- * only, works in either register, and is purely decorative (aria-hidden).
+ * columns, so a page isn't a wall of text (08 §6). An "instrument panel" with a
+ * soft drifting aura behind a per-page motif, subtly animated (CSS only, no JS,
+ * no external assets). Reads semantic vars only, works in either register, is
+ * purely decorative (aria-hidden), and all motion is gated behind
+ * prefers-reduced-motion so it settles to a clean static state.
  */
 export interface Props {
   variant?: 'growth' | 'teardown' | 'guide' | 'glossary' | 'team';
@@ -19,8 +21,10 @@ const labels: Record<string, string> = {
   team: 'team.live',
 };
 const cap = label ?? labels[variant];
+const pill = variant === 'teardown' ? 'What we found' : variant === 'growth' ? 'Compounding' : 'Scaling Socials';
 ---
-<div class:list={['ss-motif', className]} aria-hidden="true">
+<div class:list={['ss-motif', `ss-motif--${variant}`, className]} aria-hidden="true">
+  <span class="ss-motif__aura"></span>
   <div class="ss-motif__head">
     <span class="ss-motif__dot"></span><span class="ss-motif__dot"></span><span class="ss-motif__dot"></span>
     <span class="ss-motif__label">{cap}</span>
@@ -29,29 +33,31 @@ const cap = label ?? labels[variant];
     {variant === 'growth' && (
       <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg">
         <g class="ss-motif__grid"><line x1="0" y1="150" x2="320" y2="150"/><line x1="0" y1="110" x2="320" y2="110"/><line x1="0" y1="70" x2="320" y2="70"/></g>
-        <rect class="ss-motif__bar" x="26" y="120" width="30" height="30" rx="3"/>
-        <rect class="ss-motif__bar" x="86" y="96" width="30" height="54" rx="3"/>
-        <rect class="ss-motif__bar" x="146" y="70" width="30" height="80" rx="3"/>
-        <rect class="ss-motif__bar" x="206" y="44" width="30" height="106" rx="3"/>
-        <rect class="ss-motif__bar ss-motif__bar--hot" x="266" y="24" width="30" height="126" rx="3"/>
-        <path class="ss-motif__line" d="M20 128 C 80 112, 120 96, 170 72 C 210 52, 250 40, 300 20"/>
+        <rect class="ss-motif__bar" x="26" y="120" width="30" height="30" rx="4"/>
+        <rect class="ss-motif__bar" x="86" y="96" width="30" height="54" rx="4"/>
+        <rect class="ss-motif__bar" x="146" y="70" width="30" height="80" rx="4"/>
+        <rect class="ss-motif__bar" x="206" y="44" width="30" height="106" rx="4"/>
+        <rect class="ss-motif__bar ss-motif__bar--hot" x="266" y="24" width="30" height="126" rx="4"/>
+        <path class="ss-motif__line ss-motif__draw" d="M20 128 C 80 112, 120 96, 170 72 C 210 52, 250 40, 300 20"/>
         <path class="ss-motif__arrow" d="M286 20h16v16"/>
       </svg>
     )}
     {variant === 'teardown' && (
       <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg">
         <g class="ss-motif__grid"><line x1="0" y1="140" x2="320" y2="140"/><line x1="0" y1="96" x2="320" y2="96"/><line x1="0" y1="52" x2="320" y2="52"/></g>
-        <path class="ss-motif__line ss-motif__line--warn" d="M12 60 C 60 70, 90 120, 140 118 C 190 116, 210 60, 260 66"/>
-        <path class="ss-motif__line" d="M12 130 C 70 120, 110 96, 170 84 C 220 74, 260 56, 300 40"/>
-        <circle class="ss-motif__lens" cx="206" cy="108" r="34"/>
-        <line class="ss-motif__lens-h" x1="230" y1="132" x2="256" y2="158"/>
+        <path class="ss-motif__line ss-motif__line--warn ss-motif__draw" d="M12 60 C 60 70, 90 120, 140 118 C 190 116, 210 60, 260 66"/>
+        <path class="ss-motif__line ss-motif__draw ss-motif__draw--slow" d="M12 130 C 70 120, 110 96, 170 84 C 220 74, 260 56, 300 40"/>
+        <g class="ss-motif__lens-g">
+          <circle class="ss-motif__lens" cx="206" cy="108" r="34"/>
+          <line class="ss-motif__lens-h" x1="230" y1="132" x2="256" y2="158"/>
+        </g>
       </svg>
     )}
     {variant === 'guide' && (
       <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg">
-        <rect class="ss-motif__doc ss-motif__doc--back" x="70" y="34" width="150" height="130" rx="6"/>
-        <rect class="ss-motif__doc ss-motif__doc--mid" x="88" y="26" width="150" height="130" rx="6"/>
-        <rect class="ss-motif__doc" x="106" y="18" width="150" height="130" rx="6"/>
+        <rect class="ss-motif__doc ss-motif__doc--back ss-motif__rise" x="70" y="34" width="150" height="130" rx="6"/>
+        <rect class="ss-motif__doc ss-motif__doc--mid ss-motif__rise" x="88" y="26" width="150" height="130" rx="6"/>
+        <rect class="ss-motif__doc ss-motif__rise" x="106" y="18" width="150" height="130" rx="6"/>
         <line class="ss-motif__row" x1="124" y1="46" x2="238" y2="46"/>
         <line class="ss-motif__row" x1="124" y1="66" x2="238" y2="66"/>
         <line class="ss-motif__row ss-motif__row--short" x1="124" y1="86" x2="196" y2="86"/>
@@ -63,26 +69,29 @@ const cap = label ?? labels[variant];
       <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg">
         <rect class="ss-motif__doc" x="40" y="30" width="240" height="130" rx="8"/>
         <line class="ss-motif__spine" x1="160" y1="30" x2="160" y2="160"/>
-        <text class="ss-motif__az" x="86" y="106" text-anchor="middle">A</text>
-        <text class="ss-motif__az ss-motif__az--z" x="234" y="106" text-anchor="middle">Z</text>
+        <text class="ss-motif__az ss-motif__fade" x="86" y="106" text-anchor="middle">A</text>
+        <text class="ss-motif__az ss-motif__az--z ss-motif__fade ss-motif__fade--2" x="234" y="106" text-anchor="middle">Z</text>
         <line class="ss-motif__row" x1="70" y1="128" x2="130" y2="128"/>
         <line class="ss-motif__row" x1="192" y1="128" x2="252" y2="128"/>
       </svg>
     )}
     {variant === 'team' && (
-      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg">
-        <line class="ss-motif__link" x1="160" y1="95" x2="70" y2="52"/>
-        <line class="ss-motif__link" x1="160" y1="95" x2="250" y2="52"/>
-        <line class="ss-motif__link" x1="160" y1="95" x2="70" y2="138"/>
-        <line class="ss-motif__link" x1="160" y1="95" x2="250" y2="138"/>
-        <g class="ss-motif__node"><circle cx="160" cy="95" r="24"/><circle cx="160" cy="88" r="7"/><path d="M148 108a12 12 0 0 1 24 0"/></g>
-        <g class="ss-motif__node"><circle cx="70" cy="52" r="18"/><circle cx="70" cy="47" r="5"/><path d="M61 63a9 9 0 0 1 18 0"/></g>
-        <g class="ss-motif__node"><circle cx="250" cy="52" r="18"/><circle cx="250" cy="47" r="5"/><path d="M241 63a9 9 0 0 1 18 0"/></g>
-        <g class="ss-motif__node"><circle cx="70" cy="138" r="18"/><circle cx="70" cy="133" r="5"/><path d="M61 149a9 9 0 0 1 18 0"/></g>
-        <g class="ss-motif__node"><circle cx="250" cy="138" r="18"/><circle cx="250" cy="133" r="5"/><path d="M241 149a9 9 0 0 1 18 0"/></g>
+      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg ss-net">
+        <g class="ss-net__links">
+          <line class="ss-net__link" x1="160" y1="95" x2="70" y2="52"/>
+          <line class="ss-net__link" x1="160" y1="95" x2="250" y2="52"/>
+          <line class="ss-net__link" x1="160" y1="95" x2="70" y2="138"/>
+          <line class="ss-net__link" x1="160" y1="95" x2="250" y2="138"/>
+        </g>
+        <circle class="ss-net__halo" cx="160" cy="95" r="26"/>
+        <g class="ss-net__node ss-net__node--hub"><circle class="ss-net__ring" cx="160" cy="95" r="26"/><circle class="ss-net__head" cx="160" cy="88" r="7"/><path class="ss-net__torso" d="M147 109a13 13 0 0 1 26 0"/></g>
+        <g class="ss-net__node ss-net__pop ss-net__pop--1"><circle class="ss-net__ring" cx="70" cy="52" r="18"/><circle class="ss-net__head" cx="70" cy="47" r="5"/><path class="ss-net__torso" d="M61 63a9 9 0 0 1 18 0"/></g>
+        <g class="ss-net__node ss-net__pop ss-net__pop--2"><circle class="ss-net__ring" cx="250" cy="52" r="18"/><circle class="ss-net__head" cx="250" cy="47" r="5"/><path class="ss-net__torso" d="M241 63a9 9 0 0 1 18 0"/></g>
+        <g class="ss-net__node ss-net__pop ss-net__pop--3"><circle class="ss-net__ring" cx="70" cy="138" r="18"/><circle class="ss-net__head" cx="70" cy="133" r="5"/><path class="ss-net__torso" d="M61 149a9 9 0 0 1 18 0"/></g>
+        <g class="ss-net__node ss-net__pop ss-net__pop--4"><circle class="ss-net__ring" cx="250" cy="138" r="18"/><circle class="ss-net__head" cx="250" cy="133" r="5"/><path class="ss-net__torso" d="M241 149a9 9 0 0 1 18 0"/></g>
       </svg>
     )}
-    <span class="ss-motif__pill">{variant === 'teardown' ? 'What we found' : variant === 'growth' ? 'Compounding' : 'Scaling Socials'}</span>
+    <span class="ss-motif__pill">{pill}</span>
   </div>
 </div>
 <style>
@@ -92,17 +101,28 @@ const cap = label ?? labels[variant];
     border-radius: var(--radius-card);
     background: linear-gradient(180deg, color-mix(in srgb, var(--surface-c) 92%, transparent), var(--surface-c));
     padding: var(--space-3);
-    box-shadow: 0 30px 70px -44px color-mix(in srgb, var(--accent-fill) 45%, transparent);
+    box-shadow: 0 34px 80px -48px color-mix(in srgb, var(--accent-fill) 50%, transparent);
     overflow: hidden;
+    isolation: isolate;
   }
+  /* Soft drifting aura — two blurred accent blobs behind the motif. Purely
+     atmospheric; kept low-opacity so it lifts the panel without shouting. */
+  .ss-motif__aura {
+    position: absolute; inset: -20%; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(38% 42% at 22% 24%, color-mix(in srgb, var(--accent-graphic) 34%, transparent), transparent 70%),
+      radial-gradient(42% 46% at 84% 82%, color-mix(in srgb, var(--accent-graphic-2, var(--accent-graphic)) 26%, transparent), transparent 70%);
+    filter: blur(20px);
+    opacity: 0.55;
+  }
+  .ss-motif__head, .ss-motif__body { position: relative; z-index: 1; }
   .ss-motif__head { display: flex; align-items: center; gap: 6px; padding-bottom: var(--space-2); }
   .ss-motif__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-c); }
   .ss-motif__label { margin-left: auto; font-size: var(--text-label); color: var(--fg-muted); letter-spacing: 0.02em; }
-  .ss-motif__body { position: relative; }
-  .ss-motif__svg { width: 100%; height: auto; display: block; aspect-ratio: 320 / 190; }
+  .ss-motif__svg { width: 100%; height: auto; display: block; aspect-ratio: 320 / 190; overflow: visible; }
 
   .ss-motif__grid line { stroke: var(--rule-c); stroke-width: 1; }
-  .ss-motif__bar { fill: color-mix(in srgb, var(--accent-graphic) 22%, transparent); stroke: color-mix(in srgb, var(--accent-graphic) 45%, transparent); stroke-width: 1; }
+  .ss-motif__bar { fill: color-mix(in srgb, var(--accent-graphic) 22%, transparent); stroke: color-mix(in srgb, var(--accent-graphic) 45%, transparent); stroke-width: 1; transform-box: fill-box; transform-origin: bottom; }
   .ss-motif__bar--hot { fill: color-mix(in srgb, var(--accent-graphic) 45%, transparent); stroke: var(--accent-graphic); }
   .ss-motif__line { stroke: var(--accent-graphic); stroke-width: 2.5; stroke-linecap: round; fill: none; }
   .ss-motif__line--warn { stroke: var(--accent-graphic-2); stroke-width: 2; opacity: 0.85; }
@@ -110,6 +130,7 @@ const cap = label ?? labels[variant];
 
   .ss-motif__lens { stroke: var(--accent-graphic); stroke-width: 2.5; fill: color-mix(in srgb, var(--accent-fill) 8%, transparent); }
   .ss-motif__lens-h { stroke: var(--accent-graphic); stroke-width: 4; stroke-linecap: round; }
+  .ss-motif__lens-g { transform-box: fill-box; transform-origin: 206px 108px; }
 
   .ss-motif__doc { fill: var(--ground); stroke: var(--rule-c); stroke-width: 1.5; }
   .ss-motif__doc--back { opacity: 0.5; }
@@ -120,14 +141,62 @@ const cap = label ?? labels[variant];
   .ss-motif__az { fill: var(--accent-graphic); font-family: var(--font-display); font-weight: 700; font-size: 42px; }
   .ss-motif__az--z { fill: var(--accent-graphic-2); }
 
-  .ss-motif__link { stroke: color-mix(in srgb, var(--accent-graphic) 45%, transparent); stroke-width: 1.5; }
-  .ss-motif__node circle { fill: color-mix(in srgb, var(--accent-fill) 10%, var(--ground)); stroke: var(--accent-graphic); stroke-width: 2; }
-  .ss-motif__node path { fill: none; stroke: var(--accent-graphic); stroke-width: 2; }
+  /* ---- team network ------------------------------------------------------- */
+  .ss-net__link { stroke: color-mix(in srgb, var(--accent-graphic) 42%, transparent); stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 3 7; }
+  .ss-net__halo { fill: color-mix(in srgb, var(--accent-graphic) 30%, transparent); opacity: 0; transform-box: fill-box; transform-origin: center; }
+  .ss-net__ring { fill: color-mix(in srgb, var(--accent-fill) 12%, var(--ground)); stroke: var(--accent-graphic); stroke-width: 2; }
+  .ss-net__head { fill: var(--accent-graphic); }
+  .ss-net__torso { fill: none; stroke: var(--accent-graphic); stroke-width: 2; }
+  .ss-net__node--hub .ss-net__ring { stroke-width: 2.5; }
 
   .ss-motif__pill {
-    position: absolute; top: 4%; right: 5%;
+    position: absolute; top: 4%; right: 5%; z-index: 2;
     font-size: var(--text-label); color: var(--fg);
     background: var(--ground); border: 1px solid var(--rule-c);
     border-radius: 999px; padding: 2px 10px;
   }
+
+  /* ---- motion (opt-in; everything above is the finished static state) ----- */
+  @media (prefers-reduced-motion: no-preference) {
+    .ss-motif__aura { animation: ssAura 16s ease-in-out infinite alternate; }
+
+    /* growth / teardown: draw the lines in once, then let bars rise + arrow fade */
+    .ss-motif__draw { stroke-dasharray: 620; stroke-dashoffset: 620; animation: ssDraw 1.5s var(--ease-out, ease) 0.15s forwards; }
+    .ss-motif__draw--slow { animation-duration: 1.9s; animation-delay: 0.3s; }
+    .ss-motif--growth .ss-motif__bar { opacity: 0; animation: ssRise 0.7s var(--ease-out, ease) forwards; }
+    .ss-motif--growth .ss-motif__bar:nth-of-type(1) { animation-delay: 0.15s; }
+    .ss-motif--growth .ss-motif__bar:nth-of-type(2) { animation-delay: 0.27s; }
+    .ss-motif--growth .ss-motif__bar:nth-of-type(3) { animation-delay: 0.39s; }
+    .ss-motif--growth .ss-motif__bar:nth-of-type(4) { animation-delay: 0.51s; }
+    .ss-motif--growth .ss-motif__bar:nth-of-type(5) { animation-delay: 0.63s; }
+    .ss-motif__arrow { opacity: 0; animation: ssFadeIn 0.5s ease 1.4s forwards; }
+    .ss-motif__lens-g { animation: ssBob 5s ease-in-out infinite alternate; }
+
+    /* docs + letters ease in on load */
+    .ss-motif__rise { opacity: 0; animation: ssRiseDoc 0.7s var(--ease-out, ease) forwards; }
+    .ss-motif__rise:nth-of-type(1) { animation-delay: 0.1s; }
+    .ss-motif__rise:nth-of-type(2) { animation-delay: 0.22s; }
+    .ss-motif__rise:nth-of-type(3) { animation-delay: 0.34s; }
+    .ss-motif__fade { opacity: 0; animation: ssFadeIn 0.7s ease 0.3s forwards; }
+    .ss-motif__fade--2 { animation-delay: 0.55s; }
+
+    /* team: signal flows along the links, hub breathes a soft halo, members pop in */
+    .ss-net__link { animation: ssFlow 2.6s linear infinite; }
+    .ss-net__halo { animation: ssHalo 4.5s ease-in-out infinite; }
+    .ss-net__pop { opacity: 0; transform-box: fill-box; transform-origin: center; animation: ssPop 0.6s var(--ease-out, ease) forwards; }
+    .ss-net__pop--1 { animation-delay: 0.25s; }
+    .ss-net__pop--2 { animation-delay: 0.4s; }
+    .ss-net__pop--3 { animation-delay: 0.55s; }
+    .ss-net__pop--4 { animation-delay: 0.7s; }
+  }
+
+  @keyframes ssAura { from { transform: translate(-4%, -3%) scale(1); } to { transform: translate(5%, 4%) scale(1.12); } }
+  @keyframes ssDraw { to { stroke-dashoffset: 0; } }
+  @keyframes ssRise { from { opacity: 0; transform: scaleY(0.4); } to { opacity: 1; transform: scaleY(1); } }
+  @keyframes ssRiseDoc { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes ssFadeIn { to { opacity: 1; } }
+  @keyframes ssBob { from { transform: translate(0, 0); } to { transform: translate(-4px, -5px); } }
+  @keyframes ssFlow { to { stroke-dashoffset: -20; } }
+  @keyframes ssHalo { 0%, 100% { opacity: 0; transform: scale(0.8); } 50% { opacity: 0.5; transform: scale(1.5); } }
+  @keyframes ssPop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
 </style>
