@@ -117,9 +117,16 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   }
   .hero > :global(*) { position: relative; }
 
-  .hero__grid { display: grid; gap: var(--space-6); align-items: center; }
+  /* Single implicit column on mobile. WebKit (iOS Safari + iOS Chrome) sizes an
+     `auto` grid track to its widest child's MAX-content width — the panel, the
+     52ch paragraph, the stat row — which blows the track past the viewport and
+     gets clipped by `.hero { overflow:hidden }` on the right. `minmax(0, 1fr)`
+     + `min-width:0` on the children forces the track to the container width, so
+     it reflows the way Blink already does. */
+  .hero__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-6); align-items: center; }
+  .hero__grid > * { min-width: 0; }
   @media (min-width: 960px) {
-    .hero__grid { grid-template-columns: 1.05fr 0.9fr; gap: var(--space-8); }
+    .hero__grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.9fr); gap: var(--space-8); }
   }
 
   .hero__title {
@@ -135,7 +142,7 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
 
   .hero__answer {
     margin-top: var(--space-3);
-    max-width: 52ch;
+    max-width: min(52ch, 100%);
     font-size: var(--text-body);
     line-height: 1.55;
     color: var(--fg-muted);
@@ -146,6 +153,7 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
     display: grid;
     gap: var(--space-4) var(--space-6);
     width: fit-content;
+    max-width: 100%;
   }
   /* 3 stats sit in one row; 4 fold into a 2x2 grid. */
   .hero__stats--3 { grid-template-columns: repeat(3, auto); }
@@ -166,7 +174,7 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   .hero__cta { margin-top: var(--space-5); display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
   /* Right column: partner strip stacked above the dashboard panel. */
-  .hero__right { display: flex; flex-direction: column; gap: var(--space-3); }
+  .hero__right { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
 
   /* Compact "official partner" strip, sitting above the graphic. */
   .hero__partners { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2) var(--space-3); }
