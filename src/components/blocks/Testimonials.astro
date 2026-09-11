@@ -12,8 +12,11 @@ export interface Props {
   /** Keep only testimonials whose tag is in this list (e.g. the ad LP shows only
    *  performance-marketing quotes). Omit to show all (homepage default). */
   filter?: string[];
+  /** 'rail' = the arrow scroll rail (default, homepage). 'slider' = an auto-
+   *  scrolling ad-testimonials slider for the landing pages. */
+  variant?: 'rail' | 'slider';
 }
-const { class: className = '', filter } = Astro.props;
+const { class: className = '', filter, variant = 'rail' } = Astro.props;
 
 interface Testimonial {
   quote: string;
@@ -47,8 +50,57 @@ const testimonials: Testimonial[] = [
 // (Sharmili Pasha, Shyam Sundar Saw, Pooja all carry the "Performance marketing"
 // tag). Homepage passes nothing → all testimonials.
 const shown = filter ? testimonials.filter((t) => filter.includes(t.tag)) : testimonials;
+
+// Slider variant: only REAL testimonials that mention ads/campaigns/ROAS/spend/
+// scaling/growth/performance (verbatim; §15 — nothing invented). If fewer than 4
+// exist we pad with clearly-labelled "coming soon" placeholders.
+const AD_RE = /\b(ads?|campaign|roas|spend|scal(?:e|ing)|growth|performance)\b/i;
+// Match the QUOTE TEXT only (§15 — the prompt says "whose text mentions…"), so a
+// generic quote is never pulled in just because its service tag says "growth".
+const adPicked = testimonials.filter((t) => AD_RE.test(t.quote));
+const slug = (n: string) => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+const placeholders = Math.max(0, 4 - adPicked.length);
+const twoRows = adPicked.length >= 6;
+const rowA = twoRows ? adPicked.filter((_, i) => i % 2 === 0) : adPicked;
+const rowB = twoRows ? adPicked.filter((_, i) => i % 2 === 1) : [];
 ---
 
+{variant === 'slider' ? (
+  <div class:list={['ss-tstsl', className]}>
+    {[rowA, ...(twoRows ? [rowB] : [])].map((row, ri) => (
+      <div class="ss-tstsl__row" data-slider>
+        <div class:list={['ss-tstsl__track', ri === 1 && 'ss-tstsl__track--rev']}>
+          {[...row, ...row].map((t, i) => (
+            <figure class="ss-tstcard" aria-hidden={i >= row.length ? 'true' : undefined}>
+              <div class="ss-tstcard__head">
+                <span class="ss-tstcard__avatar">
+                  <img src={`/lp/testimonials/${slug(t.name)}.jpg`} alt="" loading="lazy" decoding="async" class="ss-tstcard__img" />
+                  <span class="ss-tstcard__initial" aria-hidden="true">{t.name.charAt(0)}</span>
+                </span>
+                <div>
+                  <div class="ss-tstcard__name">{t.name}</div>
+                  {t.brand && <div class="ss-tstcard__brand">{t.brand}</div>}
+                </div>
+              </div>
+              <blockquote class="ss-tstcard__q" data-clamp>{t.quote}</blockquote>
+              <button type="button" class="ss-tstcard__more" data-more hidden>more</button>
+              {t.rating && (
+                <div class="ss-tstcard__stars" role="img" aria-label={`Rated ${t.rating} out of 5`}>
+                  {'★'.repeat(t.rating)}<span class="ss-tstcard__src" aria-hidden="true"> Review on {t.source}</span>
+                </div>
+              )}
+            </figure>
+          ))}
+          {ri === 0 && Array.from({ length: placeholders }).map(() => (
+            <figure class="ss-tstcard ss-tstcard--ph">
+              <div class="ss-tstcard__head"><span class="ss-tstcard__avatar ss-tstcard__avatar--ph" aria-hidden="true"></span><div class="ss-tstcard__name">Testimonial — coming soon</div></div>
+            </figure>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+) : (
 <div class:list={['ss-tst', className]}>
   <div class="ss-tst__head flex items-center justify-end gap-[var(--space-2)]">
     <button type="button" data-tprev aria-label="Previous testimonial" class="ss-tst__nav">
@@ -81,6 +133,7 @@ const shown = filter ? testimonials.filter((t) => filter.includes(t.tag)) : test
     </ul>
   </div>
 </div>
+)}
 
 <script>
   // Progressive enhancement: wire the prev/next arrows to scroll the rail by one
@@ -95,6 +148,26 @@ const shown = filter ? testimonials.filter((t) => filter.includes(t.tag)) : test
     };
     root.querySelector('[data-tprev]')?.addEventListener('click', () => rail.scrollBy({ left: -step(), behavior: 'smooth' }));
     root.querySelector('[data-tnext]')?.addEventListener('click', () => rail.scrollBy({ left: step(), behavior: 'smooth' }));
+  });
+
+  // Slider variant: avatar photos that 404 fall back to the initial; the "more"
+  // button appears only when the 5-line-clamped quote is actually truncated.
+  document.querySelectorAll<HTMLImageElement>('.ss-tstcard__img').forEach((img) => {
+    const hide = () => img.closest('.ss-tstcard__avatar')?.classList.add('is-missing');
+    if (img.complete && img.naturalWidth === 0) hide();
+    img.addEventListener('error', hide);
+  });
+  document.querySelectorAll<HTMLElement>('.ss-tstcard').forEach((card) => {
+    const q = card.querySelector<HTMLElement>('[data-clamp]');
+    const more = card.querySelector<HTMLButtonElement>('[data-more]');
+    if (!q || !more) return;
+    if (q.scrollHeight - q.clientHeight > 4) {
+      more.hidden = false;
+      more.addEventListener('click', () => {
+        const open = q.classList.toggle('is-open');
+        more.textContent = open ? 'less' : 'more';
+      });
+    }
   });
 </script>
 
@@ -130,4 +203,32 @@ const shown = filter ? testimonials.filter((t) => filter.includes(t.tag)) : test
   /* Real review stars — kept quiet (the brand accent stays rare, 08 §5c). The
      glyphs carry the rating; screen readers get the aria-label instead. */
   .ss-tst__stars { color: var(--fg); letter-spacing: 0.08em; }
+
+  /* ── Slider variant (auto-scroll, pause on hover, static grid if reduced) ── */
+  .ss-tstsl { display: flex; flex-direction: column; gap: var(--space-3); }
+  .ss-tstsl__row { overflow: hidden; }
+  .ss-tstsl__track { display: flex; gap: var(--space-3); width: max-content; animation: ssTstScroll 46s linear infinite; will-change: transform; }
+  .ss-tstsl__track--rev { animation-direction: reverse; }
+  .ss-tstsl__row:hover .ss-tstsl__track, .ss-tstsl__row:focus-within .ss-tstsl__track { animation-play-state: paused; }
+  @keyframes ssTstScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  .ss-tstcard { flex: none; width: 280px; display: flex; flex-direction: column; gap: var(--space-2); border: 1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-4); }
+  .ss-tstcard__head { display: flex; align-items: center; gap: var(--space-2); }
+  .ss-tstcard__avatar { position: relative; display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 50%; overflow: hidden; background: var(--accent-wash); color: var(--accent-text); font-weight: 700; }
+  .ss-tstcard__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+  .ss-tstcard__avatar.is-missing .ss-tstcard__img { display: none; }
+  .ss-tstcard__avatar--ph { background: var(--surface-c); }
+  .ss-tstcard__name { font-weight: 600; font-size: var(--text-small); color: var(--fg); }
+  .ss-tstcard__brand { font-size: var(--text-label); color: var(--fg-muted); }
+  .ss-tstcard__q { font-size: var(--text-small); line-height: 1.5; color: var(--fg); display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+  .ss-tstcard__q.is-open { -webkit-line-clamp: unset; overflow: visible; }
+  .ss-tstcard__more { align-self: flex-start; font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+  .ss-tstcard__stars { margin-top: auto; font-size: var(--text-label); color: var(--fg); letter-spacing: 0.06em; }
+  .ss-tstcard__src { color: var(--fg-muted); letter-spacing: normal; }
+  .ss-tstcard--ph { justify-content: center; color: var(--fg-muted); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ss-tstsl__track { animation: none; flex-wrap: wrap; width: auto; }
+    .ss-tstsl__track > [aria-hidden="true"] { display: none; }
+  }
 </style>
