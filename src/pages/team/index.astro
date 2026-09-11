@@ -61,7 +61,7 @@ const nodes = [
             class="h-[140px] w-[112px] shrink-0 rounded-[var(--radius-card)] bg-[var(--surface-c)] object-cover object-top"
           />
           <div class="flex flex-col gap-[var(--space-1)]">
-            <h2 class="text-h4 font-semibold text-[var(--fg)]">{p.name}</h2>
+            <h2 class="text-h4 font-semibold"><a href={`/team/${p.slug}/`} class="text-[var(--fg)] no-underline hover:text-[var(--accent-text)]">{p.name}</a></h2>
             <p class="text-small font-medium text-[var(--accent-text)]">{p.role} — {p.focus}</p>
             <p class="mt-[var(--space-1)] text-small leading-relaxed text-[var(--fg-muted)]">{p.bio}</p>
             <a href={p.linkedin} target="_blank" rel="noopener" class="ss-li mt-[var(--space-1)] inline-flex w-fit items-center gap-[0.35rem] text-small font-medium text-[var(--accent-text)] no-underline">

@@ -1,0 +1,127 @@
+---
+/**
+ * VsLayout — a /vs/ comparison page (C-vs). Balanced decision guidance: the
+ * comparison table, when each option wins, then where Scaling Socials fits.
+ * Emits WebPage + BreadcrumbList + FAQPage.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import Button from '@/components/primitives/Button.astro';
+import ComparisonTable from '@/components/blocks/ComparisonTable.astro';
+import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import Glyph from '@/components/graphics/Glyph.astro';
+import { SERVICE_BY_SLUG } from '@/lib/services';
+import { base, webPage, breadcrumbs, faqPage } from '@/lib/schema';
+import type { VsContent } from '@/lib/comparisons';
+
+export interface Props {
+  content: VsContent;
+}
+const { content: c } = Astro.props;
+const url = c.url;
+const modified = '2026-09-11';
+const services = (c.relatedServices ?? []).map((s) => SERVICE_BY_SLUG[s]).filter(Boolean);
+
+const nodes = [
+  ...base(),
+  webPage({ url, name: c.title, description: c.description, hasBreadcrumb: true, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Comparisons', url: '/vs/' }, { name: c.name, url }]),
+  faqPage(url, c.faqs),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={c.title} description={c.description} type="article" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-3)] flex flex-wrap items-center text-label text-[var(--fg-muted)]">
+      <a href="/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Home</a><span class="mx-[0.35rem]">/</span>
+      <a href="/vs/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Comparisons</a><span class="mx-[0.35rem]">/</span><span>{c.name}</span>
+    </nav>
+    <span class="ss-eyebrow">{c.eyebrow}</span>
+    <h1 class="max-w-[22ch]">{c.h1}</h1>
+    <p class="mt-[var(--space-4)] max-w-[60ch] text-h4 leading-[1.5] text-[var(--fg)]">{c.answer}</p>
+    <div class="mt-[var(--space-5)] flex flex-wrap gap-[var(--space-2)]">
+      <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+      <Button href="/vs/" variant="secondary">More comparisons</Button>
+    </div>
+  </Section>
+
+  <!-- TABLE -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="ss-eyebrow">Side by side</span>
+    <h2 class="max-w-[26ch] text-h2 font-semibold">The honest comparison</h2>
+    <div class="mt-[var(--space-5)]">
+      <ComparisonTable columns={c.table.cols} rows={c.table.rows} highlightCol={c.table.highlightCol} caption={c.table.caption} />
+    </div>
+  </Section>
+
+  <!-- WHEN EACH WINS -->
+  <Section size="md">
+    <div class="grid gap-[var(--space-6)] lg:grid-cols-2">
+      {[c.whenA, c.whenB].map((col) => (
+        <div class="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]">
+          <h2 class="text-h4 font-semibold text-[var(--fg)]">{col.heading}</h2>
+          <ul class="mt-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
+            {col.points.map((p) => (
+              <li class="flex gap-[var(--space-2)] text-small leading-relaxed text-[var(--fg-muted)]">
+                <span class="mt-[3px] shrink-0 text-[var(--accent-graphic)]"><Glyph name="scale" size={16} /></span>
+                <span>{p}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </Section>
+
+  <!-- WHERE WE FIT -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <div class="grid gap-[var(--space-6)] lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
+      <div class="lg:sticky lg:top-[96px]">
+        <span class="ss-eyebrow">The honest take</span>
+        <h2 class="text-h2 font-semibold">Where Scaling Socials fits</h2>
+      </div>
+      <Prose>
+        {c.fit.map((p) => <p>{p}</p>)}
+      </Prose>
+    </div>
+  </Section>
+
+  {services.length > 0 && (
+    <Section size="md">
+      <span class="ss-eyebrow">Related services</span>
+      <h2 class="max-w-[24ch] text-h2 font-semibold">If you'd like us to run it</h2>
+      <ul class="mt-[var(--space-5)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
+        {services.map((s) => (
+          <li class="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+            <h3 class="text-h4 font-semibold text-[var(--fg)]">{s!.name}</h3>
+            <a href={s!.url} class="ss-learn mt-[var(--space-2)] inline-flex min-h-[44px] items-center text-small font-medium text-[var(--accent-text)] no-underline">Learn more</a>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )}
+
+  <!-- FAQ -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="ss-eyebrow">Questions</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">Common questions</h2>
+    <div class="mt-[var(--space-5)] max-w-[62ch]"><FaqAccordion items={c.faqs} openFirst /></div>
+  </Section>
+
+  <Section register="ink" size="md">
+    <CtaBand heading="Want an honest read for your brand?" body="Send us your accounts and situation. You get a written audit in three working days with a straight recommendation — whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" secondaryLabel="Talk to us" secondaryHref="/contact/" />
+  </Section>
+
+  <style>
+    .ss-eyebrow { display:inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight:600; color: var(--accent-text); }
+    .ss-learn { transition: transform var(--dur-fast) var(--ease-out); }
+    .ss-learn:hover { transform: translateX(2px); }
+  </style>
+</BaseLayout>

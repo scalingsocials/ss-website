@@ -1,0 +1,76 @@
+---
+/**
+ * /industries/ — the industries hub. Links every vertical page (inbound links,
+ * so none are orphaned) and is itself linked from the footer.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Button from '@/components/primitives/Button.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import Glyph from '@/components/graphics/Glyph.astro';
+import { INDUSTRIES } from '@/lib/industries';
+import { base, webPage, breadcrumbs } from '@/lib/schema';
+
+const url = '/industries/';
+const title = 'Industries We Grow: D2C & Ecommerce | Scaling Socials';
+const description =
+  'Scaling Socials runs performance marketing and ecommerce for D2C brands across fashion, kids, wellness, gifting and beauty in India and the UAE.';
+const modified = '2026-09-11';
+
+const glyphFor: Record<string, string> = {
+  'fashion-apparel': 'spark', 'kids-baby': 'target', 'wellness-health': 'gauge', gifting: 'funnel', 'beauty-cosmetics': 'cart',
+};
+
+const nodes = [
+  ...base(),
+  webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Industries', url }]),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <span class="ss-eyebrow">Industries</span>
+    <h1 class="max-w-[20ch]">Growth built around your category</h1>
+    <p class="mt-[var(--space-4)] max-w-[58ch] text-h4 leading-[1.5] text-[var(--fg)]">
+      The levers differ by vertical — creative on fashion, longevity on kids, proving a concept in gifting. These are
+      the categories Scaling Socials has real, documented proof in. Every figure links to the case study behind it.
+    </p>
+    <div class="mt-[var(--space-5)]"><Button href="/audit/" variant="primary">Get a free growth plan</Button></div>
+  </Section>
+
+  <Section size="md">
+    <ul class="grid gap-[var(--space-4)] sm:grid-cols-2 lg:grid-cols-3">
+      {INDUSTRIES.map((i) => (
+        <li>
+          <a href={i.url} class="ss-icard flex h-full flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)] no-underline">
+            <span class="ss-glyph"><Glyph name={glyphFor[i.slug] ?? 'spark'} size={20} /></span>
+            <h2 class="text-h4 font-semibold text-[var(--fg)]">{i.name}</h2>
+            <p class="text-small leading-relaxed text-[var(--fg-muted)]">{i.blurb}</p>
+            <span class="ss-learn mt-auto inline-flex items-center gap-[0.35rem] pt-[var(--space-2)] text-small font-medium text-[var(--accent-text)]">
+              Explore
+              <svg class="ss-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section register="ink" size="md">
+    <CtaBand heading="Not sure which applies to you?" body="Tell us your category and send us access. You get a written audit in three working days, whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" secondaryLabel="Talk to us" secondaryHref="/contact/" />
+  </Section>
+
+  <style>
+    .ss-eyebrow { display:inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight:600; color: var(--accent-text); }
+    .ss-glyph { display:grid; place-items:center; width:40px; height:40px; border-radius: var(--radius-input); color: var(--accent-graphic); background: var(--accent-wash); border:1px solid color-mix(in srgb, var(--accent-graphic) 22%, transparent); }
+    .ss-icard, .ss-arrow { transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out); }
+    .ss-icard:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent-fill) 45%, var(--rule-c)); }
+    .ss-icard:hover .ss-arrow { transform: translateX(3px); }
+  </style>
+</BaseLayout>

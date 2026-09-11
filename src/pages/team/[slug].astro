@@ -1,0 +1,123 @@
+---
+/**
+ * /team/[slug]/ — per-founder author / expertise page (E-E-A-T; 03 §1.3, F-authors).
+ * Real content only (src/lib/team.ts) — never an invented credential (§15).
+ * One Person node per page, cross-referenced from the WebPage. Linked from /team/.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Glyph from '@/components/graphics/Glyph.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import { Image } from 'astro:assets';
+import { PARTNERS, PARTNER_BY_SLUG } from '@/lib/team';
+import { SERVICE_BY_SLUG } from '@/lib/services';
+import { base, webPage, breadcrumbs, person } from '@/lib/schema';
+
+export function getStaticPaths() {
+  return PARTNERS.map((p) => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const p = PARTNER_BY_SLUG[slug!];
+if (!p) throw new Error(`Unknown founder slug: ${slug}`);
+
+// Which services this founder's discipline maps to (real routes only).
+const SERVICE_MAP: Record<string, string[]> = {
+  'tayeb-khan': ['web-development', 'shopify-development'],
+  'jamal-khan': ['performance-marketing', 'conversion-rate-optimisation'],
+  'maaz-khan': ['seo', 'shopify-development', 'conversion-rate-optimisation'],
+  'khushal-sharma': ['social-media-marketing', 'performance-marketing'],
+};
+const relatedServices = (SERVICE_MAP[p.slug] ?? [])
+  .map((s) => SERVICE_BY_SLUG[s])
+  .filter(Boolean)
+  .map((s) => ({ name: s!.name, url: s!.url }));
+
+const url = `/team/${p.slug}/`;
+const title = `${p.name} — ${p.role} at Scaling Socials, Bengaluru`;
+const descRaw = `${p.name}, ${p.role.toLowerCase()} at Scaling Socials, leads ${p.focus.toLowerCase()}. ${p.bio}`;
+const description = descRaw.length <= 158 ? descRaw : descRaw.slice(0, 157).replace(/\s+\S*$/, '') + '…';
+const modified = '2026-09-11';
+
+const nodes = [
+  ...base(),
+  person({ slug: p.slug, name: p.name, jobTitle: `${p.role} — ${p.focus}`, linkedin: p.linkedin, description: p.bio }),
+  webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Team', url: '/team/' }, { name: p.name, url }]),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-3)] flex flex-wrap items-center text-label text-[var(--fg-muted)]">
+      <a href="/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Home</a><span class="mx-[0.35rem]">/</span>
+      <a href="/team/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Team</a><span class="mx-[0.35rem]">/</span><span>{p.name}</span>
+    </nav>
+    <div class="grid gap-[var(--space-7)] sm:grid-cols-[auto_1fr] sm:items-center">
+      <Image
+        src={p.photo}
+        alt={`${p.name}, ${p.role} at Scaling Socials, ${p.focus.toLowerCase()}`}
+        width={148}
+        height={185}
+        widths={[148, 296]}
+        sizes="148px"
+        class="h-[185px] w-[148px] shrink-0 rounded-[var(--radius-card)] bg-[var(--surface-c)] object-cover object-top"
+      />
+      <div>
+        <span class="ss-eyebrow">{p.role}</span>
+        <h1 class="max-w-[16ch]">{p.name}</h1>
+        <p class="mt-[var(--space-3)] max-w-[52ch] text-h4 leading-[1.45] text-[var(--fg)]">{p.focus} at Scaling Socials.</p>
+        <a href={p.linkedin} target="_blank" rel="noopener" class="ss-li mt-[var(--space-4)] inline-flex w-fit items-center gap-[0.4rem] text-small font-medium text-[var(--accent-text)] no-underline">
+          <svg class="ss-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Connect on LinkedIn
+        </a>
+      </div>
+    </div>
+  </Section>
+
+  <Section size="md">
+    <div class="grid gap-[var(--space-7)] lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
+      <div class="lg:sticky lg:top-[96px]">
+        <span class="ss-eyebrow">About</span>
+        <h2 class="text-h2 font-semibold">Background</h2>
+      </div>
+      <div class="max-w-[62ch] text-body leading-relaxed text-[var(--fg)]">
+        <p>{p.bio}</p>
+        {relatedServices.length > 0 && (
+          <div class="mt-[var(--space-6)]">
+            <h3 class="text-h4 font-semibold text-[var(--fg)]">What {p.name.split(' ')[0]} works on</h3>
+            <ul class="mt-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
+              {relatedServices.map((s) => (
+                <li>
+                  <a href={s.url} class="ss-svc inline-flex min-h-[44px] items-center gap-[0.5rem] text-small font-medium text-[var(--accent-text)] no-underline">
+                    <span class="text-[var(--accent-graphic)]"><Glyph name="spark" size={16} /></span>{s.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  </Section>
+
+  <Section size="sm">
+    <a href="/team/" class="inline-flex min-h-[44px] items-center text-small font-medium text-[var(--accent-text)] no-underline">← Meet the whole team</a>
+  </Section>
+
+  <Section register="ink" size="md">
+    <CtaBand heading="Work with the founders, not a middle layer" body="A written audit in three working days, whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" secondaryLabel="Contact us" secondaryHref="/contact/" />
+  </Section>
+
+  <style>
+    .ss-eyebrow { display:inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight:600; color: var(--accent-text); }
+    .ss-li .ss-arrow, .ss-svc { transition: transform var(--dur-fast) var(--ease-out); }
+    .ss-li:hover .ss-arrow { transform: translateX(3px); }
+    .ss-svc:hover { transform: translateX(2px); }
+  </style>
+</BaseLayout>

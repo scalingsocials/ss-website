@@ -1,0 +1,155 @@
+---
+/**
+ * IndustryLayout — one vertical page (02 §5, C-industries). Anchored to REAL
+ * case-study proof (pulled from caseStudies.ts) or a real testimonial, never an
+ * invented metric (§15). Emits Service + WebPage + BreadcrumbList + FAQPage.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Button from '@/components/primitives/Button.astro';
+import LeadForm from '@/components/blocks/LeadForm.astro';
+import Delta from '@/components/blocks/Delta.astro';
+import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import Glyph from '@/components/graphics/Glyph.astro';
+import DotField from '@/components/graphics/DotField.astro';
+import { CASE_STUDY_BY_SLUG, CASE_STUDY_KICKERS } from '@/lib/caseStudies';
+import { SERVICE_BY_SLUG } from '@/lib/services';
+import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
+import type { IndustryContent } from '@/lib/industries';
+
+export interface Props {
+  content: IndustryContent;
+}
+const { content: c } = Astro.props;
+const url = c.url;
+const modified = '2026-09-11';
+
+const proof = c.proofSlugs.map((s) => CASE_STUDY_BY_SLUG[s]).filter(Boolean);
+const services = c.services.map((s) => SERVICE_BY_SLUG[s]).filter(Boolean);
+const primarySvc = services[0];
+
+const nodes = [
+  ...base(),
+  service({ url, name: `${c.name} — performance marketing & ecommerce`, description: c.description, serviceType: c.name, areaServed: ['IN', 'AE'] }),
+  webPage({ url, name: c.title, description: c.description, aboutId: serviceId(url), hasBreadcrumb: true, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Industries', url: '/industries/' }, { name: c.name, url }]),
+  faqPage(url, c.faqs),
+];
+---
+
+<BaseLayout>
+  <Meta slot="meta" title={c.title} description={c.description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg" class="relative overflow-hidden">
+    <DotField origin="top-right" />
+    <nav aria-label="Breadcrumb" class="relative mb-[var(--space-3)] flex flex-wrap items-center text-label text-[var(--fg-muted)]">
+      <a href="/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Home</a><span class="mx-[0.35rem]">/</span>
+      <a href="/industries/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Industries</a><span class="mx-[0.35rem]">/</span><span>{c.name}</span>
+    </nav>
+    <div class="relative grid gap-[var(--space-7)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div>
+        <span class="ss-eyebrow">{c.eyebrow}</span>
+        <h1>{c.h1}</h1>
+        <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.45] text-[var(--fg)]">{c.answer}</p>
+        <div class="mt-[var(--space-5)] flex flex-wrap gap-[var(--space-2)]">
+          <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+          <Button href="/case-studies/" variant="secondary">See case studies</Button>
+        </div>
+      </div>
+      {primarySvc && (
+        <div>
+          <LeadForm source={`industry-${c.slug}`} heading="Get a free growth plan" subheading="A written audit in three working days, whether or not you hire us." questions={primarySvc.formQuestions} submitLabel="Get my free plan" elevated />
+        </div>
+      )}
+    </div>
+  </Section>
+
+  <!-- PROOF -->
+  {(proof.length > 0 || c.quotes) && (
+    <Section size="md" class="!bg-[var(--surface-c)]">
+      <span class="ss-eyebrow">Proof in this category</span>
+      <h2 class="max-w-[26ch] text-h2 font-semibold">Results from brands like yours</h2>
+      {proof.length > 0 && (
+        <ul class="mt-[var(--space-5)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
+          {proof.map((cs) => (
+            <li class="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+              {cs.delta ? (
+                <Delta metric={cs.delta.metric} before={cs.delta.before} after={cs.delta.after} client={cs.client} period={cs.period} channel={cs.channels} href={`/case-studies/${cs.slug}/`} size="md" />
+              ) : (
+                <a href={`/case-studies/${cs.slug}/`} class="block no-underline group">
+                  <div class="text-label text-[var(--fg-muted)]">{cs.stats[0]!.label}</div>
+                  <div class="mt-[var(--space-1)] display-type text-data font-semibold tracking-[-0.025em] text-[var(--pos)]" data-num>{cs.stats[0]!.value}</div>
+                  <div class="mt-[0.4rem] text-label text-[var(--fg-muted)]">{cs.client}, {cs.channels}, {cs.period}</div>
+                  <div class="mt-[var(--space-2)] text-small text-[var(--fg)] group-hover:text-[var(--accent-text)]">{CASE_STUDY_KICKERS[cs.slug]}</div>
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {c.quotes && (
+        <ul class="mt-[var(--space-4)] grid gap-[var(--space-3)] sm:grid-cols-2">
+          {c.quotes.map((q) => (
+            <li class="flex flex-col gap-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+              <span class="w-fit rounded-full bg-[var(--accent-wash)] px-[0.7rem] py-[0.2rem] text-label font-semibold text-[var(--accent-text)]">{q.tag}</span>
+              <blockquote class="text-body leading-relaxed text-[var(--fg)]">“{q.quote}”</blockquote>
+              <figcaption class="mt-auto text-small"><span class="font-semibold text-[var(--fg)]">{q.name}</span>{q.brand && <span class="text-[var(--fg-muted)]">, {q.brand}</span>}</figcaption>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Section>
+  )}
+
+  <!-- WHAT WE DO -->
+  <Section size="md">
+    <span class="ss-eyebrow">How we run it for {c.name.toLowerCase()}</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">What the work looks like</h2>
+    <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-3">
+      {c.whatWeDo.map((it) => (
+        <li class="flex flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+          <span class="ss-glyph"><Glyph name={it.glyph} size={20} /></span>
+          <h3 class="text-h4 font-semibold text-[var(--fg)]">{it.title}</h3>
+          <p class="text-small leading-relaxed text-[var(--fg-muted)]">{it.body}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <!-- SERVICES -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="ss-eyebrow">Services for this category</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">What we can run for you</h2>
+    <ul class="mt-[var(--space-5)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
+      {services.map((s) => (
+        <li class="rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+          <h3 class="text-h4 font-semibold text-[var(--fg)]">{s!.name}</h3>
+          <p class="mt-[var(--space-1)] text-small leading-relaxed text-[var(--fg-muted)]">{s!.answer.split('. ')[0]}.</p>
+          <a href={s!.url} class="ss-learn mt-[var(--space-2)] inline-flex min-h-[44px] items-center text-small font-medium text-[var(--accent-text)] no-underline">Learn more</a>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <!-- FAQ -->
+  <Section size="md">
+    <span class="ss-eyebrow">Questions</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">Questions {c.name.toLowerCase()} brands ask</h2>
+    <div class="mt-[var(--space-5)] max-w-[62ch]"><FaqAccordion items={c.faqs} openFirst /></div>
+  </Section>
+
+  <Section register="ink" size="md">
+    <CtaBand heading={`Grow your ${c.name.toLowerCase()} brand`} body="Send us access and, within three working days, you get a written audit of what is working, what is not, and what we would change first — whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" secondaryLabel="Talk to us" secondaryHref="/contact/" />
+  </Section>
+
+  <style>
+    .ss-eyebrow { display:inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight:600; color: var(--accent-text); }
+    .ss-glyph { display:grid; place-items:center; width:40px; height:40px; border-radius: var(--radius-input); color: var(--accent-graphic); background: var(--accent-wash); border:1px solid color-mix(in srgb, var(--accent-graphic) 22%, transparent); }
+    .ss-learn { transition: transform var(--dur-fast) var(--ease-out); }
+    .ss-learn:hover { transform: translateX(2px); }
+  </style>
+</BaseLayout>

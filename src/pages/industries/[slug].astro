@@ -1,0 +1,16 @@
+---
+/**
+ * /industries/[slug]/ — one vertical page. Linked from the /industries/ hub.
+ */
+import IndustryLayout from '@/layouts/IndustryLayout.astro';
+import { INDUSTRIES, INDUSTRY_BY_SLUG } from '@/lib/industries';
+
+export function getStaticPaths() {
+  return INDUSTRIES.map((i) => ({ params: { slug: i.slug } }));
+}
+
+const { slug } = Astro.params;
+const content = INDUSTRY_BY_SLUG[slug!];
+if (!content) throw new Error(`Unknown industry: ${slug}`);
+---
+<IndustryLayout content={content} />

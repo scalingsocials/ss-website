@@ -29,6 +29,7 @@ const resources = [
   { label: 'Guides', href: '/guides/' },
   { label: 'Tools', href: '/tools/' },
   { label: 'Glossary', href: '/glossary/' },
+  { label: 'Comparisons', href: '/vs/' },
 ];
 const company = [
   { label: 'About', href: '/about/' },
@@ -93,6 +94,7 @@ const linkClass = 'flex min-h-[44px] items-center text-small text-[var(--fg)] no
         {SERVICE_PILLARS.map((p) => (
           <a href={p.href} class={linkClass}>{p.label}</a>
         ))}
+        <a href="/industries/" class={linkClass}>Industries</a>
       </nav>
 
       <nav aria-label="Proof" class={colClass}>

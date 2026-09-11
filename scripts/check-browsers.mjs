@@ -41,6 +41,11 @@ const PAGES = [
   '/terms/',                                      // legal
   '/lp/performance-marketing/',                  // LandingLayout (ad LP)
   '/lp/web-development/',                         // LandingLayout (ad LP, showcase)
+  '/team/jamal-khan/',                           // author page
+  '/industries/',                                // industries hub
+  '/industries/fashion-apparel/',               // IndustryLayout (proof grid)
+  '/vs/',                                         // comparisons hub
+  '/vs/shopify-vs-woocommerce/',                // VsLayout (comparison table)
 ];
 
 // Widths that matter: small phone, iPhone, large phone, tablet, laptop, desktop.

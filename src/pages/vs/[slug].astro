@@ -1,0 +1,16 @@
+---
+/**
+ * /vs/[slug]/ — one comparison page. Linked from the /vs/ hub.
+ */
+import VsLayout from '@/layouts/VsLayout.astro';
+import { COMPARISONS, COMPARISON_BY_SLUG } from '@/lib/comparisons';
+
+export function getStaticPaths() {
+  return COMPARISONS.map((c) => ({ params: { slug: c.slug } }));
+}
+
+const { slug } = Astro.params;
+const content = COMPARISON_BY_SLUG[slug!];
+if (!content) throw new Error(`Unknown comparison: ${slug}`);
+---
+<VsLayout content={content} />
