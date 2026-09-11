@@ -70,7 +70,7 @@ export default defineConfig({
         "font-src 'self'",
         // GA4 sends measurement hits to *.google-analytics.com (incl. regionN);
         // gtag.js itself is fetched from googletagmanager.com (script-src below).
-        "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com",
+        "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com",
         "frame-src https://challenges.cloudflare.com",
       ],
       scriptDirective: { resources: ["'self'", 'https://challenges.cloudflare.com', 'https://www.googletagmanager.com'] },
