@@ -12,11 +12,32 @@ export interface Props {
 }
 const { class: className = '' } = Astro.props;
 
-const testimonials = [
+interface Testimonial {
+  quote: string;
+  name: string;
+  tag: string;
+  /** Client brand (named-client quotes migrated from the old site). */
+  brand?: string;
+  /** Provenance for public-platform reviews, e.g. 'Google'. */
+  source?: string;
+  /** Star rating (real, from the source). Renders a ★ row when present. */
+  rating?: number;
+}
+
+// Named-client quotes (migrated from scalingsocials.com) + real, verbatim
+// Google Business Profile reviews (5-star, lightly punctuation-cleaned to house
+// style — no wording invented; §15). Spread across services on purpose.
+const testimonials: Testimonial[] = [
   { quote: 'They revamped our cosmetic brand Timri’s ecommerce Shopify website. On-time delivery, a good sense of our business, and available whenever we need assistance. Highly recommended for ecommerce Shopify development.', name: 'Nikunj Vavadiya', brand: 'Timri', tag: 'Shopify development' },
+  { quote: 'I really appreciate how proactive they are with ad management. When the ads perform well, they scale them up wisely, and when something isn’t working, they immediately reduce the spend, keeping our budget in mind as if it were their own. Their commitment and transparency make working with them a great experience.', name: 'Sharmili Pasha', source: 'Google', rating: 5, tag: 'Performance marketing' },
   { quote: 'Amazing work on website development, coordinating regularly with the brand. We set deadlines together and they commit to them. Over the months the quality of work kept improving, which is rare and commendable.', name: 'Param Sadh', brand: 'Younglings', tag: 'Web development' },
+  { quote: 'They have maintained the highest level of professionalism and transparency of any digital marketing agency I have ever dealt with. I had two websites affected by Google algorithm updates and had lost a lot of ranking, but after hiring their link building and SEO services it helped me a lot to restore all those rankings.', name: 'Abhay Singh', source: 'Google', rating: 5, tag: 'SEO' },
   { quote: 'A team of very hard-working people who strive to understand what the brand actually requires. They understood exactly what our vision was and delivered their best to achieve it.', name: 'Juhi Dhanki', brand: 'Lille Barn', tag: 'Brand & growth' },
+  { quote: 'Just after 4 months of their work on our performance marketing strategy, traffic has been voluminous and we are increasing our sales. Their unfailing ways to communicate and take care of any arising problems have worked as the right solace at each step.', name: 'Shyam Sundar Saw', source: 'Google', rating: 5, tag: 'Performance marketing' },
+  { quote: 'Scaling Socials did a fantastic job developing my website. Their team was professional, efficient, and attentive to my needs. The new website is attractive, easy to use, and has boosted my business visibility.', name: 'Marri Vamshi', source: 'Google', rating: 5, tag: 'Web development' },
   { quote: 'Clear ideas and smooth coordination have really paid off, boosting our sales. The straightforward approach to getting things done is making a big impact.', name: 'Pooja', brand: 'Rangloom Indie Crafts', tag: 'Performance marketing' },
+  { quote: 'Their proficiency in performance and social media marketing enables them to craft tailored campaigns that effectively engage target audiences, resulting in increased visibility, traffic, and conversions. Known for their transparency and data-driven strategies, they consistently deliver strong ROI.', name: 'Vishal M', source: 'Google', rating: 5, tag: 'Social media marketing' },
+  { quote: 'They really take the time to understand what you need and build a strategy around it, whether it’s SEO, social media, or paid ads. What I appreciate most is how easy they are to work with. They’re always quick to respond, clear in their communication, and genuinely care about getting results.', name: 'Aarnav N', source: 'Google', rating: 5, tag: 'Digital marketing' },
 ];
 ---
 
@@ -35,9 +56,17 @@ const testimonials = [
         <li class="ss-trail__item flex flex-col gap-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
           <span class="w-fit rounded-full bg-[var(--accent-wash)] px-[0.7rem] py-[0.2rem] text-label font-semibold text-[var(--accent-text)]">{t.tag}</span>
           <blockquote class="text-body leading-relaxed text-[var(--fg)]">“{t.quote}”</blockquote>
-          <figcaption class="mt-auto flex items-baseline gap-[var(--space-2)] text-small">
-            <span class="font-semibold text-[var(--fg)]">{t.name}</span>
-            <span class="text-[var(--fg-muted)]">{t.brand}</span>
+          <figcaption class="mt-auto flex flex-col gap-[0.2rem] text-small">
+            <span class="flex flex-wrap items-baseline gap-x-[var(--space-2)]">
+              <span class="font-semibold text-[var(--fg)]">{t.name}</span>
+              {t.brand && <span class="text-[var(--fg-muted)]">{t.brand}</span>}
+            </span>
+            {t.source && (
+              <span class="flex items-center gap-[0.4rem] text-label text-[var(--fg-muted)]">
+                <span class="ss-tst__stars" role="img" aria-label={`Rated ${t.rating} out of 5`}>{'★'.repeat(t.rating ?? 5)}</span>
+                <span aria-hidden="true">Review on {t.source}</span>
+              </span>
+            )}
           </figcaption>
         </li>
       ))}
@@ -89,4 +118,8 @@ const testimonials = [
   .ss-trail::-webkit-scrollbar { display: none; }
   .ss-trail__track { display: flex; gap: var(--space-3); width: max-content; }
   .ss-trail__item { flex: none; width: min(360px, 82vw); scroll-snap-align: start; }
+
+  /* Real review stars — kept quiet (the brand accent stays rare, 08 §5c). The
+     glyphs carry the rating; screen readers get the aria-label instead. */
+  .ss-tst__stars { color: var(--fg); letter-spacing: 0.08em; }
 </style>
