@@ -21,6 +21,13 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
 ---
 
 <header data-register="paper" transition:persist="site-header" class="ss-header fixed inset-x-0 top-0 z-50 border-b border-[var(--rule-c)]">
+  <!-- Frosted-glass backdrop on its OWN layer. The dropdown panels overflow the
+       header box; if they are descendants of a backdrop-filter element, Chrome
+       composites them into the backdrop buffer and leaves a hairline repaint
+       ghost over the hero when a panel fades out on close. Isolating the blur
+       to this element (which does NOT contain the panels) keeps the frosted
+       look with none of that coupling. -->
+  <div class="ss-header__backdrop" aria-hidden="true"></div>
   <!-- Scroll-progress rule under the header. CSS scroll-driven, zero JS. -->
   <div class="ss-header__progress" aria-hidden="true"></div>
   <div class="ss-header__bar mx-auto flex w-full max-w-[var(--container)] items-center gap-[var(--space-4)] px-[var(--space-3)] md:px-[var(--space-4)]">
@@ -212,20 +219,34 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
 
 <style>
   .ss-header {
+    /* Clear the notch on fixed header (notched devices). */
+    padding-top: env(safe-area-inset-top, 0px);
+    transition: border-color var(--dur-base) var(--ease-out);
+  }
+  /* The frosted glass lives here, on its own layer behind the bar — never an
+     ancestor of the dropdown panels (see the markup note above). inset:0 covers
+     the whole header box including the safe-area padding, so the notch blurs too. */
+  .ss-header__backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
     background: color-mix(in srgb, var(--ground) 82%, transparent);
     /* -webkit- first: iOS Safari needs the prefix or the blur silently no-ops. */
     -webkit-backdrop-filter: saturate(1.4) blur(12px);
     backdrop-filter: saturate(1.4) blur(12px);
-    /* Clear the notch on fixed header (notched devices). */
-    padding-top: env(safe-area-inset-top, 0px);
-    transition: box-shadow var(--dur-base) var(--ease-out),
-                background var(--dur-base) var(--ease-out),
-                border-color var(--dur-base) var(--ease-out);
+    /* Own compositor layer so its buffer is invalidated cleanly. */
+    transform: translateZ(0);
+    transition: background var(--dur-base) var(--ease-out),
+                box-shadow var(--dur-base) var(--ease-out);
   }
+  /* Bar content (and the dropdown panels within it) sit above the backdrop. */
+  .ss-header__bar { position: relative; z-index: 1; }
   /* Scroll state (class toggled by motion.ts): lifts off the page. */
-  .ss-header.is-scrolled {
+  .ss-header.is-scrolled .ss-header__backdrop {
     background: color-mix(in srgb, var(--ground) 92%, transparent);
     box-shadow: 0 10px 30px -18px color-mix(in srgb, var(--color-black) 55%, transparent);
+  }
+  .ss-header.is-scrolled {
     border-color: color-mix(in srgb, var(--rule-c) 70%, transparent);
   }
 
