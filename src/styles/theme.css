@@ -124,6 +124,13 @@
   --accent-wash:    var(--color-accent-wash);
   --accent-hover:   var(--color-accent-deep);  /* darker teal — works as fill bg AND link text */
 
+  /* Landing-page CTA — one punchy action colour, same in both registers so a
+     campaign button reads identically on paper and ink. Used ONLY on /lp/ CTA
+     buttons (never as body/link text). A more saturated sibling of the accent. */
+  --cta:            #4B37E4;
+  --cta-hover:      #3A2AC0;
+  --cta-on:         #FFFFFF;
+
   --pos:            var(--color-up);
   --neg:            var(--color-down);
 }

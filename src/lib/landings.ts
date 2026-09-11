@@ -20,12 +20,42 @@ export interface LandingProof {
   client: string;
   period: string;
   channel?: string;
+  /** Current client — adds a "still running" tag under the date. */
+  stillRunning?: boolean;
+  /** Ads Manager screenshot slot (owner-supplied). Placeholder shown until added. */
+  image?: string;
+  imageAlt?: string;
 }
 
 export interface LandingCard {
   glyph: string;
   title: string;
   body: string;
+}
+
+/** WhatsApp secondary CTA config. */
+export interface LandingWhatsApp {
+  number: string; // digits only, international
+  text: string; // pre-filled message
+}
+
+/** "What happens next" three-step strip. */
+export interface LandingStep {
+  n: string;
+  text: string;
+}
+
+/** Static "what your audit looks like" sample block (perf LP). */
+export interface LandingSampleAudit {
+  score: string;
+  findings: { text: string; severity: 'High' | 'Medium' | 'Low' }[];
+  changes: string[];
+}
+
+/** "A strong fit / probably not a fit" qualifier columns. */
+export interface LandingFit {
+  good: string[];
+  bad: string[];
 }
 
 export interface LandingContent {
@@ -35,11 +65,16 @@ export interface LandingContent {
   title: string;
   description: string;
   phoneCtaLabel: string;
+  /** Page CTA label (nav short + sticky + section buttons). */
+  ctaLabel: string;
+  ctaLabelShort: string;
   hero: {
     eyebrow: string;
     h1: string;
     sub: string;
     bullets: string[];
+    /** One muted qualifier line under the bullets. */
+    qualifier?: string;
     stats: { value: string; label: string }[];
     formHeading: string;
     formSub: string;
@@ -47,12 +82,29 @@ export interface LandingContent {
     questions: Field[];
   };
   trustLine: string;
+  /** LP-scoped form overrides (keeps the shared LeadForm untouched elsewhere). */
+  form?: {
+    step1?: Field[];
+    step2?: Field[];
+    showMessage?: boolean;
+    redirect?: string;
+  };
+  /** WhatsApp secondary CTA (under forms + sticky bar). */
+  whatsapp?: LandingWhatsApp;
+  /** "What happens next" strip after the hero form. */
+  nextSteps?: LandingStep[];
   proof?: LandingProof[];
   showcase?: boolean;
   benefits: { eyebrow: string; heading: string; sub: string; items: LandingCard[] };
   process: { title: string; body: string }[];
   why: { eyebrow: string; heading: string; points: LandingCard[] };
+  /** Optional "strong fit / not a fit" columns after why-us. */
+  fit?: LandingFit;
+  /** Optional labelled sample-audit block before the final CTA. */
+  sampleAudit?: LandingSampleAudit;
   faqs: Faq[];
+  /** Optional distinct bullets for the bottom CTA (else reuses hero bullets). */
+  finalBullets?: string[];
   finalCta: { heading: string; body: string; ctaLabel: string };
 }
 
@@ -72,6 +124,13 @@ const faqsByKeyword = (slug: string, keys: string[]): Faq[] => {
   return keys.map((k) => all.find((f) => f.q.toLowerCase().includes(k.toLowerCase()))).filter((f): f is Faq => Boolean(f));
 };
 
+// Minimum-spend qualifier FAQ (this is the client's AD spend, not our fee — no
+// pricing is published anywhere, per CLAUDE.md §18).
+const MIN_SPEND_FAQ: Faq = {
+  q: 'What monthly ad spend do you work with?',
+  a: 'We are the best fit for brands able to put at least ₹1,000 a day into paid ads, roughly ₹30,000 a month, so there is enough budget to test, find the winners and scale them. Below that, paid rarely has the room to prove itself and we would usually tell you to keep testing organically first. If you are close to that level and growing, talk to us anyway and we will be straight about whether it is worth starting.',
+};
+
 export const LANDINGS: LandingContent[] = [
   {
     slug: 'performance-marketing',
@@ -81,6 +140,8 @@ export const LANDINGS: LandingContent[] = [
     description:
       'Performance marketing for D2C & ecommerce, managed to your real margins. Creative made in-house, spend never marked up. Free audit in 3 working days.',
     phoneCtaLabel: 'Call us',
+    ctaLabel: 'Get my free growth audit',
+    ctaLabelShort: 'Free growth audit',
     hero: {
       eyebrow: 'Performance marketing for D2C & ecommerce',
       h1: 'Scale Meta & Google ads that actually turn a profit',
@@ -90,21 +151,44 @@ export const LANDINGS: LandingContent[] = [
         'Ad spend paid straight to the platforms — never marked up',
         'A written audit in 3 working days, whether or not you hire us',
       ],
+      qualifier: 'Best fit for brands spending at least ₹1,000 a day on ads.',
+      // TODO(owner): replace the third stat with a real agency-wide spend or
+      // revenue figure. The three below are all true, derived from the seven
+      // documented case studies (CASE_STUDY_TOTALS) so nothing is invented.
       stats: [
-        { value: CASE_STUDY_TOTALS.roas, label: `Average ROAS across ${CASE_STUDY_TOTALS.accounts} documented accounts` },
+        { value: CASE_STUDY_TOTALS.roas, label: 'Average blended ROAS' },
         { value: CASE_STUDY_TOTALS.revenue, label: 'Tracked revenue driven' },
-        { value: CASE_STUDY_TOTALS.spend, label: 'Ad spend managed' },
+        { value: CASE_STUDY_TOTALS.accounts, label: 'D2C accounts documented in full' },
       ],
-      formHeading: 'Get your free growth plan',
+      formHeading: 'Get your free growth audit',
       formSub: 'A written audit of what to change first — in 3 working days.',
-      submitLabel: 'Get my free plan',
+      submitLabel: 'Send me my audit',
       questions: perf.formQuestions,
     },
     trustLine: 'Trusted by D2C & ecommerce brands across India and the UAE',
+    form: {
+      step1: [
+        { name: 'name', label: 'Full name', type: 'text', required: true, autocomplete: 'name' },
+        { name: 'email', label: 'Email', type: 'email', required: true, autocomplete: 'email' },
+        { name: 'phone', label: 'Phone or WhatsApp', type: 'tel', required: true, autocomplete: 'tel', placeholder: '+91 or +971' },
+      ],
+      step2: [
+        { name: 'website', label: 'Website or Instagram URL', type: 'text', required: false, autocomplete: 'url', placeholder: 'yourbrand.com or @handle' },
+        { name: 'ad_spend', label: 'Monthly ad spend', type: 'select', required: false, options: ['Under ₹1 L', '₹1–5 L', '₹5–20 L', '₹20 L+'] },
+      ],
+      showMessage: false,
+      redirect: '/lp/performance-marketing/thanks/',
+    },
+    whatsapp: { number: '919606713608', text: "Hi, I'd like a free growth audit for my brand" },
+    nextSteps: [
+      { n: '01', text: 'We reply within one working day.' },
+      { n: '02', text: 'You share ad-account access (read-only is fine).' },
+      { n: '03', text: 'Written audit in your inbox within 3 working days. No sales deck, no obligation.' },
+    ],
     proof: [
-      proofFrom('womens-fashion-account-turnaround'),
-      proofFrom('wellness-brand-zero-to-scale'),
-      proofFrom('womenswear-breaking-the-ceiling'),
+      { ...proofFrom('womens-fashion-account-turnaround'), stillRunning: true, image: '/lp/proof/case-1.png', imageAlt: "Meta Ads Manager showing account ROAS rising from 1.75x to 3.94x, women's fashion label" },
+      { ...proofFrom('wellness-brand-zero-to-scale'), image: '/lp/proof/case-2.png', imageAlt: 'Meta Ads Manager showing revenue growing from zero to ₹1.19 crore in year one, wellness D2C brand' },
+      { ...proofFrom('womenswear-breaking-the-ceiling'), stillRunning: true, image: '/lp/proof/case-3.png', imageAlt: "Meta Ads Manager showing average ROAS at 7.09x, mid-luxury women's western wear" },
     ],
     benefits: {
       eyebrow: 'What you get',
@@ -128,11 +212,46 @@ export const LANDINGS: LandingContent[] = [
         { glyph: 'handshake', title: 'A free audit, hire us or not', body: 'Send us access and you get a written audit in three working days. No sales deck, no obligation.' },
       ],
     },
-    faqs: faqsByKeyword('performance-marketing', ['what roas', 'make the ad creative', 'how soon', 'pricing work', 'b2b or lead']),
+    fit: {
+      good: [
+        'You already sell online',
+        'You spend at least ₹1,000 a day on Meta or Google',
+        'You have margin to scale',
+        'You can send us raw creative footage',
+        'You care about contribution margin, not just platform ROAS',
+      ],
+      bad: [
+        'You want a guaranteed ROAS',
+        'You want ads run with no creative input from you',
+        'You have not yet validated demand for the product',
+      ],
+    },
+    // Static, clearly-labelled sample. Owner will replace the copy with a real
+    // redacted audit; the text here is generic on purpose.
+    sampleAudit: {
+      score: '62 / 100',
+      findings: [
+        { text: 'Spend concentrated in one fatigued audience; frequency past 3.5 with falling CTR.', severity: 'High' },
+        { text: 'Retargeting and prospecting share one campaign, so the platform over-credits branded traffic.', severity: 'Medium' },
+        { text: 'Product-page load over 3s on mobile is quietly costing you paid conversions.', severity: 'Low' },
+      ],
+      changes: [
+        'Split prospecting and retargeting so each is judged on its own return.',
+        'Refresh the top creative and set a weekly testing slot to stop fatigue recurring.',
+        'Fix the mobile product-page speed before adding any more budget.',
+      ],
+    },
+    // B2B FAQ removed from this page (5a); min-spend qualifier added on top (5b).
+    faqs: [MIN_SPEND_FAQ, ...faqsByKeyword('performance-marketing', ['what roas', 'make the ad creative', 'how soon', 'pricing work'])],
+    finalBullets: [
+      "What's working, what's wasting money, and what we'd change first",
+      'Your break-even ROAS, with the maths shown',
+      "Where we'd scale next, whether or not you hire us",
+    ],
     finalCta: {
       heading: 'Find out what is leaking money',
       body: 'Send us access to your ad accounts and store. Within three working days you get a written audit of what is working, what is not, and what we would change first — whether or not you hire us.',
-      ctaLabel: 'Get my free growth plan',
+      ctaLabel: 'Get your free growth audit',
     },
   },
   {
@@ -143,6 +262,8 @@ export const LANDINGS: LandingContent[] = [
     description:
       'Scaling Socials builds fast, high-converting websites, landing pages and web & mobile apps for growth brands — sub-1.5s loads and a free site plan.',
     phoneCtaLabel: 'Call us',
+    ctaLabel: 'Get my free site plan',
+    ctaLabelShort: 'Free site plan',
     hero: {
       eyebrow: 'Web & app development for growth brands',
       h1: 'Fast, measurable sites that turn clicks into customers',

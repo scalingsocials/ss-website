@@ -33,6 +33,7 @@ export interface Props {
 const { content: c } = Astro.props;
 const url = c.url;
 const tel = ORG.telephone.replace(/[^+\d]/g, '');
+const wa = c.whatsapp ? `https://wa.me/${c.whatsapp.number}?text=${encodeURIComponent(c.whatsapp.text)}` : null;
 const published = '2026-09-11';
 const modified = '2026-09-11';
 
@@ -58,15 +59,15 @@ const nodes = [
   <!-- ── LP HEADER (minimal, no nav — one goal) ─────────────────────────────── -->
   <header class="lp-head">
     <div class="lp-head__in">
-      <a href="#top" class="lp-brand" aria-label="Scaling Socials">
+      <span class="lp-brand" aria-label="Scaling Socials">
         <span class="lp-brand__mark">S</span>
         <span class="lp-brand__word">Scaling Socials</span>
-      </a>
+      </span>
       <div class="lp-head__cta">
-        <a href={`tel:${tel}`} class="lp-tel">
-          <Glyph name="chat" size={16} /><span>{c.phoneCtaLabel}</span>
+        <a href={`tel:${tel}`} class="lp-tel lp-tel--icon" aria-label={`${c.phoneCtaLabel} ${ORG.telephone}`}>
+          <Glyph name="phone" size={20} />
         </a>
-        <a href="#lead" class="lp-btn lp-btn--sm">Get free plan</a>
+        <a href="#lead" class="lp-btn lp-btn--sm">{c.ctaLabelShort}</a>
       </div>
     </div>
   </header>
@@ -89,6 +90,7 @@ const nodes = [
             </li>
           ))}
         </ul>
+        {c.hero.qualifier && <p class="lp-qual">{c.hero.qualifier}</p>}
         <ul class="lp-stats">
           {c.hero.stats.map((s) => (
             <li>
@@ -105,12 +107,38 @@ const nodes = [
           heading={c.hero.formHeading}
           subheading={c.hero.formSub}
           submitLabel={c.hero.submitLabel}
-          questions={c.hero.questions}
+          questions={c.form?.step2 ? [] : c.hero.questions}
+          step1Fields={c.form?.step1}
+          step2Lead={c.form?.step2}
+          showMessage={c.form?.showMessage ?? true}
+          redirect={c.form?.redirect}
           elevated
         />
+        {wa && (
+          <a href={wa} target="_blank" rel="noopener" class="lp-wa">
+            <span class="lp-wa__icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.32-1.95 1.36-.5.05-1.14.24-3.84-.8-3.22-1.27-5.28-4.55-5.44-4.76-.16-.21-1.31-1.74-1.31-3.32s.83-2.36 1.12-2.68c.29-.32.63-.4.84-.4l.6.01c.19.01.45-.07.7.54.24.6.83 2.07.9 2.22.07.15.12.32.02.53-.1.21-.15.32-.29.5-.15.18-.31.4-.44.53-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.45.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.19-.29.39-.24.65-.15.27.1 1.7.8 1.99.95.29.15.48.22.55.34.07.13.07.72-.17 1.4z"/></svg></span>
+            Prefer WhatsApp? Message us
+          </a>
+        )}
       </div>
     </div>
   </Section>
+
+  <!-- ── WHAT HAPPENS NEXT ──────────────────────────────────────────────────── -->
+  {c.nextSteps && (
+    <Section size="sm" class="!bg-[var(--surface-c)]">
+      <span class="lp-eyebrow">What happens next</span>
+      <h2 class="lp-h2">No sales deck. Just an audit.</h2>
+      <ol class="lp-steps">
+        {c.nextSteps.map((s) => (
+          <li class="lp-step">
+            <span class="lp-step__n display-type">{s.n}</span>
+            <span class="lp-step__t">{s.text}</span>
+          </li>
+        ))}
+      </ol>
+    </Section>
+  )}
 
   <!-- ── TRUST STRIP ────────────────────────────────────────────────────────── -->
   <Section size="sm" class="!bg-[var(--surface-c)]">
@@ -130,11 +158,18 @@ const nodes = [
       <ul class="lp-proof">
         {c.proof.map((p) => (
           <li class="lp-proof__card">
+            {p.image && (
+              <button type="button" class="lp-proof__shot" data-shot={p.image} data-alt={p.imageAlt}>
+                <img src={p.image} alt={p.imageAlt} loading="lazy" decoding="async" width="600" height="360" class="lp-proof__img" />
+                <span class="lp-proof__ph">Ads Manager screenshot</span>
+              </button>
+            )}
             <Delta metric={p.metric} before={p.before} after={p.after} client={p.client} period={p.period} channel={p.channel} size="md" />
+            {p.stillRunning && <span class="lp-proof__running">Still running</span>}
           </li>
         ))}
       </ul>
-      <div class="lp-cta-row"><a href="#lead" class="lp-btn">Get my free growth plan</a></div>
+      <div class="lp-cta-row"><a href="#lead" class="lp-btn">{c.ctaLabel}</a></div>
     </Section>
   )}
 
@@ -143,7 +178,7 @@ const nodes = [
       <span class="lp-eyebrow">Recent work</span>
       <h2 class="lp-h2">Stores and sites we've built</h2>
       <div class="mt-[var(--space-5)]"><SiteShowcase heading="" /></div>
-      <div class="lp-cta-row"><a href="#lead" class="lp-btn">Get my free site plan</a></div>
+      <div class="lp-cta-row"><a href="#lead" class="lp-btn">{c.ctaLabel}</a></div>
     </Section>
   )}
 
@@ -187,11 +222,29 @@ const nodes = [
     </ul>
   </Section>
 
+  <!-- ── WHO IT'S FOR / NOT FOR ─────────────────────────────────────────────── -->
+  {c.fit && (
+    <Section size="md">
+      <span class="lp-eyebrow">Honest about fit</span>
+      <h2 class="lp-h2">Who this is for, and who it isn't</h2>
+      <div class="lp-fit">
+        <div class="lp-fit__col lp-fit__col--good">
+          <h3 class="lp-fit__h"><span class="lp-fit__badge lp-fit__badge--yes" aria-hidden="true">✓</span> A strong fit if you</h3>
+          <ul>{c.fit.good.map((g) => <li>{g}</li>)}</ul>
+        </div>
+        <div class="lp-fit__col lp-fit__col--bad">
+          <h3 class="lp-fit__h"><span class="lp-fit__badge lp-fit__badge--no" aria-hidden="true">✕</span> Probably not a fit if you</h3>
+          <ul>{c.fit.bad.map((g) => <li>{g}</li>)}</ul>
+        </div>
+      </div>
+    </Section>
+  )}
+
   <!-- ── TESTIMONIALS ───────────────────────────────────────────────────────── -->
   <Section size="md">
     <span class="lp-eyebrow">What clients say</span>
     <h2 class="lp-h2">Founders who let us run it</h2>
-    <div class="mt-[var(--space-5)]"><Testimonials /></div>
+    <div class="mt-[var(--space-5)]"><Testimonials filter={c.proof ? ['Performance marketing'] : undefined} /></div>
   </Section>
 
   <!-- ── FAQ ────────────────────────────────────────────────────────────────── -->
@@ -201,6 +254,35 @@ const nodes = [
     <div class="mt-[var(--space-5)] max-w-[62ch]"><FaqAccordion items={c.faqs} openFirst /></div>
   </Section>
 
+  <!-- ── SAMPLE AUDIT ───────────────────────────────────────────────────────── -->
+  {c.sampleAudit && (
+    <Section size="md">
+      <span class="lp-eyebrow">What your audit looks like</span>
+      <h2 class="lp-h2">A written audit, not a sales call</h2>
+      <div class="lp-sample">
+        <div class="lp-sample__head">
+          <span class="lp-sample__tag">Sample audit</span>
+          <div class="lp-sample__score">
+            <span class="lp-sample__score-n display-type">{c.sampleAudit.score}</span>
+            <span class="lp-sample__score-l">Account health score</span>
+          </div>
+        </div>
+        <div class="lp-sample__findings">
+          {c.sampleAudit.findings.map((f) => (
+            <div class="lp-sample__finding">
+              <span class:list={['lp-chip', `lp-chip--${f.severity.toLowerCase()}`]}>{f.severity}</span>
+              <span>{f.text}</span>
+            </div>
+          ))}
+        </div>
+        <div class="lp-sample__next">
+          <h3 class="lp-sample__nexth">What we'd change first</h3>
+          <ol>{c.sampleAudit.changes.map((ch) => <li>{ch}</li>)}</ol>
+        </div>
+      </div>
+    </Section>
+  )}
+
   <!-- ── FINAL CTA + repeat form (no scroll-up needed on mobile) ────────────── -->
   <Section register="ink" size="md" id="lead-bottom">
     <div class="lp-final grid gap-[var(--space-7)] lg:grid-cols-[1fr_0.9fr] lg:items-center">
@@ -208,7 +290,7 @@ const nodes = [
         <h2 class="lp-final__h">{c.finalCta.heading}</h2>
         <p class="lp-final__b">{c.finalCta.body}</p>
         <ul class="lp-final__list">
-          {c.hero.bullets.map((b) => (
+          {(c.finalBullets ?? c.hero.bullets).map((b) => (
             <li><span class="lp-final__tick"><Glyph name="scale" size={15} /></span><span>{b}</span></li>
           ))}
         </ul>
@@ -219,9 +301,19 @@ const nodes = [
           heading={c.finalCta.ctaLabel}
           subheading={c.hero.formSub}
           submitLabel={c.hero.submitLabel}
-          questions={c.hero.questions}
+          questions={c.form?.step2 ? [] : c.hero.questions}
+          step1Fields={c.form?.step1}
+          step2Lead={c.form?.step2}
+          showMessage={c.form?.showMessage ?? true}
+          redirect={c.form?.redirect}
           elevated
         />
+        {wa && (
+          <a href={wa} target="_blank" rel="noopener" class="lp-wa lp-wa--on-ink">
+            <span class="lp-wa__icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.32-1.95 1.36-.5.05-1.14.24-3.84-.8-3.22-1.27-5.28-4.55-5.44-4.76-.16-.21-1.31-1.74-1.31-3.32s.83-2.36 1.12-2.68c.29-.32.63-.4.84-.4l.6.01c.19.01.45-.07.7.54.24.6.83 2.07.9 2.22.07.15.12.32.02.53-.1.21-.15.32-.29.5-.15.18-.31.4-.44.53-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.45.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.19-.29.39-.24.65-.15.27.1 1.7.8 1.99.95.29.15.48.22.55.34.07.13.07.72-.17 1.4z"/></svg></span>
+            Prefer WhatsApp? Message us
+          </a>
+        )}
       </div>
     </div>
   </Section>
@@ -240,9 +332,43 @@ const nodes = [
 
   <!-- ── STICKY MOBILE CTA (always one tap from the form) ───────────────────── -->
   <div class="lp-sticky" aria-hidden="false">
-    <a href={`tel:${tel}`} class="lp-sticky__call" aria-label="Call us"><Glyph name="chat" size={20} /></a>
-    <a href="#lead" class="lp-sticky__cta">{c.hero.submitLabel}</a>
+    <a href="#lead" class="lp-sticky__cta">{c.ctaLabel}</a>
+    {wa ? (
+      <a href={wa} target="_blank" rel="noopener" class="lp-sticky__wa" aria-label="Message us on WhatsApp">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.32-1.95 1.36-.5.05-1.14.24-3.84-.8-3.22-1.27-5.28-4.55-5.44-4.76-.16-.21-1.31-1.74-1.31-3.32s.83-2.36 1.12-2.68c.29-.32.63-.4.84-.4l.6.01c.19.01.45-.07.7.54.24.6.83 2.07.9 2.22.07.15.12.32.02.53-.1.21-.15.32-.29.5-.15.18-.31.4-.44.53-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.45.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.19-.29.39-.24.65-.15.27.1 1.7.8 1.99.95.29.15.48.22.55.34.07.13.07.72-.17 1.4z"/></svg>
+      </a>
+    ) : (
+      <a href={`tel:${tel}`} class="lp-sticky__call" aria-label="Call us"><Glyph name="phone" size={20} /></a>
+    )}
   </div>
+
+  <!-- ── PROOF LIGHTBOX (no library; a native <dialog>) ─────────────────────── -->
+  <dialog class="lp-lightbox" data-lightbox>
+    <button type="button" class="lp-lightbox__close" data-lightbox-close aria-label="Close">✕</button>
+    <img class="lp-lightbox__img" data-lightbox-img src="" alt="" />
+  </dialog>
+
+  <script>
+    // Proof screenshots: hide any that fail to load (revealing the placeholder),
+    // and open the rest full-size in a native <dialog>. No library, CSP-safe.
+    const dlg = document.querySelector('dialog[data-lightbox]') as HTMLDialogElement | null;
+    const big = dlg?.querySelector('[data-lightbox-img]') as HTMLImageElement | null;
+    document.querySelectorAll<HTMLImageElement>('.lp-proof__img').forEach((img) => {
+      const markMissing = () => img.closest('.lp-proof__shot')?.classList.add('is-missing');
+      if (img.complete && img.naturalWidth === 0) markMissing();
+      img.addEventListener('error', markMissing);
+    });
+    document.querySelectorAll<HTMLButtonElement>('.lp-proof__shot').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.classList.contains('is-missing') || !dlg || !big) return;
+        big.src = btn.dataset.shot || '';
+        big.alt = btn.dataset.alt || '';
+        dlg.showModal();
+      });
+    });
+    dlg?.querySelector('[data-lightbox-close]')?.addEventListener('click', () => dlg.close());
+    dlg?.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  </script>
 
   <style>
     /* One accent, real values, dark/light via the register tokens — same design
@@ -321,6 +447,84 @@ const nodes = [
     .lp-sticky__call { display:grid; place-items:center; width:52px; height:52px; flex:none; border-radius: var(--radius-button); border:1px solid var(--fg-muted); color: var(--fg); text-decoration:none; }
     .lp-sticky__cta { flex:1; display:inline-flex; align-items:center; justify-content:center; min-height:52px; border-radius: var(--radius-button); background: var(--accent-fill); color: var(--accent-on); font-weight:700; text-decoration:none; }
     @media (min-width: 768px) { .lp-sticky { display:none; } .lp-foot { padding-bottom: var(--space-6); } }
+
+    /* ── CTA colour: one punchy action colour on LP buttons only (task 1a) ──── */
+    .lp-btn { background: var(--cta); color: var(--cta-on); box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--cta) 55%, transparent); }
+    .lp-btn:hover { background: var(--cta-hover); }
+    .lp-sticky__cta { background: var(--cta); color: var(--cta-on); }
+    .lp-sticky__cta:hover { background: var(--cta-hover); }
+    .lp-hero__form :global(.ss-btn-primary), .lp-final__form :global(.ss-btn-primary) { background: var(--cta); color: var(--cta-on); }
+    .lp-hero__form :global(.ss-btn-primary):hover, .lp-final__form :global(.ss-btn-primary):hover { background: var(--cta-hover); }
+    .lp-tel--icon { padding: 0; min-width: 44px; justify-content: center; color: var(--fg); }
+
+    /* Hero qualifier */
+    .lp-qual { margin-top: var(--space-3); font-size: var(--text-small); color: var(--fg-muted); }
+
+    /* WhatsApp secondary button (brand green) */
+    .lp-wa { display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-top: var(--space-3); min-height:48px; padding:0 var(--space-4); border-radius: var(--radius-button); border:1px solid #25D366; background: color-mix(in srgb, #25D366 8%, transparent); color: #0B6B39; font-weight:600; font-size: var(--text-small); text-decoration:none; }
+    .lp-wa:hover { background: color-mix(in srgb, #25D366 16%, transparent); }
+    .lp-wa__icon { display:inline-flex; color:#25D366; }
+    .lp-wa--on-ink { color:#EDEDED; border-color: color-mix(in srgb, #25D366 70%, transparent); }
+
+    /* What happens next */
+    .lp-steps { margin-top: var(--space-6); display:grid; gap: var(--space-3); grid-template-columns:1fr; }
+    @media (min-width:768px){ .lp-steps { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    .lp-step { display:flex; gap: var(--space-3); align-items:flex-start; border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-4); }
+    .lp-step__n { font-weight:800; font-size: var(--text-h4); line-height:1; color: var(--accent-text); }
+    .lp-step__t { font-size: var(--text-small); line-height:1.5; color: var(--fg); }
+
+    /* Proof: force 3-up on desktop, screenshot slot + still-running */
+    .lp-proof { grid-template-columns:1fr; }
+    @media (min-width:768px){ .lp-proof { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    .lp-proof__card { display:flex; flex-direction:column; }
+    .lp-proof__shot { position:relative; display:block; width:100%; aspect-ratio:5/3; margin-bottom: var(--space-3); border:1px solid var(--rule-c); border-radius: var(--radius-input); overflow:hidden; background: var(--surface-c); padding:0; cursor: zoom-in; }
+    .lp-proof__ph { position:absolute; inset:0; display:grid; place-items:center; font-size: var(--text-label); color: var(--fg-muted); background: repeating-linear-gradient(45deg, var(--surface-c), var(--surface-c) 10px, color-mix(in srgb, var(--fg-muted) 8%, var(--surface-c)) 10px, color-mix(in srgb, var(--fg-muted) 8%, var(--surface-c)) 20px); }
+    .lp-proof__img { position:relative; z-index:1; width:100%; height:100%; object-fit:cover; display:block; }
+    .lp-proof__shot.is-missing { cursor:default; }
+    .lp-proof__shot.is-missing .lp-proof__img { display:none; }
+    .lp-proof__running { margin-top: var(--space-2); font-size: var(--text-label); font-weight:600; color: var(--fg-muted); }
+    .lp-proof__running::before { content:'●'; margin-right:0.4rem; color: var(--pos); font-size:0.7em; vertical-align:middle; }
+
+    /* Who it's for / not for */
+    .lp-fit { margin-top: var(--space-6); display:grid; gap: var(--space-4); grid-template-columns:1fr; }
+    @media (min-width:768px){ .lp-fit { grid-template-columns:1fr 1fr; } }
+    .lp-fit__col { border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-5); }
+    .lp-fit__col--good { border-color: color-mix(in srgb, var(--pos) 35%, var(--rule-c)); }
+    .lp-fit__col--bad { border-color: color-mix(in srgb, var(--neg) 30%, var(--rule-c)); }
+    .lp-fit__h { display:flex; align-items:center; gap:0.5rem; font-size: var(--text-h4); font-weight:700; margin-bottom: var(--space-3); }
+    .lp-fit__badge { display:grid; place-items:center; width:24px; height:24px; flex:none; border-radius:50%; font-size:13px; font-weight:700; }
+    .lp-fit__badge--yes { background: color-mix(in srgb, var(--pos) 18%, transparent); color: var(--pos); }
+    .lp-fit__badge--no { background: color-mix(in srgb, var(--neg) 16%, transparent); color: var(--neg); }
+    .lp-fit__col ul { display:flex; flex-direction:column; gap: var(--space-2); }
+    .lp-fit__col li { position:relative; padding-left: var(--space-4); font-size: var(--text-body); color: var(--fg); }
+    .lp-fit__col li::before { content:''; position:absolute; left:0; top:0.62em; width:6px; height:6px; border-radius:50%; background: var(--fg-muted); }
+
+    /* Sample audit */
+    .lp-sample { margin-top: var(--space-6); max-width:760px; border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-5); }
+    .lp-sample__head { display:flex; align-items:center; justify-content:space-between; gap: var(--space-3); flex-wrap:wrap; padding-bottom: var(--space-4); border-bottom:1px solid var(--rule-c); }
+    .lp-sample__tag { font-size: var(--text-label); font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color: var(--accent-on); background: var(--accent-fill); border-radius:999px; padding:0.25rem 0.7rem; }
+    .lp-sample__score { text-align:right; }
+    .lp-sample__score-n { display:block; font-weight:800; font-size: var(--text-h2); line-height:1; color: var(--fg); }
+    .lp-sample__score-l { font-size: var(--text-label); color: var(--fg-muted); }
+    .lp-sample__findings { display:flex; flex-direction:column; gap: var(--space-3); padding: var(--space-4) 0; }
+    .lp-sample__finding { display:flex; gap: var(--space-3); align-items:flex-start; font-size: var(--text-small); color: var(--fg); }
+    .lp-chip { flex:none; font-size: var(--text-label); font-weight:700; border-radius:999px; padding:0.15rem 0.6rem; }
+    .lp-chip--high { background: color-mix(in srgb, var(--neg) 16%, transparent); color: var(--neg); }
+    .lp-chip--medium { background: color-mix(in srgb, #E8A13A 22%, transparent); color:#8A5A0F; }
+    .lp-chip--low { background: color-mix(in srgb, var(--pos) 16%, transparent); color: var(--pos); }
+    .lp-sample__next { border-top:1px solid var(--rule-c); padding-top: var(--space-4); }
+    .lp-sample__nexth { font-size: var(--text-h4); font-weight:700; margin-bottom: var(--space-2); }
+    .lp-sample__next ol { padding-left:1.2rem; display:flex; flex-direction:column; gap: var(--space-1); }
+    .lp-sample__next li { font-size: var(--text-small); color: var(--fg-muted); }
+
+    /* Sticky WhatsApp square */
+    .lp-sticky__wa { display:grid; place-items:center; width:52px; height:52px; flex:none; border-radius: var(--radius-button); background:#25D366; color:#fff; text-decoration:none; }
+
+    /* Lightbox */
+    .lp-lightbox { border:none; padding:0; background:transparent; max-width:min(1100px,94vw); max-height:90vh; }
+    .lp-lightbox::backdrop { background: color-mix(in srgb, #000 78%, transparent); }
+    .lp-lightbox__img { display:block; width:100%; height:auto; border-radius: var(--radius-card); }
+    .lp-lightbox__close { position:fixed; top:3vh; right:4vw; width:44px; height:44px; border-radius:50%; border:none; background:#fff; color:#000; font-size:18px; line-height:1; cursor:pointer; }
 
     @media (prefers-reduced-motion: reduce) { .lp-btn, .lp-sticky__cta { transition:none; } }
   </style>
