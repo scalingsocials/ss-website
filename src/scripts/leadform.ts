@@ -8,6 +8,23 @@
  */
 type FormEl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
+type GtagWin = Window & { gtag?: (...args: unknown[]) => void };
+
+/**
+ * Read the GA4 client_id and session_id from the first-party cookies gtag sets,
+ * so /api/lead can send the server-side generate_lead event into the same
+ * session. `_ga` = "GA1.1.<cid1>.<cid2>"; `_ga_DQH1656N5W` = "GS1.1.<sid>.…".
+ * Empty strings when GA hasn't set the cookies yet — the server just skips MP.
+ */
+function gaIds(): { clientId: string; sessionId: string } {
+  const read = (re: RegExp) => document.cookie.match(re)?.[1] ?? '';
+  const ga = read(/(?:^|;\s*)_ga=([^;]+)/);
+  const clientId = ga ? ga.split('.').slice(-2).join('.') : '';
+  const ses = read(/(?:^|;\s*)_ga_DQH1656N5W=([^;]+)/);
+  const sessionId = ses ? ses.split('.')[2] ?? '' : '';
+  return { clientId, sessionId };
+}
+
 type TurnstileWin = Window & {
   turnstile?: { render: (el: HTMLElement, opts: Record<string, unknown>) => string };
   __ssTsReady?: () => void;
@@ -39,9 +56,13 @@ function initForm(form: HTMLFormElement): void {
   form.dataset.enh = '1';
 
   const source = form.dataset.source ?? 'website';
-  const leadId =
+  const uid = () =>
     (crypto as Crypto & { randomUUID?: () => string }).randomUUID?.() ??
-    `l_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+    `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+  const leadId = uid();
+  // Stable per-submission id — carried to /api/lead so a future Meta CAPI Lead
+  // event can be deduplicated against the browser Pixel by event_id.
+  const eventId = uid();
   const set = (name: string, value: string) => {
     const el = form.querySelector<HTMLInputElement>(`[name="${name}"]`);
     if (el) el.value = value;
@@ -114,7 +135,16 @@ function initForm(form: HTMLFormElement): void {
   }
 
   const collect = (statusVal: string): Record<string, unknown> => {
-    const base: Record<string, unknown> = { lead_id: leadId, source, status: statusVal, page: location.pathname };
+    const { clientId, sessionId } = gaIds();
+    const base: Record<string, unknown> = {
+      lead_id: leadId,
+      source,
+      status: statusVal,
+      page: location.pathname,
+      event_id: eventId,
+      ga_client_id: clientId,
+      ga_session_id: sessionId,
+    };
     const answers: Record<string, string> = {};
     for (const [k, v] of new FormData(form).entries()) {
       if (typeof v !== 'string') continue;

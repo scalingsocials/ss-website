@@ -346,6 +346,21 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
     pointer-events: auto;
     transform: translate3d(0, 0, 0);
   }
+  /* After a link is chosen, JS adds .is-dismissed so a lingering hover/focus does
+     not re-open the panel on the page just navigated to. Cleared on pointer-leave
+     (nav.ts) so the next genuine hover works. Also neutralises the caret/underline
+     so the trigger doesn't read as active while its panel is suppressed. */
+  .ss-nav-group.is-dismissed:hover > .ss-nav-panel,
+  .ss-nav-group.is-dismissed:focus-within > .ss-nav-panel {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate3d(0, -4px, 0);
+  }
+  .ss-nav-group.is-dismissed:hover .ss-nav-trigger::after,
+  .ss-nav-group.is-dismissed:focus-within .ss-nav-trigger::after { transform: scaleX(0); }
+  .ss-nav-group.is-dismissed:hover .ss-caret,
+  .ss-nav-group.is-dismissed:focus-within .ss-caret { transform: none; }
 
   /* Scroll-progress rule: grows left→right as the page scrolls. Zero JS,
      progressive enhancement (unsupported browsers just see a static hairline). */

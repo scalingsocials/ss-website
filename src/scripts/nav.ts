@@ -22,6 +22,17 @@ function initDropdowns(): void {
     }
   };
 
+  // Fully dismiss every panel, including defeating a lingering :hover / :focus-within.
+  // The header persists across client-side navigation (transition:persist), so after
+  // a link is chosen the panel the pointer is still hovering would otherwise stay
+  // open on the page just navigated to. `is-dismissed` suppresses the hover-open
+  // (see Header.astro) until the pointer genuinely leaves the group.
+  const dismissAll = () => {
+    closeAll();
+    for (const g of groups) g.classList.add('is-dismissed');
+    (document.activeElement as HTMLElement | null)?.blur();
+  };
+
   for (const group of groups) {
     const trigger = group.querySelector<HTMLButtonElement>('[data-nav-trigger]');
     if (!trigger) continue;
@@ -29,6 +40,7 @@ function initDropdowns(): void {
     trigger.addEventListener('click', () => {
       const open = group.getAttribute('data-open') === 'true';
       closeAll(group);
+      group.classList.remove('is-dismissed'); // an explicit tap should open
       if (open) {
         group.removeAttribute('data-open');
         trigger.setAttribute('aria-expanded', 'false');
@@ -36,6 +48,14 @@ function initDropdowns(): void {
         group.setAttribute('data-open', 'true');
         trigger.setAttribute('aria-expanded', 'true');
       }
+    });
+
+    // A real pointer-leave clears the dismissed state so the next hover opens again.
+    group.addEventListener('mouseleave', () => group.classList.remove('is-dismissed'));
+
+    // Choosing any link in the panel closes the menu immediately (before navigation).
+    group.querySelectorAll<HTMLAnchorElement>('.ss-nav-panel a[href]').forEach((link) => {
+      link.addEventListener('click', dismissAll);
     });
   }
 
@@ -68,11 +88,32 @@ function initMobileNav(): void {
   dialog.addEventListener('click', (e) => {
     if (e.target === dialog) dialog.close();
   });
-  // Fires for every close path (button, backdrop, Esc) — restore scroll here.
+  // Choosing any link closes the sheet (the header persists across navigation, so
+  // it would otherwise stay open on the next page). A <details> summary is not an
+  // anchor, so tapping to expand a group does not close the sheet — only real links.
+  dialog.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
+    link.addEventListener('click', () => dialog.close());
+  });
+  // Fires for every close path (button, backdrop, Esc, link) — restore scroll here.
   dialog.addEventListener('close', () => {
+    document.documentElement.style.overflow = '';
+  });
+}
+
+// Reset all nav UI on every client-side navigation. The header is persisted
+// (transition:persist), so any panel/dialog left open would carry to the next page.
+function resetNavOnNavigate(): void {
+  document.addEventListener('astro:after-swap', () => {
+    document.querySelectorAll<HTMLElement>('[data-nav-group]').forEach((g) => {
+      g.removeAttribute('data-open');
+      g.querySelector<HTMLButtonElement>('[data-nav-trigger]')?.setAttribute('aria-expanded', 'false');
+    });
+    const dialog = document.querySelector<HTMLDialogElement>('[data-mobile-nav]');
+    if (dialog?.open) dialog.close();
     document.documentElement.style.overflow = '';
   });
 }
 
 initDropdowns();
 initMobileNav();
+resetNavOnNavigate();
