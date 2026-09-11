@@ -9,8 +9,11 @@
  */
 export interface Props {
   class?: string;
+  /** Keep only testimonials whose tag is in this list (e.g. the ad LP shows only
+   *  performance-marketing quotes). Omit to show all (homepage default). */
+  filter?: string[];
 }
-const { class: className = '' } = Astro.props;
+const { class: className = '', filter } = Astro.props;
 
 interface Testimonial {
   quote: string;
@@ -39,6 +42,11 @@ const testimonials: Testimonial[] = [
   { quote: 'Their proficiency in performance and social media marketing enables them to craft tailored campaigns that effectively engage target audiences, resulting in increased visibility, traffic, and conversions. Known for their transparency and data-driven strategies, they consistently deliver strong ROI.', name: 'Vishal M', source: 'Google', rating: 5, tag: 'Social media marketing' },
   { quote: 'They really take the time to understand what you need and build a strategy around it, whether it’s SEO, social media, or paid ads. What I appreciate most is how easy they are to work with. They’re always quick to respond, clear in their communication, and genuinely care about getting results.', name: 'Aarnav N', source: 'Google', rating: 5, tag: 'Digital marketing' },
 ];
+
+// The ad landing pages pass a filter so only performance-marketing quotes show
+// (Sharmili Pasha, Shyam Sundar Saw, Pooja all carry the "Performance marketing"
+// tag). Homepage passes nothing → all testimonials.
+const shown = filter ? testimonials.filter((t) => filter.includes(t.tag)) : testimonials;
 ---
 
 <div class:list={['ss-tst', className]}>
@@ -52,7 +60,7 @@ const testimonials: Testimonial[] = [
   </div>
   <div data-testimonials class="ss-trail">
     <ul class="ss-trail__track">
-      {testimonials.map((t) => (
+      {shown.map((t) => (
         <li class="ss-trail__item flex flex-col gap-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
           <span class="w-fit rounded-full bg-[var(--accent-wash)] px-[0.7rem] py-[0.2rem] text-label font-semibold text-[var(--accent-text)]">{t.tag}</span>
           <blockquote class="text-body leading-relaxed text-[var(--fg)]">“{t.quote}”</blockquote>
