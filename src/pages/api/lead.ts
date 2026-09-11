@@ -42,6 +42,12 @@ const leadSchema = z.object({
   company_website: z.string().max(0).optional().default(''),
   // Cloudflare Turnstile token (present on JS submissions once configured).
   'cf-turnstile-response': z.string().max(4096).optional().default(''),
+  // Analytics stitching — the browser hands up its GA4 ids so the server-side
+  // generate_lead (Measurement Protocol) joins the right session, plus a stable
+  // event_id for future Meta CAPI/Pixel deduplication. See analytics-event-plan.
+  ga_client_id: z.string().max(64).optional().default(''),
+  ga_session_id: z.string().max(32).optional().default(''),
+  event_id: z.string().max(64).optional().default(''),
 });
 
 type Lead = z.infer<typeof leadSchema>;
@@ -59,6 +65,10 @@ function getEnv(locals: unknown) {
     supabaseKey: pick('SUPABASE_SERVICE_KEY'),
     resendKey: pick('RESEND_API_KEY'),
     turnstileSecret: pick('TURNSTILE_SECRET_KEY'),
+    // GA4 server-side (Measurement Protocol). Measurement ID is public and has a
+    // safe default; the API secret must come from the env (CLAUDE.md §17).
+    ga4Id: pick('GA4_MEASUREMENT_ID') ?? 'G-DQH1656N5W',
+    ga4Secret: pick('GA4_MP_API_SECRET'),
     // scalingsocials.com is a verified Resend domain, so send from it by default.
     // Override with LEAD_ALERT_FROM / LEAD_ALERT_TO env vars if needed.
     alertFrom: pick('LEAD_ALERT_FROM') ?? 'Scaling Socials <leads@scalingsocials.com>',
@@ -175,6 +185,47 @@ async function sendLeadEmail(apiKey: string, from: string, to: string, lead: Lea
     const detail = await res.text().catch(() => '');
     throw new Error(`resend ${res.status}: ${detail.slice(0, 300)}`);
   }
+}
+
+/**
+ * Send the GA4 `generate_lead` conversion server-side via the Measurement
+ * Protocol. Server-side is deliberate: it can't be dropped by ad-blockers or
+ * ITP, and it's the SINGLE source for this event (GA4 does not dedupe gtag vs
+ * MP), so the conversion is counted exactly once. Needs the client_id the
+ * browser read from its _ga cookie; without it we can't attribute the hit, so we
+ * skip rather than create a phantom session. Best-effort — never blocks the reply.
+ */
+async function sendGa4Lead(
+  measurementId: string,
+  apiSecret: string,
+  lead: Lead,
+  debug: boolean,
+): Promise<void> {
+  if (!lead.ga_client_id) return; // no client_id → can't attribute; skip cleanly
+  const body = {
+    client_id: lead.ga_client_id,
+    events: [
+      {
+        name: 'generate_lead',
+        params: {
+          // session_id + a non-zero engagement time make this an active,
+          // session-attributed event rather than an orphaned one.
+          ...(lead.ga_session_id ? { session_id: lead.ga_session_id } : {}),
+          engagement_time_msec: 1,
+          lead_source: lead.source,
+          lead_score: scoreLead(lead),
+          page_location: lead.page ? `https://scalingsocials.com${lead.page}` : undefined,
+          ...(debug ? { debug_mode: true } : {}),
+        },
+      },
+    ],
+  };
+  const url =
+    `https://www.google-analytics.com/mp/collect` +
+    `?measurement_id=${encodeURIComponent(measurementId)}&api_secret=${encodeURIComponent(apiSecret)}`;
+  const res = await fetch(url, { method: 'POST', body: JSON.stringify(body) });
+  // MP returns 204 on success and never a useful error body; log non-2xx only.
+  if (!res.ok) throw new Error(`ga4 mp ${res.status}`);
 }
 
 // Points for the biggest budget/scale signal in the answers (ad spend, online
@@ -325,6 +376,20 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
       await sendLeadEmail(env.resendKey, env.alertFrom, env.alertTo, lead);
     } catch (e) {
       console.error('[lead] email failed', (e as Error).message);
+    }
+  }
+
+  // GA4 conversion, server-side (best-effort). Only on completed enquiries with a
+  // client_id; debug_mode on any non-production host so preview/localhost hits
+  // show in GA4 DebugView without being mistaken for real traffic.
+  if (lead.status === 'complete' && env.ga4Secret && lead.ga_client_id) {
+    const host = (() => {
+      try { return new URL(request.url).hostname; } catch { return ''; }
+    })();
+    try {
+      await sendGa4Lead(env.ga4Id, env.ga4Secret, lead, host !== 'scalingsocials.com');
+    } catch (e) {
+      console.error('[lead] ga4 mp failed', (e as Error).message);
     }
   }
 

@@ -18,6 +18,8 @@
  * localhost) we flag hits with debug_mode so they surface in GA4 DebugView for
  * testing. Real reporting is driven by the production domain.
  */
+export {}; // module scope — keeps these declarations out of the global type space
+
 const GA_ID = 'G-DQH1656N5W';
 const PROD_HOST = 'scalingsocials.com';
 

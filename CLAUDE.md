@@ -104,6 +104,33 @@ number or founding date anywhere else. Non-www is canonical. Founding date is 20
 structured field; the 2022 LLP incorporation appears only in About-page prose. The GST address
 in `legalAddress` is for invoices only and must never reach the website, schema or a directory.
 
+## Analytics (GA4) — must survive on every new page
+GA4 is wired **sitewide through `BaseLayout`**, so any page that renders through BaseLayout
+(directly, or via a layout that does — ServiceLayout, ClusterLayout, CaseStudyLayout,
+ArticleLayout, GlossaryLayout, LegalLayout, and 404/thank-you) automatically gets tracking and
+the correct CSP. **Never ship a page or layout that bypasses BaseLayout** — if you must, it has
+no analytics and no CSP, which is a launch defect. When you add a new page, this is inherited
+for free; just confirm it goes through BaseLayout.
+
+The event plan (owner-confirmed, core funnel only) and where each lives:
+- **`page_view`** — `src/scripts/analytics.ts`, sent on every `astro:page-load` because
+  `<ClientRouter />` view transitions don't reload (config uses `send_page_view:false`).
+- **`form_start`** — `src/scripts/leadform.ts`, client-side, when step 1 completes.
+- **`generate_lead`** — `src/pages/api/lead.ts`, **server-side via Measurement Protocol ONLY**.
+  GA4 does NOT dedupe gtag vs MP hits, so never also fire it client-side or every lead
+  double-counts. The browser passes `ga_client_id`/`ga_session_id` (from the `_ga` cookies) so
+  the server hit joins the right session; `event_id` is carried for future Meta CAPI dedup.
+
+Rules for changing analytics:
+- **A new GA4 event** goes in `analytics.ts` (client) or `lead.ts` (server MP) — not inlined
+  ad hoc in a component. Keep the funnel lean; don't add events without an owner reason.
+- **Any new third-party/analytics origin** (Meta, Clarity, doubleclick for Google Signals…)
+  MUST be added to the CSP `directives` in `astro.config.mjs` (`script-src`/`connect-src`/
+  `img-src`/`frame-src` as needed) or it is silently blocked — `check:csp` won't catch a
+  missing *allow*, only a broken hash, so the failure shows up only as no data.
+- Measurement ID `G-DQH1656N5W` is public (in code); `GA4_MP_API_SECRET` is a secret and lives
+  only in the Cloudflare env (CLAUDE.md §17). Meta + Clarity are still pending owner IDs.
+
 ## Commands
 - `npm run dev` · `npm run build` · `npm run preview`
 - `npm run check` — astro check + typecheck

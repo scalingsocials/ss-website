@@ -173,6 +173,10 @@ function initForm(form: HTMLFormElement): void {
     if (!validateStep(1)) return;
     if (!partialSent) {
       send('partial');
+      // Micro-conversion: the visitor completed step 1. Client-side is fine here
+      // (a lost form_start to an ad-blocker doesn't matter); the real conversion,
+      // generate_lead, is sent reliably server-side. See analytics-event-plan.
+      (window as GtagWin).gtag?.('event', 'form_start', { form_source: source, page: location.pathname });
       partialSent = true;
     }
     show(2);

@@ -65,12 +65,15 @@ export default defineConfig({
         // frame-ancestors is IGNORED in a <meta> CSP, so it is set as a real
         // header in public/_headers instead. Kept out of here deliberately.
         "object-src 'none'",
-        "img-src 'self' data:",
+        // google-analytics.com: GA4 beacons (some fall back to image pixels).
+        "img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com",
         "font-src 'self'",
-        "connect-src 'self' https://challenges.cloudflare.com",
+        // GA4 sends measurement hits to *.google-analytics.com (incl. regionN);
+        // gtag.js itself is fetched from googletagmanager.com (script-src below).
+        "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com",
         "frame-src https://challenges.cloudflare.com",
       ],
-      scriptDirective: { resources: ["'self'", 'https://challenges.cloudflare.com'] },
+      scriptDirective: { resources: ["'self'", 'https://challenges.cloudflare.com', 'https://www.googletagmanager.com'] },
       styleDirective: { resources: ["'self'"] },
     },
   },
