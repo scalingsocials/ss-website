@@ -200,7 +200,9 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
     box-shadow: 0 30px 80px -40px color-mix(in srgb, var(--accent-fill) 45%, transparent);
     aspect-ratio: 4 / 3;
   }
-  @media (max-width: 640px) { .hero__panel { aspect-ratio: 16 / 11; } }
+  /* Keep the SAME aspect ratio on mobile. The chart SVG uses
+     preserveAspectRatio="none", so a different panel ratio would stretch the
+     curve into a different shape from desktop. Same ratio → identical chart. */
   .hero__panelhead { display: flex; align-items: center; gap: 6px; padding-bottom: var(--space-2); }
   .hero__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-c); }
   .hero__panellabel { margin-left: auto; font-size: var(--text-label); color: var(--fg-muted); letter-spacing: 0.02em; }

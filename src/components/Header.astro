@@ -300,7 +300,13 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(-4px);
+    /* translate3d (not translateY) keeps the panel on its own compositor layer.
+       The fixed header has backdrop-filter and a fractional height, so the panel
+       lands on a sub-pixel row; without a stable layer Chrome leaves a 1px
+       hairline ghost over the hero when the panel fades out on close. */
+    transform: translate3d(0, -4px, 0);
+    will-change: opacity, transform;
+    backface-visibility: hidden;
     transition:
       opacity var(--dur-fast) var(--ease-out),
       transform var(--dur-fast) var(--ease-out),
@@ -315,7 +321,7 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 
   /* Scroll-progress rule: grows left→right as the page scrolls. Zero JS,
