@@ -97,6 +97,9 @@ export interface LandingContent {
   whatsapp?: LandingWhatsApp;
   /** "What happens next" strip after the hero form. */
   nextSteps?: LandingStep[];
+  /** Case-study slugs to show as poster cards in the proof section (reuses the
+   *  existing CaseStudyPoster with the full study detail). */
+  proofStudies?: string[];
   proof?: LandingProof[];
   showcase?: boolean;
   benefits: { eyebrow: string; heading: string; sub: string; items: LandingCard[] };
@@ -141,7 +144,7 @@ const faqsByKeyword = (slug: string, keys: string[]): Faq[] => {
 // pricing is published anywhere, per CLAUDE.md §18).
 const MIN_SPEND_FAQ: Faq = {
   q: 'What monthly ad spend do you work with?',
-  a: "We start most brands at a ₹40–60 K monthly testing budget. That's enough for Meta and Google to learn, and for us to find two or three creative angles that clear your break-even ROAS before we scale. If you're below that today, book the call anyway — we'll tell you what to fix on the store first so the budget works when you're ready.",
+  a: "A ₹40–60 K monthly testing budget is where we start most brands, enough for Meta and Google to learn and for us to find angles that clear your break-even ROAS before scaling. From there we run accounts all the way up to large monthly budgets, so this is a floor, not a ceiling. If you're below ₹40 K today, book the call anyway and we'll tell you what to fix on the store first so the money works when you're ready.",
 };
 
 // "What happens on the strategy call?" (Task 1e).
@@ -200,15 +203,16 @@ export const LANDINGS: LandingContent[] = [
     },
     whatsapp: { number: '919606713608', text: "Hi, I'd like a free strategy call for my brand" },
     nextSteps: [
-      { n: '01', text: 'We reply within one working day to fix a time.' },
+      { n: '01', text: 'We reply the same day, or the next working day, to fix a time.' },
       { n: '02', text: 'Send us read-only access before the call so we come prepared.' },
       { n: '03', text: '30 minutes, your account on screen, a clear first-30-days plan.' },
     ],
     creatives: true,
+    proofStudies: ['womens-fashion-account-turnaround', 'wellness-brand-zero-to-scale', 'womenswear-breaking-the-ceiling'],
     proof: [
-      { ...proofFrom('womens-fashion-account-turnaround'), stillRunning: true, image: '/lp/proof/case-1.png', imageAlt: "Meta Ads Manager showing account ROAS rising from 1.75x to 3.94x, women's fashion label" },
-      { ...proofFrom('wellness-brand-zero-to-scale'), image: '/lp/proof/case-2.png', imageAlt: 'Meta Ads Manager showing revenue growing from zero to ₹1.19 crore in year one, wellness D2C brand' },
-      { ...proofFrom('womenswear-breaking-the-ceiling'), stillRunning: true, image: '/lp/proof/case-3.png', imageAlt: "Meta Ads Manager showing average ROAS at 7.09x, mid-luxury women's western wear" },
+      proofFrom('womens-fashion-account-turnaround'),
+      proofFrom('wellness-brand-zero-to-scale'),
+      proofFrom('womenswear-breaking-the-ceiling'),
     ],
     benefits: {
       eyebrow: 'What you get',
@@ -261,14 +265,14 @@ export const LANDINGS: LandingContent[] = [
       ],
     },
     founderNote: {
-      quote: "We started Scaling Socials in 2021 because we kept watching good products die in bad ad accounts — spend going to campaigns nobody was reading, agencies reporting a ROAS the P&L didn't recognise. Six years and a few hundred brands later, the approach hasn't changed: know your margins, buy against your break-even, make creative every week, and scale only what earns it. If you book a call, you get one of us on it, not a sales rep.",
-      attribution: 'Tayeb & Jamal, Co-founders',
+      quote: "Book a call and you get me or one of the founders on it, not a sales rep. We'll open your account, show you where the money is leaking, and be honest about whether we're the right fit.",
+      attribution: 'Jamal Khan, Co-founder',
       photo: '/lp/founders.jpg',
     },
     fit: {
       good: [
-        'Own the decision and want to take the brand to the next level',
-        'Are already selling online and want to scale, not start from zero',
+        'Are already selling online with steady revenue and want to reach the next level',
+        'Own the decision and can move fast',
         'Can put at least ₹40–60 K a month into the testing phase',
         'Can shoot raw footage for us every month — creative is half the work',
         'Care about profit and contribution margin, not just a ROAS number',
@@ -282,6 +286,7 @@ export const LANDINGS: LandingContent[] = [
     },
     startingFrom: [
       { title: 'Running ads in-house and stuck', body: "You've hit a ceiling. Spend goes up, ROAS goes down, and nobody has time to make new creative." },
+      { title: 'Running it yourself and out of time', body: "You're the founder, the media buyer and everything else. It works, but there aren't enough hours to test and scale it properly." },
       { title: 'Working with a freelancer', body: "Campaigns run, but there's no plan to scale, no creative pipeline, and no one accountable when it dips." },
       { title: 'Already with an agency, not seeing growth', body: "Reports look fine, the P&L doesn't. The team keeps changing and you're never sure who's actually on your account." },
     ],

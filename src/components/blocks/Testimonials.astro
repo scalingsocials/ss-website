@@ -209,7 +209,10 @@ const rowB = twoRows ? adPicked.filter((_, i) => i % 2 === 1) : [];
   .ss-tstsl__row { overflow: hidden; }
   .ss-tstsl__track { display: flex; gap: var(--space-3); width: max-content; animation: ssTstScroll 46s linear infinite; will-change: transform; }
   .ss-tstsl__track--rev { animation-direction: reverse; }
-  .ss-tstsl__row:hover .ss-tstsl__track, .ss-tstsl__row:focus-within .ss-tstsl__track { animation-play-state: paused; }
+  /* Pause on hover only with a real pointer — on touch, :hover sticks after a tap
+     and would freeze the slider. Focus always pauses (keyboard). */
+  @media (hover: hover) { .ss-tstsl__row:hover .ss-tstsl__track { animation-play-state: paused; } }
+  .ss-tstsl__row:focus-within .ss-tstsl__track { animation-play-state: paused; }
   @keyframes ssTstScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
   .ss-tstcard { flex: none; width: 280px; display: flex; flex-direction: column; gap: var(--space-2); border: 1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-4); }

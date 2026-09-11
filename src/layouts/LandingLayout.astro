@@ -14,7 +14,6 @@ import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import LeadForm from '@/components/blocks/LeadForm.astro';
-import Delta from '@/components/blocks/Delta.astro';
 import LogoWall from '@/components/blocks/LogoWall.astro';
 import SiteShowcase from '@/components/blocks/SiteShowcase.astro';
 import Testimonials from '@/components/blocks/Testimonials.astro';
@@ -25,6 +24,10 @@ import Glyph from '@/components/graphics/Glyph.astro';
 import DotField from '@/components/graphics/DotField.astro';
 import { Image } from 'astro:assets';
 import lockup from '@/assets/brand/lockup-black.png';
+import jamalPhoto from '@/assets/founders/jamal-khan.jpg';
+import CreativeWall from '@/components/blocks/CreativeWall.astro';
+import CaseStudyPoster from '@/components/blocks/CaseStudyPoster.astro';
+import { CASE_STUDY_BY_SLUG, CASE_STUDY_KICKERS, INDEX_ORDER } from '@/lib/caseStudies';
 import { readdirSync } from 'node:fs';
 import { ORG } from '@/lib/schema/entity';
 import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
@@ -51,8 +54,14 @@ const listPublic = (dir: string): string[] => {
   }
 };
 const proofShots = c.proof ? listPublic('lp/proof') : [];
-const creativeFiles = c.creatives ? listPublic('lp/creatives') : [];
-const isVideo = (p: string) => /\.mp4$/i.test(p);
+
+// Proof row = the existing case-study poster cards (full detail), by slug.
+const proofPosters = (c.proofStudies ?? [])
+  .map((sl) => {
+    const study = CASE_STUDY_BY_SLUG[sl];
+    return study ? { study, colorIndex: (INDEX_ORDER as readonly string[]).indexOf(sl) % 7, kicker: CASE_STUDY_KICKERS[sl] ?? '' } : null;
+  })
+  .filter((x): x is NonNullable<typeof x> => x !== null);
 const published = '2026-09-11';
 const modified = '2026-09-11';
 
@@ -93,7 +102,7 @@ const nodes = [
   <span id="top" class="sr-only"></span>
 
   <!-- ── HERO ───────────────────────────────────────────────────────────────── -->
-  <Section size="lg" class="lp-hero relative overflow-hidden" id="lead">
+  <Section size="lg" class="lp-hero relative overflow-hidden" id="hero">
     <DotField origin="top-right" />
     <div class="lp-hero__grid relative grid gap-[var(--space-7)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
       <div class="lp-hero__copy">
@@ -119,7 +128,7 @@ const nodes = [
         </ul>
         <p class="lp-trust">{c.trustLine}</p>
       </div>
-      <div class="lp-hero__form">
+      <div class="lp-hero__form" id="lead">
         <LeadForm
           source={c.source}
           heading={c.hero.formHeading}
@@ -146,7 +155,7 @@ const nodes = [
   {c.nextSteps && (
     <Section size="sm" class="!bg-[var(--surface-c)]">
       <span class="lp-eyebrow">What happens next</span>
-      <h2 class="lp-h2">No deck, just a call.</h2>
+      <h2 class="lp-h2">A real reply, same day or the next working day.</h2>
       <ol class="lp-steps">
         {c.nextSteps.map((s) => (
           <li class="lp-step">
@@ -173,18 +182,9 @@ const nodes = [
       <span class="lp-eyebrow">Real accounts, real numbers</span>
       <h2 class="lp-h2">Growth we can show you in the ad account</h2>
       <p class="lp-lede">Every figure below is taken from a client's own Meta Ads Manager — anonymised by niche, never invented.</p>
-      <ul class="lp-proof">
-        {c.proof.map((p) => (
-          <li class="lp-proof__card">
-            {p.image && (
-              <button type="button" class="lp-proof__shot" data-shot={p.image} data-alt={p.imageAlt}>
-                <img src={p.image} alt={p.imageAlt} loading="lazy" decoding="async" width="600" height="360" class="lp-proof__img" />
-                <span class="lp-proof__ph">Ads Manager screenshot</span>
-              </button>
-            )}
-            <Delta metric={p.metric} before={p.before} after={p.after} client={p.client} period={p.period} channel={p.channel} size="md" />
-            {p.stillRunning && <span class="lp-proof__running">Still running</span>}
-          </li>
+      <ul class="lp-proofposters">
+        {proofPosters.map((pp) => (
+          <li><CaseStudyPoster study={pp.study} colorIndex={pp.colorIndex} kicker={pp.kicker} /></li>
         ))}
       </ul>
 
@@ -210,29 +210,13 @@ const nodes = [
     </Section>
   )}
 
-  {/* ── CREATIVES SLIDER ─────────────────────────────────────────────────────── */}
+  {/* ── CREATIVES ─ reuse the homepage creative wall (real creatives) ────────── */}
   {c.creatives && (
     <Section size="md" class="!bg-[var(--surface-c)]">
       <span class="lp-eyebrow">Creative we ship</span>
       <h2 class="lp-h2">Ads we've made and scaled</h2>
       <p class="lp-lede">Shot, cut and tested in-house. Creative is the lever — this is what ours looks like.</p>
-      <div class="lp-slider lp-slider--creatives mt-[var(--space-6)]" data-slider>
-        {creativeFiles.length > 0 ? (
-          <div class="lp-slider__track">
-            {[...creativeFiles, ...creativeFiles].map((src, i) => (
-              <div class="lp-slider__item lp-creative" aria-hidden={i >= creativeFiles.length ? 'true' : undefined}>
-                {isVideo(src)
-                  ? <video src={src} muted loop playsinline autoplay preload="none"></video>
-                  : <img src={src} alt={i < creativeFiles.length ? 'Ad creative made by Scaling Socials' : ''} loading="lazy" decoding="async" />}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div class="lp-slider__empty">
-            {[0, 1, 2, 3].map(() => <span class="lp-creative lp-creative--ph">Ad creative</span>)}
-          </div>
-        )}
-      </div>
+      <div class="mt-[var(--space-6)]"><CreativeWall variant="marquee" limit={12} /></div>
       <div class="lp-cta-row"><a href="#lead" class="lp-btn">{c.ctaLabel}</a></div>
     </Section>
   )}
@@ -307,12 +291,9 @@ const nodes = [
   <!-- ── FOUNDER NOTE ───────────────────────────────────────────────────────── -->
   {c.founderNote && (
     <Section size="md">
-      <span class="lp-eyebrow">A note from the founders</span>
+      <span class="lp-eyebrow">A note from the founder</span>
       <div class="lp-note">
-        <div class="lp-note__photo">
-          {c.founderNote.photo && <img src={c.founderNote.photo} alt="The Scaling Socials founders" loading="lazy" decoding="async" class="lp-note__img" />}
-          <span class="lp-note__ph">Founder photo</span>
-        </div>
+        <Image src={jamalPhoto} alt="Jamal Khan, Co-founder at Scaling Socials" width={112} height={112} class="lp-note__photo2" />
         <blockquote class="lp-note__q">
           <p>{c.founderNote.quote}</p>
           <cite class="lp-note__cite">— {c.founderNote.attribution}</cite>
@@ -644,7 +625,10 @@ const nodes = [
           static wrapped grid under reduced motion) ─────────────────────────── */
     .lp-slider { overflow:hidden; }
     .lp-slider__track { display:flex; gap: var(--space-3); width:max-content; animation: lpScroll 40s linear infinite; will-change: transform; }
-    .lp-slider:hover .lp-slider__track, .lp-slider:focus-within .lp-slider__track { animation-play-state: paused; }
+    /* Pause on hover only where a real pointer exists — on touch, :hover sticks
+       after a tap and would freeze the marquee. Focus (keyboard) always pauses. */
+    @media (hover: hover) { .lp-slider:hover .lp-slider__track { animation-play-state: paused; } }
+    .lp-slider:focus-within .lp-slider__track { animation-play-state: paused; }
     @keyframes lpScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
     .lp-slider__empty { display:flex; flex-wrap:wrap; gap: var(--space-3); }
     .lp-slider__cap { margin-top: var(--space-2); font-size: var(--text-label); color: var(--fg-muted); }
@@ -661,14 +645,23 @@ const nodes = [
     .lp-creative--ph { display:grid; place-items:center; color: var(--fg-muted); font-size: var(--text-label); }
 
     /* Founder note */
-    .lp-note { margin-top: var(--space-5); display:grid; gap: var(--space-5); grid-template-columns:1fr; align-items:center; }
-    @media (min-width:768px){ .lp-note { grid-template-columns: 300px 1fr; gap: var(--space-7); } }
-    .lp-note__photo { position:relative; aspect-ratio:4/3; border:1px solid var(--rule-c); border-radius: var(--radius-card); overflow:hidden; background: var(--surface-c); }
-    .lp-note__img { position:relative; z-index:1; width:100%; height:100%; object-fit:cover; display:block; }
-    .lp-note__img.is-missing { display:none; }
-    .lp-note__ph { position:absolute; inset:0; display:grid; place-items:center; color: var(--fg-muted); font-size: var(--text-label); }
+    .lp-note { margin-top: var(--space-5); display:flex; flex-direction:column; align-items:flex-start; gap: var(--space-4); max-width: 780px; }
+    @media (min-width:640px){ .lp-note { flex-direction:row; align-items:center; gap: var(--space-5); } }
+    .lp-note__photo2 { width:112px; height:112px; flex:none; border-radius:50%; object-fit:cover; border:1px solid var(--rule-c); }
     .lp-note__q p { font-size: var(--text-h4); line-height:1.55; color: var(--fg); }
     .lp-note__cite { display:block; margin-top: var(--space-3); font-weight:600; color: var(--fg-muted); font-style:normal; }
+
+    /* Proof: existing case-study poster cards in a 3-up row */
+    .lp-proofposters { margin-top: var(--space-5); display:grid; gap: var(--space-4); grid-template-columns:1fr; }
+    @media (min-width:640px){ .lp-proofposters { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (min-width:1024px){ .lp-proofposters { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+
+    /* Form heading a touch larger on the LP (task: form CTA looked small) */
+    .lp-hero__form :global(.ss-leadform h3), .lp-final__form :global(.ss-leadform h3) { font-size: var(--text-h3); line-height: 1.15; }
+    /* CTAs point at #lead (the form). Offset so it clears the sticky LP header. */
+    .lp-hero__form { scroll-margin-top: 84px; }
+    /* Extra breathing room between the hero copy and the form on mobile */
+    @media (max-width: 959px) { .lp-hero__form { margin-top: var(--space-4); } }
 
     /* Why pointers */
     .lp-pointers { margin-top: var(--space-6); display:grid; gap: var(--space-3); grid-template-columns:1fr; }
@@ -686,7 +679,7 @@ const nodes = [
 
     /* Where you're starting from */
     .lp-from { margin-top: var(--space-6); display:grid; gap: var(--space-3); grid-template-columns:1fr; }
-    @media (min-width:768px){ .lp-from { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    @media (min-width:640px){ .lp-from { grid-template-columns: repeat(2, minmax(0,1fr)); } }
     .lp-from__card { border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-5); }
     .lp-from__t { font-size: var(--text-h4); font-weight:700; margin-bottom: var(--space-2); }
     .lp-from__b { font-size: var(--text-small); line-height:1.55; color: var(--fg-muted); }
