@@ -1,0 +1,29 @@
+---
+/**
+ * /lp/performance-marketing/b2b/ — B2B & lead-gen variant of the performance LP.
+ * NOINDEX (for now). Reuses LandingLayout and the same lead form; only the hero
+ * message and attribution differ. Owner will flesh out B2B-specific proof later.
+ */
+import LandingLayout from '@/layouts/LandingLayout.astro';
+import { LANDING_BY_SLUG } from '@/lib/landings';
+import type { LandingContent } from '@/lib/landings';
+
+const base = LANDING_BY_SLUG['performance-marketing']!;
+const content: LandingContent = {
+  ...base,
+  slug: 'performance-marketing-b2b',
+  url: '/lp/performance-marketing/b2b/',
+  source: 'lp-performance-marketing-b2b',
+  title: 'B2B Lead-Gen Ads on Meta & Google | Scaling Socials',
+  description:
+    'Scaling Socials runs Meta and Google ad campaigns for B2B and lead-generation brands, built to produce qualified leads and pipeline, not just form fills.',
+  hero: {
+    ...base.hero,
+    eyebrow: 'Performance marketing for B2B & lead generation',
+    h1: 'Meta & Google ads that produce qualified leads, not just form fills',
+    sub: 'We build lead-gen campaigns around the leads your sales team can actually close, measured on pipeline and cost per qualified lead, not vanity form volume.',
+  },
+};
+---
+
+<LandingLayout content={content} />

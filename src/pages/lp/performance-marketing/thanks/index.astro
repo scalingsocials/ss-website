@@ -1,0 +1,76 @@
+---
+/**
+ * /lp/performance-marketing/thanks/ — post-submit confirmation for the perf LP.
+ * NOINDEX. The lead form redirects here on success with ?spend=<selection>.
+ *
+ * Tracking: GA4 pageview fires automatically (analytics.ts). The authoritative
+ * lead conversions are already sent — GA4 generate_lead server-side (/api/lead
+ * Measurement Protocol) and Meta Lead via Pixel + CAPI — so we do NOT re-fire
+ * those here (GA4/Meta do not dedupe gtag vs server hits). This page fires the
+ * Google Ads conversion only, which is a separate system. It is guarded behind a
+ * real conversion id so nothing fake ships until the owner provides one.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import Glyph from '@/components/graphics/Glyph.astro';
+import { ORG } from '@/lib/schema/entity';
+import { LANDING_BY_SLUG } from '@/lib/landings';
+
+const c = LANDING_BY_SLUG['performance-marketing']!;
+const tel = ORG.telephone.replace(/[^+\d]/g, '');
+const waText = 'Hi, I just requested an audit, here is my latest Ads Manager screenshot';
+const wa = `https://wa.me/919606713608?text=${encodeURIComponent(waText)}`;
+
+// TODO(owner): set the Google Ads conversion id + label to enable the conversion.
+// Leave empty and nothing fires (no fake id ships). Format: 'AW-XXXXXXXXXX/xxxxx'.
+const GADS_CONVERSION = '';
+---
+
+<BaseLayout bare noindex>
+  <Meta slot="meta" title="Thank you — your audit request is in | Scaling Socials" description="Your free growth audit request has been received. A real person at Scaling Socials replies within one working day with the next steps for your account." type="website" />
+
+  <main class="ty">
+    <div class="ty__card">
+      <span class="ty__check" aria-hidden="true"><Glyph name="scale" size={26} /></span>
+      <h1 class="ty__h">Your audit request is in.</h1>
+      <p class="ty__sub">Thanks — a real person at Scaling Socials will be in touch within one working day. Here is exactly what happens next.</p>
+
+      <ol class="ty__steps">
+        {c.nextSteps?.map((s) => (
+          <li class="ty__step"><span class="ty__n display-type">{s.n}</span><span>{s.text}</span></li>
+        ))}
+      </ol>
+
+      <div class="ty__cta">
+        <a href={wa} target="_blank" rel="noopener" class="ty__wa">
+          <span class="ty__wa-i" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.32-1.95 1.36-.5.05-1.14.24-3.84-.8-3.22-1.27-5.28-4.55-5.44-4.76-.16-.21-1.31-1.74-1.31-3.32s.83-2.36 1.12-2.68c.29-.32.63-.4.84-.4l.6.01c.19.01.45-.07.7.54.24.6.83 2.07.9 2.22.07.15.12.32.02.53-.1.21-.15.32-.29.5-.15.18-.31.4-.44.53-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.45.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.19-.29.39-.24.65-.15.27.1 1.7.8 1.99.95.29.15.48.22.55.34.07.13.07.72-.17 1.4z"/></svg></span>
+          Send your latest Ads Manager screenshot on WhatsApp
+        </a>
+        <a href={`tel:${tel}`} class="ty__tel">Or call {ORG.telephone}</a>
+      </div>
+    </div>
+  </main>
+
+  {/* Google Ads conversion — fires once on this thank-you page only (never on a
+     button click). Rendered only when the owner has set a real conversion id, so
+     nothing fake ships and the CSP gate has a stable inline script to hash. */}
+  {GADS_CONVERSION && (
+    <script is:inline set:html={`window.gtag&&window.gtag('event','conversion',{send_to:${JSON.stringify(GADS_CONVERSION)}});`} />
+  )}
+
+  <style>
+    .ty { min-height: 100svh; min-height: 100vh; display: grid; place-items: center; padding: var(--space-6) var(--space-3); background: var(--surface-c); }
+    .ty__card { max-width: 620px; width: 100%; background: var(--ground); border: 1px solid var(--rule-c); border-radius: 18px; padding: var(--space-7) var(--space-5); text-align: center; box-shadow: 0 30px 70px -44px color-mix(in srgb, var(--accent-fill) 40%, transparent); }
+    .ty__check { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: color-mix(in srgb, var(--pos) 16%, transparent); color: var(--pos); margin-bottom: var(--space-4); }
+    .ty__h { font-size: clamp(1.7rem, 3vw, 2.3rem); font-weight: 800; letter-spacing: -0.02em; }
+    .ty__sub { margin-top: var(--space-3); font-size: var(--text-h4); line-height: 1.5; color: var(--fg-muted); }
+    .ty__steps { margin-top: var(--space-6); display: flex; flex-direction: column; gap: var(--space-3); text-align: left; }
+    .ty__step { display: flex; gap: var(--space-3); align-items: flex-start; border: 1px solid var(--rule-c); border-radius: var(--radius-card); padding: var(--space-4); font-size: var(--text-small); color: var(--fg); }
+    .ty__n { font-weight: 800; font-size: var(--text-h4); line-height: 1; color: var(--accent-text); flex: none; }
+    .ty__cta { margin-top: var(--space-6); display: flex; flex-direction: column; gap: var(--space-3); align-items: center; }
+    .ty__wa { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 52px; padding: 0 var(--space-5); border-radius: var(--radius-button); background: #25D366; color: #fff; font-weight: 700; text-decoration: none; }
+    .ty__wa-i { display: inline-flex; }
+    .ty__tel { font-size: var(--text-small); color: var(--fg-muted); text-decoration: none; }
+    .ty__tel:hover { color: var(--fg); }
+  </style>
+</BaseLayout>
