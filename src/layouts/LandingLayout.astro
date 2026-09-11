@@ -19,8 +19,8 @@ import SiteShowcase from '@/components/blocks/SiteShowcase.astro';
 import Testimonials from '@/components/blocks/Testimonials.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
+import PartnerBadges from '@/components/blocks/PartnerBadges.astro';
 import Glyph from '@/components/graphics/Glyph.astro';
-import BrandIcon from '@/components/graphics/BrandIcon.astro';
 import DotField from '@/components/graphics/DotField.astro';
 import { Image } from 'astro:assets';
 import lockup from '@/assets/brand/lockup-black.png';
@@ -106,15 +106,20 @@ const nodes = [
     <DotField origin="top-right" />
     <div class="lp-hero__grid relative grid gap-[var(--space-7)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
       <div class="lp-hero__copy">
-        <!-- Visual trust strip so the page opens with proof marks, not plain text. -->
-        <div class="lp-hero__trustbar">
-          <ul class="lp-hero__partners" aria-label="Official partners">
-            <li><BrandIcon name="google" size={18} /><span>Google</span></li>
-            <li><BrandIcon name="meta" size={18} /><span>Meta</span></li>
-            <li><BrandIcon name="shopify" size={18} /><span>Shopify</span></li>
-            <li class="lp-hero__partnerslabel">Official partner</li>
-          </ul>
-          <span class="lp-hero__rating"><span class="lp-hero__stars" aria-hidden="true">★★★★★</span> 5.0 on Google</span>
+        <!-- Visual opener: a plan → execute graphic, so the page leads with a
+             picture of the approach, not a wall of text. Decorative. -->
+        <div class="lp-plan" aria-hidden="true">
+          <div class="lp-plan__step">
+            <span class="lp-plan__num">1</span>
+            <div class="lp-plan__txt"><span class="lp-plan__t">Plan</span><span class="lp-plan__s">Your margins & break-even ROAS</span></div>
+            <span class="lp-plan__ico"><Glyph name="doc" size={20} /></span>
+          </div>
+          <svg class="lp-plan__arrow" width="34" height="16" viewBox="0 0 34 16" fill="none"><path d="M1 8h29M24 2l7 6-7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="lp-plan__step lp-plan__step--go">
+            <span class="lp-plan__num">2</span>
+            <div class="lp-plan__txt"><span class="lp-plan__t">Execute</span><span class="lp-plan__s">Create, test & scale weekly</span></div>
+            <span class="lp-plan__ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 3 3 7-8"/><path d="M17 4h4v4"/></svg></span>
+          </div>
         </div>
         <span class="lp-eyebrow">{c.hero.eyebrow}</span>
         <h1 class="lp-h1">{c.hero.h1}</h1>
@@ -177,9 +182,13 @@ const nodes = [
     </Section>
   )}
 
-  <!-- ── TRUST STRIP (logos; partner marks + rating live in the hero now) ────── -->
+  <!-- ── TRUST STRIP ────────────────────────────────────────────────────────── -->
   <Section size="sm" class="!bg-[var(--surface-c)]">
-    <LogoWall heading="Brands we work with" />
+    <div class="lp-truststrip">
+      <PartnerBadges label="Official partners" />
+      <p class="lp-rating"><span class="lp-rating__stars" aria-hidden="true">★★★★★</span> Rated 5.0 on Google by D2C founders</p>
+    </div>
+    <div class="mt-[var(--space-6)]"><LogoWall heading="Brands we work with" /></div>
   </Section>
 
   <!-- ── PROOF (perf) or SHOWCASE (web) ─────────────────────────────────────── -->
@@ -493,13 +502,17 @@ const nodes = [
 
     /* Hero */
     .lp-hero { padding-top: var(--space-7) !important; padding-bottom: var(--space-8) !important; scroll-margin-top: 76px; }
-    /* Hero visual trust strip */
-    .lp-hero__trustbar { display:flex; flex-wrap:wrap; align-items:center; gap: var(--space-2) var(--space-4); margin-bottom: var(--space-4); }
-    .lp-hero__partners { display:flex; flex-wrap:wrap; align-items:center; gap: var(--space-2); }
-    .lp-hero__partners > li { display:inline-flex; align-items:center; gap:0.4rem; padding:0.3rem 0.7rem; border-radius:999px; border:1px solid var(--rule-c); background: var(--ground); font-size: var(--text-label); font-weight:600; color: var(--fg); }
-    .lp-hero__partnerslabel { border:0 !important; background:transparent !important; padding:0 0.2rem !important; color: var(--fg-muted) !important; font-weight:500 !important; letter-spacing:0.02em; }
-    .lp-hero__rating { display:inline-flex; align-items:center; gap:0.4rem; font-size: var(--text-label); font-weight:600; color: var(--fg-muted); }
-    .lp-hero__stars { color:#F5A623; letter-spacing:0.06em; }
+    /* Hero opener graphic: plan → execute */
+    .lp-plan { display:flex; align-items:stretch; gap: var(--space-2); margin-bottom: var(--space-5); }
+    .lp-plan__step { flex:1; display:flex; align-items:center; gap: var(--space-2); padding: var(--space-3); border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); box-shadow: 0 10px 26px -20px color-mix(in srgb, var(--accent-fill) 40%, transparent); }
+    .lp-plan__step--go { background: linear-gradient(180deg, color-mix(in srgb, var(--accent-wash) 70%, var(--ground)), var(--ground)); border-color: color-mix(in srgb, var(--accent-graphic) 24%, var(--rule-c)); }
+    .lp-plan__num { display:grid; place-items:center; width:22px; height:22px; flex:none; border-radius:50%; background: var(--accent-fill); color: var(--accent-on); font-size: var(--text-label); font-weight:800; }
+    .lp-plan__txt { display:flex; flex-direction:column; line-height:1.1; min-width:0; }
+    .lp-plan__t { font-size: var(--text-body); font-weight:700; color: var(--fg); }
+    .lp-plan__s { font-size: var(--text-label); color: var(--fg-muted); }
+    .lp-plan__ico { margin-left:auto; flex:none; color: var(--accent-graphic); }
+    .lp-plan__arrow { flex:none; align-self:center; color: var(--fg-muted); }
+    @media (max-width: 420px) { .lp-plan__s { display:none; } }
     .lp-h1 { margin-top: var(--space-2); font-size: clamp(2rem, 4.4vw, 3.15rem); line-height:1.05; font-weight:800; letter-spacing:-0.025em; text-wrap:balance; }
     .lp-sub { margin-top: var(--space-4); max-width: 54ch; font-size: var(--text-h4); line-height:1.5; color: var(--fg-muted); }
     .lp-bullets { margin-top: var(--space-5); display:flex; flex-direction:column; gap: var(--space-2); }
