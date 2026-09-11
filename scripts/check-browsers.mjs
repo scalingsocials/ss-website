@@ -39,6 +39,8 @@ const PAGES = [
   '/tools/break-even-roas-calculator/',          // tool page (React island)
   '/blog/what-realistic-roas-looks-like/',       // prose
   '/terms/',                                      // legal
+  '/lp/performance-marketing/',                  // LandingLayout (ad LP)
+  '/lp/web-development/',                         // LandingLayout (ad LP, showcase)
 ];
 
 // Widths that matter: small phone, iPhone, large phone, tablet, laptop, desktop.

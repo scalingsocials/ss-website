@@ -1,0 +1,327 @@
+---
+/**
+ * LandingLayout — the /lp/ ad landing-page template (02 §5.4). NOINDEX, no site
+ * nav: one conversion goal, the lead form. Built for paid traffic — message-
+ * matched, proof-heavy, objection-handling, with a sticky mobile CTA so the form
+ * is always one tap away. Renders from a LandingContent object.
+ *
+ * Reuses BaseLayout in `bare` mode (no global header/footer) so the page still
+ * gets the shared shell: fonts, theme, strict CSP, analytics, view transitions.
+ * The minimal LP header/footer are provided here instead.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import LeadForm from '@/components/blocks/LeadForm.astro';
+import Delta from '@/components/blocks/Delta.astro';
+import LogoWall from '@/components/blocks/LogoWall.astro';
+import SiteShowcase from '@/components/blocks/SiteShowcase.astro';
+import Testimonials from '@/components/blocks/Testimonials.astro';
+import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
+import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
+import PartnerBadges from '@/components/blocks/PartnerBadges.astro';
+import Glyph from '@/components/graphics/Glyph.astro';
+import DotField from '@/components/graphics/DotField.astro';
+import { ORG } from '@/lib/schema/entity';
+import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
+import type { LandingContent } from '@/lib/landings';
+
+export interface Props {
+  content: LandingContent;
+}
+const { content: c } = Astro.props;
+const url = c.url;
+const tel = ORG.telephone.replace(/[^+\d]/g, '');
+const published = '2026-09-11';
+const modified = '2026-09-11';
+
+const nodes = [
+  ...base(),
+  service({
+    url,
+    name: c.hero.eyebrow,
+    description: c.description,
+    serviceType: c.hero.eyebrow,
+    areaServed: ['IN', 'AE'],
+  }),
+  webPage({ url, name: c.title, description: c.description, aboutId: serviceId(url), hasBreadcrumb: true, datePublished: published, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: c.hero.eyebrow, url }]),
+  faqPage(url, c.faqs),
+];
+---
+
+<BaseLayout bare noindex>
+  <Meta slot="meta" title={c.title} description={c.description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <!-- ── LP HEADER (minimal, no nav — one goal) ─────────────────────────────── -->
+  <header class="lp-head">
+    <div class="lp-head__in">
+      <a href="#top" class="lp-brand" aria-label="Scaling Socials">
+        <span class="lp-brand__mark">S</span>
+        <span class="lp-brand__word">Scaling Socials</span>
+      </a>
+      <div class="lp-head__cta">
+        <a href={`tel:${tel}`} class="lp-tel">
+          <Glyph name="chat" size={16} /><span>{c.phoneCtaLabel}</span>
+        </a>
+        <a href="#lead" class="lp-btn lp-btn--sm">Get free plan</a>
+      </div>
+    </div>
+  </header>
+
+  <span id="top" class="sr-only"></span>
+
+  <!-- ── HERO ───────────────────────────────────────────────────────────────── -->
+  <Section size="lg" class="lp-hero relative overflow-hidden" id="lead">
+    <DotField origin="top-right" />
+    <div class="lp-hero__grid relative grid gap-[var(--space-7)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div class="lp-hero__copy">
+        <span class="lp-eyebrow">{c.hero.eyebrow}</span>
+        <h1 class="lp-h1">{c.hero.h1}</h1>
+        <p class="lp-sub">{c.hero.sub}</p>
+        <ul class="lp-bullets">
+          {c.hero.bullets.map((b) => (
+            <li>
+              <span class="lp-bullets__tick"><Glyph name="scale" size={15} /></span>
+              <span>{b}</span>
+            </li>
+          ))}
+        </ul>
+        <ul class="lp-stats">
+          {c.hero.stats.map((s) => (
+            <li>
+              <span class="lp-stats__val display-type" data-num>{s.value}</span>
+              <span class="lp-stats__lbl">{s.label}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="lp-trust">{c.trustLine}</p>
+      </div>
+      <div class="lp-hero__form">
+        <LeadForm
+          source={c.source}
+          heading={c.hero.formHeading}
+          subheading={c.hero.formSub}
+          submitLabel={c.hero.submitLabel}
+          questions={c.hero.questions}
+          elevated
+        />
+      </div>
+    </div>
+  </Section>
+
+  <!-- ── TRUST STRIP ────────────────────────────────────────────────────────── -->
+  <Section size="sm" class="!bg-[var(--surface-c)]">
+    <div class="lp-truststrip">
+      <PartnerBadges label="Official partners" />
+      <p class="lp-rating"><span class="lp-rating__stars" aria-hidden="true">★★★★★</span> Rated 5.0 on Google by D2C founders</p>
+    </div>
+    <div class="mt-[var(--space-6)]"><LogoWall heading="Brands we work with" /></div>
+  </Section>
+
+  <!-- ── PROOF (perf) or SHOWCASE (web) ─────────────────────────────────────── -->
+  {c.proof && (
+    <Section size="md">
+      <span class="lp-eyebrow">Real accounts, real numbers</span>
+      <h2 class="lp-h2">Growth we can show you in the ad account</h2>
+      <p class="lp-lede">Every figure below is taken from a client's own Meta Ads Manager — anonymised by niche, never invented.</p>
+      <ul class="lp-proof">
+        {c.proof.map((p) => (
+          <li class="lp-proof__card">
+            <Delta metric={p.metric} before={p.before} after={p.after} client={p.client} period={p.period} channel={p.channel} size="md" />
+          </li>
+        ))}
+      </ul>
+      <div class="lp-cta-row"><a href="#lead" class="lp-btn">Get my free growth plan</a></div>
+    </Section>
+  )}
+
+  {c.showcase && (
+    <Section size="md">
+      <span class="lp-eyebrow">Recent work</span>
+      <h2 class="lp-h2">Stores and sites we've built</h2>
+      <div class="mt-[var(--space-5)]"><SiteShowcase heading="" /></div>
+      <div class="lp-cta-row"><a href="#lead" class="lp-btn">Get my free site plan</a></div>
+    </Section>
+  )}
+
+  <!-- ── BENEFITS ───────────────────────────────────────────────────────────── -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="lp-eyebrow">{c.benefits.eyebrow}</span>
+    <h2 class="lp-h2">{c.benefits.heading}</h2>
+    <p class="lp-lede">{c.benefits.sub}</p>
+    <ul class="lp-cards">
+      {c.benefits.items.map((it) => (
+        <li class="lp-card">
+          <span class="lp-card__glyph"><Glyph name={it.glyph} size={20} /></span>
+          <h3 class="lp-card__title">{it.title}</h3>
+          <p class="lp-card__body">{it.body}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <!-- ── PROCESS ────────────────────────────────────────────────────────────── -->
+  <Section size="md">
+    <span class="lp-eyebrow">How it works</span>
+    <h2 class="lp-h2">A clear path from first call to results</h2>
+    <div class="mt-[var(--space-5)]"><ProcessSteps steps={c.process} /></div>
+  </Section>
+
+  <!-- ── WHY US / RISK REVERSAL ─────────────────────────────────────────────── -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="lp-eyebrow">{c.why.eyebrow}</span>
+    <h2 class="lp-h2">{c.why.heading}</h2>
+    <ul class="lp-why">
+      {c.why.points.map((p) => (
+        <li class="lp-why__item">
+          <span class="lp-card__glyph"><Glyph name={p.glyph} size={20} /></span>
+          <div>
+            <h3 class="lp-card__title">{p.title}</h3>
+            <p class="lp-card__body">{p.body}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <!-- ── TESTIMONIALS ───────────────────────────────────────────────────────── -->
+  <Section size="md">
+    <span class="lp-eyebrow">What clients say</span>
+    <h2 class="lp-h2">Founders who let us run it</h2>
+    <div class="mt-[var(--space-5)]"><Testimonials /></div>
+  </Section>
+
+  <!-- ── FAQ ────────────────────────────────────────────────────────────────── -->
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="lp-eyebrow">Questions</span>
+    <h2 class="lp-h2">Straight answers before you enquire</h2>
+    <div class="mt-[var(--space-5)] max-w-[62ch]"><FaqAccordion items={c.faqs} openFirst /></div>
+  </Section>
+
+  <!-- ── FINAL CTA + repeat form (no scroll-up needed on mobile) ────────────── -->
+  <Section register="ink" size="md" id="lead-bottom">
+    <div class="lp-final grid gap-[var(--space-7)] lg:grid-cols-[1fr_0.9fr] lg:items-center">
+      <div>
+        <h2 class="lp-final__h">{c.finalCta.heading}</h2>
+        <p class="lp-final__b">{c.finalCta.body}</p>
+        <ul class="lp-final__list">
+          {c.hero.bullets.map((b) => (
+            <li><span class="lp-final__tick"><Glyph name="scale" size={15} /></span><span>{b}</span></li>
+          ))}
+        </ul>
+      </div>
+      <div class="lp-final__form">
+        <LeadForm
+          source={c.source}
+          heading={c.finalCta.ctaLabel}
+          subheading={c.hero.formSub}
+          submitLabel={c.hero.submitLabel}
+          questions={c.hero.questions}
+          elevated
+        />
+      </div>
+    </div>
+  </Section>
+
+  <!-- ── LP FOOTER (slim) ───────────────────────────────────────────────────── -->
+  <footer class="lp-foot">
+    <div class="lp-foot__in">
+      <span>© {new Date().getFullYear()} {ORG.legalName}</span>
+      <nav class="lp-foot__nav" aria-label="Legal">
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href={`tel:${tel}`}>{ORG.telephone}</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ── STICKY MOBILE CTA (always one tap from the form) ───────────────────── -->
+  <div class="lp-sticky" aria-hidden="false">
+    <a href={`tel:${tel}`} class="lp-sticky__call" aria-label="Call us"><Glyph name="chat" size={20} /></a>
+    <a href="#lead" class="lp-sticky__cta">{c.hero.submitLabel}</a>
+  </div>
+
+  <style>
+    /* One accent, real values, dark/light via the register tokens — same design
+       system as the rest of the site, tuned for a single-goal ad page. */
+    :root { --lp-max: 1120px; }
+    .lp-eyebrow { display:inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight:600; letter-spacing:.02em; color: var(--accent-text); }
+    .lp-h2 { max-width: 26ch; font-size: var(--text-h2); font-weight: 700; letter-spacing:-0.01em; }
+    .lp-lede { margin-top: var(--space-2); max-width: 60ch; font-size: var(--text-h4); line-height:1.5; color: var(--fg-muted); }
+
+    /* Header */
+    .lp-head { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--ground) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule-c); padding-top: env(safe-area-inset-top); }
+    .lp-head__in { display:flex; align-items:center; justify-content:space-between; gap: var(--space-3); max-width: var(--lp-max); margin:0 auto; padding: 0.6rem var(--space-3); min-height: 60px; }
+    .lp-brand { display:inline-flex; align-items:center; gap:0.55rem; min-height:44px; text-decoration:none; color: var(--fg); font-weight:700; }
+    .lp-brand__mark { display:grid; place-items:center; width:30px; height:30px; border-radius:8px; background: var(--accent-fill); color: var(--accent-on); font-weight:800; font-size:16px; }
+    .lp-brand__word { font-size: 1.02rem; letter-spacing:-0.01em; }
+    .lp-head__cta { display:flex; align-items:center; gap: var(--space-2); }
+    .lp-tel { display:inline-flex; align-items:center; gap:0.4rem; min-height:44px; padding:0 0.4rem; color: var(--fg-muted); text-decoration:none; font-weight:600; font-size: var(--text-small); }
+    .lp-tel:hover { color: var(--fg); }
+    @media (max-width: 560px) { .lp-brand__word { display:none; } .lp-tel span { display:none; } }
+
+    /* Buttons (self-contained so the LP owns its CTA look) */
+    .lp-btn { display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding: 0 var(--space-5); border-radius: var(--radius-button); background: var(--accent-fill); color: var(--accent-on); font-weight:700; font-size:1.02rem; text-decoration:none; box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--accent-fill) 60%, transparent); transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out); }
+    .lp-btn:hover { transform: translateY(-1px); background: var(--accent-hover); }
+    .lp-btn--sm { min-height:44px; padding: 0 var(--space-4); font-size: var(--text-small); box-shadow:none; }
+    .lp-cta-row { margin-top: var(--space-6); }
+
+    /* Hero */
+    .lp-hero { padding-top: var(--space-7) !important; padding-bottom: var(--space-8) !important; scroll-margin-top: 76px; }
+    .lp-h1 { margin-top: var(--space-2); font-size: clamp(2rem, 4.4vw, 3.15rem); line-height:1.05; font-weight:800; letter-spacing:-0.025em; text-wrap:balance; }
+    .lp-sub { margin-top: var(--space-4); max-width: 54ch; font-size: var(--text-h4); line-height:1.5; color: var(--fg-muted); }
+    .lp-bullets { margin-top: var(--space-5); display:flex; flex-direction:column; gap: var(--space-2); }
+    .lp-bullets li { display:flex; gap:0.6rem; align-items:flex-start; font-size: var(--text-body); font-weight:500; color: var(--fg); }
+    .lp-bullets__tick { display:grid; place-items:center; width:22px; height:22px; flex:none; margin-top:1px; border-radius:6px; background: var(--accent-wash); color: var(--accent-graphic); }
+    .lp-stats { margin-top: var(--space-6); display:grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); padding-top: var(--space-4); border-top:1px solid var(--rule-c); }
+    .lp-stats__val { display:block; font-weight:800; line-height:1; font-size: clamp(1.25rem, 2.3vw, 1.9rem); color: var(--fg); }
+    .lp-stats__lbl { display:block; margin-top:0.35rem; font-size: var(--text-label); line-height:1.35; color: var(--fg-muted); }
+    .lp-trust { margin-top: var(--space-5); font-size: var(--text-small); color: var(--fg-muted); }
+    .lp-hero__form { position: relative; }
+
+    /* Trust strip */
+    .lp-truststrip { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap: var(--space-4) var(--space-6); text-align:center; }
+    .lp-rating { font-size: var(--text-small); font-weight:600; color: var(--fg-muted); }
+    .lp-rating__stars { color: var(--fg); letter-spacing:0.06em; }
+
+    /* Proof (Delta grid) */
+    .lp-proof { margin-top: var(--space-5); display:grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+    .lp-proof__card { border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-4); }
+
+    /* Cards (benefits) */
+    .lp-cards { margin-top: var(--space-6); display:grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .lp-card { display:flex; flex-direction:column; gap: var(--space-2); border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-4); }
+    .lp-card__glyph { display:grid; place-items:center; width:42px; height:42px; border-radius: var(--radius-input); color: var(--accent-graphic); background: var(--accent-wash); border:1px solid color-mix(in srgb, var(--accent-graphic) 22%, transparent); }
+    .lp-card__title { font-size: var(--text-h4); font-weight:700; color: var(--fg); }
+    .lp-card__body { font-size: var(--text-small); line-height:1.55; color: var(--fg-muted); }
+
+    /* Why us */
+    .lp-why { margin-top: var(--space-6); display:grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .lp-why__item { display:flex; gap: var(--space-3); align-items:flex-start; }
+
+    /* Final CTA (ink register) */
+    .lp-final__h { max-width: 20ch; font-size: var(--text-h2); font-weight:800; letter-spacing:-0.015em; color: var(--fg); }
+    .lp-final__b { margin-top: var(--space-3); max-width: 52ch; font-size: var(--text-h4); line-height:1.5; color: var(--fg-muted); }
+    .lp-final__list { margin-top: var(--space-5); display:flex; flex-direction:column; gap: var(--space-2); }
+    .lp-final__list li { display:flex; gap:0.6rem; align-items:flex-start; font-size: var(--text-body); color: var(--fg); }
+    .lp-final__tick { display:grid; place-items:center; width:22px; height:22px; flex:none; margin-top:1px; border-radius:6px; background: color-mix(in srgb, var(--accent-graphic) 22%, transparent); color: var(--accent-graphic); }
+
+    /* Footer */
+    .lp-foot { border-top:1px solid var(--rule-c); background: var(--ground); padding: var(--space-5) var(--space-3) calc(var(--space-6) + 72px); }
+    .lp-foot__in { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap: var(--space-3); max-width: var(--lp-max); margin:0 auto; font-size: var(--text-small); color: var(--fg-muted); }
+    .lp-foot__nav { display:flex; flex-wrap:wrap; gap: var(--space-4); }
+    .lp-foot__nav a { color: var(--fg-muted); text-decoration:none; min-height:44px; display:inline-flex; align-items:center; }
+    .lp-foot__nav a:hover { color: var(--fg); }
+
+    /* Sticky mobile CTA */
+    .lp-sticky { position: fixed; left:0; right:0; bottom:0; z-index: 50; display:flex; gap: var(--space-2); align-items:center; padding: 0.6rem var(--space-3) calc(0.6rem + env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--ground) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top:1px solid var(--rule-c); }
+    .lp-sticky__call { display:grid; place-items:center; width:52px; height:52px; flex:none; border-radius: var(--radius-button); border:1px solid var(--fg-muted); color: var(--fg); text-decoration:none; }
+    .lp-sticky__cta { flex:1; display:inline-flex; align-items:center; justify-content:center; min-height:52px; border-radius: var(--radius-button); background: var(--accent-fill); color: var(--accent-on); font-weight:700; text-decoration:none; }
+    @media (min-width: 768px) { .lp-sticky { display:none; } .lp-foot { padding-bottom: var(--space-6); } }
+
+    @media (prefers-reduced-motion: reduce) { .lp-btn, .lp-sticky__cta { transition:none; } }
+  </style>
+</BaseLayout>

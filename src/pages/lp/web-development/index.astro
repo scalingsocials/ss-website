@@ -1,0 +1,12 @@
+---
+/**
+ * /lp/web-development/ — ad landing page (noindex, paid traffic only).
+ * Excluded from the sitemap and orphan check; not linked from the site.
+ */
+import LandingLayout from '@/layouts/LandingLayout.astro';
+import { LANDING_BY_SLUG } from '@/lib/landings';
+
+const content = LANDING_BY_SLUG['web-development'];
+if (!content) throw new Error('Missing landing content: web-development');
+---
+<LandingLayout content={content} />
