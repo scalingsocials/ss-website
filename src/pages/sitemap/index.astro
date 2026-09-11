@@ -17,6 +17,9 @@ import CtaBand from '@/components/blocks/CtaBand.astro';
 import { SERVICES } from '@/lib/services';
 import { CLUSTERS } from '@/lib/clusters';
 import { CASE_STUDIES } from '@/lib/caseStudies';
+import { INDUSTRIES } from '@/lib/industries';
+import { COMPARISONS } from '@/lib/comparisons';
+import { PARTNERS } from '@/lib/team';
 import { getCollection } from 'astro:content';
 import { base, webPage, breadcrumbs } from '@/lib/schema';
 
@@ -72,6 +75,20 @@ const groups: { heading: string; links: { label: string; href: string }[] }[] = 
     ],
   },
   {
+    heading: 'Industries',
+    links: [
+      { label: 'All industries', href: '/industries/' },
+      ...INDUSTRIES.map((i) => ({ label: i.name, href: i.url })),
+    ],
+  },
+  {
+    heading: 'Comparisons',
+    links: [
+      { label: 'All comparisons', href: '/vs/' },
+      ...COMPARISONS.map((c) => ({ label: c.name, href: c.url })),
+    ],
+  },
+  {
     heading: 'Guides',
     links: [
       { label: 'All guides', href: '/guides/' },
@@ -97,6 +114,7 @@ const groups: { heading: string; links: { label: string; href: string }[] }[] = 
     links: [
       { label: 'About', href: '/about/' },
       { label: 'Team', href: '/team/' },
+      ...PARTNERS.map((p) => ({ label: p.name, href: `/team/${p.slug}/` })),
       { label: 'Work', href: '/work/' },
       { label: 'Teardowns', href: '/teardowns/' },
     ],
