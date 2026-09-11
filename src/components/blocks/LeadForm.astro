@@ -32,6 +32,9 @@ export interface Props {
   messageLabel?: string;
   /** Prominent, elevated card treatment (service-page heroes). */
   elevated?: boolean;
+  /** On success, redirect here instead of the default /thank-you/ (LP pages).
+   *  The ad-spend selection is appended as ?spend= by leadform.ts. */
+  redirect?: string;
   class?: string;
 }
 
@@ -47,8 +50,16 @@ const {
   showMessage = true,
   messageLabel = 'Anything else? (optional)',
   elevated = false,
+  redirect,
   class: className = '',
 } = Astro.props;
+
+// Attribution fields — populated from the URL by leadform.ts and sent with the
+// lead. Present on every form so paid-traffic attribution is never lost.
+const HIDDEN_TRACKING = [
+  'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
+  'gclid', 'fbclid', 'landing_page', 'referrer',
+];
 
 // Step 1 asks only for who they are — kept short so the form fits one screen and
 // the `partial` record captures a reachable lead immediately.
@@ -88,10 +99,12 @@ const gap = compact ? 'gap-[var(--space-2)]' : 'gap-[var(--space-3)]';
   method="post"
   class:list={['ss-leadform flex flex-col gap-[var(--space-4)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]', elevated && 'ss-leadform--elevated', compact && 'ss-leadform--compact', className]}
   novalidate
+  data-redirect={redirect}
 >
   <input type="hidden" name="lead_id" value="" />
   <input type="hidden" name="source" value={source} />
   <input type="hidden" name="page" value="" />
+  {HIDDEN_TRACKING.map((n) => <input type="hidden" name={n} value="" />)}
   <!-- honeypot -->
   <div class="ss-hp" aria-hidden="true">
     <label>Company website<input type="text" name="company_website" tabindex="-1" autocomplete="off" /></label>

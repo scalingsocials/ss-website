@@ -74,6 +74,26 @@ function initForm(form: HTMLFormElement): void {
   set('lead_id', leadId);
   set('page', location.pathname);
 
+  // Populate attribution fields from the URL (persist across both steps because
+  // they are hidden inputs in the same form). utm_* / gclid / fbclid come from
+  // the query string; landing_page + referrer from the document.
+  const params = new URLSearchParams(location.search);
+  for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'fbclid']) {
+    const v = params.get(k);
+    if (v) set(k, v);
+  }
+  set('landing_page', location.href.split('#')[0]);
+  set('referrer', document.referrer || '');
+
+  // Where to go on success: the form's own data-redirect (LP pages), else the
+  // default. The ad-spend selection rides along as ?spend= for later events.
+  const redirectTo = () => {
+    const target = form.dataset.redirect;
+    if (!target) return '/thank-you/';
+    const spend = form.querySelector<HTMLSelectElement>('[name="ad_spend"], [name$="ad_spend"]')?.value ?? '';
+    return spend ? `${target}?spend=${encodeURIComponent(spend)}` : target;
+  };
+
   const steps = Array.from(form.querySelectorAll<HTMLElement>('[data-step]'));
   const progress = form.querySelector<HTMLElement>('[data-lf-progress]');
   const stepNum = form.querySelector<HTMLElement>('[data-lf-step]');
@@ -109,13 +129,16 @@ function initForm(form: HTMLFormElement): void {
       (el) => el.name && el.type !== 'hidden'
     );
 
-  const show = (n: number) => {
+  const show = (n: number, focus = true) => {
     for (const s of steps) s.hidden = Number(s.dataset.step) !== n;
     if (stepNum) stepNum.textContent = String(n);
     if (backBtn) backBtn.hidden = n === 1;
-    stepFields(n)[0]?.focus();
+    // Only move focus on a user-driven step change. Focusing on initial render
+    // would blur a prior form's first field (two forms share the page on the LP),
+    // firing its validation and flashing "Required." before any input.
+    if (focus) stepFields(n)[0]?.focus();
   };
-  show(1);
+  show(1, false);
 
   const validate = (el: FormEl): boolean => {
     const err = el.closest('label')?.querySelector<HTMLElement>('[data-err]');
@@ -212,7 +235,7 @@ function initForm(form: HTMLFormElement): void {
         // with this event_id, so Meta dedupes if both arrive. eventID is the
         // dedup key (note the capitalisation fbq expects).
         (window as FbqWin).fbq?.('track', 'Lead', { source }, { eventID: eventId });
-        location.assign('/thank-you/');
+        location.assign(redirectTo());
         return;
       }
       throw new Error('bad');
