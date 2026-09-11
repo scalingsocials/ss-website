@@ -26,9 +26,18 @@ import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import { SERVICE_PILLARS } from '@/lib/nav';
-import { ARCHETYPES, FEATURED_STUDIES } from '@/lib/caseStudies';
-import CaseStudyCard from '@/components/blocks/CaseStudyCard.astro';
+import { FEATURED_STUDIES, INDEX_ORDER, CASE_STUDY_KICKERS } from '@/lib/caseStudies';
+import CaseStudyPoster from '@/components/blocks/CaseStudyPoster.astro';
 import { professionalService, website, webPage, breadcrumbs, faqPage, ORG_ID } from '@/lib/schema';
+
+// Homepage proof row uses the same editorial poster cards as /case-studies/.
+// Each featured study keeps the colour it has on the index (by INDEX_ORDER
+// position), so a card looks the same wherever it appears.
+const featuredPosters = FEATURED_STUDIES.map((cs) => ({
+  study: cs,
+  colorIndex: (INDEX_ORDER as readonly string[]).indexOf(cs.slug) % 7,
+  kicker: CASE_STUDY_KICKERS[cs.slug] ?? '',
+}));
 
 const title = 'Ecommerce Growth & Ads Agency Bangalore | Scaling Socials';
 const description =
@@ -178,18 +187,9 @@ const surface = '!bg-[var(--surface-c)]';
       </a>
     </div>
     <ul class="mt-[var(--space-6)] grid gap-[var(--space-4)] sm:grid-cols-3">
-      {FEATURED_STUDIES.map((cs) => (
+      {featuredPosters.map((c) => (
         <li>
-          <CaseStudyCard
-            client={cs.niche}
-            period={cs.period}
-            headline={cs.headline}
-            archetype={ARCHETYPES[cs.archetype].label}
-            category={cs.channels}
-            metrics={[{ label: cs.delta!.metric, before: cs.delta!.before, after: cs.delta!.after }]}
-            href={`/case-studies/${cs.slug}/`}
-            class="bg-[var(--ground)]"
-          />
+          <CaseStudyPoster study={c.study} colorIndex={c.colorIndex} kicker={c.kicker} />
         </li>
       ))}
     </ul>

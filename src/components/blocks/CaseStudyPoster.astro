@@ -1,0 +1,169 @@
+---
+/**
+ * CaseStudyPoster — the editorial poster card: a solid colour, a big headline,
+ * the big stat as hero, and the case-study's real hero visual recoloured to the
+ * card's own foreground as texture along the bottom.
+ *
+ * One source of truth for both the case-studies index and the homepage proof row,
+ * so a card reads identically wherever it appears. The colour is chosen by
+ * `colorIndex` (0–6) via the ss-cscard--cN classes below — NOT inline styles,
+ * because the site's hash-based CSP has no 'unsafe-inline' and strips style attrs.
+ *
+ * The thumbnail is fed from the SAME data object as the study's own page
+ * (CaseVisual variant="thumb"), so a thumbnail can never drift from its page.
+ * Draw-in animates via the site's [data-reveal] observer (motion.ts); the stat
+ * needs no count-up script here (it is real static text, data-num only).
+ */
+import CaseVisual from '@/components/casestudy/CaseVisual.astro';
+import { ARCHETYPES, type CaseStudy } from '@/lib/caseStudies';
+
+export interface Props {
+  study: CaseStudy;
+  /** 0–6 → one of the seven colour posters. */
+  colorIndex: number;
+  /** Optional one-line kicker under the headline (CASE_STUDY_KICKERS). */
+  kicker?: string;
+  class?: string;
+}
+
+const { study, colorIndex, kicker = '', class: className = '' } = Astro.props;
+const arch = ARCHETYPES[study.archetype].label;
+// The single hero number: a real before→after `after`, else a held value, else
+// the first headline stat — never invented.
+const bigStat = study.delta ? study.delta.after : study.held ? study.held.value : study.stats[0]!.value;
+const ci = ((colorIndex % 7) + 7) % 7;
+---
+
+<a
+  href={`/case-studies/${study.slug}/`}
+  class:list={['ss-cscard group no-underline', `ss-cscard--c${ci}`, className]}
+>
+  <!-- chart recoloured to the card's own foreground: texture, not a chart box -->
+  <div class="ss-cscard__thumb" aria-hidden="true"><CaseVisual visual={study.heroVisual} variant="thumb" /></div>
+  <div class="ss-cscard__inner">
+    <span class="ss-cscard__chip">{study.niche} · {arch}</span>
+    <h3 class="ss-cscard__headline">{study.headline}</h3>
+    {kicker && <span class="ss-cscard__kicker">{kicker}</span>}
+    <span class="ss-cscard__stat display-type" data-num>{bigStat}</span>
+    <span class="ss-cscard__foot" data-num>
+      <span class="ss-cscard__meta">{study.channels} · {study.period}</span>
+      <span class="ss-cscard__read">Read<svg class="ss-cscard__go" width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </span>
+  </div>
+</a>
+
+<style>
+  /* Editorial poster card: a solid colour, big headline, the big stat as hero,
+     and the case-study chart recoloured to the card's foreground as texture. */
+  .ss-cscard {
+    position: relative;
+    display: block;
+    min-height: 420px;
+    height: 100%;
+    border-radius: 18px;               /* poster radius — intentional for this card */
+    background: var(--card-bg, var(--surface-c));
+    color: var(--card-fg, var(--fg));
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  }
+  /* Colour posters — set via classes (CSP blocks inline style attributes). */
+  .ss-cscard--c0 { --card-bg: #14141A; --card-fg: #ECECEE; } /* ink */
+  .ss-cscard--c1 { --card-bg: #4F52DB; --card-fg: #FFFFFF; } /* periwinkle */
+  .ss-cscard--c2 { --card-bg: #ECE4D6; --card-fg: #23201A; } /* warm sand */
+  .ss-cscard--c3 { --card-bg: #17544F; --card-fg: #EAF3F1; } /* deep teal */
+  .ss-cscard--c4 { --card-bg: #F3D9DE; --card-fg: #4A2230; } /* blush */
+  .ss-cscard--c5 { --card-bg: #3B2E63; --card-fg: #EDE9F7; } /* plum */
+  .ss-cscard--c6 { --card-bg: #F2E3A8; --card-fg: #3A3212; } /* butter */
+
+  /* the chart, bleeding along the bottom, recoloured to the card's own tone */
+  .ss-cscard__thumb {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 52%;
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 0;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 42%);
+            mask-image: linear-gradient(180deg, transparent, #000 42%);
+    /* recolour every series token to the card foreground (variables inherit) */
+    --accent-graphic: color-mix(in srgb, var(--card-fg) 90%, transparent);
+    --accent-graphic-2: color-mix(in srgb, var(--card-fg) 52%, transparent);
+    --accent-fill: var(--card-fg);
+    --accent-wash: color-mix(in srgb, var(--card-fg) 10%, transparent);
+    --pos: var(--card-fg);
+    --neg: color-mix(in srgb, var(--card-fg) 66%, transparent);
+    --rule-c: color-mix(in srgb, var(--card-fg) 22%, transparent);
+    --ground: var(--card-bg);
+    --surface-c: transparent;
+    --fg: var(--card-fg);
+    --fg-muted: color-mix(in srgb, var(--card-fg) 60%, transparent);
+  }
+  .ss-cscard__thumb :global(.cv) { border: 0; border-radius: 0; background: transparent; padding: 0 var(--space-4); }
+  .ss-cscard__thumb :global(.cv__svg) { height: 100%; }
+
+  .ss-cscard__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 420px;
+    padding: var(--space-5);
+  }
+  .ss-cscard__chip {
+    font-size: var(--text-label);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: color-mix(in srgb, var(--card-fg) 72%, transparent);
+  }
+  .ss-cscard__headline {
+    margin-top: var(--space-3);
+    max-width: 18ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.375rem, 1.5vw + 1rem, 1.75rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--card-fg);
+    text-wrap: balance;
+  }
+  .ss-cscard__kicker {
+    margin-top: var(--space-2);
+    font-size: var(--text-small);
+    color: color-mix(in srgb, var(--card-fg) 78%, transparent);
+  }
+  .ss-cscard__stat {
+    margin-top: var(--space-4);
+    font-size: clamp(2.25rem, 3vw, 3rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--card-fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .ss-cscard__foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-top: var(--space-4);
+    font-size: var(--text-label);
+    color: color-mix(in srgb, var(--card-fg) 64%, transparent);
+  }
+  .ss-cscard__read {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+    color: var(--card-fg);
+  }
+  .ss-cscard__go { transition: transform var(--dur-fast) var(--ease-out); }
+  @media (prefers-reduced-motion: no-preference) {
+    .ss-cscard { will-change: transform; }
+    .ss-cscard:hover { transform: translateY(-5px); box-shadow: 0 34px 60px -34px color-mix(in srgb, var(--card-bg) 80%, #000); }
+    .ss-cscard:hover .ss-cscard__go { transform: translateX(4px); }
+    .ss-cscard:hover .ss-cscard__thumb { opacity: 1; }
+  }
+</style>

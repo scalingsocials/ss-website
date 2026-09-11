@@ -620,6 +620,21 @@ export const CASE_STUDIES_ORDERED: CaseStudy[] = INDEX_ORDER.map((slug) => {
 });
 
 /**
+ * Short, honest one-line kicker per study — our voice, shown under the headline
+ * on the poster cards. Shared by the case-studies index and the homepage proof
+ * row so a card reads identically wherever it appears.
+ */
+export const CASE_STUDY_KICKERS: Record<string, string> = {
+  'wellness-brand-zero-to-scale': 'The two months most agencies edit out.',
+  'womenswear-breaking-the-ceiling': 'Past a ceiling it sat under for a year.',
+  'kids-accessories-seven-month-floor': 'A floor a brand can actually plan around.',
+  'womens-fashion-account-turnaround': 'Same account. Three times the return.',
+  'gifting-brand-new-concept-launch': 'Scaled up and got more efficient.',
+  'indo-western-launch-90-days': 'Zero pixel data to a scalable winner.',
+  'kidswear-campaign-longevity': 'One campaign, eight months, no rebuild.',
+};
+
+/**
  * Verified aggregate — the sum of the seven accounts documented above, and
  * nothing else. Deliberately narrower than any lifetime agency figure, because
  * every rupee here traces back to a client ad account we can produce on request.
