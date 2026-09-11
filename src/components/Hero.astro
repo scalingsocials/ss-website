@@ -227,6 +227,9 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   .hero__panelhead { display: flex; align-items: center; gap: 6px; padding-bottom: var(--space-2); }
   .hero__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-c); }
   .hero__panellabel { margin-left: auto; font-size: var(--text-label); color: var(--fg-muted); letter-spacing: 0.02em; white-space: nowrap; }
+  /* On phones the "Creative refresh" annotation pill overlaps this decorative
+     window label, so drop the label there (the annotation is the useful part). */
+  @media (max-width: 640px) { .hero__panellabel { display: none; } }
   .hero__chart { width: 100%; height: calc(100% - 2.2rem); display: block; }
   .hero__grid-lines line { stroke: var(--rule-c); stroke-width: 1; }
   .hero__area { fill: color-mix(in srgb, var(--accent-fill) 16%, transparent); opacity: 0; }
