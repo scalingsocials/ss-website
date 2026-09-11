@@ -9,22 +9,24 @@
 type FormEl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
 type GtagWin = Window & { gtag?: (...args: unknown[]) => void };
+type FbqWin = Window & { fbq?: (...args: unknown[]) => void };
 
 /**
- * Read the GA4 client_id and session_id from the first-party cookies gtag sets,
- * so /api/lead can send the server-side generate_lead event into the same
- * session. `_ga` = "GA1.1.<cid1>.<cid2>"; `_ga_DQH1656N5W` = "GS1.1.<sid>.…".
- * Empty strings when GA hasn't set the cookies yet — the server just skips MP.
+ * Read the first-party tracking cookies so /api/lead can send the server-side
+ * conversions into the same session/browser identity:
+ *  - GA4: `_ga` = "GA1.1.<cid1>.<cid2>"; `_ga_DQH1656N5W` = "GS1.1.<sid>.…" or "GS2.1.s<sid>$…"
+ *  - Meta: `_fbp` (browser id) and `_fbc` (click id, set when fbclid is present)
+ * Empty strings when a cookie isn't set yet — the server just skips that platform.
  */
-function gaIds(): { clientId: string; sessionId: string } {
+function trackingIds(): { clientId: string; sessionId: string; fbp: string; fbc: string } {
   const read = (re: RegExp) => document.cookie.match(re)?.[1] ?? '';
   const ga = read(/(?:^|;\s*)_ga=([^;]+)/);
   const clientId = ga ? ga.split('.').slice(-2).join('.') : '';
   const ses = read(/(?:^|;\s*)_ga_DQH1656N5W=([^;]+)/);
-  // Session cookie is either the newer "GS2.1.s<sid>$o1$…" or the older
-  // "GS1.1.<sid>.<n>" format — pull the numeric session id from whichever.
   const sessionId = ses ? (ses.match(/s(\d+)/)?.[1] ?? ses.split('.')[2] ?? '') : '';
-  return { clientId, sessionId };
+  const fbp = read(/(?:^|;\s*)_fbp=([^;]+)/);
+  const fbc = read(/(?:^|;\s*)_fbc=([^;]+)/);
+  return { clientId, sessionId, fbp, fbc };
 }
 
 type TurnstileWin = Window & {
@@ -137,7 +139,7 @@ function initForm(form: HTMLFormElement): void {
   }
 
   const collect = (statusVal: string): Record<string, unknown> => {
-    const { clientId, sessionId } = gaIds();
+    const { clientId, sessionId, fbp, fbc } = trackingIds();
     const base: Record<string, unknown> = {
       lead_id: leadId,
       source,
@@ -146,6 +148,8 @@ function initForm(form: HTMLFormElement): void {
       event_id: eventId,
       ga_client_id: clientId,
       ga_session_id: sessionId,
+      fbp,
+      fbc,
     };
     const answers: Record<string, string> = {};
     for (const [k, v] of new FormData(form).entries()) {
@@ -179,6 +183,7 @@ function initForm(form: HTMLFormElement): void {
       // (a lost form_start to an ad-blocker doesn't matter); the real conversion,
       // generate_lead, is sent reliably server-side. See analytics-event-plan.
       (window as GtagWin).gtag?.('event', 'form_start', { form_source: source, page: location.pathname });
+      (window as FbqWin).fbq?.('trackCustom', 'FormStart', { form_source: source });
       partialSent = true;
     }
     show(2);
@@ -203,6 +208,10 @@ function initForm(form: HTMLFormElement): void {
         body: JSON.stringify(collect('complete')),
       });
       if (r.ok) {
+        // Browser Pixel Lead — best-effort; the server CAPI fires the same event
+        // with this event_id, so Meta dedupes if both arrive. eventID is the
+        // dedup key (note the capitalisation fbq expects).
+        (window as FbqWin).fbq?.('track', 'Lead', { source }, { eventID: eventId });
         location.assign('/thank-you/');
         return;
       }

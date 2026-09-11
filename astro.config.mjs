@@ -66,14 +66,15 @@ export default defineConfig({
         // header in public/_headers instead. Kept out of here deliberately.
         "object-src 'none'",
         // google-analytics.com: GA4 beacons (some fall back to image pixels).
-        "img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com",
+        // google-analytics.com: GA4 beacons; facebook.com: Meta Pixel <img> beacons.
+        "img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com",
         "font-src 'self'",
-        // GA4 sends measurement hits to *.google-analytics.com (incl. regionN);
-        // gtag.js itself is fetched from googletagmanager.com (script-src below).
-        "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com",
+        // GA4 → *.google-analytics.com (incl. regionN); Meta Pixel → facebook.com.
+        // gtag.js from googletagmanager.com, fbevents.js from connect.facebook.net.
+        "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com https://www.facebook.com https://connect.facebook.net",
         "frame-src https://challenges.cloudflare.com",
       ],
-      scriptDirective: { resources: ["'self'", 'https://challenges.cloudflare.com', 'https://www.googletagmanager.com'] },
+      scriptDirective: { resources: ["'self'", 'https://challenges.cloudflare.com', 'https://www.googletagmanager.com', 'https://connect.facebook.net'] },
       styleDirective: { resources: ["'self'"] },
     },
   },

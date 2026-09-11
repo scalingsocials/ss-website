@@ -48,6 +48,9 @@ const leadSchema = z.object({
   ga_client_id: z.string().max(64).optional().default(''),
   ga_session_id: z.string().max(32).optional().default(''),
   event_id: z.string().max(64).optional().default(''),
+  // Meta browser cookies for CAPI ↔ Pixel matching/dedup.
+  fbp: z.string().max(128).optional().default(''),
+  fbc: z.string().max(256).optional().default(''),
 });
 
 type Lead = z.infer<typeof leadSchema>;
@@ -69,6 +72,12 @@ function getEnv(locals: unknown) {
     // safe default; the API secret must come from the env (CLAUDE.md §17).
     ga4Id: pick('GA4_MEASUREMENT_ID') ?? 'G-DQH1656N5W',
     ga4Secret: pick('GA4_MP_API_SECRET'),
+    // Meta Conversions API. Pixel ID is public (safe default); token is a secret
+    // from the env. TEST code, when set, routes events to Events Manager → Test
+    // Events instead of live reporting — set it while testing, remove after.
+    metaPixelId: pick('META_PIXEL_ID') ?? '2381316206031576',
+    metaCapiToken: pick('META_CAPI_TOKEN'),
+    metaTestCode: pick('META_TEST_EVENT_CODE'),
     // scalingsocials.com is a verified Resend domain, so send from it by default.
     // Override with LEAD_ALERT_FROM / LEAD_ALERT_TO env vars if needed.
     alertFrom: pick('LEAD_ALERT_FROM') ?? 'Scaling Socials <leads@scalingsocials.com>',
@@ -226,6 +235,62 @@ async function sendGa4Lead(
   const res = await fetch(url, { method: 'POST', body: JSON.stringify(body) });
   // MP returns 204 on success and never a useful error body; log non-2xx only.
   if (!res.ok) throw new Error(`ga4 mp ${res.status}`);
+}
+
+/** SHA-256 hex (Web Crypto, available in the Cloudflare Worker runtime). */
+async function sha256(s: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Send the Meta `Lead` conversion server-side via the Conversions API. Uses the
+ * SAME event_id the browser Pixel sent, so Meta deduplicates the two. PII (email,
+ * phone) is SHA-256 hashed per Meta's requirement; _fbp/_fbc + IP + UA improve
+ * match quality. test_event_code (when set) routes to Events Manager → Test
+ * Events. Best-effort — never blocks the reply.
+ */
+async function sendMetaLead(
+  pixelId: string,
+  token: string,
+  testCode: string | undefined,
+  lead: Lead,
+  request: Request,
+): Promise<{ events_received?: number; fbtrace_id?: string }> {
+  const email = (lead.email || '').trim().toLowerCase();
+  const phone = (lead.phone || '').replace(/[^\d]/g, ''); // digits incl. country code
+  const user_data: Record<string, unknown> = {};
+  if (email) user_data.em = [await sha256(email)];
+  if (phone) user_data.ph = [await sha256(phone)];
+  if (lead.fbp) user_data.fbp = lead.fbp;
+  if (lead.fbc) user_data.fbc = lead.fbc;
+  const ip = request.headers.get('cf-connecting-ip');
+  if (ip) user_data.client_ip_address = ip;
+  const ua = request.headers.get('user-agent');
+  if (ua) user_data.client_user_agent = ua;
+
+  const body: Record<string, unknown> = {
+    data: [
+      {
+        event_name: 'Lead',
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: lead.event_id || undefined,
+        action_source: 'website',
+        event_source_url: lead.page ? `https://scalingsocials.com${lead.page}` : undefined,
+        user_data,
+        custom_data: { lead_source: lead.source, lead_score: scoreLead(lead) },
+      },
+    ],
+  };
+  if (testCode) body.test_event_code = testCode;
+
+  const res = await fetch(
+    `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${encodeURIComponent(token)}`,
+    { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) },
+  );
+  const j = (await res.json().catch(() => ({}))) as { events_received?: number; fbtrace_id?: string };
+  if (!res.ok) throw new Error(`meta capi ${res.status}: ${JSON.stringify(j).slice(0, 300)}`);
+  return j;
 }
 
 // Points for the biggest budget/scale signal in the answers (ad spend, online
@@ -390,6 +455,17 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
       await sendGa4Lead(env.ga4Id, env.ga4Secret, lead, host !== 'scalingsocials.com');
     } catch (e) {
       console.error('[lead] ga4 mp failed', (e as Error).message);
+    }
+  }
+
+  // Meta Conversions API Lead (best-effort). Deduped against the browser Pixel
+  // by the shared event_id; test_event_code (when set) routes to Test Events.
+  if (lead.status === 'complete' && env.metaCapiToken) {
+    try {
+      const r = await sendMetaLead(env.metaPixelId, env.metaCapiToken, env.metaTestCode, lead, request);
+      console.log('[lead] meta capi', r.events_received ?? 0, 'received', r.fbtrace_id ?? '');
+    } catch (e) {
+      console.error('[lead] meta capi failed', (e as Error).message);
     }
   }
 
