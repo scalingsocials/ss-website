@@ -265,7 +265,7 @@ export const LANDINGS: LandingContent[] = [
       ],
     },
     founderNote: {
-      quote: "Book a call and you get me or one of the founders on it, not a sales rep. We'll open your account, show you where the money is leaking, and be honest about whether we're the right fit.",
+      quote: "Every account here is run the way I would run my own money: to your margins, not a vanity ROAS. My team and I are in the numbers every week, and if something is not working you will hear it from us straight. That is the standard we built Scaling Socials on, and it is on every account we take.",
       attribution: 'Jamal Khan, Co-founder',
       photo: '/lp/founders.jpg',
     },

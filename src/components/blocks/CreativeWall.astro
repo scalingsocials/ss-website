@@ -154,7 +154,10 @@ const loop = variant === 'marquee' ? [...items, ...items] : items;
       /* two identical passes → translate by exactly half for a seamless loop */
       animation: ssMarquee 60s linear infinite;
     }
-    .ss-marquee:hover .ss-marquee__track { animation-play-state: paused; }
+    /* Pause on hover only where a real pointer exists — on touch, :hover sticks
+       after a tap and would freeze the marquee. */
+    @media (hover: hover) { .ss-marquee:hover .ss-marquee__track { animation-play-state: paused; } }
+    .ss-marquee:focus-within .ss-marquee__track { animation-play-state: paused; }
     @keyframes ssMarquee {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
