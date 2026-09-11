@@ -66,15 +66,17 @@ export default defineConfig({
         // header in public/_headers instead. Kept out of here deliberately.
         "object-src 'none'",
         // google-analytics.com: GA4 beacons (some fall back to image pixels).
-        // google-analytics.com: GA4 beacons; facebook.com: Meta Pixel <img> beacons.
-        "img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com",
+        // google-analytics.com: GA4 beacons; facebook.com: Meta Pixel <img> beacons;
+        // clarity.ms + c.bing.com: Microsoft Clarity uploads.
+        "img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com https://*.clarity.ms https://c.bing.com",
         "font-src 'self'",
-        // GA4 → *.google-analytics.com (incl. regionN); Meta Pixel → facebook.com.
-        // gtag.js from googletagmanager.com, fbevents.js from connect.facebook.net.
-        "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com https://www.facebook.com https://connect.facebook.net",
+        // GA4 → *.google-analytics.com (incl. regionN); Meta Pixel → facebook.com;
+        // Clarity → *.clarity.ms + c.bing.com. Scripts: gtag from googletagmanager,
+        // fbevents from connect.facebook.net, Clarity tag from *.clarity.ms.
+        "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com https://www.facebook.com https://connect.facebook.net https://*.clarity.ms https://c.bing.com",
         "frame-src https://challenges.cloudflare.com",
       ],
-      scriptDirective: { resources: ["'self'", 'https://challenges.cloudflare.com', 'https://www.googletagmanager.com', 'https://connect.facebook.net'] },
+      scriptDirective: { resources: ["'self'", 'https://challenges.cloudflare.com', 'https://www.googletagmanager.com', 'https://connect.facebook.net', 'https://*.clarity.ms'] },
       styleDirective: { resources: ["'self'"] },
     },
   },
