@@ -27,32 +27,50 @@ function setupPage(): void {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hasIO = 'IntersectionObserver' in window;
 
-  // --- header scroll-state (attach once; the header persists across nav) -----
-  const header = document.querySelector<El>('.ss-header');
-  if (header && !header.dataset.scrollBound) {
-    header.dataset.scrollBound = '1';
-    // Publish the header height as --hh so a full-viewport hero can size below it.
-    // MUST be measured only when NOT scrolled and NEVER on every scroll frame:
-    // reading offsetHeight while the header animates its shrink, and feeding that
-    // back into the hero's min-height, makes the page height oscillate (a shake).
-    const setHH = () => {
-      const was = header.classList.contains('is-scrolled');
-      if (was) header.classList.remove('is-scrolled');
-      document.documentElement.style.setProperty('--hh', `${header.offsetHeight}px`);
-      if (was) header.classList.add('is-scrolled');
-    };
-    // Hysteresis: turn the compact state ON past 24px and OFF below 6px. The dead
-    // zone stops it flipping back and forth when a scroll lands near the boundary.
-    let scrolled = false;
-    const onScroll = () => {
-      const y = window.scrollY;
-      if (!scrolled && y > 24) { scrolled = true; header.classList.add('is-scrolled'); }
-      else if (scrolled && y < 6) { scrolled = false; header.classList.remove('is-scrolled'); }
-    };
-    setHH();
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', setHH, { passive: true });
+  // --- header scroll-state + over-hero mode (header persists across nav) ------
+  const header = document.querySelector<El & { __hdr?: () => void }>('.ss-header');
+  if (header) {
+    // Per page: is a dark (ink) section sitting under the header at the top? If so
+    // the header rides transparent + white until the page scrolls. Re-evaluated on
+    // every page-load because the header element itself persists across nav.
+    const firstReg = document.querySelector('main [data-register]');
+    header.dataset.overHero = firstReg?.getAttribute('data-register') === 'ink' ? '1' : '';
+
+    if (!header.dataset.scrollBound) {
+      header.dataset.scrollBound = '1';
+      // Publish the header height as --hh so a full-viewport hero can size below it.
+      // MUST be measured only when NOT scrolled and NEVER on every scroll frame:
+      // reading offsetHeight while the header animates its shrink, and feeding that
+      // back into the hero's min-height, makes the page height oscillate (a shake).
+      const setHH = () => {
+        const was = header.classList.contains('is-scrolled');
+        if (was) header.classList.remove('is-scrolled');
+        document.documentElement.style.setProperty('--hh', `${header.offsetHeight}px`);
+        if (was) header.classList.add('is-scrolled');
+      };
+      // Hysteresis: turn the compact state ON past 24px and OFF below 6px. The dead
+      // zone stops it flipping back and forth when a scroll lands near the boundary.
+      let scrolled = false;
+      const update = () => {
+        const y = window.scrollY;
+        if (!scrolled && y > 24) scrolled = true;
+        else if (scrolled && y < 6) scrolled = false;
+        header.classList.toggle('is-scrolled', scrolled);
+        // Over-hero: transparent + white (ink register) only while at the top of a
+        // dark-hero page; solid paper header once scrolled or on a light page.
+        const over = header.dataset.overHero === '1' && !scrolled;
+        header.classList.toggle('is-over', over);
+        header.setAttribute('data-register', over ? 'ink' : 'paper');
+      };
+      header.__hdr = update;
+      setHH();
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', setHH, { passive: true });
+    } else {
+      // Listeners already bound; just re-apply for the new page's over-hero state.
+      header.__hdr?.();
+    }
   }
 
   // --- scroll reveals --------------------------------------------------------

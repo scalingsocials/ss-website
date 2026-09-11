@@ -86,6 +86,13 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
         <span class={`hero__chip hero__chip--${i + 1}`}>{c}</span>
       ))}
       </div>
+
+      <!-- Mobile: the service chips that float around the panel on desktop are
+           off-screen on phones. Show them as a tidy contained row instead, so the
+           panel doesn't read as empty. -->
+      <ul class="hero__chips-m hero__line hero__line--5" aria-label="What we run">
+        {chips.map((c) => <li class="hero__chip-m">{c}</li>)}
+      </ul>
     </div>
   </div>
 </Section>
@@ -159,8 +166,14 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   /* 3 stats sit in one row; 4 fold into a 2x2 grid. */
   .hero__stats--3 { grid-template-columns: repeat(3, auto); }
   .hero__stats--4 { grid-template-columns: repeat(2, auto); }
+  /* Phones: keep the three headline results on ONE row (equal columns, full
+     width) rather than folding to 2 — the value font steps down so they fit. */
   @media (max-width: 560px) {
-    .hero__stats--3, .hero__stats--4 { grid-template-columns: repeat(2, auto); }
+    .hero__stats { width: 100%; gap: var(--space-3) var(--space-2); }
+    .hero__stats--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .hero__stats--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hero__stat-value { font-size: 1.15rem; letter-spacing: -0.03em; }
+    .hero__stat-label { font-size: 0.66rem; line-height: 1.25; }
   }
   .hero__stat { display: flex; flex-direction: column; gap: 2px; }
   .hero__stat-value {
@@ -173,6 +186,11 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   .hero__stat-label { font-size: var(--text-label); color: var(--fg-muted); }
 
   .hero__cta { margin-top: var(--space-5); display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  /* Phones: both CTAs share one row (equal width) instead of stacking. */
+  @media (max-width: 560px) {
+    .hero__cta { flex-wrap: nowrap; }
+    .hero__cta :global(a) { flex: 1 1 0; min-width: 0; padding-left: 0.5rem; padding-right: 0.5rem; font-size: 0.82rem; }
+  }
 
   /* Right column: partner strip stacked above the dashboard panel. */
   .hero__right { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
@@ -200,13 +218,15 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
     padding: var(--space-3);
     box-shadow: 0 30px 80px -40px color-mix(in srgb, var(--accent-fill) 45%, transparent);
     aspect-ratio: 4 / 3;
+    max-width: 100%;
+    overflow: hidden; /* never let the panel head/label bleed past the card edge */
   }
   /* Keep the SAME aspect ratio on mobile. The chart SVG uses
      preserveAspectRatio="none", so a different panel ratio would stretch the
      curve into a different shape from desktop. Same ratio → identical chart. */
   .hero__panelhead { display: flex; align-items: center; gap: 6px; padding-bottom: var(--space-2); }
   .hero__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-c); }
-  .hero__panellabel { margin-left: auto; font-size: var(--text-label); color: var(--fg-muted); letter-spacing: 0.02em; }
+  .hero__panellabel { margin-left: auto; font-size: var(--text-label); color: var(--fg-muted); letter-spacing: 0.02em; white-space: nowrap; }
   .hero__chart { width: 100%; height: calc(100% - 2.2rem); display: block; }
   .hero__grid-lines line { stroke: var(--rule-c); stroke-width: 1; }
   .hero__area { fill: color-mix(in srgb, var(--accent-fill) 16%, transparent); opacity: 0; }
@@ -227,6 +247,19 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   /* Hide the floating chips on mobile — their negative offsets can bleed past the
      viewport edge on iOS Safari, and they're purely decorative. */
   @media (max-width: 640px) { .hero__chip { display: none; } }
+
+  /* Contained service-chip row — desktop uses the floating chips above; phones
+     (where those are hidden) get this tidy wrapped row under the panel instead. */
+  .hero__chips-m { display: none; list-style: none; margin: 0; padding: 0; }
+  @media (max-width: 640px) {
+    .hero__chips-m { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--space-3); }
+    .hero__chip-m {
+      font-size: var(--text-label); font-weight: 600; color: var(--accent-text);
+      background: color-mix(in srgb, var(--accent-fill) 16%, var(--ground));
+      border: 1px solid color-mix(in srgb, var(--accent-fill) 40%, transparent);
+      border-radius: 999px; padding: 5px 12px; white-space: nowrap;
+    }
+  }
 
   @media (prefers-reduced-motion: no-preference) {
     .hero__line { opacity: 0; transform: translateY(14px); animation: heroIn 0.7s var(--ease-out) forwards; }

@@ -116,7 +116,7 @@ const eyebrow = 'ss-eyebrow';
 const surface = '!bg-[var(--surface-c)]';
 ---
 
-<BaseLayout>
+<BaseLayout heroOver>
   <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
   <SchemaGraph slot="schema" nodes={schemaNodes} />
 
@@ -195,8 +195,8 @@ const surface = '!bg-[var(--surface-c)]';
     </ul>
   </Section>
 
-  <!-- TESTIMONIALS (surface) -->
-  <Section size="md" class={surface} data-reveal>
+  <!-- TESTIMONIALS (soft pastel band — periwinkle→teal) -->
+  <Section size="md" class="home-tst" data-reveal>
     <span class={eyebrow}>In their words</span>
     <h2 class="max-w-[22ch] text-h2 font-semibold">What our clients say</h2>
     <p class="mt-[var(--space-2)] mb-[var(--space-6)] max-w-[56ch] text-body text-[var(--fg-muted)]">
@@ -345,6 +345,32 @@ const surface = '!bg-[var(--surface-c)]';
       border-radius: 999px; background: var(--accent-fill); color: var(--accent-on);
       font-size: var(--text-small); font-weight: 600; text-decoration: none;
       padding: 0.55rem var(--space-3); white-space: nowrap;
+    }
+
+    /* Testimonials: a soft pastel periwinkle→teal band so the section reads warmer
+       than the plain surface, while staying light (08 §5c: keep colour gentle). */
+    .home-tst {
+      background:
+        radial-gradient(115% 90% at 100% 0%, color-mix(in srgb, var(--color-teal) 14%, transparent), transparent 62%),
+        linear-gradient(180deg, color-mix(in srgb, var(--accent-fill) 10%, var(--ground)), color-mix(in srgb, var(--accent-fill) 5%, var(--ground)));
+    }
+
+    /* Mobile: the floating sticky CTA becomes a clean full-width button, not a
+       button sitting inside a bordered pill (which read as a box on phones). */
+    @media (max-width: 640px) {
+      .ss-sticky-cta {
+        left: var(--space-3); right: var(--space-3); max-width: none;
+        transform: translateY(180%);
+        padding: 0; border: none; background: transparent; box-shadow: none;
+        -webkit-backdrop-filter: none; backdrop-filter: none;
+      }
+      .ss-sticky-cta.is-visible { transform: translateY(0); }
+      .ss-sticky-cta__btn {
+        width: 100%; text-align: center;
+        border-radius: var(--radius-button);
+        padding: 0.9rem var(--space-4); font-size: 0.95rem;
+        box-shadow: 0 14px 34px -14px color-mix(in srgb, var(--accent-fill) 65%, transparent);
+      }
     }
   </style>
 

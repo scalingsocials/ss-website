@@ -14,13 +14,22 @@
  */
 import { Image } from 'astro:assets';
 import lockup from '@/assets/brand/lockup-black.png';
+import lockupWhite from '@/assets/brand/lockup-white.png';
 import Button from '@/components/primitives/Button.astro';
 import { NAV, NAV_CTA } from '@/lib/nav';
+
+export interface Props {
+  /** True on pages whose hero is dark: the header starts transparent with the
+   *  white logo (ink register), then reverts to the solid paper header on scroll.
+   *  motion.ts re-evaluates this per page from the first section's register. */
+  heroOver?: boolean;
+}
+const { heroOver = false } = Astro.props;
 
 const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+/g, '-')}`;
 ---
 
-<header data-register="paper" transition:persist="site-header" class="ss-header fixed inset-x-0 top-0 z-50 border-b border-[var(--rule-c)]">
+<header data-register={heroOver ? 'ink' : 'paper'} transition:persist="site-header" class:list={['ss-header fixed inset-x-0 top-0 z-50 border-b border-[var(--rule-c)]', heroOver && 'is-over']}>
   <!-- Frosted-glass backdrop on its OWN layer. The dropdown panels overflow the
        header box; if they are descendants of a backdrop-filter element, Chrome
        composites them into the backdrop buffer and leaves a hairline repaint
@@ -32,7 +41,8 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
   <div class="ss-header__progress" aria-hidden="true"></div>
   <div class="ss-header__bar mx-auto flex w-full max-w-[var(--container)] items-center gap-[var(--space-4)] px-[var(--space-3)] md:px-[var(--space-4)]">
     <a href="/" class="ss-header__logo shrink-0 no-underline" aria-label="Scaling Socials — home">
-      <Image src={lockup} alt="Scaling Socials" height={28} width={Math.round(28 * (lockup.width / lockup.height))} densities={[1, 2]} loading="eager" />
+      <Image src={lockup} alt="Scaling Socials" height={28} width={Math.round(28 * (lockup.width / lockup.height))} densities={[1, 2]} loading="eager" class="ss-logo ss-logo--dark" />
+      <Image src={lockupWhite} alt="Scaling Socials" height={28} width={Math.round(28 * (lockupWhite.width / lockupWhite.height))} densities={[1, 2]} loading="eager" class="ss-logo ss-logo--light" />
     </a>
 
     <!-- Desktop nav -->
@@ -248,6 +258,22 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
   }
   .ss-header.is-scrolled {
     border-color: color-mix(in srgb, var(--rule-c) 70%, transparent);
+  }
+
+  /* Over a dark hero (ink register at the top of the page): the header is
+     transparent with the white logo. motion.ts adds .is-over (and flips the
+     header's register to ink) only while at the top; on scroll it removes
+     .is-over and restores the solid paper header below. */
+  .ss-logo { display: inline-flex; align-items: center; }
+  .ss-logo--light { display: none; }
+  .ss-header.is-over .ss-logo--dark { display: none; }
+  .ss-header.is-over .ss-logo--light { display: inline-flex; }
+  .ss-header.is-over { border-color: transparent; }
+  .ss-header.is-over .ss-header__backdrop {
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
   }
 
   /* On scroll the WHOLE header compacts: less vertical padding, a smaller logo,
