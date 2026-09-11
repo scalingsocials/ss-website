@@ -213,6 +213,8 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
 <style>
   .ss-header {
     background: color-mix(in srgb, var(--ground) 82%, transparent);
+    /* -webkit- first: iOS Safari needs the prefix or the blur silently no-ops. */
+    -webkit-backdrop-filter: saturate(1.4) blur(12px);
     backdrop-filter: saturate(1.4) blur(12px);
     /* Clear the notch on fixed header (notched devices). */
     padding-top: env(safe-area-inset-top, 0px);

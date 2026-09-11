@@ -27,6 +27,9 @@ jobs:
       - name: Type + template check
         run: npm run check
 
+      - name: Cross-browser gotchas (static)
+        run: npm run check:gotchas
+
       - name: Build (astro + pagefind + llms.txt)
         run: npm run build
 
@@ -36,5 +39,17 @@ jobs:
       - name: Schema validation
         run: npm run check:schema
 
+      - name: CSP policy (one policy, every inline block hashed)
+        run: npm run check:csp
+
       - name: Internal links + orphans
         run: npm run check:links
+
+      # Real WebKit (iOS engine) + Chromium (Android/desktop engine) across
+      # phone → desktop widths. This is the gate that catches iOS-only overflow
+      # a Blink emulator cannot reproduce. Needs the browser binaries + OS libs.
+      - name: Install Playwright engines
+        run: npx playwright install --with-deps webkit chromium
+
+      - name: Real engines — no horizontal overflow (WebKit + Chromium)
+        run: npm run check:browsers

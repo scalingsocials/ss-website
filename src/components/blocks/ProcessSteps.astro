@@ -65,7 +65,7 @@ const { steps, class: className = '' } = Astro.props;
   }
 
   @media (min-width: 768px) {
-    .ss-process { grid-template-columns: repeat(5, 1fr); gap: var(--space-4); }
+    .ss-process { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-4); }
     .ss-process::before {
       content: '';
       position: absolute;

@@ -31,7 +31,10 @@ const { noindex = false, bare = false, class: className = '' } = Astro.props;
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- viewport-fit=cover is REQUIRED for env(safe-area-inset-*) to be non-zero
+         on notched iPhones; without it the header notch + sticky-CTA home-indicator
+         handling silently does nothing on iOS. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
     <link
       rel="preload"

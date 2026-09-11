@@ -158,7 +158,11 @@
 
 @layer base {
   html {
+    /* Stop iOS/Android from inflating font sizes on rotate. */
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Kill the grey tap-flash on iOS; components draw their own focus/active. */
+    -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
     /* The header is position:fixed, so its shrink-on-scroll never reflows the
        page. Disabling scroll anchoring stops the browser from counter-scrolling
@@ -181,6 +185,12 @@
      the header's full height, published by motion.ts and constant while
      scrolling, so this never changes mid-scroll. */
   .ss-header ~ main { padding-top: var(--hh, 68px); }
+
+  /* Media never overflows its container — a raw <img>/<svg>/<video> wider than a
+     phone column is one of the most common sources of mobile horizontal scroll.
+     width/height attrs still reserve space (CLS 0); this only caps, never upscales. */
+  img, svg, video, canvas, iframe { max-width: 100%; }
+  img, video { height: auto; }
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }

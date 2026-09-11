@@ -99,6 +99,7 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
        reveals more of the hero instead of leaving a gap. Content is padded down
        to clear the header. Fills exactly one screen. */
     margin-top: calc(-1 * var(--hh, 68px));
+    min-height: 100vh; /* fallback for iOS < 15.4 (no svh unit) */
     min-height: 100svh;
     padding-top: calc(var(--hh, 68px) + var(--space-4));
     padding-bottom: var(--space-5);

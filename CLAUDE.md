@@ -111,9 +111,19 @@ in `legalAddress` is for invoices only and must never reach the website, schema 
 - `npm run check:schema` — JSON-LD validation
 - `npm run check:csp` — CSP gate: one shared policy, every inline block hashed
 - `npm run check:links` — internal link + orphan check
+- `npm run check:gotchas` — cross-browser gotcha gate (runs INSIDE `build` too). Static,
+  fast, no browser. Fails on always-wrong patterns (`backdrop-filter`/`mask-image` missing
+  their `-webkit-` sibling, viewport missing `viewport-fit=cover` or blocking zoom); warns on
+  heuristics (multi-track `fr` grid missing `minmax(0, …)`, bare `100vh`). Opt a line out with
+  a trailing `/* gotcha-ok: <rule-id> */`. See `docs/cross-browser-gotchas.md`.
+- `npm run check:browsers` — REAL WebKit (iOS engine) + Chromium across 7 widths × the page
+  templates; fails on any horizontal overflow, naming the offending element. This is the gate
+  that catches iOS-only bugs a Blink emulator (the in-app preview, puppeteer) cannot reproduce.
+  First run only: `npx playwright install webkit chromium`. Runs in CI on every push/PR.
 - `npm run lh` — Lighthouse CI
 
 ## Definition of done for any page
-`npm run check && npm run build && npm run check:perf && npm run check:schema && npm run check:csp && npm run lh`
+`npm run check && npm run build && npm run check:perf && npm run check:schema && npm run check:csp && npm run check:links && npm run check:browsers && npm run lh`
 all pass, Lighthouse mobile ≥ 98 on all four categories, the page renders correctly with JS
-disabled, schema validates in Google's Rich Results Test, and every internal link resolves.
+disabled, schema validates in Google's Rich Results Test, every internal link resolves, and
+there is no horizontal overflow in WebKit or Chromium at any width.
