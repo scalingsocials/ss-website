@@ -176,14 +176,14 @@ const surface = '!bg-[var(--surface-c)]';
     </ul>
   </Section>
 
-  <!-- TESTIMONIALS (soft pastel band — periwinkle→teal) -->
-  <Section size="md" class="home-tst" data-reveal>
+  <!-- TESTIMONIALS (ink — auto-scrolling glow wall) -->
+  <Section register="ink" size="md" class="home-tst" data-reveal>
     <span class={eyebrow}>In their words</span>
     <h2 class="max-w-[22ch] text-h2 font-semibold">What our clients say</h2>
     <p class="mt-[var(--space-2)] mb-[var(--space-6)] max-w-[56ch] text-body text-[var(--fg-muted)]">
-      Real brands, across ads, Shopify and web. Swipe through.
+      Real brands, across ads, SEO, Shopify and web — the work in their words.
     </p>
-    <Testimonials />
+    <Testimonials variant="marquee" />
   </Section>
 
   <!-- CLIENT VOICE (paper) — compact -->
@@ -280,10 +280,14 @@ const surface = '!bg-[var(--surface-c)]';
 
     /* Testimonials: a soft pastel periwinkle→teal band so the section reads warmer
        than the plain surface, while staying light (08 §5c: keep colour gentle). */
+    /* Ink testimonials band: layer a soft periwinkle halo over the near-black
+       ground (kept from the register) so the glowing cards sit in a pool of
+       accent light, like the reference. background-image only — the ground
+       colour still comes from data-register="ink". */
     .home-tst {
-      background:
-        radial-gradient(115% 90% at 100% 0%, color-mix(in srgb, var(--color-teal) 14%, transparent), transparent 62%),
-        linear-gradient(180deg, color-mix(in srgb, var(--accent-fill) 10%, var(--ground)), color-mix(in srgb, var(--accent-fill) 5%, var(--ground)));
+      background-image:
+        radial-gradient(120% 75% at 50% -8%, color-mix(in srgb, var(--accent-fill) 16%, transparent), transparent 58%),
+        radial-gradient(90% 60% at 100% 100%, color-mix(in srgb, var(--color-teal) 8%, transparent), transparent 60%);
     }
   </style>
 </BaseLayout>

@@ -12,9 +12,10 @@ export interface Props {
   /** Keep only testimonials whose tag is in this list (e.g. the ad LP shows only
    *  performance-marketing quotes). Omit to show all (homepage default). */
   filter?: string[];
-  /** 'rail' = the arrow scroll rail (default, homepage). 'slider' = an auto-
-   *  scrolling ad-testimonials slider for the landing pages. */
-  variant?: 'rail' | 'slider';
+  /** 'rail' = the arrow scroll rail. 'slider' = an auto-scrolling ad-testimonials
+   *  slider for the landing pages. 'marquee' = the homepage's auto-scrolling
+   *  two-row wall of ALL reviews, dark glowing cards in the accent. */
+  variant?: 'rail' | 'slider' | 'marquee';
 }
 const { class: className = '', filter, variant = 'rail' } = Astro.props;
 
@@ -59,14 +60,24 @@ const AD_RE = /\b(ads?|campaign|roas|spend|scal(?:e|ing)|growth|performance)\b/i
 // generic quote is never pulled in just because its service tag says "growth".
 const adPicked = testimonials.filter((t) => AD_RE.test(t.quote));
 const slug = (n: string) => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-const placeholders = Math.max(0, 4 - adPicked.length);
-const twoRows = adPicked.length >= 6;
-const rowA = twoRows ? adPicked.filter((_, i) => i % 2 === 0) : adPicked;
-const rowB = twoRows ? adPicked.filter((_, i) => i % 2 === 1) : [];
+
+// The homepage 'marquee' shows EVERY review (filter-aware), across services;
+// the LP 'slider' shows only the ad/growth quotes. Both auto-scroll in two
+// opposing rows. Placeholders only pad the LP slider, never the full marquee.
+const isMarquee = variant === 'marquee';
+const source = isMarquee ? shown : adPicked;
+const placeholders = isMarquee ? 0 : Math.max(0, 4 - source.length);
+const twoRows = source.length >= 6;
+const rowA = twoRows ? source.filter((_, i) => i % 2 === 0) : source;
+const rowB = twoRows ? source.filter((_, i) => i % 2 === 1) : [];
+// Second line under the name — like the reference's role: the client's brand
+// when we have it, else the service. The review source (e.g. Google) is carried
+// by the star row, so it isn't repeated here.
+const roleLine = (t: Testimonial) => t.brand ?? t.tag;
 ---
 
-{variant === 'slider' ? (
-  <div class:list={['ss-tstsl', className]}>
+{variant === 'slider' || variant === 'marquee' ? (
+  <div class:list={['ss-tstsl', isMarquee && 'ss-tstsl--glow', className]}>
     {[rowA, ...(twoRows ? [rowB] : [])].map((row, ri) => (
       <div class="ss-tstsl__row" data-slider>
         <div class:list={['ss-tstsl__track', ri === 1 && 'ss-tstsl__track--rev']}>
@@ -74,16 +85,18 @@ const rowB = twoRows ? adPicked.filter((_, i) => i % 2 === 1) : [];
             <figure class="ss-tstcard" aria-hidden={i >= row.length ? 'true' : undefined}>
               <div class="ss-tstcard__head">
                 <span class="ss-tstcard__avatar">
-                  <img src={`/lp/testimonials/${slug(t.name)}.jpg`} alt="" loading="lazy" decoding="async" class="ss-tstcard__img" />
+                  {!isMarquee && <img src={`/lp/testimonials/${slug(t.name)}.jpg`} alt="" loading="lazy" decoding="async" class="ss-tstcard__img" />}
                   <span class="ss-tstcard__initial" aria-hidden="true">{t.name.charAt(0)}</span>
                 </span>
                 <div>
                   <div class="ss-tstcard__name">{t.name}</div>
-                  {t.brand && <div class="ss-tstcard__brand">{t.brand}</div>}
+                  {isMarquee
+                    ? <div class="ss-tstcard__brand">{roleLine(t)}</div>
+                    : (t.brand && <div class="ss-tstcard__brand">{t.brand}</div>)}
                 </div>
               </div>
               <blockquote class="ss-tstcard__q" data-clamp>{t.quote}</blockquote>
-              <button type="button" class="ss-tstcard__more" data-more hidden>more</button>
+              {!isMarquee && <button type="button" class="ss-tstcard__more" data-more hidden>more</button>}
               {t.rating && (
                 <div class="ss-tstcard__stars" role="img" aria-label={`Rated ${t.rating} out of 5`}>
                   {'★'.repeat(t.rating)}<span class="ss-tstcard__src" aria-hidden="true"> Review on {t.source}</span>
@@ -295,6 +308,31 @@ const rowB = twoRows ? adPicked.filter((_, i) => i % 2 === 1) : [];
   .ss-tstcard__stars { margin-top: auto; font-size: var(--text-label); color: var(--fg); letter-spacing: 0.06em; }
   .ss-tstcard__src { color: var(--fg-muted); letter-spacing: normal; }
   .ss-tstcard--ph { justify-content: center; color: var(--fg-muted); }
+
+  /* ── Marquee glow variant (homepage, ink register) ──────────────────────────
+     The reference's look — a wall of dark cards with a periwinkle rim and a soft
+     halo, drifting past — rebuilt in our accent via semantic tokens. On the ink
+     register --accent-fill is the lifted periwinkle, so the glow reads on black. */
+  .ss-tstsl--glow .ss-tstcard {
+    width: min(360px, 82vw);
+    gap: var(--space-3);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--accent-fill) 10%, var(--surface-c)), var(--surface-c));
+    border-color: color-mix(in srgb, var(--accent-fill) 34%, var(--rule-c));
+    box-shadow:
+      0 18px 45px -26px color-mix(in srgb, var(--accent-fill) 70%, transparent),
+      inset 0 1px 0 color-mix(in srgb, var(--accent-fill) 16%, transparent);
+  }
+  .ss-tstsl--glow .ss-tstcard__avatar {
+    background: color-mix(in srgb, var(--accent-fill) 24%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-fill) 42%, transparent);
+  }
+  .ss-tstsl--glow .ss-tstcard__q { -webkit-line-clamp: 4; }
+  /* Fade both edges so cards emerge and dissolve instead of hard-cutting. */
+  .ss-tstsl--glow .ss-tstsl__row {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .ss-tstsl__track { animation: none; flex-wrap: wrap; width: auto; }

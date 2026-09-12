@@ -62,6 +62,11 @@ const waHref = `https://wa.me/${waNumber}?text=${waText}`;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    /* This cluster renders OUTSIDE <main data-register>, so the semantic accent
+       tokens aren't inherited here. Define the ones the CTA needs from the global
+       @theme palette so the pill actually paints (bug fix: it was transparent). */
+    --accent-fill: var(--color-accent);
+    --accent-on: var(--color-white);
   }
 
   /* --- WhatsApp -------------------------------------------------------------
@@ -130,16 +135,23 @@ const waHref = `https://wa.me/${waNumber}?text=${waText}`;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.7rem var(--space-3);
+    height: 52px;
+    padding: 0 1.15rem;
     border-radius: 999px;
-    background: var(--accent-fill);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--accent-fill) 88%, #fff),
+      var(--accent-fill)
+    );
     color: var(--accent-on);
     font-size: var(--text-small);
     font-weight: 600;
     line-height: 1;
     white-space: nowrap;
     text-decoration: none;
-    box-shadow: 0 14px 34px -14px color-mix(in srgb, var(--accent-fill) 75%, transparent);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.25) inset,
+      0 16px 34px -14px color-mix(in srgb, var(--accent-fill) 85%, transparent);
     opacity: 0;
     visibility: hidden;
     transform: translateY(12px) scale(0.96);
@@ -147,12 +159,25 @@ const waHref = `https://wa.me/${waNumber}?text=${waText}`;
     transition:
       transform var(--dur-base) var(--ease-out),
       opacity var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
       visibility var(--dur-base);
   }
   .ss-fab__cta.is-visible {
     opacity: 1;
     visibility: visible;
     transform: translateY(0) scale(1);
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .ss-fab__cta.is-visible:hover {
+      transform: translateY(-2px) scale(1);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.25) inset,
+        0 20px 40px -14px color-mix(in srgb, var(--accent-fill) 90%, transparent);
+    }
+  }
+  .ss-fab__cta:focus-visible {
+    outline: 2px solid var(--accent-fill);
+    outline-offset: 3px;
   }
   .ss-fab__cta-icon { flex: 0 0 auto; }
 </style>

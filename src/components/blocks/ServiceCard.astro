@@ -1,50 +1,42 @@
 ---
 /**
- * ServiceCard — one service pillar as an editorial, "made-by-a-creative-team" card.
+ * ServiceCard — one service pillar as a large, premium, illustrated card.
+ *
+ * Anatomy (reference-inspired, not copied): a full pastel-tinted card, a bold
+ * title, a short descriptor, and a custom service SVG illustration anchored to
+ * the bottom that auto-themes to the card's hue. A corner arrow badge signals
+ * the link and fills on hover.
  *
  * Used on the homepage services grid (and anywhere the pillars are cross-linked)
- * so every service card on the site matches. The look: a crisp paper card (brand
- * radius, hairline rule) lifted by a gradient icon tile, a ghost index numeral,
- * a colour-warmed hover glow and an arrow that fills on hover.
+ * so every service card on the site matches.
  *
- * COLOUR NOTE (owner-directed, 2026-09-12): the services grid gets a soft,
- * per-service PASTEL hue — a deliberate, contained exception to "the accent is
- * rare" (CLAUDE.md §5c). The hue is DECORATIVE only (the icon tile gradient and
- * the hover glow); it never colours body or link text, so §5a contrast rules are
- * untouched. Titles/descriptors still read the semantic tokens.
+ * COLOUR / SHAPE NOTE (owner-directed, 2026-09-12): the services grid uses soft
+ * per-service PASTEL cards and a softer corner radius — a deliberate, contained
+ * exception to "the accent is rare" (§5c) and the 4px card radius (§5). The hue
+ * is decorative (card wash + illustration); title/descriptor read the semantic
+ * tokens, so §5a contrast rules hold. The cards sit inside <main data-register
+ * ="paper">, so those tokens resolve here.
  */
 import type { NavLeaf } from '@/lib/nav';
 
 interface Props {
   service: NavLeaf;
-  /** 0-based position — drives the ghost numeral and the pastel hue. */
+  /** 0-based position — drives the pastel hue and the illustration. */
   index: number;
 }
 const { service, index } = Astro.props;
 
-// Clean, single-stroke line icons per pillar.
-const ICONS: Record<string, string> = {
-  'Performance marketing': 'M4 19V5M4 19h16M7 15l3-3 3 2 4-6',
-  'SEO': 'M10.5 4a6.5 6.5 0 1 0 4.9 10.8M20 20l-4.6-4.6',
-  'Shopify development': 'M6 8h12l-1 11H7L6 8Zm3 0a3 3 0 0 1 6 0',
-  'Web development': 'M8.5 9 5 12l3.5 3M15.5 9 19 12l-3.5 3M13 7l-2 10',
-  'Social media marketing': 'M5 6h14v9h-8l-4 3.5V6Z',
-  'Conversion rate optimisation': 'M4 5h16l-6 7v5l-4 2v-7L4 5Z',
-};
-
-// Six soft pastel duotones. Icon-tile gradient (a→b) + a mid-tone glyph ink that
-// stays legible on the pastel tile. Decorative — never used as text on the card.
+// Six soft pastel palettes. a = lightest card wash, b = mid highlight,
+// ink = the saturated hue for the illustration's main shapes.
 const HUES = [
-  { a: '#EEF0FF', b: '#C8CBFF', ink: '#4B4ED6' }, // periwinkle
-  { a: '#E1F5F0', b: '#B2E5DB', ink: '#1C857A' }, // teal
-  { a: '#E4F1FB', b: '#BADFF5', ink: '#2181B4' }, // sky
-  { a: '#F2EBFE', b: '#D9C6FB', ink: '#6C43C8' }, // violet
-  { a: '#FDEAF1', b: '#F8CADC', ink: '#C0446F' }, // blush
-  { a: '#FEEFE1', b: '#FBD6B2', ink: '#B67328' }, // amber
+  { a: '#EEF0FF', b: '#C6C9FF', ink: '#4B4ED6' }, // periwinkle — Performance
+  { a: '#E1F5F0', b: '#A9E2D7', ink: '#1C857A' }, // teal       — SEO
+  { a: '#E6F1FB', b: '#B7DDF4', ink: '#2181B4' }, // sky        — Shopify
+  { a: '#F2EBFE', b: '#D6C2FB', ink: '#6C43C8' }, // violet     — Web dev
+  { a: '#FDEAF1', b: '#F6C6D9', ink: '#C0446F' }, // blush      — Social
+  { a: '#FEEFE1', b: '#FBD2AC', ink: '#B67328' }, // amber      — CRO
 ];
 const h = HUES[index % HUES.length]!;
-const num = String(index + 1).padStart(2, '0');
-const path = ICONS[service.label] ?? ICONS['Performance marketing']!;
 ---
 
 <a
@@ -52,25 +44,96 @@ const path = ICONS[service.label] ?? ICONS['Performance marketing']!;
   class="svc group"
   style={`--c-a:${h.a};--c-b:${h.b};--c-ink:${h.ink}`}
 >
-  <span class="svc__num" aria-hidden="true">{num}</span>
-
-  <span class="svc__icon" aria-hidden="true">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d={path} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+  <span class="svc__arrow" aria-hidden="true">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M5 11 11 5M6 5h5v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
   </span>
 
-  <h3 class="svc__title">{service.label}</h3>
-  <p class="svc__desc">{service.descriptor}</p>
+  <div class="svc__body">
+    <h3 class="svc__title">{service.label}</h3>
+    <p class="svc__desc">{service.descriptor}</p>
+  </div>
 
-  <span class="svc__go">
-    Explore
-    <span class="svc__arrow" aria-hidden="true">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-    </span>
-  </span>
+  <div class="svc__art" aria-hidden="true">
+    <svg viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="120" cy="150" rx="86" ry="8" fill="var(--c-ink)" opacity="0.10" />
+
+      {index === 0 && (
+        <g>
+          {/* Performance marketing — rising bars + trend arrow */}
+          <rect x="66" y="104" width="22" height="42" rx="6" fill="var(--c-ink)" opacity="0.78" />
+          <rect x="96" y="86" width="22" height="60" rx="6" fill="var(--c-ink)" opacity="0.88" />
+          <rect x="126" y="66" width="22" height="80" rx="6" fill="var(--c-ink)" />
+          <rect x="156" y="48" width="22" height="98" rx="6" fill="var(--c-ink)" />
+          <rect x="156" y="48" width="22" height="12" rx="6" fill="#fff" opacity="0.28" />
+          <path d="M60 98 96 82 126 62 156 46 186 30" stroke="var(--c-b)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M172 28h16v16" stroke="var(--c-b)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="186" cy="30" r="6" fill="var(--c-ink)" />
+        </g>
+      )}
+
+      {index === 1 && (
+        <g>
+          {/* SEO — magnifier over a rising line */}
+          <rect x="150" y="98" width="13" height="30" rx="4" fill="var(--c-ink)" opacity="0.3" />
+          <rect x="168" y="84" width="13" height="44" rx="4" fill="var(--c-ink)" opacity="0.3" />
+          <circle cx="108" cy="78" r="42" fill="#fff" opacity="0.55" />
+          <circle cx="108" cy="78" r="42" stroke="var(--c-ink)" stroke-width="9" />
+          <path d="M86 92 102 76 114 84 134 60" stroke="var(--c-ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+          <line x1="140" y1="112" x2="166" y2="138" stroke="var(--c-ink)" stroke-width="13" stroke-linecap="round" />
+        </g>
+      )}
+
+      {index === 2 && (
+        <g>
+          {/* Shopify development — shopping bag + coin */}
+          <path d="M74 74h92l9 62a8 8 0 0 1-8 9H73a8 8 0 0 1-8-9z" fill="var(--c-ink)" />
+          <path d="M92 74h56l6 62H86z" fill="#fff" opacity="0.14" />
+          <path d="M96 78v-8a24 24 0 0 1 48 0v8" stroke="var(--c-ink)" stroke-width="8" stroke-linecap="round" />
+          <circle cx="120" cy="112" r="18" fill="var(--c-b)" />
+          <path d="M120 103v18M114 108h9a4 4 0 0 1 0 8h-9m0 0h10" stroke="var(--c-ink)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+      )}
+
+      {index === 3 && (
+        <g>
+          {/* Web development — browser window + code */}
+          <rect x="78" y="56" width="112" height="74" rx="12" fill="var(--c-ink)" opacity="0.2" />
+          <rect x="56" y="62" width="118" height="76" rx="13" fill="#fff" opacity="0.6" />
+          <rect x="56" y="62" width="118" height="76" rx="13" stroke="var(--c-ink)" stroke-width="3" opacity="0.4" />
+          <circle cx="72" cy="76" r="4.5" fill="var(--c-ink)" />
+          <circle cx="86" cy="76" r="4.5" fill="var(--c-ink)" opacity="0.55" />
+          <circle cx="100" cy="76" r="4.5" fill="var(--c-ink)" opacity="0.4" />
+          <path d="M96 98 84 110l12 12M138 98l12 12-12 12" stroke="var(--c-ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M126 94 108 126" stroke="var(--c-b)" stroke-width="6" stroke-linecap="round" />
+        </g>
+      )}
+
+      {index === 4 && (
+        <g>
+          {/* Social media marketing — chat bubbles */}
+          <path d="M62 62h74a15 15 0 0 1 15 15v28a15 15 0 0 1-15 15h-38l-20 17v-17h-1a15 15 0 0 1-15-15V77a15 15 0 0 1 15-15z" fill="var(--c-ink)" />
+          <path d="M99 82c-7-9-20-3-20 7 0 9 11 13 20 20 9-7 20-11 20-20 0-10-13-16-20-7z" fill="#fff" opacity="0.9" />
+          <circle cx="170" cy="118" r="22" fill="var(--c-b)" />
+          <path d="M164 108v20l17-10z" fill="#fff" />
+        </g>
+      )}
+
+      {index === 5 && (
+        <g>
+          {/* CRO — conversion funnel */}
+          <circle cx="92" cy="50" r="6" fill="var(--c-b)" />
+          <circle cx="118" cy="46" r="6" fill="var(--c-b)" />
+          <circle cx="144" cy="50" r="6" fill="var(--c-b)" />
+          <path d="M70 64h100l-38 44v26l-24 12v-38z" fill="var(--c-ink)" />
+          <path d="M70 64h100l-14 16H84z" fill="#fff" opacity="0.16" />
+          <circle cx="120" cy="140" r="17" fill="var(--c-b)" />
+          <path d="M112 140 118 146l10-12" stroke="var(--c-ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+      )}
+    </svg>
+  </div>
 </a>
 
 <style>
@@ -78,126 +141,95 @@ const path = ICONS[service.label] ?? ICONS['Performance marketing']!;
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
     height: 100%;
+    min-height: 340px;
     padding: var(--space-4);
-    border-radius: var(--radius-card);
-    background: var(--ground);
-    border: 1px solid var(--rule-c);
+    border-radius: 20px; /* softer than the 4px card radius — owner-directed, see NOTE */
+    background: linear-gradient(158deg, var(--c-a), color-mix(in srgb, var(--c-b) 55%, var(--c-a)));
+    border: 1px solid color-mix(in srgb, var(--c-ink) 14%, transparent);
     text-decoration: none;
     overflow: hidden;
     isolation: isolate;
     transition:
       transform var(--dur-base) var(--ease-out),
-      border-color var(--dur-base) var(--ease-out),
-      box-shadow var(--dur-base) var(--ease-out);
+      box-shadow var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out);
   }
 
-  /* Faint wash of the card's hue, bottom-right, so the colour reads even before
-     hover without tinting the whole card. */
-  .svc::after {
-    content: '';
-    position: absolute;
-    right: -30%;
-    bottom: -40%;
-    width: 75%;
-    height: 75%;
-    background: radial-gradient(closest-side, var(--c-b), transparent 70%);
-    opacity: 0.28;
-    z-index: -1;
-    transition: opacity var(--dur-base) var(--ease-out);
+  .svc__body {
+    position: relative;
+    z-index: 2;
+    max-width: 22ch;
   }
-
-  /* Ghost index numeral — editorial touch, top-right. */
-  .svc__num {
-    position: absolute;
-    top: calc(var(--space-3) - 4px);
-    right: var(--space-3);
-    font-size: 2.5rem;
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: -0.03em;
-    color: var(--c-ink);
-    opacity: 0.14;
-    font-variant-numeric: tabular-nums;
-    transition: opacity var(--dur-base) var(--ease-out);
-  }
-
-  /* Gradient icon tile — the main splash of colour. */
-  .svc__icon {
-    display: grid;
-    place-items: center;
-    width: 52px;
-    height: 52px;
-    border-radius: 14px; /* squircle: intentionally softer than the 4px card, owner-directed */
-    background: linear-gradient(140deg, var(--c-a), var(--c-b));
-    color: var(--c-ink);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.75),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.35);
-    transition:
-      transform var(--dur-base) var(--ease-out),
-      box-shadow var(--dur-base) var(--ease-out);
-  }
-
   .svc__title {
-    margin-top: var(--space-1);
-    font-size: var(--text-h4);
+    font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
     font-weight: 600;
-    color: var(--fg);
+    line-height: 1.12;
     letter-spacing: var(--tracking-heading);
-    transition: color var(--dur-fast) var(--ease-out);
+    color: var(--fg);
+    padding-right: 2.5rem; /* clear the corner arrow badge */
   }
   .svc__desc {
+    margin-top: var(--space-2);
     font-size: var(--text-small);
-    line-height: 1.55;
-    color: var(--fg-muted);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--fg) 82%, var(--c-ink));
   }
 
-  .svc__go {
-    margin-top: auto;
-    padding-top: var(--space-2);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: var(--text-small);
-    font-weight: 600;
-    color: var(--accent-text);
-  }
+  /* Corner link affordance. */
   .svc__arrow {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    z-index: 3;
     display: grid;
     place-items: center;
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
     border-radius: 999px;
-    border: 1px solid var(--rule-c);
+    border: 1px solid color-mix(in srgb, var(--c-ink) 30%, transparent);
     color: var(--c-ink);
-    background: transparent;
+    background: color-mix(in srgb, #fff 45%, transparent);
     transition:
       background-color var(--dur-fast) var(--ease-out),
-      border-color var(--dur-fast) var(--ease-out),
       color var(--dur-fast) var(--ease-out),
       transform var(--dur-fast) var(--ease-out);
   }
 
+  /* Illustration anchored to the bottom, bleeding to the card edges. */
+  .svc__art {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    pointer-events: none;
+  }
+  .svc__art svg {
+    width: 82%;
+    max-width: 250px;
+    height: auto;
+    transform-origin: bottom center;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     .svc:hover {
-      transform: translateY(-5px);
-      border-color: color-mix(in srgb, var(--c-ink) 40%, var(--rule-c));
-      box-shadow: 0 26px 55px -30px color-mix(in srgb, var(--c-ink) 60%, transparent);
+      transform: translateY(-6px);
+      border-color: color-mix(in srgb, var(--c-ink) 32%, transparent);
+      box-shadow: 0 30px 60px -32px color-mix(in srgb, var(--c-ink) 70%, transparent);
     }
-    .svc:hover::after { opacity: 0.5; }
-    .svc:hover .svc__num { opacity: 0.22; }
-    .svc:hover .svc__icon { transform: scale(1.06) rotate(-2deg); }
-    .svc:hover .svc__title { color: var(--accent-text); }
+    .svc:hover .svc__art svg { transform: scale(1.05); }
     .svc:hover .svc__arrow {
       background: var(--c-ink);
       border-color: var(--c-ink);
       color: #fff;
-      transform: translateX(3px);
+      transform: translate(2px, -2px);
     }
   }
-  /* Keyboard focus mirrors hover so the interaction is visible without a pointer. */
   .svc:focus-visible {
     outline: 2px solid var(--c-ink);
     outline-offset: 3px;
