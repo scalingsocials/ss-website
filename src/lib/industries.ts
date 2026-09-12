@@ -45,7 +45,7 @@ export const INDUSTRIES: IndustryContent[] = [
     proofSlugs: ['womens-fashion-account-turnaround', 'womenswear-breaking-the-ceiling', 'indo-western-launch-90-days'],
     whatWeDo: [
       { glyph: 'spark', title: 'Video-led creative', body: 'Drape, movement, fit — shown honestly. At a fashion price point the creative has to answer "is it worth it?" before checkout.' },
-      { glyph: 'target', title: 'Full-funnel Meta & Google', body: 'Prospecting and retargeting built around real buying intent, tested every week against your break-even ROAS.' },
+      { glyph: 'target', title: 'Full-funnel Meta & Google', body: [{ text: 'Prospecting and retargeting', href: '/meta-ads-agency-india/' }, ' built around real buying intent, tested every week against your break-even ROAS.'] },
       { glyph: 'chart', title: 'Scale with a floor', body: 'We take the swing when a month lines up and pull back when it does not — trading peak efficiency for volume on purpose.' },
     ],
     services: ['performance-marketing', 'shopify-development', 'social-media-marketing'],

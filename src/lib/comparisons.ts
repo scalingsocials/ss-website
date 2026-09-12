@@ -223,7 +223,7 @@ export const COMPARISONS: VsContent[] = [
       ],
     },
     fit: [
-      'Scaling Socials treats this as a per-account decision, not a belief. We reach for Advantage+ where it genuinely beats a manual structure and go manual where the control earns its keep — and we let spend, measured against your break-even ROAS, decide, not opinions in the room.',
+      ['Scaling Socials treats this as a per-account decision, not a belief. We ', { text: 'reach for Advantage+ where it genuinely beats a manual structure', href: '/meta-ads-agency-india/' }, ' and go manual where the control earns its keep — and we let spend, measured against your break-even ROAS, decide, not opinions in the room.'],
       'What does not change either way is the creative. On Meta today the creative is the single biggest lever, so whichever structure runs, we produce video-led ads and statics in-house and run them through a weekly testing pipeline. Automation with weak creative just overspends faster.',
     ],
     faqs: [
@@ -275,7 +275,7 @@ export const COMPARISONS: VsContent[] = [
       ],
     },
     fit: [
-      'Scaling Socials runs both, on one team and one number, so they are not quietly working against each other. Paid buys demand today while SEO compounds for tomorrow — and each sharpens the other: the queries that convert in paid tell us what to rank for, and organic landing pages give paid somewhere better to send traffic.',
+      ['Scaling Socials runs both, on one team and one number, so they are not quietly working against each other. Paid buys demand today while ', { text: 'SEO compounds for tomorrow', href: '/ecommerce-seo-services/' }, ' — and each sharpens the other: the queries that convert in paid tell us what to rank for, and organic landing pages give paid somewhere better to send traffic.'],
       'If you have to start with one, we will say which from your situation, not our preference. Need sales now? Start with performance. Sitting on real search demand with room to wait? Start building SEO. Most brands with product-market fit should be running both before long.',
     ],
     faqs: [
