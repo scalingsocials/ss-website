@@ -113,9 +113,9 @@ const rowB = twoRows ? adPicked.filter((_, i) => i % 2 === 1) : [];
   <div data-testimonials class="ss-trail">
     <ul class="ss-trail__track">
       {shown.map((t) => (
-        <li class="ss-trail__item flex flex-col gap-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+        <li class="ss-trail__item ss-trail__card flex flex-col gap-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
           <span class="w-fit rounded-full bg-[var(--accent-wash)] px-[0.7rem] py-[0.2rem] text-label font-semibold text-[var(--accent-text)]">{t.tag}</span>
-          <blockquote class="text-body leading-relaxed text-[var(--fg)]">“{t.quote}”</blockquote>
+          <blockquote class="ss-trail__q text-small leading-relaxed text-[var(--fg)] md:text-body">“{t.quote}”</blockquote>
           <figcaption class="mt-auto flex flex-col gap-[0.2rem] text-small">
             <span class="flex flex-wrap items-baseline gap-x-[var(--space-2)]">
               <span class="font-semibold text-[var(--fg)]">{t.name}</span>
@@ -136,18 +136,56 @@ const rowB = twoRows ? adPicked.filter((_, i) => i % 2 === 1) : [];
 )}
 
 <script>
-  // Progressive enhancement: wire the prev/next arrows to scroll the rail by one
-  // card. The rail is already usable (swipe/scroll) without this.
+  // Progressive enhancement: wire the prev/next arrows to scroll the rail one
+  // card at a time. The rail is already usable (swipe/scroll) without this.
+  //
+  // We scroll to an actual card edge computed from live positions (not a fixed
+  // scrollBy delta), so a click always lands on a card even mid-animation or
+  // after a resize — the old delta approach could under-scroll when clicked
+  // rapidly, which read as "the button sometimes does nothing".
   document.querySelectorAll<HTMLElement>('.ss-tst').forEach((root) => {
     const rail = root.querySelector<HTMLElement>('[data-testimonials]');
     if (!rail) return;
-    const step = () => {
-      const item = rail.querySelector<HTMLElement>('.ss-trail__item');
-      const gap = parseFloat(getComputedStyle(rail.querySelector('.ss-trail__track')!).columnGap || '0');
-      return item ? item.getBoundingClientRect().width + gap : rail.clientWidth * 0.8;
+    const prev = root.querySelector<HTMLButtonElement>('[data-tprev]');
+    const next = root.querySelector<HTMLButtonElement>('[data-tnext]');
+    const items = () => Array.from(rail.querySelectorAll<HTMLElement>('.ss-trail__item'));
+
+    const move = (dir: 1 | -1) => {
+      const padL = parseFloat(getComputedStyle(rail).paddingLeft) || 0;
+      const anchor = rail.getBoundingClientRect().left + padL; // the left-aligned card edge
+      const list = items();
+      if (!list.length) return;
+      // The card currently sitting nearest the left edge is "the page we're on";
+      // step one index from it, so prev and next are exact mirrors and neither
+      // over- nor under-shoots from a partially-scrolled position.
+      let idx = 0;
+      let best = Infinity;
+      list.forEach((el, i) => {
+        const d = Math.abs(el.getBoundingClientRect().left - anchor);
+        if (d < best) { best = d; idx = i; }
+      });
+      const nextIdx = Math.max(0, Math.min(list.length - 1, idx + dir));
+      // Snap the two ends to the true scroll extents so the rail actually reaches
+      // 0 / max and the arrows disable — otherwise the leading padding gutter
+      // leaves a few px that prev can never clear.
+      let left: number;
+      if (nextIdx === 0) left = 0;
+      else if (nextIdx === list.length - 1) left = rail.scrollWidth - rail.clientWidth;
+      else left = rail.scrollLeft + (list[nextIdx].getBoundingClientRect().left - anchor);
+      rail.scrollTo({ left, behavior: 'smooth' });
     };
-    root.querySelector('[data-tprev]')?.addEventListener('click', () => rail.scrollBy({ left: -step(), behavior: 'smooth' }));
-    root.querySelector('[data-tnext]')?.addEventListener('click', () => rail.scrollBy({ left: step(), behavior: 'smooth' }));
+
+    const sync = () => {
+      const max = rail.scrollWidth - rail.clientWidth;
+      if (prev) prev.disabled = rail.scrollLeft <= 1;
+      if (next) next.disabled = rail.scrollLeft >= max - 1;
+    };
+
+    prev?.addEventListener('click', () => move(-1));
+    next?.addEventListener('click', () => move(1));
+    rail.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync, { passive: true });
+    sync();
   });
 
   // Slider variant: avatar photos that 404 fall back to the initial; the "more"
@@ -187,18 +225,46 @@ const rowB = twoRows ? adPicked.filter((_, i) => i % 2 === 1) : [];
   .ss-tst__nav:hover { color: var(--accent-text); border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c)); }
   .ss-tst__nav:active { transform: scale(0.94); }
   .ss-tst__nav:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+  /* At a rail end the arrow greys out, so it's clear why it won't move. */
+  .ss-tst__nav:disabled { opacity: 0.35; cursor: default; }
+  .ss-tst__nav:disabled:hover { color: var(--fg); border-color: var(--rule-c); }
 
   .ss-trail {
     overflow-x: auto;
-    scroll-snap-type: x mandatory;
+    /* proximity, NOT mandatory: mandatory snap fights a programmatic smooth
+       scroll and can cancel it mid-animation, which is why the arrows "worked
+       sometimes". proximity keeps the snap-on-swipe feel but lets the buttons
+       land reliably. */
+    scroll-snap-type: x proximity;
     scroll-behavior: smooth;
     scrollbar-width: none;
     margin-inline: calc(-1 * var(--space-3));
     padding-inline: var(--space-3);
+    /* Match the snap start to the padding gutter so the first card snaps to
+       scrollLeft 0 (not to the 24px gutter), letting the rail reach the true
+       start and the prev arrow disable there. */
+    scroll-padding-inline: var(--space-3);
   }
   .ss-trail::-webkit-scrollbar { display: none; }
+  /* align-items:stretch (flex default) makes every card match the tallest, so the
+     clamped quotes give a clean, uniform card grid instead of ragged heights. */
   .ss-trail__track { display: flex; gap: var(--space-3); width: max-content; }
-  .ss-trail__item { flex: none; width: min(360px, 82vw); scroll-snap-align: start; }
+  .ss-trail__item { flex: none; width: min(340px, 80vw); scroll-snap-align: start; }
+
+  /* A soft lift so the cards read as objects on the pastel band, not flat panels. */
+  .ss-trail__card {
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--color-black) 5%, transparent),
+                0 12px 30px -22px color-mix(in srgb, var(--color-black) 40%, transparent);
+  }
+  /* Clamp quotes so cards stay a consistent, compact height and the whole
+     section fits the viewport — the full text stays in the DOM for crawlers. */
+  .ss-trail__q {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  @media (min-width: 768px) { .ss-trail__q { -webkit-line-clamp: 6; } }
 
   /* Real review stars — kept quiet (the brand accent stays rare, 08 §5c). The
      glyphs carry the rating; screen readers get the aria-label instead. */

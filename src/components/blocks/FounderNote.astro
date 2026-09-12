@@ -2,14 +2,18 @@
 /**
  * FounderNote — a named human. See 08 §7.
  *
- * Uses a real co-founder and their real LinkedIn (11 §1). The portrait is an
- * initials placeholder, NOT a stock face — attaching a stranger's photo to a
- * named real person would be misleading; the real headshot slots in later (11 §1).
+ * Uses a real co-founder, their real photo and real LinkedIn (11 §1). The
+ * portrait is the founder's own photo, recovered from the previous team page
+ * (src/assets/founders/README.md) — never a stock face on a named person; if the
+ * photo is ever missing, the initials tile falls back in.
  *
  * TODO: confirm the pull-quote with the founder. The line below reflects the
  * documented positioning (work to the P&L, show the maths, disqualify honestly)
  * but has not been approved as a verbatim quote.
  */
+import { Image } from 'astro:assets';
+import jamalPhoto from '@/assets/founders/jamal-khan.jpg';
+
 export interface Props {
   class?: string;
 }
@@ -17,22 +21,26 @@ const { class: className = '' } = Astro.props;
 
 const founder = {
   name: 'Jamal Khan',
-  role: 'Co-founder, paid media',
+  role: 'Co-founder, Scaling Socials',
   linkedin: 'https://www.linkedin.com/in/jamal-mohammed-khan-4555001b2/',
+  photo: jamalPhoto,
   quote:
     'We would rather show you the number that moved and the one that did not, than a dashboard that flatters us. If we cannot make the maths work for your brand, we will tell you.',
 };
-const initials = founder.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 ---
 
-<figure data-founder class:list={['grid gap-[var(--space-6)] md:grid-cols-[auto_1fr] md:items-center', className]}>
+<figure data-founder class:list={['grid gap-[var(--space-5)] md:grid-cols-[auto_1fr] md:items-center md:gap-[var(--space-6)]', className]}>
   <div class="flex items-center gap-[var(--space-4)]">
-    <div
-      class="flex h-[112px] w-[112px] shrink-0 items-center justify-center rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--surface-c)] text-data-sm font-semibold text-[var(--accent-text)]"
-      aria-hidden="true"
-    >
-      {initials}
-    </div>
+    <Image
+      src={founder.photo}
+      alt={`${founder.name}, ${founder.role}`}
+      width={124}
+      height={155}
+      widths={[124, 248]}
+      sizes="124px"
+      loading="lazy"
+      class="h-[132px] w-[108px] shrink-0 rounded-[var(--radius-card)] border border-[var(--rule-c)] object-cover object-top md:h-[155px] md:w-[124px]"
+    />
     <div class="md:hidden">
       <div class="font-semibold text-[var(--fg)]">{founder.name}</div>
       <div class="text-small text-[var(--fg-muted)]">{founder.role}</div>

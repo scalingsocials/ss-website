@@ -11,6 +11,12 @@
  * Built on the Table primitive so figures stay tabular and the shell scrolls on
  * overflow. `highlightCol` softly emphasises one column (e.g. the agency column)
  * without colouring it in — restraint (08 §4). Register-agnostic.
+ *
+ * On phones a wide table means horizontal scrolling, which hides most of the
+ * comparison. So below md we drop the table and render one card PER OPTION with
+ * a label→value list — the same data, fully readable without scrolling. The
+ * emphasised option's card carries the accent treatment. Both layouts hold the
+ * identical content, so nothing is hidden from crawlers.
  */
 import Table from '@/components/primitives/Table.astro';
 
@@ -25,14 +31,63 @@ export interface Props {
 }
 
 const { columns, rows, caption, highlightCol, numericCols = [], class: className = '' } = Astro.props;
+
+// Mobile cards: one card per option column (skip the first, the row-label column).
+const optionCols = columns.map((label, i) => ({ label, i })).filter((c) => c.i > 0);
 ---
 
 <div data-comparison-table class:list={[className]}>
-  <Table
-    columns={columns}
-    rows={rows}
-    caption={caption}
-    numericCols={numericCols}
-    highlightCol={highlightCol}
-  />
+  {/* Phones: stacked option cards — no horizontal scroll. */}
+  <div class="flex flex-col gap-[var(--space-3)] md:hidden">
+    {caption && <p class="text-label text-[var(--fg-muted)]">{caption}</p>}
+    {optionCols.map((col) => {
+      const isHi = col.i === highlightCol;
+      return (
+        <div
+          class:list={[
+            'rounded-[var(--radius-card)] border p-[var(--space-4)]',
+            isHi ? 'ss-cmp-card--hi' : 'border-[var(--rule-c)] bg-[var(--ground)]',
+          ]}
+        >
+          <h3 class="mb-[var(--space-3)] text-h4 font-semibold text-[var(--fg)]">{col.label}</h3>
+          <dl class="flex flex-col">
+            {rows.map((row) => (
+              <div class="flex items-baseline justify-between gap-[var(--space-3)] border-t border-[var(--rule-c)] py-[var(--space-2)]">
+                <dt class="shrink-0 text-small text-[var(--fg-muted)]">{row[0]}</dt>
+                <dd
+                  class="text-right text-small font-medium text-[var(--fg)]"
+                  data-num={numericCols.includes(col.i) ? '' : undefined}
+                >
+                  {row[col.i]}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      );
+    })}
+  </div>
+
+  {/* md and up: the full comparison table. */}
+  <div class="hidden md:block">
+    <Table
+      columns={columns}
+      rows={rows}
+      caption={caption}
+      numericCols={numericCols}
+      highlightCol={highlightCol}
+    />
+  </div>
 </div>
+
+<style>
+  /* The emphasised option's card: accent border + a faint translucent accent veil
+     (blends on white and on the grey surface band alike) + the same slim accent
+     cap the table header uses, so "this is the one" reads identically in both
+     layouts. */
+  .ss-cmp-card--hi {
+    border: 1px solid color-mix(in srgb, var(--accent-fill) 42%, var(--rule-c));
+    background: color-mix(in srgb, var(--accent-fill) 9%, transparent);
+    box-shadow: inset 0 3px 0 0 var(--accent-graphic);
+  }
+</style>

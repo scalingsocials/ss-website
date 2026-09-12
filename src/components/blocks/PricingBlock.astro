@@ -16,19 +16,19 @@ const { lede, included, note, class: className = '' } = Astro.props;
 <div
   data-value-block
   class:list={[
-    'grid gap-[var(--space-6)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-6)] md:grid-cols-[1fr_1fr] md:items-start',
+    'grid gap-[var(--space-4)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] sm:p-[var(--space-5)] md:grid-cols-[1fr_1fr] md:items-start md:gap-[var(--space-6)] md:p-[var(--space-6)]',
     className,
   ]}
 >
   <div class="flex flex-col gap-[var(--space-3)]">
-    <p class="text-h3 font-semibold leading-snug text-[var(--fg)]">{lede}</p>
-    {note && <p class="text-small text-[var(--fg-muted)]">{note}</p>}
+    <p class="text-pretty text-h4 font-semibold leading-snug text-[var(--fg)] md:text-h3">{lede}</p>
+    {note && <p class="text-small leading-relaxed text-[var(--fg-muted)]">{note}</p>}
   </div>
 
-  <ul class="flex flex-col gap-[var(--space-2)]">
+  <ul class="flex flex-col gap-[var(--space-3)] border-t border-[var(--rule-c)] pt-[var(--space-4)] md:border-t-0 md:pt-0">
     {included.map((item) => (
-      <li class="flex gap-[var(--space-2)] text-body text-[var(--fg)]">
-        <span class="mt-[0.15em] grid h-[20px] w-[20px] shrink-0 place-items-center rounded-full bg-[var(--accent-wash)]" aria-hidden="true">
+      <li class="flex items-start gap-[var(--space-2)] text-small leading-relaxed text-[var(--fg)] md:text-body">
+        <span class="mt-[0.1em] grid h-[20px] w-[20px] shrink-0 place-items-center rounded-full bg-[var(--accent-wash)]" aria-hidden="true">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 5 8.6l4.5-5" stroke="var(--accent-text)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </span>
         <span>{item}</span>

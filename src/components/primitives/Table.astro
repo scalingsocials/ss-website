@@ -84,12 +84,14 @@ const hl = (i: number, head = false) =>
 </div>
 
 <style>
-  /* The emphasised column (usually "Scaling Socials") gets a distinct, faintly
-     accent-tinted fill so it stands apart from the section behind it — on a white
-     section AND on a surface section, where a plain surface fill would vanish. */
+  /* The emphasised column (usually "Scaling Socials") gets a faint accent veil.
+     It's a TRANSLUCENT accent over transparent — not a mix with an opaque ground —
+     so it sits on whatever colour is behind the table (white OR the grey surface
+     band) and reads as the same gentle tint on both, instead of a pale block that
+     clashes with a grey section. */
   .ss-hl-col { background-color: var(--hl-fill); }
   table :where(.ss-hl-col) {
-    --hl-fill: color-mix(in srgb, var(--accent-wash) 62%, var(--ground));
+    --hl-fill: color-mix(in srgb, var(--accent-fill) 9%, transparent);
   }
   /* A slim accent cap on the header cell reads as "this is the one". */
   .ss-hl-col--head { box-shadow: inset 0 3px 0 0 var(--accent-graphic); }
