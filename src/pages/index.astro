@@ -133,7 +133,7 @@ const surface = '!bg-[var(--surface-c)]';
     </div>
     <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
       {SERVICE_PILLARS.map((s, i) => (
-        <li class="flex">
+        <li class="grid">
           <ServiceCard service={s} index={i} />
         </li>
       ))}
