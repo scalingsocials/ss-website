@@ -85,7 +85,7 @@ const roleLine = (t: Testimonial) => t.brand ?? t.tag;
             <figure class="ss-tstcard" aria-hidden={i >= row.length ? 'true' : undefined}>
               <div class="ss-tstcard__head">
                 <span class="ss-tstcard__avatar">
-                  {!isMarquee && <img src={`/lp/testimonials/${slug(t.name)}.jpg`} alt="" loading="lazy" decoding="async" class="ss-tstcard__img" />}
+                  {!isMarquee && <img src={`/lp/testimonials/${slug(t.name)}.jpg`} alt="" width="44" height="44" loading="lazy" decoding="async" class="ss-tstcard__img" />}
                   <span class="ss-tstcard__initial" aria-hidden="true">{t.name.charAt(0)}</span>
                 </span>
                 <div>

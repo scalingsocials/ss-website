@@ -32,6 +32,10 @@ export interface Props {
   messageLabel?: string;
   /** Prominent, elevated card treatment (service-page heroes). */
   elevated?: boolean;
+  /** Heading level for the form title. Defaults to h2 — the form sits directly
+   *  under the page h1 in every hero, so h3 would skip a level (03 §0). Pass
+   *  'h3' only where the form is genuinely nested under an h2 section. */
+  headingLevel?: 'h2' | 'h3';
   /** On success, redirect here instead of the default /thank-you/ (LP pages).
    *  The ad-spend selection is appended as ?spend= by leadform.ts. */
   redirect?: string;
@@ -50,9 +54,14 @@ const {
   showMessage = true,
   messageLabel = 'Anything else? (optional)',
   elevated = false,
+  headingLevel = 'h2',
   redirect,
   class: className = '',
 } = Astro.props;
+
+// Dynamic heading tag: an Astro element whose name is a string renders that
+// HTML tag. Level is semantic only — the visual size (text-h4) is unchanged.
+const HeadingTag = headingLevel;
 
 // Attribution fields — populated from the URL by leadform.ts and sent with the
 // lead. Present on every form so paid-traffic attribution is never lost.
@@ -112,7 +121,7 @@ const gap = compact ? 'gap-[var(--space-2)]' : 'gap-[var(--space-3)]';
 
   <div class="flex flex-col gap-[0.35rem]">
     <div class="flex items-center justify-between">
-      <h3 class="text-h4 font-semibold text-[var(--fg)]">{heading}</h3>
+      <HeadingTag class="text-h4 font-semibold text-[var(--fg)]">{heading}</HeadingTag>
       <span class="text-label text-[var(--fg-muted)]" data-lf-progress hidden>
         Step <span data-lf-step>1</span> of 2
       </span>

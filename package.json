@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/check-gotchas.mjs && astro build && node scripts/unify-csp.mjs && pagefind --site dist && node scripts/build-llms-txt.mjs",
+    "build": "node scripts/check-gotchas.mjs && astro build && node scripts/unify-csp.mjs && pagefind --site dist && node scripts/build-llms-txt.mjs && node scripts/prune-orphan-assets.mjs",
     "preview": "astro preview",
     "check": "astro check && tsc --noEmit",
     "check:perf": "node scripts/check-perf-budget.mjs",
