@@ -14,6 +14,7 @@ import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import Prose from '@/components/primitives/Prose.astro';
+import HeroMotif from '@/components/graphics/HeroMotif.astro';
 import BreakEvenRoasCalculator from '@/components/islands/BreakEvenRoasCalculator.tsx';
 import { base, webApplication, webPage, breadcrumbs, faqPage, webAppId } from '@/lib/schema';
 
@@ -61,13 +62,18 @@ const schemaNodes = [
       <span>Break-even ROAS calculator</span>
     </nav>
 
-    <h1 class="max-w-[16ch]">Break-even ROAS calculator</h1>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div>
+        <h1 class="max-w-[16ch]">Break-even ROAS calculator</h1>
 
-    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
-      Scaling Socials built this to answer one question: what return on ad spend do you need before a
-      D2C order makes money? Enter your average order value, gross margin and current ROAS to see your
-      break-even ROAS and profit per order.
-    </p>
+        <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+          Scaling Socials built this to answer one question: what return on ad spend do you need before a
+          D2C order makes money? Enter your average order value, gross margin and current ROAS to see your
+          break-even ROAS and profit per order.
+        </p>
+      </div>
+      <div class="hidden lg:block"><HeroMotif variant="roas" /></div>
+    </div>
 
     <!-- Crawlable formula + worked example. Renders with JavaScript disabled. -->
     <Prose class="mt-[var(--space-6)]">

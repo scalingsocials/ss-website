@@ -13,6 +13,7 @@ import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import Prose from '@/components/primitives/Prose.astro';
+import HeroMotif from '@/components/graphics/HeroMotif.astro';
 import ShopifySpeedGrader from '@/components/islands/ShopifySpeedGrader.tsx';
 import { base, webApplication, webPage, breadcrumbs, faqPage, webAppId } from '@/lib/schema';
 
@@ -64,13 +65,18 @@ const schemaNodes = [
       <span>Shopify speed grader</span>
     </nav>
 
-    <h1 class="max-w-[18ch]">Shopify speed grader</h1>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div>
+        <h1 class="max-w-[18ch]">Shopify speed grader</h1>
 
-    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
-      Scaling Socials built this to put a number on store speed: grade your Largest Contentful Paint
-      against Google’s Core Web Vitals, then model what reaching the 2.5s “Good” bar could be worth,
-      using a conversion assumption you set yourself.
-    </p>
+        <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+          Scaling Socials built this to put a number on store speed: grade your Largest Contentful Paint
+          against Google’s Core Web Vitals, then model what reaching the 2.5s “Good” bar could be worth,
+          using a conversion assumption you set yourself.
+        </p>
+      </div>
+      <div class="hidden lg:block"><HeroMotif variant="speed" /></div>
+    </div>
 
     <Prose class="mt-[var(--space-6)]">
       <h2>How the grade and estimate work</h2>

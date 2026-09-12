@@ -13,6 +13,7 @@ import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import Prose from '@/components/primitives/Prose.astro';
+import HeroMotif from '@/components/graphics/HeroMotif.astro';
 import CacPaybackCalculator from '@/components/islands/CacPaybackCalculator.tsx';
 import { base, webApplication, webPage, breadcrumbs, faqPage, webAppId } from '@/lib/schema';
 
@@ -64,13 +65,18 @@ const schemaNodes = [
       <span>D2C CAC payback calculator</span>
     </nav>
 
-    <h1 class="max-w-[18ch]">D2C CAC payback calculator</h1>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div>
+        <h1 class="max-w-[18ch]">D2C CAC payback calculator</h1>
 
-    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
-      Scaling Socials built this to answer one cash-flow question: how long does it take to earn back
-      what you spent to acquire a customer? Enter your CAC, average order value, gross margin and repeat
-      rate to see your payback period in months.
-    </p>
+        <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+          Scaling Socials built this to answer one cash-flow question: how long does it take to earn back
+          what you spent to acquire a customer? Enter your CAC, average order value, gross margin and repeat
+          rate to see your payback period in months.
+        </p>
+      </div>
+      <div class="hidden lg:block"><HeroMotif variant="payback" /></div>
+    </div>
 
     <Prose class="mt-[var(--space-6)]">
       <h2>How CAC payback is calculated</h2>

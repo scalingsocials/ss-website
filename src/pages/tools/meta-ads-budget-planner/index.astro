@@ -13,6 +13,7 @@ import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import Prose from '@/components/primitives/Prose.astro';
+import HeroMotif from '@/components/graphics/HeroMotif.astro';
 import MetaBudgetPlanner from '@/components/islands/MetaBudgetPlanner.tsx';
 import { base, webApplication, webPage, breadcrumbs, faqPage, webAppId } from '@/lib/schema';
 
@@ -64,19 +65,31 @@ const schemaNodes = [
       <span>Meta ads budget planner</span>
     </nav>
 
-    <h1 class="max-w-[18ch]">Meta ads budget planner</h1>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div>
+        <h1 class="max-w-[18ch]">Meta ads budget planner</h1>
 
-    <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
-      Scaling Socials built this to plan a Meta budget the way we run one: split spend between testing
-      and scaling, then check how many creatives that testing pool can actually fund. Enter your budget,
-      split, target CPA and test-cell cost.
-    </p>
+        <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">
+          Scaling Socials built this to plan a Meta budget the way we run one: split spend between testing
+          and scaling, then check how many creatives that testing pool can actually fund. Enter your budget,
+          split, target CPA and test-cell cost.
+        </p>
+      </div>
+      <div class="hidden lg:block"><HeroMotif variant="budget" /></div>
+    </div>
 
     <Prose class="mt-[var(--space-6)]">
       <h2>How the plan is worked out</h2>
       <p>
         A Meta budget does two jobs at once: finding new winners, and scaling the ones that work. Split
         the budget, then check the testing pool is big enough to read the tests you want to run.
+      </p>
+      <p>
+        A <strong>test cell</strong> is one thing you are testing — a single creative, hook or audience —
+        given enough budget to reach a verdict. The <strong>spend to read one cell</strong> is roughly
+        the amount that ad has to spend before you can tell whether it works, usually a few hundred to a
+        few thousand rupees depending on your target CPA. So the number of test cells you can fund is
+        simply how many of those verdicts your testing pool pays for in a month.
       </p>
       <p><strong>Testing budget = monthly budget × testing split.</strong></p>
       <p><strong>Scaling budget = monthly budget − testing budget.</strong></p>

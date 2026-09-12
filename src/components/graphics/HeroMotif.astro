@@ -8,7 +8,7 @@
  * prefers-reduced-motion so it settles to a clean static state.
  */
 export interface Props {
-  variant?: 'growth' | 'teardown' | 'guide' | 'glossary' | 'team';
+  variant?: 'growth' | 'teardown' | 'guide' | 'glossary' | 'team' | 'roas' | 'payback' | 'budget' | 'speed';
   label?: string;
   class?: string;
 }
@@ -19,9 +19,21 @@ const labels: Record<string, string> = {
   guide: 'library.live',
   glossary: 'glossary.live',
   team: 'team.live',
+  roas: 'roas.live',
+  payback: 'payback.live',
+  budget: 'budget.live',
+  speed: 'speed.live',
 };
 const cap = label ?? labels[variant];
-const pill = variant === 'teardown' ? 'What we found' : variant === 'growth' ? 'Compounding' : 'Scaling Socials';
+const pills: Record<string, string> = {
+  teardown: 'What we found',
+  growth: 'Compounding',
+  roas: 'Break-even',
+  payback: 'Months to payback',
+  budget: 'Test & scale',
+  speed: 'Core Web Vitals',
+};
+const pill = pills[variant] ?? 'Scaling Socials';
 ---
 <div class:list={['ss-motif', `ss-motif--${variant}`, className]} aria-hidden="true">
   <span class="ss-motif__aura"></span>
@@ -91,6 +103,71 @@ const pill = variant === 'teardown' ? 'What we found' : variant === 'growth' ? '
         <text class="ss-motif__az ss-motif__az--z ss-motif__fade ss-motif__fade--2" x="234" y="106" text-anchor="middle">Z</text>
         <line class="ss-motif__row" x1="70" y1="128" x2="130" y2="128"/>
         <line class="ss-motif__row" x1="192" y1="128" x2="252" y2="128"/>
+      </svg>
+    )}
+    {variant === 'roas' && (
+      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg ss-roas">
+        <g class="ss-motif__grid"><line x1="0" y1="150" x2="320" y2="150"/></g>
+        {/* two bars: ad cost against the revenue an order returns — a Delta */}
+        <rect class="ss-roas__bar ss-roas__bar--cost ss-roas__grow" x="78" y="92" width="54" height="58" rx="4"/>
+        <rect class="ss-roas__bar ss-roas__bar--rev ss-roas__grow" x="188" y="42" width="54" height="108" rx="4"/>
+        {/* break-even line — where an order stops losing money */}
+        <line class="ss-roas__be" x1="40" y1="92" x2="280" y2="92" stroke-dasharray="5 6"/>
+        <text class="ss-roas__belabel" x="40" y="84">break-even</text>
+        {/* the gain, drawn as a rising arrow from cost to revenue */}
+        <path class="ss-roas__lift ss-motif__draw" d="M105 92 C 140 88, 160 70, 214 46"/>
+        <path class="ss-roas__arrow" d="M202 44l14 2-4 14"/>
+      </svg>
+    )}
+    {variant === 'payback' && (
+      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg ss-pay">
+        {/* a track of months filling until acquisition cost is earned back */}
+        <rect class="ss-pay__track" x="34" y="92" width="252" height="16" rx="8"/>
+        <rect class="ss-pay__fill ss-pay__grow" x="34" y="92" width="150" height="16" rx="8"/>
+        <g class="ss-pay__ticks">
+          <line x1="76" y1="116" x2="76" y2="126"/>
+          <line x1="118" y1="116" x2="118" y2="126"/>
+          <line x1="160" y1="116" x2="160" y2="126"/>
+          <line x1="202" y1="116" x2="202" y2="126"/>
+          <line x1="244" y1="116" x2="244" y2="126"/>
+        </g>
+        {/* flag planted at the payback month */}
+        <g class="ss-pay__flag">
+          <line class="ss-pay__pole" x1="184" y1="52" x2="184" y2="100"/>
+          <path class="ss-pay__pennant" d="M184 54h34l-9 10 9 10h-34z"/>
+        </g>
+        <text class="ss-pay__coin" x="60" y="72">₹</text>
+      </svg>
+    )}
+    {variant === 'budget' && (
+      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg ss-bud">
+        {/* one budget split two ways: a testing pool and a scaling pool */}
+        <rect class="ss-bud__seg ss-bud__seg--test ss-bud__grow" x="40" y="60" width="72" height="30" rx="5"/>
+        <rect class="ss-bud__seg ss-bud__seg--scale ss-bud__grow" x="116" y="60" width="164" height="30" rx="5"/>
+        <text class="ss-bud__cap ss-bud__cap--test" x="40" y="52">Testing</text>
+        <text class="ss-bud__cap ss-bud__cap--scale" x="116" y="52">Scaling</text>
+        {/* the fundable test cells the testing pool pays for */}
+        <g class="ss-bud__cells">
+          <rect class="ss-bud__cell ss-bud__pop" x="40" y="108" width="26" height="26" rx="4"/>
+          <rect class="ss-bud__cell ss-bud__pop" x="72" y="108" width="26" height="26" rx="4"/>
+          <rect class="ss-bud__cell ss-bud__pop" x="104" y="108" width="26" height="26" rx="4"/>
+          <rect class="ss-bud__cell ss-bud__pop" x="136" y="108" width="26" height="26" rx="4"/>
+          <rect class="ss-bud__cell ss-bud__pop" x="168" y="108" width="26" height="26" rx="4"/>
+        </g>
+        <text class="ss-bud__cellcap" x="40" y="152">Test cells you can fund</text>
+      </svg>
+    )}
+    {variant === 'speed' && (
+      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg ss-spd">
+        {/* a Core Web Vitals gauge: Good, Needs improvement, Poor */}
+        <path class="ss-spd__zone ss-spd__zone--good" d="M60 150 A100 100 0 0 1 110 63.4"/>
+        <path class="ss-spd__zone ss-spd__zone--mid" d="M110 63.4 A100 100 0 0 1 210 63.4"/>
+        <path class="ss-spd__zone ss-spd__zone--poor" d="M210 63.4 A100 100 0 0 1 260 150"/>
+        <g class="ss-spd__needle-g">
+          <line class="ss-spd__needle" x1="160" y1="150" x2="176" y2="75"/>
+        </g>
+        <circle class="ss-spd__hub" cx="160" cy="150" r="8"/>
+        <text class="ss-spd__unit" x="160" y="128" text-anchor="middle">LCP</text>
       </svg>
     )}
     {variant === 'team' && (
@@ -166,6 +243,43 @@ const pill = variant === 'teardown' ? 'What we found' : variant === 'growth' ? '
   .ss-guide__chip { fill: var(--accent-graphic); }
   .ss-guide__chev { stroke: var(--ground); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
 
+  /* ---- roas: cost vs revenue, a Delta across break-even ------------------ */
+  .ss-roas__bar { transform-box: fill-box; transform-origin: bottom; }
+  .ss-roas__bar--cost { fill: color-mix(in srgb, var(--fg-muted) 26%, transparent); stroke: color-mix(in srgb, var(--fg-muted) 45%, transparent); stroke-width: 1; }
+  .ss-roas__bar--rev { fill: color-mix(in srgb, var(--accent-graphic) 34%, transparent); stroke: var(--accent-graphic); stroke-width: 1; }
+  .ss-roas__be { stroke: color-mix(in srgb, var(--fg-muted) 55%, transparent); stroke-width: 1.5; }
+  .ss-roas__belabel { fill: var(--fg-muted); font-size: 11px; font-family: var(--font-body); }
+  .ss-roas__lift { stroke: var(--accent-graphic); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .ss-roas__arrow { stroke: var(--accent-graphic); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+
+  /* ---- payback: a track of months filling to the payback point ----------- */
+  .ss-pay__track { fill: color-mix(in srgb, var(--fg-muted) 18%, transparent); }
+  .ss-pay__fill { fill: var(--accent-graphic); transform-box: fill-box; transform-origin: left; }
+  .ss-pay__ticks line { stroke: color-mix(in srgb, var(--fg-muted) 45%, transparent); stroke-width: 2; stroke-linecap: round; }
+  .ss-pay__pole { stroke: var(--fg-muted); stroke-width: 2; stroke-linecap: round; }
+  .ss-pay__pennant { fill: var(--accent-graphic); }
+  .ss-pay__coin { fill: var(--accent-graphic); font-size: 22px; font-weight: 700; font-family: var(--font-display); }
+
+  /* ---- budget: one pool split into testing and scaling ------------------- */
+  .ss-bud__seg { transform-box: fill-box; transform-origin: left; }
+  .ss-bud__seg--test { fill: color-mix(in srgb, var(--accent-graphic) 38%, transparent); stroke: var(--accent-graphic); stroke-width: 1; }
+  .ss-bud__seg--scale { fill: color-mix(in srgb, var(--accent-graphic) 14%, transparent); stroke: color-mix(in srgb, var(--accent-graphic) 40%, transparent); stroke-width: 1; }
+  .ss-bud__cap { font-size: 11px; font-family: var(--font-body); }
+  .ss-bud__cap--test { fill: var(--accent-text); }
+  .ss-bud__cap--scale { fill: var(--fg-muted); }
+  .ss-bud__cell { fill: color-mix(in srgb, var(--accent-graphic) 30%, transparent); stroke: var(--accent-graphic); stroke-width: 1; }
+  .ss-bud__cellcap { fill: var(--fg-muted); font-size: 11px; font-family: var(--font-body); }
+
+  /* ---- speed: a Core Web Vitals gauge ------------------------------------ */
+  .ss-spd__zone { fill: none; stroke-width: 14; }
+  .ss-spd__zone--good { stroke: var(--pos); }
+  .ss-spd__zone--mid { stroke: var(--accent-graphic-2); }
+  .ss-spd__zone--poor { stroke: var(--neg); }
+  .ss-spd__needle { stroke: var(--fg); stroke-width: 3.5; stroke-linecap: round; }
+  .ss-spd__needle-g { transform-box: fill-box; transform-origin: 160px 150px; }
+  .ss-spd__hub { fill: var(--fg); }
+  .ss-spd__unit { fill: var(--fg-muted); font-size: 12px; font-family: var(--font-body); letter-spacing: 0.04em; }
+
   /* ---- team network ------------------------------------------------------- */
   .ss-net__link { stroke: color-mix(in srgb, var(--accent-graphic) 42%, transparent); stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 3 7; }
   .ss-net__halo { fill: color-mix(in srgb, var(--accent-graphic) 30%, transparent); opacity: 0; transform-box: fill-box; transform-origin: center; }
@@ -214,6 +328,29 @@ const pill = variant === 'teardown' ? 'What we found' : variant === 'growth' ? '
     .ss-guide__hl { opacity: 0; transform-box: fill-box; transform-origin: center; animation: ssReadHL 5.5s var(--ease-out, ease) 0.9s infinite; }
     .ss-guide__go { transform-box: fill-box; transform-origin: 228px 140px; animation: ssNudge 2.8s ease-in-out 1s infinite; }
 
+    /* roas: bars rise, then the lift arrow fades in over them */
+    .ss-roas__grow { opacity: 0; animation: ssRise 0.7s var(--ease-out, ease) forwards; }
+    .ss-roas__grow:nth-of-type(1) { animation-delay: 0.15s; }
+    .ss-roas__grow:nth-of-type(2) { animation-delay: 0.32s; }
+    .ss-roas__arrow { opacity: 0; animation: ssFadeIn 0.5s ease 1.5s forwards; }
+
+    /* payback: the month track fills left-to-right, then the flag drops in */
+    .ss-pay__grow { transform: scaleX(0); animation: ssGrowX 1.1s var(--ease-out, ease) 0.3s forwards; }
+    .ss-pay__flag { opacity: 0; transform-box: fill-box; transform-origin: bottom; animation: ssDrop 0.5s var(--ease-out, ease) 1.2s forwards; }
+
+    /* budget: the two pools grow, then the fundable cells pop in */
+    .ss-bud__grow { transform: scaleX(0); animation: ssGrowX 0.8s var(--ease-out, ease) forwards; }
+    .ss-bud__grow:nth-of-type(2) { animation-delay: 0.15s; }
+    .ss-bud__pop { opacity: 0; transform-box: fill-box; transform-origin: center; animation: ssPop 0.5s var(--ease-out, ease) forwards; }
+    .ss-bud__pop:nth-of-type(1) { animation-delay: 0.6s; }
+    .ss-bud__pop:nth-of-type(2) { animation-delay: 0.72s; }
+    .ss-bud__pop:nth-of-type(3) { animation-delay: 0.84s; }
+    .ss-bud__pop:nth-of-type(4) { animation-delay: 0.96s; }
+    .ss-bud__pop:nth-of-type(5) { animation-delay: 1.08s; }
+
+    /* speed: the needle sweeps up from Good and settles */
+    .ss-spd__needle-g { animation: ssSweep 1.4s var(--ease-out, ease) 0.3s both; }
+
     /* team: signal flows along the links, hub breathes a soft halo, members pop in */
     .ss-net__link { animation: ssFlow 2.6s linear infinite; }
     .ss-net__halo { animation: ssHalo 4.5s ease-in-out infinite; }
@@ -244,4 +381,7 @@ const pill = variant === 'teardown' ? 'What we found' : variant === 'growth' ? '
     100% { opacity: 0; transform: translateY(0); }
   }
   @keyframes ssNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+  @keyframes ssGrowX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes ssDrop { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes ssSweep { from { transform: rotate(-58deg); } 65% { transform: rotate(6deg); } to { transform: rotate(0deg); } }
 </style>
