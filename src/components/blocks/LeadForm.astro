@@ -32,9 +32,11 @@ export interface Props {
   messageLabel?: string;
   /** Prominent, elevated card treatment (service-page heroes). */
   elevated?: boolean;
-  /** Heading level for the form title. Defaults to h2 — the form sits directly
-   *  under the page h1 in every hero, so h3 would skip a level (03 §0). Pass
-   *  'h3' only where the form is genuinely nested under an h2 section. */
+  /** OPT-IN heading level for the form title. By default the title renders as a
+   *  styled <p> (not a heading) and the <form> carries an aria-label, so the
+   *  hero-position CTA stays OUT of the document outline — otherwise it becomes
+   *  the first h2 on every service page, ahead of the first content section.
+   *  Pass 'h2'/'h3' only where the form is genuinely a content section. */
   headingLevel?: 'h2' | 'h3';
   /** On success, redirect here instead of the default /thank-you/ (LP pages).
    *  The ad-spend selection is appended as ?spend= by leadform.ts. */
@@ -54,14 +56,14 @@ const {
   showMessage = true,
   messageLabel = 'Anything else? (optional)',
   elevated = false,
-  headingLevel = 'h2',
+  headingLevel,
   redirect,
   class: className = '',
 } = Astro.props;
 
-// Dynamic heading tag: an Astro element whose name is a string renders that
-// HTML tag. Level is semantic only — the visual size (text-h4) is unchanged.
-const HeadingTag = headingLevel;
+// Opt-in heading tag. When unset the title is a styled <p> (below) and the form
+// is named via aria-label instead — keeping the CTA out of the heading outline.
+const HeadingTag = headingLevel ?? 'h2';
 
 // Attribution fields — populated from the URL by leadform.ts and sent with the
 // lead. Present on every form so paid-traffic attribution is never lost.
@@ -109,6 +111,7 @@ const gap = compact ? 'gap-[var(--space-2)]' : 'gap-[var(--space-3)]';
   class:list={['ss-leadform flex flex-col gap-[var(--space-4)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]', elevated && 'ss-leadform--elevated', compact && 'ss-leadform--compact', className]}
   novalidate
   data-redirect={redirect}
+  aria-label={heading}
 >
   <input type="hidden" name="lead_id" value="" />
   <input type="hidden" name="source" value={source} />
@@ -121,7 +124,9 @@ const gap = compact ? 'gap-[var(--space-2)]' : 'gap-[var(--space-3)]';
 
   <div class="flex flex-col gap-[0.35rem]">
     <div class="flex items-center justify-between">
-      <HeadingTag class="text-h4 font-semibold text-[var(--fg)]">{heading}</HeadingTag>
+      {headingLevel
+        ? <HeadingTag class="text-h4 font-semibold text-[var(--fg)]">{heading}</HeadingTag>
+        : <p class="text-h4 font-semibold text-[var(--fg)]">{heading}</p>}
       <span class="text-label text-[var(--fg-muted)]" data-lf-progress hidden>
         Step <span data-lf-step>1</span> of 2
       </span>

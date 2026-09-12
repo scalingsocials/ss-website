@@ -29,6 +29,10 @@ interface Testimonial {
   source?: string;
   /** Star rating (real, from the source). Renders a ★ row when present. */
   rating?: number;
+  /** True ONLY when a real photo exists at /lp/testimonials/<slug(name)>.jpg.
+   *  Left unset until photos are supplied, so the avatar renders the initials
+   *  tile instead of a 404ing <img> (broken social proof on ad landers). */
+  photo?: boolean;
 }
 
 // Named-client quotes (migrated from scalingsocials.com) + real, verbatim
@@ -85,7 +89,7 @@ const roleLine = (t: Testimonial) => t.brand ?? t.tag;
             <figure class="ss-tstcard" aria-hidden={i >= row.length ? 'true' : undefined}>
               <div class="ss-tstcard__head">
                 <span class="ss-tstcard__avatar">
-                  {!isMarquee && <img src={`/lp/testimonials/${slug(t.name)}.jpg`} alt="" width="44" height="44" loading="lazy" decoding="async" class="ss-tstcard__img" />}
+                  {!isMarquee && t.photo && <img src={`/lp/testimonials/${slug(t.name)}.jpg`} alt="" width="44" height="44" loading="lazy" decoding="async" class="ss-tstcard__img" />}
                   <span class="ss-tstcard__initial" aria-hidden="true">{t.name.charAt(0)}</span>
                 </span>
                 <div>
