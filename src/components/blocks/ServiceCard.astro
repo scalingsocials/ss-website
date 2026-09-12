@@ -1,0 +1,210 @@
+---
+/**
+ * ServiceCard — one service pillar as an editorial, "made-by-a-creative-team" card.
+ *
+ * Used on the homepage services grid (and anywhere the pillars are cross-linked)
+ * so every service card on the site matches. The look: a crisp paper card (brand
+ * radius, hairline rule) lifted by a gradient icon tile, a ghost index numeral,
+ * a colour-warmed hover glow and an arrow that fills on hover.
+ *
+ * COLOUR NOTE (owner-directed, 2026-09-12): the services grid gets a soft,
+ * per-service PASTEL hue — a deliberate, contained exception to "the accent is
+ * rare" (CLAUDE.md §5c). The hue is DECORATIVE only (the icon tile gradient and
+ * the hover glow); it never colours body or link text, so §5a contrast rules are
+ * untouched. Titles/descriptors still read the semantic tokens.
+ */
+import type { NavLeaf } from '@/lib/nav';
+
+interface Props {
+  service: NavLeaf;
+  /** 0-based position — drives the ghost numeral and the pastel hue. */
+  index: number;
+}
+const { service, index } = Astro.props;
+
+// Clean, single-stroke line icons per pillar.
+const ICONS: Record<string, string> = {
+  'Performance marketing': 'M4 19V5M4 19h16M7 15l3-3 3 2 4-6',
+  'SEO': 'M10.5 4a6.5 6.5 0 1 0 4.9 10.8M20 20l-4.6-4.6',
+  'Shopify development': 'M6 8h12l-1 11H7L6 8Zm3 0a3 3 0 0 1 6 0',
+  'Web development': 'M8.5 9 5 12l3.5 3M15.5 9 19 12l-3.5 3M13 7l-2 10',
+  'Social media marketing': 'M5 6h14v9h-8l-4 3.5V6Z',
+  'Conversion rate optimisation': 'M4 5h16l-6 7v5l-4 2v-7L4 5Z',
+};
+
+// Six soft pastel duotones. Icon-tile gradient (a→b) + a mid-tone glyph ink that
+// stays legible on the pastel tile. Decorative — never used as text on the card.
+const HUES = [
+  { a: '#EEF0FF', b: '#C8CBFF', ink: '#4B4ED6' }, // periwinkle
+  { a: '#E1F5F0', b: '#B2E5DB', ink: '#1C857A' }, // teal
+  { a: '#E4F1FB', b: '#BADFF5', ink: '#2181B4' }, // sky
+  { a: '#F2EBFE', b: '#D9C6FB', ink: '#6C43C8' }, // violet
+  { a: '#FDEAF1', b: '#F8CADC', ink: '#C0446F' }, // blush
+  { a: '#FEEFE1', b: '#FBD6B2', ink: '#B67328' }, // amber
+];
+const h = HUES[index % HUES.length]!;
+const num = String(index + 1).padStart(2, '0');
+const path = ICONS[service.label] ?? ICONS['Performance marketing']!;
+---
+
+<a
+  href={service.href}
+  class="svc group"
+  style={`--c-a:${h.a};--c-b:${h.b};--c-ink:${h.ink}`}
+>
+  <span class="svc__num" aria-hidden="true">{num}</span>
+
+  <span class="svc__icon" aria-hidden="true">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d={path} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </span>
+
+  <h3 class="svc__title">{service.label}</h3>
+  <p class="svc__desc">{service.descriptor}</p>
+
+  <span class="svc__go">
+    Explore
+    <span class="svc__arrow" aria-hidden="true">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </span>
+  </span>
+</a>
+
+<style>
+  .svc {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    height: 100%;
+    padding: var(--space-4);
+    border-radius: var(--radius-card);
+    background: var(--ground);
+    border: 1px solid var(--rule-c);
+    text-decoration: none;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+
+  /* Faint wash of the card's hue, bottom-right, so the colour reads even before
+     hover without tinting the whole card. */
+  .svc::after {
+    content: '';
+    position: absolute;
+    right: -30%;
+    bottom: -40%;
+    width: 75%;
+    height: 75%;
+    background: radial-gradient(closest-side, var(--c-b), transparent 70%);
+    opacity: 0.28;
+    z-index: -1;
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+
+  /* Ghost index numeral — editorial touch, top-right. */
+  .svc__num {
+    position: absolute;
+    top: calc(var(--space-3) - 4px);
+    right: var(--space-3);
+    font-size: 2.5rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--c-ink);
+    opacity: 0.14;
+    font-variant-numeric: tabular-nums;
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+
+  /* Gradient icon tile — the main splash of colour. */
+  .svc__icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px; /* squircle: intentionally softer than the 4px card, owner-directed */
+    background: linear-gradient(140deg, var(--c-a), var(--c-b));
+    color: var(--c-ink);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.75),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+
+  .svc__title {
+    margin-top: var(--space-1);
+    font-size: var(--text-h4);
+    font-weight: 600;
+    color: var(--fg);
+    letter-spacing: var(--tracking-heading);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .svc__desc {
+    font-size: var(--text-small);
+    line-height: 1.55;
+    color: var(--fg-muted);
+  }
+
+  .svc__go {
+    margin-top: auto;
+    padding-top: var(--space-2);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--accent-text);
+  }
+  .svc__arrow {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid var(--rule-c);
+    color: var(--c-ink);
+    background: transparent;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .svc:hover {
+      transform: translateY(-5px);
+      border-color: color-mix(in srgb, var(--c-ink) 40%, var(--rule-c));
+      box-shadow: 0 26px 55px -30px color-mix(in srgb, var(--c-ink) 60%, transparent);
+    }
+    .svc:hover::after { opacity: 0.5; }
+    .svc:hover .svc__num { opacity: 0.22; }
+    .svc:hover .svc__icon { transform: scale(1.06) rotate(-2deg); }
+    .svc:hover .svc__title { color: var(--accent-text); }
+    .svc:hover .svc__arrow {
+      background: var(--c-ink);
+      border-color: var(--c-ink);
+      color: #fff;
+      transform: translateX(3px);
+    }
+  }
+  /* Keyboard focus mirrors hover so the interaction is visible without a pointer. */
+  .svc:focus-visible {
+    outline: 2px solid var(--c-ink);
+    outline-offset: 3px;
+  }
+  .svc:focus-visible .svc__arrow {
+    background: var(--c-ink);
+    border-color: var(--c-ink);
+    color: #fff;
+  }
+</style>

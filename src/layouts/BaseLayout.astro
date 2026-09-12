@@ -15,6 +15,7 @@ import '@/styles/theme.css';
 import { ClientRouter } from 'astro:transitions';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
+import FloatingActions from '@/components/FloatingActions.astro';
 
 export interface Props {
   /** Set true on noindex pages (styleguide, thank-you, ad LPs). */
@@ -85,6 +86,7 @@ const { noindex = false, bare = false, heroOver = false, class: className = '' }
     </main>
 
     {!bare && <Footer />}
+    {!bare && <FloatingActions />}
 
     <script>
       import '@/scripts/motion.ts';

@@ -28,6 +28,7 @@ import CtaBand from '@/components/blocks/CtaBand.astro';
 import { SERVICE_PILLARS } from '@/lib/nav';
 import { FEATURED_STUDIES, INDEX_ORDER, CASE_STUDY_KICKERS } from '@/lib/caseStudies';
 import CaseStudyPoster from '@/components/blocks/CaseStudyPoster.astro';
+import ServiceCard from '@/components/blocks/ServiceCard.astro';
 import { professionalService, website, webPage, breadcrumbs, faqPage, ORG_ID } from '@/lib/schema';
 
 // Homepage proof row uses the same editorial poster cards as /case-studies/.
@@ -44,16 +45,6 @@ const description =
   'Scaling Socials is an omni-channel ecommerce growth agency in Bangalore: Meta and Google Ads, Shopify, SEO and CRO for D2C brands in India and the UAE.';
 const published = '2026-09-01';
 const modified = '2026-09-04';
-
-// Simple line icons per service pillar.
-const ICONS: Record<string, string> = {
-  'Performance marketing': 'M4 19V5M4 19h16M7 15l3-3 3 2 4-6',
-  'SEO': 'M10.5 4a6.5 6.5 0 1 0 4.9 10.8M20 20l-4.6-4.6',
-  'Shopify development': 'M6 8h12l-1 11H7L6 8Zm3 0a3 3 0 0 1 6 0',
-  'Web development': 'M8.5 9 5 12l3.5 3M15.5 9 19 12l-3.5 3M13 7l-2 10',
-  'Social media marketing': 'M5 6h14v9h-8l-4 3.5V6Z',
-  'Conversion rate optimisation': 'M4 5h16l-6 7v5l-4 2v-7L4 5Z',
-};
 
 const problems = [
   'I can’t tell which campaigns are actually making money.',
@@ -141,19 +132,9 @@ const surface = '!bg-[var(--surface-c)]';
       </p>
     </div>
     <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
-      {SERVICE_PILLARS.map((s) => (
-        <li>
-          <a href={s.href} class="ss-svc-card group relative flex h-full flex-col gap-[var(--space-2)] overflow-hidden rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline">
-            <span class="ss-svc-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={ICONS[s.label]} stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
-            </span>
-            <h3 class="text-h4 font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">{s.label}</h3>
-            <p class="text-small leading-relaxed text-[var(--fg-muted)]">{s.descriptor}</p>
-            <span class="mt-auto inline-flex items-center gap-[0.35rem] pt-[var(--space-2)] text-small font-medium text-[var(--accent-text)]">
-              Explore
-              <svg class="ss-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-          </a>
+      {SERVICE_PILLARS.map((s, i) => (
+        <li class="flex">
+          <ServiceCard service={s} index={i} />
         </li>
       ))}
     </ul>
@@ -291,61 +272,11 @@ const surface = '!bg-[var(--surface-c)]';
       letter-spacing: 0.01em;
       color: var(--accent-text);
     }
-    .ss-svc-icon {
-      display: grid;
-      place-items: center;
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-card);
-      background: var(--accent-wash);
-      color: var(--accent-text);
-      margin-bottom: var(--space-1);
-    }
-    /* Cards lift on a crisp border + shadow. No fade-in overlay and no filter,
-       so the text and background stay sharp through the transition. */
-    .ss-svc-card {
-      transform: translateZ(0);
-      backface-visibility: hidden;
-      transition: transform var(--dur-base) var(--ease-out),
-                  border-color var(--dur-base) var(--ease-out),
-                  box-shadow var(--dur-base) var(--ease-out);
-    }
-    @media (prefers-reduced-motion: no-preference) {
-      .ss-svc-card:hover {
-        transform: translateY(-4px);
-        border-color: color-mix(in srgb, var(--accent-fill) 55%, var(--rule-c));
-        box-shadow: 0 24px 50px -30px color-mix(in srgb, var(--accent-fill) 45%, transparent);
-      }
-    }
     .ss-arrow { transition: transform var(--dur-fast) var(--ease-out); }
-    .ss-svc-card:hover .ss-arrow { transform: translateX(3px); }
     /* Inline text links (e.g. "All case studies") that carry a trailing arrow. */
     .ss-link-arrow { min-height: 44px; transition: gap var(--dur-fast) var(--ease-out); }
     .ss-link-arrow .ss-arrow { transition: transform var(--dur-fast) var(--ease-out); }
     .ss-link-arrow:hover .ss-arrow { transform: translateX(3px); }
-
-    /* Sticky mini-CTA — shown by motion.ts once the hero scrolls out. */
-    .ss-sticky-cta {
-      position: fixed; left: 50%; bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 160%);
-      z-index: 40; display: flex; align-items: center; gap: var(--space-3);
-      border: 1px solid var(--rule-c); border-radius: 999px;
-      background: color-mix(in srgb, var(--ground) 92%, transparent);
-      -webkit-backdrop-filter: blur(12px) saturate(1.3);
-      backdrop-filter: blur(12px) saturate(1.3);
-      box-shadow: 0 16px 40px -20px color-mix(in srgb, var(--color-black) 55%, transparent);
-      padding: 0.45rem 0.45rem 0.45rem var(--space-4);
-      max-width: calc(100vw - 2 * var(--space-3));
-      opacity: 0; visibility: hidden;
-      transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out), visibility var(--dur-base);
-    }
-    .ss-sticky-cta.is-visible { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
-    .ss-sticky-cta__text { font-size: var(--text-small); color: var(--fg); white-space: nowrap; }
-    @media (max-width: 640px) { .ss-sticky-cta__text { display: none; } }
-    .ss-sticky-cta__btn {
-      border-radius: 999px; background: var(--accent-fill); color: var(--accent-on);
-      font-size: var(--text-small); font-weight: 600; text-decoration: none;
-      padding: 0.55rem var(--space-3); white-space: nowrap;
-    }
 
     /* Testimonials: a soft pastel periwinkle→teal band so the section reads warmer
        than the plain surface, while staying light (08 §5c: keep colour gentle). */
@@ -354,28 +285,5 @@ const surface = '!bg-[var(--surface-c)]';
         radial-gradient(115% 90% at 100% 0%, color-mix(in srgb, var(--color-teal) 14%, transparent), transparent 62%),
         linear-gradient(180deg, color-mix(in srgb, var(--accent-fill) 10%, var(--ground)), color-mix(in srgb, var(--accent-fill) 5%, var(--ground)));
     }
-
-    /* Mobile: the floating sticky CTA becomes a clean full-width button, not a
-       button sitting inside a bordered pill (which read as a box on phones). */
-    @media (max-width: 640px) {
-      .ss-sticky-cta {
-        left: var(--space-3); right: var(--space-3); max-width: none;
-        transform: translateY(180%);
-        padding: 0; border: none; background: transparent; box-shadow: none;
-        -webkit-backdrop-filter: none; backdrop-filter: none;
-      }
-      .ss-sticky-cta.is-visible { transform: translateY(0); }
-      .ss-sticky-cta__btn {
-        width: 100%; text-align: center;
-        border-radius: var(--radius-button);
-        padding: 0.9rem var(--space-4); font-size: 0.95rem;
-        box-shadow: 0 14px 34px -14px color-mix(in srgb, var(--accent-fill) 65%, transparent);
-      }
-    }
   </style>
-
-  <div data-sticky-cta class="ss-sticky-cta">
-    <span class="ss-sticky-cta__text">Free growth plan: a written audit in three working days.</span>
-    <a href="/audit/" class="ss-sticky-cta__btn">Get a free growth plan</a>
-  </div>
 </BaseLayout>
