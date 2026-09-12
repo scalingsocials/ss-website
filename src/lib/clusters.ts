@@ -22,23 +22,6 @@ export interface Cluster {
 
 export const CLUSTERS: Cluster[] = [
   {
-    slug: 'meta-ads', url: '/meta-ads-agency-india/', name: 'Meta Ads', parentSlug: 'performance-marketing', parentName: 'Performance marketing', parentUrl: '/performance-marketing-agency-bangalore/',
-    title: 'Meta Ads Agency in India for D2C Brands | Scaling Socials',
-    description: 'Scaling Socials is a Meta Ads agency for D2C brands in India and the UAE: full-funnel Facebook and Instagram ads, run to your margin with in-house creative.',
-    h1: 'Meta Ads agency for D2C brands in India',
-    answer: 'Scaling Socials runs full-funnel Meta advertising, across Facebook and Instagram, for D2C and ecommerce brands in India and the UAE. That means prospecting, retargeting, and Advantage+ where it beats manual, all fed by an in-house creative pipeline and managed to your real margin rather than a platform-flattered ROAS.',
-    sections: [
-      { heading: 'Creative is the lever, not the settings', body: 'On Meta today the account structure matters far less than the volume and quality of creative running through it. We produce statics and video-led ads in-house and put them through a structured testing pipeline, so winners get found by spend rather than by the loudest opinion in the room. That is where the scaling actually comes from.' },
-      { heading: 'Advantage+ where it earns its place', body: 'We reach for Advantage+ Shopping when it genuinely beats a manual structure, and stay manual where the control pays for itself. Your data and your margin make that call, never a fixed package, and everything gets held to your break-even ROAS.' },
-    ],
-    faqs: [
-      { q: 'How does pricing work for a Meta ads agency in India?', a: 'We scope every engagement to the brand rather than a fixed package, it reflects your ad spend and creative volume. Whatever the scope, your Meta ad spend stays separate: it goes straight to Meta and is never marked up by us.' },
-      { q: 'Do you make the Meta ad creative?', a: 'Yes. We produce statics and video-led ads in-house and test them in a structured pipeline. Creative is the single biggest lever on Meta right now, so it sits at the core of the engagement rather than off to the side as an add-on.' },
-      { q: 'Should I use Advantage+ or manual campaigns?', a: 'It depends on your catalogue and your funnel. We run Advantage+ where it beats manual and stay manual where control pays off, and we test both against your break-even ROAS instead of following a rule of thumb.' },
-      { q: 'My Meta ads get traffic but no sales. Is it the ads?', a: 'Often it is not. The most common mistake we see in Indian D2C is blaming Meta for a problem sitting somewhere else, when traffic is healthy and purchases are not, the cause is usually the product, the price, the website or the content, and no amount of campaign restructuring fixes any of those. Scaling Socials checks the whole path from ad to checkout before rebuilding an account, and will tell you when the ads are not what is holding sales back.' },
-    ],
-  },
-  {
     slug: 'google-ads', url: '/google-ads-agency-bangalore/', name: 'Google Ads', parentSlug: 'performance-marketing', parentName: 'Performance marketing', parentUrl: '/performance-marketing-agency-bangalore/',
     title: 'Google Ads Agency in Bangalore for D2C | Scaling Socials',
     description: 'Scaling Socials runs Google Ads for D2C brands in Bangalore: Search, Shopping, Performance Max and ecommerce PPC built around buying intent and your margin.',

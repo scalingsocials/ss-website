@@ -21,3 +21,14 @@ export type RichSpan = string | { text: string; href: string };
 
 /** A body value: a plain string, or an ordered list of text/link segments. */
 export type RichText = string | RichSpan[];
+
+/**
+ * Plain-text form of a RichText value — the visible words with the links
+ * stripped. Used to feed schema (e.g. FAQPage answer text) from the same data
+ * the page renders, so the marked-up answer and the schema text always match
+ * (03 §1.3: never mark up an answer that is not visible).
+ */
+export function richToText(value: RichText): string {
+  if (typeof value === 'string') return value;
+  return value.map((s) => (typeof s === 'string' ? s : s.text)).join('');
+}

@@ -12,9 +12,12 @@
  *
  * Register-agnostic. Reads semantic vars only.
  */
+import RichText from '@/components/primitives/RichText.astro';
+import type { RichText as RichTextValue } from '@/lib/richtext';
+
 export interface FaqItem {
   q: string;
-  a: string;
+  a: RichTextValue; // string, or text/link segments (links rendered in-answer)
 }
 
 export interface Props {
@@ -47,7 +50,7 @@ const { items, openFirst = false, class: className = '' } = Astro.props;
         </svg>
       </summary>
       <p class="max-w-[64ch] pb-[var(--space-4)] text-body leading-relaxed text-[var(--fg-muted)]">
-        {item.a}
+        <RichText value={item.a} />
       </p>
     </details>
   ))}

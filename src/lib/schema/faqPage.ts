@@ -6,10 +6,11 @@
  * answers in the DOM whether open or closed, so the markup is honest.
  */
 import { faqId, type SchemaNode } from './ids';
+import { richToText, type RichText } from '@/lib/richtext';
 
 export interface FaqItem {
   q: string;
-  a: string;
+  a: RichText; // string, or text/link segments — schema uses the plain-text form
 }
 
 export function faqPage(pageUrl: string, items: FaqItem[]): SchemaNode {
@@ -19,7 +20,7 @@ export function faqPage(pageUrl: string, items: FaqItem[]): SchemaNode {
     mainEntity: items.map((item) => ({
       '@type': 'Question',
       name: item.q,
-      acceptedAnswer: { '@type': 'Answer', text: item.a },
+      acceptedAnswer: { '@type': 'Answer', text: richToText(item.a) },
     })),
   };
 }

@@ -44,7 +44,7 @@ url,word_count,noindex
 "/glossary/ltv/",399,false
 "/glossary/cac/",406,false
 "/glossary/roas/",410,false
-"/sitemap/",463,false
+"/sitemap/",461,false
 "/case-studies/",533,false
 "/industries/beauty-cosmetics/",534,false
 "/blog/",538,false
@@ -54,7 +54,6 @@ url,word_count,noindex
 "/industries/kids-baby/",554,false
 "/vs/seo-vs-performance-marketing/",571,false
 "/vs/shopify-vs-woocommerce/",603,false
-"/meta-ads-agency-india/",614,false
 "/industries/fashion-apparel/",631,false
 "/vs/in-house-vs-agency/",650,false
 "/vs/agency-vs-freelancer/",662,false
@@ -86,8 +85,8 @@ url,word_count,noindex
 "/shopify-store-redesign-services/",951,false
 "/shopify-speed-optimisation-services/",975,false
 "/shopify-store-migration-services/",983,false
+"/google-ads-agency-bangalore/",1021,false
 "/conversion-rate-optimisation-services/",1033,false
-"/google-ads-agency-bangalore/",1034,false
 "/answer-engine-optimisation-services/",1080,false
 "/shopify-development-company-bangalore/",1104,false
 "/guides/shopify-store-speed/",1114,false
@@ -103,3 +102,4 @@ url,word_count,noindex
 "/",2262,false
 "/lp/performance-marketing/b2b/",2276,true
 "/lp/performance-marketing/",2281,true
+"/meta-ads-agency-india/",2379,false

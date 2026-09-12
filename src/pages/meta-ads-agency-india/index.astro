@@ -1,6 +1,238 @@
 ---
-import ClusterLayout from '@/layouts/ClusterLayout.astro';
-import { CLUSTER_BY_SLUG } from '@/lib/clusters';
-const cluster = CLUSTER_BY_SLUG['meta-ads'];
+/**
+ * /meta-ads-agency-india/ — the flagship Meta Ads page. Bespoke (not the cluster
+ * template) because the copy needs real lists, case-study pullouts, a stats block
+ * and a ten-question FAQ — the enumerable structure answer engines extract (03 §3).
+ * Owner-supplied copy, built to depth. Schema: Service + WebPage + BreadcrumbList
+ * + FAQPage. No SS pricing figure (§18); the ₹10k–20k figure is an ad-spend floor
+ * (the client's media budget, used to qualify), not a fee.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import Button from '@/components/primitives/Button.astro';
+import LeadForm from '@/components/blocks/LeadForm.astro';
+import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
+import CtaBand from '@/components/blocks/CtaBand.astro';
+import { SERVICE_BY_SLUG } from '@/lib/services';
+import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
+import type { FaqItem } from '@/components/blocks/FaqAccordion.astro';
+
+const url = '/meta-ads-agency-india/';
+const title = 'Meta Ads Agency in India for D2C Brands | Scaling Socials';
+const description =
+  'Scaling Socials is a Meta Ads agency for D2C brands in India and the UAE: full-funnel Facebook and Instagram ads, run to your margin with in-house creative.';
+const published = '2026-09-01';
+const modified = '2026-09-12';
+const parent = SERVICE_BY_SLUG['performance-marketing'];
+
+const answer =
+  'Scaling Socials runs full-funnel Meta advertising, across Facebook and Instagram, for D2C and ecommerce brands in India and the UAE. That means prospecting, retargeting, and Advantage+ where it beats manual, all fed by an in-house creative pipeline and managed to your real margin rather than a platform-flattered ROAS.';
+
+// Proof stats — ₹10 crore+ managed spend is Meta-specific (owner-confirmed) and
+// sits alongside the ₹10.4 Cr all-channel figure in ProofBar; keep them aligned.
+const stats = [
+  { v: '400+', l: 'D2C and ecommerce brands advertised for since 2021' },
+  { v: '150+', l: 'brands scaled past ₹10 lakh in monthly revenue' },
+  { v: '50+', l: 'brands taken past ₹1 crore in cumulative sales' },
+  { v: '₹10 Cr+', l: 'in Meta ad spend managed inside client accounts' },
+];
+
+const faqs: FaqItem[] = [
+  { q: 'How long before I see results?', a: 'Positive traction usually shows in the first month. Consistent sales, stable ROAS and dependable revenue take at least three months, because that is how long a proper testing cycle takes.' },
+  { q: 'Do I pay my ad spend to you?', a: 'No. Your ad budget goes directly into your own ad account and straight to Meta. We never mark it up and never route it through us. Everything stays visible to you.' },
+  { q: 'Whose ad account do you run on?', a: 'Yours. Every rupee spent is visible in an account you own, which is the only arrangement that is genuinely transparent.' },
+  { q: 'Whose pixel gets used?', a: 'Yours. The data we build belongs to you, and it stays with you whether you work with us next year or not.' },
+  { q: 'What is the minimum contract period?', a: 'There is not one. We do not lock clients into contracts — you can stop whenever you choose. We suggest giving it three months so you are judging us on results rather than on the testing phase, but that is a recommendation, not a term.' },
+  { q: 'Who will actually run my account — seniors or freshers?', a: 'Experienced buyers. We hire for capability rather than headcount, which is why the team is deliberately small.' },
+  { q: 'Do you make the Meta ad creative?', a: 'Yes. Statics and video-led ads are produced in-house and tested in a structured pipeline. Creative is the single biggest lever on Meta right now, so it sits at the centre of the engagement rather than off to the side as an add-on.' },
+  { q: 'Should I use Advantage+ or manual campaigns?', a: 'It depends on your catalogue and your funnel. We run Advantage+ where it beats manual and stay manual where the control pays off, and we test both against your break-even ROAS.' },
+  {
+    q: 'My Meta ads get traffic but no sales. Is it the ads?',
+    a: [
+      'Often it is not. The most common mistake we see in Indian D2C is ',
+      { text: 'blaming Meta when the real problem sits after the click', href: '/blog/meta-ads-traffic-but-no-sales/' },
+      '. When traffic is healthy and purchases are not, the cause is usually the product, the price, the website or the content — and no amount of campaign restructuring fixes any of those. We check the whole path from ad to checkout before rebuilding an account, and where the leak is on-site we fix it with ',
+      { text: 'conversion rate optimisation', href: '/conversion-rate-optimisation-services/' },
+      ', not more ad spend.',
+    ],
+  },
+  { q: 'How does pricing work?', a: 'Every engagement is scoped to the brand rather than sold as a fixed package, and it reflects your ad spend and creative volume. Your Meta ad spend always stays separate and unmarked-up.' },
+];
+
+const nodes = [
+  ...base(),
+  service({ url, name: 'Meta Ads', serviceType: 'Meta advertising', description, areaServed: ['IN', 'AE'] }),
+  webPage({ url, name: title, description, aboutId: serviceId(url), hasBreadcrumb: true, datePublished: published, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Performance marketing', url: '/performance-marketing-agency-bangalore/' }, { name: 'Meta Ads', url }]),
+  faqPage(url, faqs),
+];
 ---
-<ClusterLayout cluster={cluster} />
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] flex flex-wrap items-center gap-x-[0.15rem] text-small text-[var(--fg-muted)]">
+      <a href="/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Home</a><span> / </span>
+      <a href="/performance-marketing-agency-bangalore/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Performance marketing</a><span> / </span>
+      <span>Meta Ads</span>
+    </nav>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+      <div>
+        <span class="ss-eyebrow">Performance marketing</span>
+        <h1 class="max-w-[20ch]">Meta Ads agency for D2C brands in India</h1>
+        <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">{answer}</p>
+        <p class="mt-[var(--space-4)] max-w-[56ch] text-body text-[var(--fg-muted)]">
+          Five years in, we have run Meta ads for over 400 brands, always inside their own ad accounts.
+          The account stays yours. So does the pixel. And so does the data we build in it.
+        </p>
+        <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+          <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+          <Button href="/performance-marketing-agency-bangalore/" variant="secondary">Performance marketing</Button>
+        </div>
+      </div>
+      <div class="lg:sticky lg:top-[88px]">
+        <LeadForm source="meta-ads" heading="Get a free Meta ads review" questions={parent?.formQuestions ?? []} submitLabel="Get my free review" />
+      </div>
+    </div>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <Prose>
+      <h2>How we structure a Meta account</h2>
+      <p>There is no template. The structure follows the budget and the stage the brand is at, and both of those change.</p>
+      <p><strong>Number of campaigns follows the budget.</strong> A brand spending ₹10,000 a day cannot support the same account architecture as a brand spending ₹1 lakh a day, and pretending otherwise is how testing budgets get spread so thin that nothing reaches significance. We have run both ends of that range and completed a clean testing phase in both, but the campaign count, the ad count and the daily allocation get worked out from your <a href="/tools/meta-ads-budget-planner/">monthly marketing budget</a> downward, not from a slide deck.</p>
+      <p><strong>Prospecting versus retargeting follows the audience you already have.</strong> If you come to us with an existing customer base, a real Instagram following and warm audiences already sitting in your account, we start retargeting from week one because the money is already there to be collected. If you are starting cold with no pixel data and no audience, almost everything goes to prospecting first, because until we know which cold audiences add to cart and initiate checkout, there is nothing to retarget. As a rough shape:</p>
+      <ul>
+        <li><strong>Early-stage brand:</strong> around 80% of budget into prospecting, 20% into retargeting.</li>
+        <li><strong>Scaling brand:</strong> around 50% into prospecting, 20–25% into retargeting, and the remaining 25% into lookalikes built off purchasers, website visitors and Instagram engagers.</li>
+      </ul>
+      <p>The funnel runs in that order every time — cold, then warm, then retarget, then convert.</p>
+      <p><strong>CBO or ABO is a testing decision, not a preference.</strong> When a brand has enough budget to move through the testing phase quickly, we run a high-budget CBO with multiple ad sets and creatives, changing one variable at a time — creative, or interest, or age, or gender, never all at once. The moment a winner is clear, that creative or that audience moves into ABO, where we can control its budget directly and scale it. Some accounts stay CBO-led, some ABO-led. It depends on the account.</p>
+    </Prose>
+    <figure class="ss-pullout">
+      <span class="ss-pullout__tag">Inherited account · women’s fashion</span>
+      <p class="ss-pullout__line"><span>Starting point:</span> 1.75x ROAS under a previous agency, spend spread across positions that never earned it.</p>
+      <p class="ss-pullout__line"><span>Where it got to:</span> 3.94x in a single quarter, revenue up 204% on 35% more spend — our worst month still beat their previous best.</p>
+      <a href="/case-studies/womens-fashion-account-turnaround/" class="ss-pullout__link">Read the women’s fashion turnaround</a>
+    </figure>
+  </Section>
+
+  <Section size="md">
+    <Prose>
+      <h2>Creative is the lever, not the settings</h2>
+      <p>Since the Andromeda update, the volume and quality of creative running through an account matters far more than how neatly the account is organised. We produce statics and video-led ads in-house and push them through a <a href="/guides/meta-ads-creative-testing/">structured testing pipeline</a>, so winners get found by spend rather than by the loudest opinion in the room.</p>
+      <p>We do not commit to a fixed number of creatives per month, because that number is an output, not a target. If ten a week is producing results, ten a week is right. If it is not, we go to twenty, thirty, forty. The requirement sets the number.</p>
+      <h3>How a test is judged</h3>
+      <p>We review every campaign on a three to four day cycle against the objective it was launched for. A sales campaign that has produced no sales in that window gets killed and replaced — new interest, new age band, new creative, new angle. A campaign that is producing strong <a href="/glossary/ctr/">CTR</a> and healthy add-to-carts gets more time even if the sales have not landed yet, because the signal is there. When we are in a brand-building phase and sales are not yet the fair measure, we judge on <a href="/glossary/ctr/">CTR</a>, <a href="/glossary/cpc/">CPC</a> and <a href="/glossary/cpm/">CPM</a> instead, and anything not trending toward a winner gets switched off quickly.</p>
+      <p><strong>What makes something a winner:</strong> for sales campaigns, profitable ROAS and consistent orders. For lead generation, cost per lead and lead quality — cheap leads your sales team cannot close are not a result.</p>
+    </Prose>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <Prose>
+      <h2>Advantage+ where it earns its place</h2>
+      <p><a href="/glossary/advantage-plus-shopping/">Advantage+ Shopping</a> is a genuinely good update and we have seen it produce strong results, but it earns its place in two specific situations rather than by default.</p>
+      <p>If you already have a proven product with sales behind it, Advantage+ with a serious budget is often the fastest way to scale that product. If you do not yet know what your winner is, Advantage+ is still useful, because it will test multiple products at once and tell you faster than a manual structure which of them the market actually wants.</p>
+      <p>Where a manual structure gives us control worth paying for, we stay manual — the same call we weigh on <a href="/vs/advantage-plus-vs-manual/">Advantage+ versus a manual campaign structure</a>, and the one Google forces too with <a href="/glossary/performance-max/">Performance Max</a>. Either way, the campaign is held to your <a href="/glossary/roas/">break-even ROAS</a>, calculated from your margin with our <a href="/tools/break-even-roas-calculator/">break-even ROAS calculator</a>, not to a rule of thumb.</p>
+    </Prose>
+    <figure class="ss-pullout">
+      <span class="ss-pullout__tag">Scaling a proven product · mid-luxury womenswear</span>
+      <p class="ss-pullout__line"><span>Starting point:</span> capped at 3–5x for a year — a stable account that had quietly stopped growing.</p>
+      <p class="ss-pullout__line"><span>Where it got to:</span> 7.09x across seven months while spending more than ever, worst month still 5.83x.</p>
+      <a href="/case-studies/womenswear-breaking-the-ceiling/" class="ss-pullout__link">Read the womenswear scaling story</a>
+    </figure>
+  </Section>
+
+  <Section size="md">
+    <Prose>
+      <h2>How we approach targeting</h2>
+      <p>We have not dropped anything. Broad, manual interests and lookalikes all still get tested, in that order of priority.</p>
+      <p>Broad comes first, because Meta’s models in 2026 are considerably better at finding buyers than a hand-built interest stack. Manual targeting comes next — it is the foundation of advertising and it still works, particularly where a brand has a sharply defined customer. Lookalikes come in proportion to the purchase data available; with enough purchasers in the account, lookalike campaigns become one of the most reliable parts of the structure. What works is decided per brand, by testing, not by a house rule.</p>
+    </Prose>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <Prose>
+      <h2>What the first 90 days look like</h2>
+      <h3>Onboarding: the health check</h3>
+      <p>Before a single campaign goes live, we walk your entire path from homepage to purchase confirmation, looking for the breaks — add to cart, checkout initiation, billing details, payment. A slow or broken store is the most common thing quietly capping paid results, so this is also where we flag <a href="/web-development-company-bangalore/">website</a> and <a href="/shopify-speed-optimisation-services/">store-speed</a> problems that campaign changes can never fix. We then verify your pixel is firing correctly and connected properly to the ad account, and audit everything run on the account historically — money already spent is data already bought.</p>
+      <p>That audit becomes your month-one plan. Whatever showed positive signal in the past gets priority; whatever failed gets avoided outright. Alongside it you get a creative brief, so you know exactly what images and videos we need from you and by when. When we produce the creative, our design team and our media buyers plan the campaigns and the creative together, in the same room. Most agencies get this wrong — designers make whatever they make and the buyer runs it. We do not work that way.</p>
+      <h3>Month one — content</h3>
+      <p>Campaigns go live and the first month is spent finding out which content angles work: statics, video, catalogue. You also get a weekly call, every week, covering what happened in the account and the plan for the next seven days.</p>
+      <h3>Month two — targeting</h3>
+      <p>With the content question answered, month two is spent finding the audiences: which interests, which age bands, which locations, which structures.</p>
+      <h3>Month three — consistency</h3>
+      <p>By the end of 90 days we have all three answers in hand — the content that works, the targeting that works, and the campaign structure that works. That is the point where consistent sales and stable revenue become a fair expectation.</p>
+      <h3>What not to expect in the first 30 to 60 days</h3>
+      <p>Strong, consistent ROAS. During testing, losing campaigns will outnumber winners — that is what testing is. Brands that hold their nerve through that window are the ones that see month-on-month growth afterwards. Patience in the testing phase is not optional.</p>
+    </Prose>
+    <figure class="ss-pullout">
+      <span class="ss-pullout__tag">The testing window, with a real account behind it · wellness D2C</span>
+      <p class="ss-pullout__line"><span>Starting point:</span> the first two months returned ₹0 — no proven product, no data, a genuinely hard call to keep going.</p>
+      <p class="ss-pullout__line"><span>Where it got to:</span> ₹1.19 crore in year one at 6.23x average, with monthly budget grown 44x against proven performance.</p>
+      <a href="/case-studies/wellness-brand-zero-to-scale/" class="ss-pullout__link">Read how the wellness brand scaled from zero</a>
+    </figure>
+  </Section>
+
+  <Section size="md">
+    <Prose>
+      <h2>Brands we do not work with</h2>
+      <p>We turn down work, and it is worth being clear about when:</p>
+      <ul>
+        <li>Brands expecting 5X or 7X in month one. That is not how testing works and we will not pretend otherwise to win an account.</li>
+        <li>Ad-spend budgets of ₹10,000–₹20,000 a month. There is no version of that budget that produces a meaningful result, and taking it would waste your money and our time.</li>
+        <li>Brands that want a vendor rather than a partner — not open to changing pricing, improving the product, fixing the website or investing in content. We will always tell you what is actually holding sales back, and that only works if you want to hear it.</li>
+        <li>Illegal products, and anything overpriced and sold on hype without delivering value.</li>
+      </ul>
+      <p>We work with brands that have a realistic view of where they want to be in a year and are willing to build toward it. If you are not sure that is you, our note on <a href="/blog/who-we-turn-down-and-why/">who we turn down and why</a> is an honest read.</p>
+      <h2>Categories we have spent in</h2>
+      <p>Five years across Indian and UAE ecommerce means most niches have come through the door. By spend, the largest are apparel, home decor, skincare and F&B — followed by services, real estate, study abroad, pet, electronics and home appliances.</p>
+    </Prose>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="ss-eyebrow">Why brands stay</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">Five years, inside your own account</h2>
+    <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-4">
+      {stats.map((s) => (
+        <li class="flex flex-col gap-[var(--space-1)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+          <span class="display-type text-h2 font-bold leading-none text-[var(--fg)]">{s.v}</span>
+          <span class="text-small leading-relaxed text-[var(--fg-muted)]">{s.l}</span>
+        </li>
+      ))}
+    </ul>
+    <div class="mt-[var(--space-5)] max-w-[760px]">
+      <Prose>
+        <ul>
+          <li>Official Meta Business Partner.</li>
+          <li>Social Analytix, our in-house AI tool, monitors every live campaign in your ad account in real time and flags what to pause, what to scale, and where budget is leaking — so decisions happen on the day, not at the end of the month.</li>
+          <li>Experienced media buyers only. We keep the team small and qualified rather than filling it with volume hires and assigning your account to whoever is free.</li>
+        </ul>
+      </Prose>
+    </div>
+  </Section>
+
+  <Section size="md">
+    <span class="ss-eyebrow">Questions</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">Questions founders ask</h2>
+    <div class="mt-[var(--space-5)] max-w-[820px]"><FaqAccordion items={faqs} openFirst /></div>
+  </Section>
+
+  <Section register="ink" size="md">
+    <CtaBand heading="Not sure where to start?" body="Send us your accounts and you get a written audit in three working days, whether or not you go on to hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" secondaryLabel="Talk to us" secondaryHref="/contact/" />
+  </Section>
+
+  <style>
+    .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+    .ss-pullout { margin-top: var(--space-6); border-left: 3px solid var(--accent-graphic); background: var(--ground); border-radius: var(--radius-card); padding: var(--space-4) var(--space-5); display: flex; flex-direction: column; gap: var(--space-2); }
+    .ss-pullout__tag { font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
+    .ss-pullout__line { font-size: var(--text-small); line-height: 1.55; color: var(--fg); }
+    .ss-pullout__line span { font-weight: 600; color: var(--fg-muted); }
+    .ss-pullout__link { align-self: flex-start; margin-top: var(--space-1); font-size: var(--text-small); font-weight: 600; color: var(--accent-text); }
+  </style>
+</BaseLayout>
