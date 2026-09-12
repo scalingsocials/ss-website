@@ -26,23 +26,18 @@ interface Props {
 }
 const { service, index } = Astro.props;
 
-// Six soft pastel palettes. a = lightest card wash, b = mid highlight,
-// ink = the saturated hue for the illustration's main shapes.
-const HUES = [
-  { a: '#EEF0FF', b: '#C6C9FF', ink: '#4B4ED6' }, // periwinkle — Performance
-  { a: '#E1F5F0', b: '#A9E2D7', ink: '#1C857A' }, // teal       — SEO
-  { a: '#E6F1FB', b: '#B7DDF4', ink: '#2181B4' }, // sky        — Shopify
-  { a: '#F2EBFE', b: '#D6C2FB', ink: '#6C43C8' }, // violet     — Web dev
-  { a: '#FDEAF1', b: '#F6C6D9', ink: '#C0446F' }, // blush      — Social
-  { a: '#FEEFE1', b: '#FBD2AC', ink: '#B67328' }, // amber      — CRO
-];
-const h = HUES[index % HUES.length]!;
+// The six pastel hues live in the scoped <style> below, selected by data-hue.
+// They are NOT set via an inline `style` attribute: the production CSP is strict
+// hash-based and blocks inline style attributes (you cannot hash one), which
+// silently dropped the per-card colours on the live site. A data attribute +
+// hashed CSS is CSP-safe. See docs/spec/01 CSP notes.
+const hue = index % 6;
 ---
 
 <a
   href={service.href}
   class="svc group"
-  style={`--c-a:${h.a};--c-b:${h.b};--c-ink:${h.ink}`}
+  data-hue={hue}
 >
   <span class="svc__arrow" aria-hidden="true">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -56,66 +51,69 @@ const h = HUES[index % HUES.length]!;
   </div>
 
   <div class="svc__art" aria-hidden="true">
+    {/* Paints come from CSS classes (.ai/.am/.si/.sm) not `fill="var(...)"`:
+        var() in SVG presentation attributes isn't reliable cross-browser
+        (renders black on WebKit/iOS). In the CSS `fill`/`stroke` property it is. */}
     <svg viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="120" cy="150" rx="86" ry="8" fill="var(--c-ink)" opacity="0.10" />
+      <ellipse cx="120" cy="150" rx="86" ry="8" class="ai" opacity="0.10" />
 
       {index === 0 && (
         <g>
           {/* Performance marketing — rising bars + trend arrow */}
-          <rect x="66" y="104" width="22" height="42" rx="6" fill="var(--c-ink)" opacity="0.78" />
-          <rect x="96" y="86" width="22" height="60" rx="6" fill="var(--c-ink)" opacity="0.88" />
-          <rect x="126" y="66" width="22" height="80" rx="6" fill="var(--c-ink)" />
-          <rect x="156" y="48" width="22" height="98" rx="6" fill="var(--c-ink)" />
+          <rect x="66" y="104" width="22" height="42" rx="6" class="ai" opacity="0.78" />
+          <rect x="96" y="86" width="22" height="60" rx="6" class="ai" opacity="0.88" />
+          <rect x="126" y="66" width="22" height="80" rx="6" class="ai" />
+          <rect x="156" y="48" width="22" height="98" rx="6" class="ai" />
           <rect x="156" y="48" width="22" height="12" rx="6" fill="#fff" opacity="0.28" />
-          <path d="M60 98 96 82 126 62 156 46 186 30" stroke="var(--c-b)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-          <path d="M172 28h16v16" stroke="var(--c-b)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-          <circle cx="186" cy="30" r="6" fill="var(--c-ink)" />
+          <path d="M60 98 96 82 126 62 156 46 186 30" class="sm" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M172 28h16v16" class="sm" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="186" cy="30" r="6" class="ai" />
         </g>
       )}
 
       {index === 1 && (
         <g>
           {/* SEO — magnifier over a rising line */}
-          <rect x="150" y="98" width="13" height="30" rx="4" fill="var(--c-ink)" opacity="0.3" />
-          <rect x="168" y="84" width="13" height="44" rx="4" fill="var(--c-ink)" opacity="0.3" />
+          <rect x="150" y="98" width="13" height="30" rx="4" class="ai" opacity="0.3" />
+          <rect x="168" y="84" width="13" height="44" rx="4" class="ai" opacity="0.3" />
           <circle cx="108" cy="78" r="42" fill="#fff" opacity="0.55" />
-          <circle cx="108" cy="78" r="42" stroke="var(--c-ink)" stroke-width="9" />
-          <path d="M86 92 102 76 114 84 134 60" stroke="var(--c-ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
-          <line x1="140" y1="112" x2="166" y2="138" stroke="var(--c-ink)" stroke-width="13" stroke-linecap="round" />
+          <circle cx="108" cy="78" r="42" class="si" stroke-width="9" />
+          <path d="M86 92 102 76 114 84 134 60" class="si" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+          <line x1="140" y1="112" x2="166" y2="138" class="si" stroke-width="13" stroke-linecap="round" />
         </g>
       )}
 
       {index === 2 && (
         <g>
           {/* Shopify development — shopping bag + coin */}
-          <path d="M74 74h92l9 62a8 8 0 0 1-8 9H73a8 8 0 0 1-8-9z" fill="var(--c-ink)" />
+          <path d="M74 74h92l9 62a8 8 0 0 1-8 9H73a8 8 0 0 1-8-9z" class="ai" />
           <path d="M92 74h56l6 62H86z" fill="#fff" opacity="0.14" />
-          <path d="M96 78v-8a24 24 0 0 1 48 0v8" stroke="var(--c-ink)" stroke-width="8" stroke-linecap="round" />
-          <circle cx="120" cy="112" r="18" fill="var(--c-b)" />
-          <path d="M120 103v18M114 108h9a4 4 0 0 1 0 8h-9m0 0h10" stroke="var(--c-ink)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M96 78v-8a24 24 0 0 1 48 0v8" class="si" stroke-width="8" stroke-linecap="round" />
+          <circle cx="120" cy="112" r="18" class="am" />
+          <path d="M120 103v18M114 108h9a4 4 0 0 1 0 8h-9m0 0h10" class="si" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
         </g>
       )}
 
       {index === 3 && (
         <g>
           {/* Web development — browser window + code */}
-          <rect x="78" y="56" width="112" height="74" rx="12" fill="var(--c-ink)" opacity="0.2" />
+          <rect x="78" y="56" width="112" height="74" rx="12" class="ai" opacity="0.2" />
           <rect x="56" y="62" width="118" height="76" rx="13" fill="#fff" opacity="0.6" />
-          <rect x="56" y="62" width="118" height="76" rx="13" stroke="var(--c-ink)" stroke-width="3" opacity="0.4" />
-          <circle cx="72" cy="76" r="4.5" fill="var(--c-ink)" />
-          <circle cx="86" cy="76" r="4.5" fill="var(--c-ink)" opacity="0.55" />
-          <circle cx="100" cy="76" r="4.5" fill="var(--c-ink)" opacity="0.4" />
-          <path d="M96 98 84 110l12 12M138 98l12 12-12 12" stroke="var(--c-ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
-          <path d="M126 94 108 126" stroke="var(--c-b)" stroke-width="6" stroke-linecap="round" />
+          <rect x="56" y="62" width="118" height="76" rx="13" class="si" stroke-width="3" opacity="0.4" />
+          <circle cx="72" cy="76" r="4.5" class="ai" />
+          <circle cx="86" cy="76" r="4.5" class="ai" opacity="0.55" />
+          <circle cx="100" cy="76" r="4.5" class="ai" opacity="0.4" />
+          <path d="M96 98 84 110l12 12M138 98l12 12-12 12" class="si" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M126 94 108 126" class="sm" stroke-width="6" stroke-linecap="round" />
         </g>
       )}
 
       {index === 4 && (
         <g>
           {/* Social media marketing — chat bubbles */}
-          <path d="M62 62h74a15 15 0 0 1 15 15v28a15 15 0 0 1-15 15h-38l-20 17v-17h-1a15 15 0 0 1-15-15V77a15 15 0 0 1 15-15z" fill="var(--c-ink)" />
+          <path d="M62 62h74a15 15 0 0 1 15 15v28a15 15 0 0 1-15 15h-38l-20 17v-17h-1a15 15 0 0 1-15-15V77a15 15 0 0 1 15-15z" class="ai" />
           <path d="M99 82c-7-9-20-3-20 7 0 9 11 13 20 20 9-7 20-11 20-20 0-10-13-16-20-7z" fill="#fff" opacity="0.9" />
-          <circle cx="170" cy="118" r="22" fill="var(--c-b)" />
+          <circle cx="170" cy="118" r="22" class="am" />
           <path d="M164 108v20l17-10z" fill="#fff" />
         </g>
       )}
@@ -123,13 +121,13 @@ const h = HUES[index % HUES.length]!;
       {index === 5 && (
         <g>
           {/* CRO — conversion funnel */}
-          <circle cx="92" cy="50" r="6" fill="var(--c-b)" />
-          <circle cx="118" cy="46" r="6" fill="var(--c-b)" />
-          <circle cx="144" cy="50" r="6" fill="var(--c-b)" />
-          <path d="M70 64h100l-38 44v26l-24 12v-38z" fill="var(--c-ink)" />
+          <circle cx="92" cy="50" r="6" class="am" />
+          <circle cx="118" cy="46" r="6" class="am" />
+          <circle cx="144" cy="50" r="6" class="am" />
+          <path d="M70 64h100l-38 44v26l-24 12v-38z" class="ai" />
           <path d="M70 64h100l-14 16H84z" fill="#fff" opacity="0.16" />
-          <circle cx="120" cy="140" r="17" fill="var(--c-b)" />
-          <path d="M112 140 118 146l10-12" stroke="var(--c-ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="120" cy="140" r="17" class="am" />
+          <path d="M112 140 118 146l10-12" class="si" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
         </g>
       )}
     </svg>
@@ -137,6 +135,22 @@ const h = HUES[index % HUES.length]!;
 </a>
 
 <style>
+  /* Per-service pastel hues. Kept here (a hashed style block) rather than an
+     inline style attribute, which the production CSP blocks. a = lightest card
+     wash, b = mid highlight, ink = the saturated hue for the illustration. */
+  .svc[data-hue='0'] { --c-a: #eef0ff; --c-b: #c6c9ff; --c-ink: #4b4ed6; } /* periwinkle */
+  .svc[data-hue='1'] { --c-a: #e1f5f0; --c-b: #a9e2d7; --c-ink: #1c857a; } /* teal */
+  .svc[data-hue='2'] { --c-a: #e6f1fb; --c-b: #b7ddf4; --c-ink: #2181b4; } /* sky */
+  .svc[data-hue='3'] { --c-a: #f2ebfe; --c-b: #d6c2fb; --c-ink: #6c43c8; } /* violet */
+  .svc[data-hue='4'] { --c-a: #fdeaf1; --c-b: #f6c6d9; --c-ink: #c0446f; } /* blush */
+  .svc[data-hue='5'] { --c-a: #feefe1; --c-b: #fbd2ac; --c-ink: #b67328; } /* amber */
+
+  /* Illustration paints — CSS fill/stroke resolve var() reliably everywhere. */
+  .svc__art .ai { fill: var(--c-ink); }
+  .svc__art .am { fill: var(--c-b); }
+  .svc__art .si { stroke: var(--c-ink); }
+  .svc__art .sm { stroke: var(--c-b); }
+
   .svc {
     position: relative;
     display: flex;
