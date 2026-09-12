@@ -268,7 +268,10 @@ const panelId = (label: string) => `nav-panel-${label.toLowerCase().replace(/\s+
   .ss-logo--light { display: none; }
   .ss-header.is-over .ss-logo--dark { display: none; }
   .ss-header.is-over .ss-logo--light { display: inline-flex; }
-  .ss-header.is-over { border-color: transparent; }
+  /* The register rule ([data-register]{background:var(--ground)}) paints the
+     header dark in ink mode — override it so the hero shows through. Higher
+     specificity than [data-register], so no !important needed. */
+  .ss-header.is-over { background-color: transparent; border-color: transparent; }
   .ss-header.is-over .ss-header__backdrop {
     background: transparent;
     -webkit-backdrop-filter: none;
