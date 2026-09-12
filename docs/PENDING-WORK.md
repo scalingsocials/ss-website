@@ -3,7 +3,7 @@
 Status as of 2026-09-12. The site builds green: `check`, `build`, `check:perf`
 (per-page tiers), `check:schema`, `check:links` (0 broken, 0 orphans), `check:csp`,
 and the real WebKit+Chromium `check:browsers` gate all pass.
-**105 pages** are live in the repo. Since 2026-09-06: the full analytics stack
+**104 pages** are live in the repo. Since 2026-09-06: the full analytics stack
 (GA4 + Meta Pixel/CAPI + Clarity) went live and verified; 5 `/vs/` comparison pages,
 an industries hub + 5 vertical pages, per-founder author pages, and `/lp/` ad landing
 pages shipped; and a homepage v2 visual pass landed (interactive hero graphic,
@@ -181,8 +181,8 @@ Deploy runbook: **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)**.
   for every inline script and style). Getting there meant removing all 81 inline
   `style=""` attributes from components and islands, since hashes cannot cover
   style attributes. `frame-ancestors` is a real header in `_headers` (it is
-  ignored inside a meta CSP). External origins allowed are Turnstile, GA4, Meta and
-  Clarity. **Recurred 2026-09-12:** the homepage service cards set their per-card hue
+  ignored inside a meta CSP). 104 pages verified. External origins allowed are
+  Turnstile, GA4, Meta and Clarity. **Recurred 2026-09-12:** the homepage service cards set their per-card hue
   via an inline `style="--c-a:…"` attribute — invisible on the dev server (which does
   not enforce the built CSP) but silently stripped in production, so the cards lost
   their colour. Fixed by moving the hues to a `data-hue` attribute mapped to CSS custom
