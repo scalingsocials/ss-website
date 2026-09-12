@@ -12,6 +12,7 @@ import type { Field } from '@/lib/formFields';
 import type { Faq } from '@/lib/services';
 import { SERVICE_BY_SLUG } from '@/lib/services';
 import { CASE_STUDY_BY_SLUG, CASE_STUDY_TOTALS } from '@/lib/caseStudies';
+import { brandsServed } from '@/data/proofStats';
 
 export interface LandingProof {
   metric: string;
@@ -171,14 +172,14 @@ export const LANDINGS: LandingContent[] = [
       bullets: [
         'Media, creative & CRO on one senior team',
         'Ad spend paid straight to the platforms — never marked up',
-        '400+ ecommerce brands worked with across India and the UAE',
+        `${brandsServed.value} ecommerce brands worked with across India and the UAE`,
       ],
       qualifier: 'Best fit for brands ready to put at least ₹40–60 K a month into testing.',
       // "400+" is a worked-with count across services (owner to confirm it is
       // defensible on the call). The other two are true, derived from the seven
       // documented case studies (CASE_STUDY_TOTALS).
       stats: [
-        { value: '400+', label: 'Ecommerce brands worked with' },
+        { value: brandsServed.value, label: 'Ecommerce brands worked with' },
         { value: CASE_STUDY_TOTALS.roas, label: 'Average ROAS, documented ad accounts' },
         { value: CASE_STUDY_TOTALS.revenue, label: 'Tracked revenue driven' },
       ],

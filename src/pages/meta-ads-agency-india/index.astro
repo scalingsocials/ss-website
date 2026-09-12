@@ -18,6 +18,7 @@ import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import { SERVICE_BY_SLUG } from '@/lib/services';
 import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
+import { adSpendManaged, brandsServed, brandsPast10L, brandsPast1Cr } from '@/data/proofStats';
 import type { FaqItem } from '@/components/blocks/FaqAccordion.astro';
 
 const url = '/meta-ads-agency-india/';
@@ -31,14 +32,10 @@ const parent = SERVICE_BY_SLUG['performance-marketing'];
 const answer =
   'Scaling Socials runs full-funnel Meta advertising, across Facebook and Instagram, for D2C and ecommerce brands in India and the UAE. That means prospecting, retargeting, and Advantage+ where it beats manual, all fed by an in-house creative pipeline and managed to your real margin rather than a platform-flattered ROAS.';
 
-// Proof stats — ₹10 crore+ managed spend is Meta-specific (owner-confirmed) and
-// sits alongside the ₹10.4 Cr all-channel figure in ProofBar; keep them aligned.
-const stats = [
-  { v: '400+', l: 'D2C and ecommerce brands advertised for since 2021' },
-  { v: '150+', l: 'brands scaled past ₹10 lakh in monthly revenue' },
-  { v: '50+', l: 'brands taken past ₹1 crore in cumulative sales' },
-  { v: '₹10 Cr+', l: 'in Meta ad spend managed inside client accounts' },
-];
+// Proof stats — single source of truth in src/data/proofStats.ts. The managed
+// ad-spend figure has no channel qualifier and is gated by check:stats, so it
+// can never drift from the other pages.
+const stats = [brandsServed, brandsPast10L, brandsPast1Cr, adSpendManaged].map((s) => ({ v: s.value, l: s.label }));
 
 const faqs: FaqItem[] = [
   { q: 'How long before I see results?', a: 'Positive traction usually shows in the first month. Consistent sales, stable ROAS and dependable revenue take at least three months, because that is how long a proper testing cycle takes.' },
@@ -87,7 +84,7 @@ const nodes = [
         <h1 class="max-w-[20ch]">Meta Ads agency for D2C brands in India</h1>
         <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">{answer}</p>
         <p class="mt-[var(--space-4)] max-w-[56ch] text-body text-[var(--fg-muted)]">
-          Five years in, we have run Meta ads for over 400 brands, always inside their own ad accounts.
+          Five years in, we have run Meta ads for {brandsServed.value} brands, always inside their own ad accounts.
           The account stays yours. So does the pixel. And so does the data we build in it.
         </p>
         <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">

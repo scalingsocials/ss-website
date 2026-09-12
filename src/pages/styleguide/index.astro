@@ -31,6 +31,8 @@ import ProofBar from '@/components/blocks/ProofBar.astro';
 import LogoWall from '@/components/blocks/LogoWall.astro';
 import ClientVoice from '@/components/blocks/ClientVoice.astro';
 import CaseStudyCard from '@/components/blocks/CaseStudyCard.astro';
+import { adSpendManaged, brandsServed } from '@/data/proofStats';
+import { CASE_STUDY_TOTALS } from '@/lib/caseStudies';
 import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import FounderQuote from '@/components/blocks/FounderQuote.astro';
@@ -119,9 +121,9 @@ const sampleDelta = {
   client: 'SAMPLE Brand', period: 'Mar–Aug 2026', channel: 'Meta Ads', direction: 'up' as const,
 };
 const sampleProof = [
-  { value: '₹10.4 Cr', label: 'Ad spend managed', source: 'SAMPLE — real figure pending (11 §6)' },
-  { value: '100+', label: 'D2C brands', source: 'SAMPLE — real figure pending' },
-  { value: '3.8×', label: 'Average ROAS', source: 'SAMPLE — real figure pending' },
+  { value: adSpendManaged.value, label: adSpendManaged.label, source: 'Since 2021, India and the UAE' },
+  { value: brandsServed.value, label: brandsServed.label, source: 'Since 2021, India and the UAE' },
+  { value: CASE_STUDY_TOTALS.roas, label: 'Average ROAS', source: 'Across the documented case studies' },
 ];
 const sampleVoice = [
   "I'm frustrated that my agency doesn't bring fresh ideas.",

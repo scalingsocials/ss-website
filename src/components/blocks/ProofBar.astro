@@ -11,9 +11,9 @@
  * a number (CLAUDE.md §15).
  */
 export interface Stat {
-  value: string; // "₹10.4 Cr" — or "TODO: [managed spend]" until supplied
-  label: string; // "Ad spend managed"
-  source?: string; // "Across 100+ brands since 2021"
+  value: string; // e.g. adSpendManaged.value from src/data/proofStats.ts
+  label: string; // e.g. "Ad spend managed"
+  source?: string; // optional attribution line, e.g. "Since 2021, India and the UAE"
 }
 
 export interface Props {
