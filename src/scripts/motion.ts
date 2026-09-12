@@ -23,6 +23,18 @@ function parseNum(s: string): { pre: string; num: number; suf: string } | null {
   return { pre: m[1]!, num: parseFloat(m[2]!.replace(/,/g, '')), suf: m[3]! };
 }
 
+/** Binary-search a point on an SVG path at (approximately) viewBox x. */
+function pointAtX(path: SVGPathElement, x: number): DOMPoint {
+  const len = path.getTotalLength();
+  let lo = 0, hi = len, p = path.getPointAtLength(0);
+  for (let i = 0; i < 20; i++) {
+    const mid = (lo + hi) / 2;
+    p = path.getPointAtLength(mid);
+    if (p.x < x) lo = mid; else hi = mid;
+  }
+  return p;
+}
+
 function setupPage(): void {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hasIO = 'IntersectionObserver' in window;
@@ -179,6 +191,60 @@ function setupPage(): void {
   } else if (sticky && !hero) {
     // Not on the homepage — keep it hidden.
     sticky.classList.remove('is-visible');
+  }
+
+  // --- hero live panel: cursor tilt + crosshair (progressive enhancement) ----
+  const panel = document.querySelector<El>('[data-hero-panel]');
+  if (panel && !panel.dataset.bound && !reduce) {
+    panel.dataset.bound = '1';
+    const line = panel.querySelector<SVGPathElement>('.hero__line-path');
+    const chart = panel.querySelector<SVGSVGElement>('.hero__chart');
+    const cross = panel.querySelector<SVGGElement>('[data-cross]');
+    const cv = panel.querySelector<SVGLineElement>('.hero__cross-v');
+    const chalo = panel.querySelector<SVGCircleElement>('.hero__cross-halo');
+    const cdot = panel.querySelector<SVGCircleElement>('.hero__cross-dot');
+    const VB = 440; // chart viewBox width
+
+    const moveCrossToX = (xv: number) => {
+      if (!line || !cross || !cv || !cdot) return;
+      const p = pointAtX(line, Math.max(0, Math.min(VB, xv)));
+      cv.setAttribute('x1', String(p.x)); cv.setAttribute('x2', String(p.x));
+      cdot.setAttribute('cx', String(p.x)); cdot.setAttribute('cy', String(p.y));
+      if (chalo) { chalo.setAttribute('cx', String(p.x)); chalo.setAttribute('cy', String(p.y)); }
+      cross.style.opacity = '1';
+    };
+
+    if (window.matchMedia('(pointer: fine)').matches) {
+      // Desktop: the card tilts toward the cursor and the crosshair tracks it.
+      panel.addEventListener('pointermove', (e) => {
+        const r = panel.getBoundingClientRect();
+        const nx = (e.clientX - r.left) / r.width - 0.5;
+        const ny = (e.clientY - r.top) / r.height - 0.5;
+        panel.style.setProperty('--ry', `${(nx * 9).toFixed(2)}deg`);
+        panel.style.setProperty('--rx', `${(-ny * 6).toFixed(2)}deg`);
+        if (chart) {
+          const cr = chart.getBoundingClientRect();
+          moveCrossToX(((e.clientX - cr.left) / cr.width) * VB);
+        }
+      });
+      panel.addEventListener('pointerleave', () => {
+        panel.style.setProperty('--rx', '0deg');
+        panel.style.setProperty('--ry', '0deg');
+        if (cross) cross.style.opacity = '0';
+      });
+    } else {
+      // Touch / no hover: gently ping-pong the crosshair so it still feels live.
+      let t0 = 0;
+      const sweep = (t: number) => {
+        if (!panel.isConnected) return; // stop after navigating away (no persist)
+        if (!t0) t0 = t;
+        const c = ((t - t0) % 5200) / 5200;
+        const tri = c < 0.5 ? c * 2 : 2 - c * 2;
+        moveCrossToX(40 + tri * (VB - 80));
+        requestAnimationFrame(sweep);
+      };
+      requestAnimationFrame(sweep);
+    }
   }
 }
 

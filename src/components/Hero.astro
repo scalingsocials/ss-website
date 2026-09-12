@@ -1,12 +1,17 @@
 ---
 /**
  * Hero — the cinematic opener. Ink register, one orchestrated load sequence
- * (08 §6). Sized to sit in one viewport on desktop: smaller headline, tighter
- * rhythm, the results panel centred alongside.
+ * (08 §6). Sized to sit in one viewport on desktop.
  *
- * The proof row shows REAL, permissioned client results (owner confirmed) — the
- * figures Scaling Socials publishes, in Indian units. Every number renders as a
- * real value in the HTML (CLAUDE.md §10). Renders fully with JS disabled.
+ * The right-hand graphic is a DECORATIVE (aria-hidden) "live performance"
+ * dashboard: a glass card with a glowing gradient trend line, a pulsing live
+ * point, and an interactive crosshair — it tilts toward the cursor on desktop and
+ * auto-sweeps on touch (motion.ts, progressive enhancement). It renders fully and
+ * statically with JS disabled, and animation is dropped under prefers-reduced-motion.
+ * It states no figures, so it never makes a data claim (CLAUDE.md §10).
+ *
+ * The proof row shows REAL, permissioned client results (owner confirmed), in
+ * Indian units, as real values in the HTML.
  */
 import Section from '@/components/primitives/Section.astro';
 import Button from '@/components/primitives/Button.astro';
@@ -64,35 +69,53 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
         </ul>
       </div>
 
-      <!-- Results panel: an animated dashboard motif, not a data claim. -->
+      <!-- Live performance dashboard — decorative, interactive (see motion.ts). -->
       <div class="hero__panel hero__line hero__line--5" aria-hidden="true">
-      <div class="hero__panelhead">
-        <span class="hero__dot"></span><span class="hero__dot"></span><span class="hero__dot"></span>
-        <span class="hero__panellabel">performance.live</span>
+        <div class="hero__card" data-hero-panel>
+          <span class="hero__cardglow" aria-hidden="true"></span>
+
+          <div class="hero__panelhead">
+            <span class="hero__dot"></span><span class="hero__dot"></span><span class="hero__dot"></span>
+            <span class="hero__badge"><span class="hero__badge-dot"></span>Live</span>
+            <span class="hero__panellabel">performance.live</span>
+          </div>
+
+          <div class="hero__chartwrap" data-hero-chart>
+            <svg class="hero__chart" viewBox="0 0 440 220" fill="none" preserveAspectRatio="none" role="img" aria-label="Illustrative upward performance trend">
+              <defs>
+                <linearGradient id="hpLine" x1="0" y1="0" x2="1" y2="0.4">
+                  <stop class="hp-s-a" offset="0" />
+                  <stop class="hp-s-b" offset="1" />
+                </linearGradient>
+                <linearGradient id="hpArea" x1="0" y1="0" x2="0" y2="1">
+                  <stop class="hp-a-a" offset="0" />
+                  <stop class="hp-a-b" offset="1" />
+                </linearGradient>
+                <filter id="hpGlow" x="-10%" y="-45%" width="120%" height="200%">
+                  <feGaussianBlur stdDeviation="3.4" result="b" />
+                  <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
+              <g class="hero__grid-lines">
+                <line x1="0" y1="55" x2="440" y2="55" /><line x1="0" y1="110" x2="440" y2="110" /><line x1="0" y1="165" x2="440" y2="165" />
+              </g>
+              <path class="hero__area" d="M0 190 C 60 180 110 162 160 150 C 220 135 250 118 300 96 C 350 74 395 44 440 26 L 440 220 L 0 220 Z" fill="url(#hpArea)" />
+              <path class="hero__line-path" d="M0 190 C 60 180 110 162 160 150 C 220 135 250 118 300 96 C 350 74 395 44 440 26" stroke="url(#hpLine)" filter="url(#hpGlow)" />
+              <g class="hero__cross" data-cross>
+                <line class="hero__cross-v" x1="300" y1="4" x2="300" y2="216" />
+                <circle class="hero__cross-halo" cx="300" cy="96" r="10" />
+                <circle class="hero__cross-dot" cx="300" cy="96" r="4.5" />
+              </g>
+              <circle class="hero__live-pt" cx="440" cy="26" r="4.5" />
+            </svg>
+            <div class="hero__annotlabel" data-annot>Creative refresh</div>
+          </div>
+
+          <ul class="hero__legend">
+            {chips.map((c) => <li class="hero__chip-m">{c}</li>)}
+          </ul>
+        </div>
       </div>
-
-      <svg class="hero__chart" viewBox="0 0 420 240" fill="none" preserveAspectRatio="none" role="img" aria-label="Illustrative upward performance trend">
-        <g class="hero__grid-lines">
-          <line x1="0" y1="60" x2="420" y2="60" /><line x1="0" y1="120" x2="420" y2="120" /><line x1="0" y1="180" x2="420" y2="180" />
-        </g>
-        <path class="hero__area" d="M0 200 C 70 190, 110 170, 160 150 C 220 126, 270 120, 320 78 C 355 50, 390 40, 420 30 L 420 240 L 0 240 Z" />
-        <path class="hero__line-path" d="M0 200 C 70 190, 110 170, 160 150 C 220 126, 270 120, 320 78 C 355 50, 390 40, 420 30" />
-        <line class="hero__annot" x1="320" y1="10" x2="320" y2="230" />
-        <circle class="hero__point" cx="320" cy="78" r="5" />
-      </svg>
-      <div class="hero__annotlabel">Creative refresh</div>
-
-      {chips.map((c, i) => (
-        <span class={`hero__chip hero__chip--${i + 1}`}>{c}</span>
-      ))}
-      </div>
-
-      <!-- Mobile: the service chips that float around the panel on desktop are
-           off-screen on phones. Show them as a tidy contained row instead, so the
-           panel doesn't read as empty. -->
-      <ul class="hero__chips-m hero__line hero__line--5" aria-label="What we run">
-        {chips.map((c) => <li class="hero__chip-m">{c}</li>)}
-      </ul>
     </div>
   </div>
 </Section>
@@ -102,9 +125,7 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
     position: relative;
     overflow: hidden;
     /* The header is fixed and floats over the page; pull the dark hero full-bleed
-       up behind it (cancelling main's reserved padding) so the header shrink
-       reveals more of the hero instead of leaving a gap. Content is padded down
-       to clear the header. Fills exactly one screen. */
+       up behind it so the header shrink reveals more of the hero. Fills one screen. */
     margin-top: calc(-1 * var(--hh, 68px));
     min-height: 100vh; /* fallback for iOS < 15.4 (no svh unit) */
     min-height: 100svh;
@@ -125,12 +146,6 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   }
   .hero > :global(*) { position: relative; }
 
-  /* Single implicit column on mobile. WebKit (iOS Safari + iOS Chrome) sizes an
-     `auto` grid track to its widest child's MAX-content width — the panel, the
-     52ch paragraph, the stat row — which blows the track past the viewport and
-     gets clipped by `.hero { overflow:hidden }` on the right. `minmax(0, 1fr)`
-     + `min-width:0` on the children forces the track to the container width, so
-     it reflows the way Blink already does. */
   .hero__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-6); align-items: center; }
   .hero__grid > * { min-width: 0; }
   @media (min-width: 960px) {
@@ -163,11 +178,9 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
     width: fit-content;
     max-width: 100%;
   }
-  /* 3 stats sit in one row; 4 fold into a 2x2 grid. */
   .hero__stats--3 { grid-template-columns: repeat(3, auto); }
   .hero__stats--4 { grid-template-columns: repeat(2, auto); }
-  /* Phones: keep the three headline results on ONE row (equal columns, full
-     width) rather than folding to 2 — the value font steps down so they fit. */
+  /* Phones: keep the three headline results on ONE row. */
   @media (max-width: 560px) {
     .hero__stats { width: 100%; gap: var(--space-3) var(--space-2); }
     .hero__stats--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -186,7 +199,6 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   .hero__stat-label { font-size: var(--text-label); color: var(--fg-muted); }
 
   .hero__cta { margin-top: var(--space-5); display: flex; flex-wrap: wrap; gap: var(--space-2); }
-  /* Phones: both CTAs share one row (equal width) instead of stacking. */
   @media (max-width: 560px) {
     .hero__cta { flex-wrap: nowrap; }
     .hero__cta :global(a) { flex: 1 1 0; min-width: 0; padding-left: 0.5rem; padding-right: 0.5rem; font-size: 0.82rem; }
@@ -195,7 +207,6 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   /* Right column: partner strip stacked above the dashboard panel. */
   .hero__right { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
 
-  /* Compact "official partner" strip, sitting above the graphic. */
   .hero__partners { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2) var(--space-3); }
   .hero__partners-label { font-size: var(--text-label); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-muted); }
   .hero__partners-list { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -209,59 +220,92 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
   }
   .hero__partner :global(.ss-brandicon) { display: block; }
 
-  /* ---- results panel ---------------------------------------------------- */
-  .hero__panel {
+  /* ---- live dashboard panel -------------------------------------------------
+     Outer .hero__panel carries the intro reveal + the 3D perspective; the inner
+     .hero__card carries the glass look and the cursor tilt, so the two transforms
+     never fight (the reveal animation would otherwise reset the tilt). */
+  .hero__panel { perspective: 1200px; }
+  .hero__card {
     position: relative;
-    border: 1px solid var(--rule-c);
+    isolation: isolate;
+    border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
     border-radius: var(--radius-card);
-    background: linear-gradient(180deg, color-mix(in srgb, var(--surface-c) 92%, transparent), var(--surface-c));
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--surface-c) 94%, transparent), color-mix(in srgb, var(--ground) 82%, transparent));
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
     padding: var(--space-3);
-    box-shadow: 0 30px 80px -40px color-mix(in srgb, var(--accent-fill) 45%, transparent);
-    aspect-ratio: 4 / 3;
-    max-width: 100%;
-    overflow: hidden; /* never let the panel head/label bleed past the card edge */
+    box-shadow:
+      0 30px 80px -40px color-mix(in srgb, var(--accent-fill) 50%, transparent),
+      inset 0 1px 0 color-mix(in srgb, var(--fg) 10%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-height: clamp(280px, 33vw, 360px);
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transform-style: preserve-3d;
+    transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+    will-change: transform;
   }
-  /* Keep the SAME aspect ratio on mobile. The chart SVG uses
-     preserveAspectRatio="none", so a different panel ratio would stretch the
-     curve into a different shape from desktop. Same ratio → identical chart. */
-  .hero__panelhead { display: flex; align-items: center; gap: 6px; padding-bottom: var(--space-2); }
-  .hero__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-c); }
+  /* Ambient glow that drifts behind the card content — the futuristic backlight. */
+  .hero__cardglow {
+    position: absolute; inset: -1px; z-index: -1; border-radius: inherit; overflow: hidden;
+    background:
+      radial-gradient(50% 60% at 85% 8%, color-mix(in srgb, var(--accent-graphic) 30%, transparent), transparent 70%),
+      radial-gradient(45% 55% at 5% 100%, color-mix(in srgb, var(--color-teal) 24%, transparent), transparent 70%);
+    opacity: 0.7;
+  }
+
+  .hero__panelhead { display: flex; align-items: center; gap: 6px; }
+  .hero__dot { width: 8px; height: 8px; border-radius: 50%; background: color-mix(in srgb, var(--fg) 22%, transparent); }
+  .hero__badge {
+    display: inline-flex; align-items: center; gap: 5px; margin-left: 6px;
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent-text);
+    background: color-mix(in srgb, var(--accent-graphic) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent-graphic) 35%, transparent);
+    border-radius: 999px; padding: 2px 8px;
+  }
+  .hero__badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-graphic); }
   .hero__panellabel { margin-left: auto; font-size: var(--text-label); color: var(--fg-muted); letter-spacing: 0.02em; white-space: nowrap; }
-  /* On phones the "Creative refresh" annotation pill overlaps this decorative
-     window label, so drop the label there (the annotation is the useful part). */
-  @media (max-width: 640px) { .hero__panellabel { display: none; } }
-  .hero__chart { width: 100%; height: calc(100% - 2.2rem); display: block; }
-  .hero__grid-lines line { stroke: var(--rule-c); stroke-width: 1; }
-  .hero__area { fill: color-mix(in srgb, var(--accent-fill) 16%, transparent); opacity: 0; }
-  .hero__line-path { stroke: var(--accent-graphic); stroke-width: 2.5; stroke-linecap: round; fill: none; stroke-dasharray: 620; stroke-dashoffset: 620; }
-  .hero__annot { stroke: var(--accent-graphic); stroke-width: 1; stroke-dasharray: 3 4; opacity: 0; }
-  .hero__point { fill: var(--accent-graphic); opacity: 0; }
-  .hero__annotlabel { position: absolute; top: 12%; right: 12%; font-size: var(--text-label); color: var(--fg); background: var(--ground); border: 1px solid var(--rule-c); border-radius: 999px; padding: 2px 10px; opacity: 0; }
+  @media (max-width: 400px) { .hero__panellabel { display: none; } }
 
-  .hero__chip {
-    position: absolute; font-size: var(--text-label); font-weight: 600; color: var(--accent-text);
-    background: color-mix(in srgb, var(--accent-fill) 16%, var(--ground));
-    border: 1px solid color-mix(in srgb, var(--accent-fill) 40%, transparent);
-    border-radius: 999px; padding: 4px 12px; white-space: nowrap; opacity: 0;
+  .hero__chartwrap { position: relative; flex: 1; min-height: 150px; }
+  .hero__chart { width: 100%; height: 100%; display: block; overflow: visible; }
+  .hp-s-a { stop-color: var(--accent-graphic); }
+  .hp-s-b { stop-color: var(--accent-graphic-2, var(--color-teal)); }
+  .hp-a-a { stop-color: var(--accent-graphic); stop-opacity: 0.28; }
+  .hp-a-b { stop-color: var(--accent-graphic); stop-opacity: 0; }
+  .hero__grid-lines line { stroke: color-mix(in srgb, var(--fg) 10%, transparent); stroke-width: 1; }
+  .hero__area { opacity: 0; }
+  .hero__line-path { stroke-width: 2.6; stroke-linecap: round; fill: none; stroke-dasharray: 720; stroke-dashoffset: 720; }
+
+  /* Interactive crosshair — moved by motion.ts (hover on desktop, auto-sweep on
+     touch). Hidden until active. */
+  .hero__cross { opacity: 0; transition: opacity 0.2s var(--ease-out); }
+  .hero__cross-v { stroke: color-mix(in srgb, var(--accent-graphic) 55%, transparent); stroke-width: 1; stroke-dasharray: 3 4; }
+  .hero__cross-dot { fill: var(--accent-graphic); }
+  .hero__cross-halo { fill: color-mix(in srgb, var(--accent-graphic) 30%, transparent); }
+  /* Pulsing "live" point riding the leading edge of the line. */
+  .hero__live-pt { fill: var(--accent-graphic); }
+
+  .hero__annotlabel {
+    position: absolute; top: 8%; right: 8%;
+    font-size: var(--text-label); color: var(--fg);
+    background: color-mix(in srgb, var(--ground) 78%, transparent);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+    border-radius: 999px; padding: 2px 10px; opacity: 0; white-space: nowrap;
   }
-  .hero__chip--1 { top: 5%; left: -6%; } .hero__chip--2 { top: 26%; right: -8%; }
-  .hero__chip--3 { top: 52%; left: -8%; } .hero__chip--4 { bottom: 20%; right: -6%; }
-  .hero__chip--5 { bottom: 4%; left: 8%; } .hero__chip--6 { top: 1%; right: 12%; }
-  /* Hide the floating chips on mobile — their negative offsets can bleed past the
-     viewport edge on iOS Safari, and they're purely decorative. */
-  @media (max-width: 640px) { .hero__chip { display: none; } }
 
-  /* Contained service-chip row — desktop uses the floating chips above; phones
-     (where those are hidden) get this tidy wrapped row under the panel instead. */
-  .hero__chips-m { display: none; list-style: none; margin: 0; padding: 0; }
-  @media (max-width: 640px) {
-    .hero__chips-m { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--space-3); }
-    .hero__chip-m {
-      font-size: var(--text-label); font-weight: 600; color: var(--accent-text);
-      background: color-mix(in srgb, var(--accent-fill) 16%, var(--ground));
-      border: 1px solid color-mix(in srgb, var(--accent-fill) 40%, transparent);
-      border-radius: 999px; padding: 5px 12px; white-space: nowrap;
-    }
+  /* Contained legend — replaces the old floating chips (which clipped at the card
+     edges). One tidy row on both desktop and mobile. */
+  .hero__legend { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+  .hero__chip-m {
+    font-size: var(--text-label); font-weight: 600; color: var(--accent-text);
+    background: color-mix(in srgb, var(--accent-fill) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent-fill) 38%, transparent);
+    border-radius: 999px; padding: 4px 11px; white-space: nowrap;
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -272,21 +316,26 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
     .hero__line--4 { animation-delay: 0.36s; }
     .hero__line--6 { animation-delay: 0.48s; }
     .hero__line--5 { animation-delay: 0.28s; transform: translateY(24px) scale(0.98); }
-    .hero__line-path { animation: draw 1.2s var(--ease-out) 0.55s forwards; }
-    .hero__area { animation: fadeIn 0.8s ease 1.15s forwards; }
-    .hero__annot, .hero__point { animation: fadeIn 0.5s ease 1.45s forwards; }
-    .hero__annotlabel { animation: chipIn 0.5s var(--ease-out) 1.55s forwards; }
-    .hero__chip { animation: chipIn 0.5s var(--ease-out) forwards; }
-    .hero__chip--1 { animation-delay: 0.95s; } .hero__chip--2 { animation-delay: 1.07s; }
-    .hero__chip--3 { animation-delay: 1.19s; } .hero__chip--4 { animation-delay: 1.31s; }
-    .hero__chip--5 { animation-delay: 1.43s; } .hero__chip--6 { animation-delay: 1.55s; }
+    .hero__line-path { animation: draw 1.3s var(--ease-out) 0.5s forwards; }
+    .hero__area { animation: fadeIn 0.8s ease 1.2s forwards; }
+    .hero__annotlabel { animation: chipIn 0.5s var(--ease-out) 1.4s forwards; }
+    .hero__live-pt { transform-box: fill-box; transform-origin: center; animation: fadeIn 0.4s ease 1.5s forwards, pulse 2.4s var(--ease-out) 1.5s infinite; }
+    .hero__cardglow { animation: glowDrift 9s ease-in-out infinite alternate; }
     @keyframes heroIn { to { opacity: 1; transform: none; } }
     @keyframes draw { to { stroke-dashoffset: 0; } }
     @keyframes fadeIn { to { opacity: 1; } }
     @keyframes chipIn { from { opacity: 0; transform: translateY(8px) scale(0.96); } to { opacity: 1; transform: none; } }
+    @keyframes pulse {
+      0%, 100% { r: 4.5; opacity: 1; }
+      50% { r: 6.5; opacity: 0.55; }
+    }
+    @keyframes glowDrift {
+      from { transform: translate3d(-3%, -2%, 0) scale(1); opacity: 0.6; }
+      to { transform: translate3d(3%, 2%, 0) scale(1.08); opacity: 0.85; }
+    }
   }
   @media (prefers-reduced-motion: reduce) {
-    .hero__area, .hero__annot, .hero__point, .hero__annotlabel, .hero__chip { opacity: 1; }
+    .hero__area, .hero__annotlabel, .hero__live-pt { opacity: 1; }
     .hero__line-path { stroke-dashoffset: 0; }
   }
 </style>
