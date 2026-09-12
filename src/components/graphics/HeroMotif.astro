@@ -54,15 +54,33 @@ const pill = variant === 'teardown' ? 'What we found' : variant === 'growth' ? '
       </svg>
     )}
     {variant === 'guide' && (
-      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg">
-        <rect class="ss-motif__doc ss-motif__doc--back ss-motif__rise" x="70" y="34" width="150" height="130" rx="6"/>
-        <rect class="ss-motif__doc ss-motif__doc--mid ss-motif__rise" x="88" y="26" width="150" height="130" rx="6"/>
-        <rect class="ss-motif__doc ss-motif__rise" x="106" y="18" width="150" height="130" rx="6"/>
-        <line class="ss-motif__row" x1="124" y1="46" x2="238" y2="46"/>
-        <line class="ss-motif__row" x1="124" y1="66" x2="238" y2="66"/>
-        <line class="ss-motif__row ss-motif__row--short" x1="124" y1="86" x2="196" y2="86"/>
-        <line class="ss-motif__row" x1="124" y1="112" x2="238" y2="112"/>
-        <path class="ss-motif__arrow" d="M188 124l14 8-14 8"/>
+      <svg viewBox="0 0 320 190" fill="none" preserveAspectRatio="xMidYMid meet" class="ss-motif__svg ss-guide">
+        {/* fanned stack of long reads, the front one being marked up */}
+        <rect class="ss-motif__doc ss-motif__doc--back ss-guide__rise" x="66" y="42" width="150" height="128" rx="7" transform="rotate(-7 141 106)"/>
+        <rect class="ss-motif__doc ss-motif__doc--mid ss-guide__rise" x="86" y="34" width="150" height="128" rx="7" transform="rotate(-3 161 98)"/>
+        <rect class="ss-motif__doc ss-guide__rise" x="104" y="24" width="150" height="130" rx="7"/>
+
+        {/* the annotation — the brand signature: a thin accent rule with a tag */}
+        <g class="ss-guide__note">
+          <rect class="ss-guide__tag" x="112" y="40" width="42" height="16" rx="4"/>
+          <line class="ss-guide__rule" x1="120" y1="60" x2="120" y2="140"/>
+        </g>
+
+        {/* the moving highlight sweeping the paragraph as it is "read" */}
+        <rect class="ss-guide__hl" x="132" y="56" width="96" height="13" rx="3"/>
+
+        <g class="ss-guide__rows">
+          <line class="ss-motif__row" x1="134" y1="62" x2="240" y2="62"/>
+          <line class="ss-motif__row" x1="134" y1="82" x2="240" y2="82"/>
+          <line class="ss-motif__row ss-motif__row--short" x1="134" y1="102" x2="204" y2="102"/>
+          <line class="ss-motif__row" x1="134" y1="128" x2="240" y2="128"/>
+        </g>
+
+        {/* keep-reading chevron in an accent chip, gently pulsing */}
+        <g class="ss-guide__go">
+          <circle class="ss-guide__chip" cx="228" cy="140" r="13"/>
+          <path class="ss-guide__chev" d="M225 134l6 6-6 6"/>
+        </g>
       </svg>
     )}
     {variant === 'glossary' && (
@@ -141,6 +159,13 @@ const pill = variant === 'teardown' ? 'What we found' : variant === 'growth' ? '
   .ss-motif__az { fill: var(--accent-graphic); font-family: var(--font-display); font-weight: 700; font-size: 42px; }
   .ss-motif__az--z { fill: var(--accent-graphic-2); }
 
+  /* ---- guide: a marked-up long read ------------------------------------- */
+  .ss-guide__tag { fill: var(--accent-graphic); }
+  .ss-guide__rule { stroke: var(--accent-graphic); stroke-width: 2.5; stroke-linecap: round; }
+  .ss-guide__hl { fill: color-mix(in srgb, var(--accent-graphic) 20%, transparent); }
+  .ss-guide__chip { fill: var(--accent-graphic); }
+  .ss-guide__chev { stroke: var(--ground); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+
   /* ---- team network ------------------------------------------------------- */
   .ss-net__link { stroke: color-mix(in srgb, var(--accent-graphic) 42%, transparent); stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 3 7; }
   .ss-net__halo { fill: color-mix(in srgb, var(--accent-graphic) 30%, transparent); opacity: 0; transform-box: fill-box; transform-origin: center; }
@@ -180,6 +205,15 @@ const pill = variant === 'teardown' ? 'What we found' : variant === 'growth' ? '
     .ss-motif__fade { opacity: 0; animation: ssFadeIn 0.7s ease 0.3s forwards; }
     .ss-motif__fade--2 { animation-delay: 0.55s; }
 
+    /* guide: pages fan in, the annotation lands, then a highlight reads down */
+    .ss-guide__rise { opacity: 0; transform-box: fill-box; transform-origin: center; animation: ssRiseDoc 0.7s var(--ease-out, ease) forwards; }
+    .ss-guide__rise:nth-of-type(1) { animation-delay: 0.1s; }
+    .ss-guide__rise:nth-of-type(2) { animation-delay: 0.22s; }
+    .ss-guide__rise:nth-of-type(3) { animation-delay: 0.34s; }
+    .ss-guide__note { opacity: 0; transform-box: fill-box; transform-origin: left center; animation: ssNoteIn 0.5s var(--ease-out, ease) 0.5s forwards; }
+    .ss-guide__hl { opacity: 0; transform-box: fill-box; transform-origin: center; animation: ssReadHL 5.5s var(--ease-out, ease) 0.9s infinite; }
+    .ss-guide__go { transform-box: fill-box; transform-origin: 228px 140px; animation: ssNudge 2.8s ease-in-out 1s infinite; }
+
     /* team: signal flows along the links, hub breathes a soft halo, members pop in */
     .ss-net__link { animation: ssFlow 2.6s linear infinite; }
     .ss-net__halo { animation: ssHalo 4.5s ease-in-out infinite; }
@@ -199,4 +233,15 @@ const pill = variant === 'teardown' ? 'What we found' : variant === 'growth' ? '
   @keyframes ssFlow { to { stroke-dashoffset: -20; } }
   @keyframes ssHalo { 0%, 100% { opacity: 0; transform: scale(0.8); } 50% { opacity: 0.5; transform: scale(1.5); } }
   @keyframes ssPop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+  @keyframes ssNoteIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes ssReadHL {
+    0%   { opacity: 0; transform: translateY(0); }
+    8%   { opacity: 1; }
+    30%  { transform: translateY(20px); }
+    55%  { transform: translateY(40px); }
+    80%  { opacity: 1; transform: translateY(66px); }
+    92%  { opacity: 0; transform: translateY(66px); }
+    100% { opacity: 0; transform: translateY(0); }
+  }
+  @keyframes ssNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
 </style>
