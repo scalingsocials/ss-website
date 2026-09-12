@@ -3,6 +3,10 @@
 # Screaming Frog crawl 2026-09-02 + GSC). Cloudflare Pages _redirects.
 # Rows kept at their existing URL (200, old==new) are intentionally omitted.
 
+# Internal reorganisation (not from the WP crawl):
+# Ecommerce PPC merged into Google Ads (Search/Shopping/PMax now cover it).
+/ecommerce-ppc-services/  /google-ads-agency-bangalore/  301
+
 /about-us/  /about/  301
 /about-us-2/  /about/  301
 /contact-us/  /contact/  301

@@ -71,8 +71,7 @@ export const SERVICES: ServiceContent[] = [
     subheading: 'What performance marketing with us includes',
     subservices: [
       { title: 'Meta Ads', body: 'Full-funnel Meta and Instagram: prospecting, retargeting, Advantage+ where it beats manual, and a creative pipeline feeding all of it.', href: '/meta-ads-agency-india/' },
-      { title: 'Google Ads', body: 'Search, Shopping and Performance Max built around real buying intent and your margin, not impression share for its own sake.', href: '/google-ads-agency-bangalore/' },
-      { title: 'Ecommerce PPC', body: 'Catalogue-led buying across Meta and Google for stores that carry real SKUs and real seasonality.', href: '/ecommerce-ppc-services/' },
+      { title: 'Google Ads', body: 'Search, Shopping, Performance Max and catalogue-led ecommerce PPC, built around real buying intent and your margin — not impression share for its own sake.', href: '/google-ads-agency-bangalore/' },
       { title: 'Conversion rate optimisation', body: 'We close the leaks between the click and the checkout so the traffic you pay for actually converts.', href: '/conversion-rate-optimisation-services/' },
     ],
     comparison: {
