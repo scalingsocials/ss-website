@@ -1,6 +1,148 @@
 ---
-import ClusterLayout from '@/layouts/ClusterLayout.astro';
-import { CLUSTER_BY_SLUG } from '@/lib/clusters';
-const cluster = CLUSTER_BY_SLUG['technical-seo-audit'];
+/**
+ * /technical-seo-audit-services/ — the SEO lead magnet, and the organic twin of
+ * /audit/ (the ads growth audit). Same mechanic, different intake: this one
+ * starts from a URL and a crawl, not read-only ad-account access, so it is its
+ * own conversion-shaped page rather than a track on /audit/. Cross-linked with
+ * /audit/. No pricing figure (CLAUDE.md §18) — cost is scoped, worded like /audit/.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
+import SchemaGraph from '@/components/seo/SchemaGraph.astro';
+import Section from '@/components/primitives/Section.astro';
+import Prose from '@/components/primitives/Prose.astro';
+import Link from '@/components/primitives/Link.astro';
+import LeadForm from '@/components/blocks/LeadForm.astro';
+import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
+import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
+import { base, webPage, breadcrumbs, faqPage } from '@/lib/schema';
+import type { Field } from '@/lib/formFields';
+
+const url = '/technical-seo-audit-services/';
+const title = 'Technical SEO Audit Services | Scaling Socials Bangalore';
+const description =
+  'Scaling Socials runs technical SEO audits for D2C and ecommerce sites: crawlability, speed, indexation and structure, with a prioritised fix list by impact.';
+const published = '2026-09-01';
+const modified = '2026-09-12';
+
+// Answer-first, self-contained, names Scaling Socials (03 §3 / AEO).
+const answer =
+  'A technical SEO audit from Scaling Socials checks whether search engines can crawl, render and index your site properly — the foundation that decides whether your content can ever rank. Send a URL and you get a prioritised, plain-English fix list ranked by impact, in three working days.';
+
+const covers = [
+  { t: 'Crawlability & indexation', b: 'What Google can and cannot reach, wasted crawl budget, pages indexed that shouldn’t be and pages missing that should.' },
+  { t: 'Site speed & Core Web Vitals', b: 'LCP, INP and CLS on mobile specifically, and the click-to-landing-page-view gap that quietly loses paid and organic traffic alike.' },
+  { t: 'Site architecture', b: 'How authority flows through the site, orphan pages, click depth, and whether your money pages sit where they can rank.' },
+  { t: 'Structured data', b: 'Product, Article, FAQ and Organization markup: what is missing, what is invalid, and what is blocking rich-result eligibility.' },
+  { t: 'Duplicate content & canonicals', b: 'Faceted-navigation sprawl, parameter URLs, and canonical tags pointing the wrong way — the usual causes of split ranking signals.' },
+  { t: 'Internal linking & mobile', b: 'Whether internal links push authority to the right pages, and whether the mobile experience Google actually indexes holds up.' },
+];
+
+const steps = [
+  { title: 'Send your URL', body: 'Just the website address. No access grants, no logins — a technical audit starts from a public crawl.' },
+  { title: 'We crawl and analyse', body: 'We crawl the site the way a search engine does and cross-check it against Search Console signals where you can share them.' },
+  { title: 'Prioritised fix list', body: 'Three working days. A plain-English list of what to fix and why, ranked by how much each issue is quietly costing you.' },
+  { title: '45-minute walkthrough', body: 'We take you through it live, so your developer knows exactly what to change and in what order.' },
+  { title: 'You keep the document', body: 'Yours to act on, and detailed enough to hand to any developer — whether or not you work with us.' },
+];
+
+const faqs = [
+  { q: 'What does a technical SEO audit cover?', a: 'Crawlability and indexation, site speed and Core Web Vitals, site architecture, structured data, internal linking, duplicate content and canonicalisation, and mobile usability. Together these are the technical foundations that decide whether your content can rank at all.' },
+  { q: 'What do you need from me to run it?', a: 'Just your website URL to start — a technical audit runs from a public crawl, not from account access. Read-only Google Search Console access sharpens it, but it is optional. That is the main difference from our ads Growth Audit, which does need read-only access to your ad accounts.' },
+  { q: 'How long does it take, and what do I get?', a: 'Three working days from the point you send your URL, then a 45-minute live walkthrough. You get a prioritised, plain-English fix list ranked by impact — a document you could hand to any developer and act on yourself.' },
+  { q: 'Will you fix the issues or just report them?', a: 'Either. You get a prioritised fix list you could give to any developer, and we are happy to implement the fixes ourselves if you would rather we handled it. Ongoing conversion testing sits with our CRO work; this audit is the technical foundation beneath it.' },
+  { q: 'What does a technical SEO audit cost?', a: 'It is scoped to the size and complexity of your site rather than sold as a fixed package, and it can be a one-off audit or the first step of an ongoing SEO engagement. Tell us your site and we will map out what it needs.' },
+];
+
+const nodes = [
+  ...base(),
+  webPage({ url, name: title, description, hasBreadcrumb: true, datePublished: published, dateModified: modified }),
+  breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'SEO', url: '/seo-agency-bangalore/' }, { name: 'Technical SEO audit', url }]),
+  faqPage(url, faqs),
+];
+
+const auditStep1: Field[] = [
+  { name: 'email', label: 'Work email', type: 'email', required: true, autocomplete: 'email' },
+  { name: 'phone', label: 'Phone or WhatsApp', type: 'tel', required: true, autocomplete: 'tel' },
+  { name: 'site_url', label: 'Your website URL', type: 'text', required: true, placeholder: 'yourbrand.com' },
+];
+const auditStep2: Field[] = [
+  { name: 'name', label: 'Name (optional)', type: 'text', required: false, autocomplete: 'name' },
+  { name: 'platform', label: 'Platform (optional)', type: 'select', required: false, options: ['Shopify', 'WooCommerce', 'WordPress', 'Custom build', 'Other'] },
+];
 ---
-<ClusterLayout cluster={cluster} />
+
+<BaseLayout>
+  <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
+  <SchemaGraph slot="schema" nodes={nodes} />
+
+  <Section size="lg">
+    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] flex flex-wrap items-center gap-x-[0.15rem] text-small text-[var(--fg-muted)]">
+      <a href="/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Home</a><span> / </span>
+      <a href="/seo-agency-bangalore/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">SEO</a><span> / </span>
+      <span>Technical SEO audit</span>
+    </nav>
+    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+      <div>
+        <span class="ss-eyebrow">Technical SEO audit</span>
+        <h1 class="max-w-[20ch]">Technical SEO audit services</h1>
+        <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">{answer}</p>
+      </div>
+      <div class="lg:sticky lg:top-[88px]">
+        <LeadForm
+          source="technical-seo-audit"
+          heading="Get your technical SEO audit"
+          subheading="Send a URL. A prioritised fix list in three working days."
+          step1Fields={auditStep1}
+          step2Lead={auditStep2}
+          messageLabel="Anything specific you’re worried about? (optional)"
+          submitLabel="Get my SEO audit"
+        />
+      </div>
+    </div>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <span class="ss-eyebrow">What the audit covers</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">The foundations that decide whether you rank</h2>
+    <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
+      {covers.map((c) => (
+        <li class="flex flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
+          <h3 class="text-h4 font-semibold text-[var(--fg)]">{c.t}</h3>
+          <p class="text-small leading-relaxed text-[var(--fg-muted)]">{c.b}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section size="md">
+    <span class="ss-eyebrow">How it works</span>
+    <h2 class="max-w-[20ch] text-h2 font-semibold">Five steps, three working days</h2>
+    <div class="mt-[var(--space-5)]"><ProcessSteps steps={steps} /></div>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <Prose>
+      <h2>What you get, and what it costs</h2>
+      <p>
+        The deliverable is a prioritised, plain-English fix list — every issue ranked by how much it is
+        quietly costing you, with the reasoning behind each one, detailed enough to hand to any developer.
+        You keep it whether or not you hire us. The audit is scoped to the size and complexity of your site
+        rather than sold as a fixed package, and it can be a one-off or the first step of an ongoing SEO engagement.
+      </p>
+      <p>
+        Running ads as well? The <Link href="/audit/">Free Growth Audit</Link> is the same idea for paid media —
+        it looks at your Meta, Google, Shopify and GA4 accounts and finds where spend is leaking. This page is
+        the organic twin: send a URL, get the technical picture. Most brands that need one need the other.
+      </p>
+    </Prose>
+  </Section>
+
+  <Section size="md">
+    <span class="ss-eyebrow">Questions</span>
+    <h2 class="max-w-[20ch] text-h2 font-semibold">Before you send your URL</h2>
+    <div class="mt-[var(--space-5)] max-w-[760px]"><FaqAccordion items={faqs} openFirst /></div>
+  </Section>
+
+  <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>
+</BaseLayout>
