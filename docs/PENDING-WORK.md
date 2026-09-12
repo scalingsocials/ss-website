@@ -231,3 +231,12 @@ robots.txt. The genuinely new items it surfaced:
 - ✅ `astro check` is now clean: **0 errors, 0 warnings, 0 hints**.
 - Replace the picsum poster placeholders on the creative wall with real posters when
   the compressed videos land.
+- **Creative-wall image originals — root cause still open.** `src/lib/creatives.ts`
+  uses `import.meta.glob(..., { eager: true })`, so Vite emits the full-size
+  `.png/.jpeg` originals into `dist/_astro/` next to the optimised `.webp` the pages
+  actually render (~18 MB dead weight). `scripts/prune-orphan-assets.mjs` removes them
+  after each build (logged, bounds-checked), but that is a janitor, not a fix. Revisit
+  the glob: a lazy import that resolves the metadata without emitting originals. It is
+  a contained refactor — the blocker is that CREATIVES is consumed synchronously by
+  several components, so making the glob lazy means threading an async load through
+  them. Until then the prune stays.

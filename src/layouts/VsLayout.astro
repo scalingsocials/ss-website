@@ -9,6 +9,7 @@ import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import Prose from '@/components/primitives/Prose.astro';
+import RichText from '@/components/primitives/RichText.astro';
 import Button from '@/components/primitives/Button.astro';
 import ComparisonTable from '@/components/blocks/ComparisonTable.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
@@ -88,7 +89,7 @@ const nodes = [
         <h2 class="text-h2 font-semibold">Where Scaling Socials fits</h2>
       </div>
       <Prose>
-        {c.fit.map((p) => <p>{p}</p>)}
+        {c.fit.map((p) => <p><RichText value={p} /></p>)}
       </Prose>
     </div>
   </Section>

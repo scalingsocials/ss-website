@@ -1,0 +1,39 @@
+---
+/**
+ * RichText — renders a RichText body (see src/lib/richtext.ts) as inline text
+ * with optional contextual links. Text segments are rendered as escaped
+ * children (Astro escapes them); links render as a real <a>. No `set:html`, so
+ * there is no injection surface.
+ *
+ * BUILD-TIME GUARD: if any text segment contains raw markup (`<` or `>`), this
+ * throws and fails `astro build` — the gate that runs before check:links. That
+ * enforces "no markup in body strings" mechanically, not by convention.
+ */
+import type { RichText, RichSpan } from '@/lib/richtext';
+
+interface Props {
+  value: RichText;
+  /** Link colour. 'accent' (default) for muted contexts; 'inherit' inside Prose
+   *  where the prose stylesheet already styles <a>. */
+  linkClass?: string;
+}
+
+const { value, linkClass = 'ss-rich-link' } = Astro.props;
+const spans: RichSpan[] = typeof value === 'string' ? [value] : value;
+
+for (const s of spans) {
+  const text = typeof s === 'string' ? s : s.text;
+  if (/[<>]/.test(text)) {
+    throw new Error(
+      `RichText: raw markup is not allowed in body content — a segment must be plain ` +
+      `text or a { text, href } link. Offending text: ${JSON.stringify(text).slice(0, 100)}`
+    );
+  }
+}
+---
+{spans.map((s) => (typeof s === 'string' ? s : <a href={s.href} class={linkClass}>{s.text}</a>))}
+
+<style>
+  .ss-rich-link { color: var(--accent-text); text-decoration: underline; text-underline-offset: 2px; }
+  .ss-rich-link:hover { text-decoration-thickness: 2px; }
+</style>

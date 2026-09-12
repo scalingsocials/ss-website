@@ -3,6 +3,8 @@
  * See 02 §1. Concise but real; each links up to its pillar and across to siblings.
  * Meta titles 50–60, descriptions 140–158 (enforced at build).
  */
+import type { RichText } from './richtext';
+
 export interface Cluster {
   slug: string;
   url: string;
@@ -14,7 +16,7 @@ export interface Cluster {
   description: string;
   h1: string;
   answer: string;
-  sections: { heading: string; body: string }[];
+  sections: { heading: string; body: RichText }[];
   faqs: { q: string; a: string }[];
 }
 
@@ -140,7 +142,7 @@ export const CLUSTERS: Cluster[] = [
     answer: 'Scaling Socials migrates D2C stores to Shopify from WooCommerce, Wix, Magento and others without losing SEO, URLs or order history. Losing rankings in a migration is avoidable, so we plan the redirect map and data transfer up front, which means you keep your traffic and gain Shopify. It is scoped to your catalogue and the platform you are moving from.',
     sections: [
       { heading: 'The redirect map is everything', body: 'Most migrations lose traffic for one reason: old URLs quietly start returning 404s. We map every old URL to its new Shopify equivalent with clean 301s, so your rankings and the link equity behind them carry across intact.' },
-      { heading: 'Data, not just design', body: 'Products, variants, customers and order history all have to move cleanly, not just the theme. We handle the data migration alongside the rebuild so nothing important gets stranded on the old platform.' },
+      { heading: 'Data, not just design', body: ['Products, variants, customers and order history all have to move cleanly, not just the theme. We handle the data migration alongside the ', { text: 'store rebuild', href: '/web-development-company-bangalore/' }, ' so nothing important gets stranded on the old platform.'] },
     ],
     faqs: [
       { q: 'Will I lose SEO when migrating to Shopify?', a: 'Not with a planned migration. We build a complete redirect map from your old URLs to the new ones with proper 301s, so rankings and link equity transfer across. Lost traffic in a migration is almost always avoidable.' },

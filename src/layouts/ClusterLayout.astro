@@ -10,6 +10,7 @@ import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import Prose from '@/components/primitives/Prose.astro';
+import RichText from '@/components/primitives/RichText.astro';
 import Button from '@/components/primitives/Button.astro';
 import LeadForm from '@/components/blocks/LeadForm.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
@@ -81,7 +82,7 @@ const nodes = [
   <Section size="md" class="!bg-[var(--surface-c)]">
     <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.4fr_1fr] lg:items-start">
       <Prose>
-        {c.sections.map((s) => (<><h2>{s.heading}</h2><p>{s.body}</p></>))}
+        {c.sections.map((s) => (<><h2>{s.heading}</h2><p><RichText value={s.body} /></p></>))}
       </Prose>
       <aside class="lg:sticky lg:top-[96px] flex flex-col gap-[var(--space-4)]">
         <PanelMotif label={`${c.slug}.live`} tag={c.name} primary={metrics.primary} secondary={metrics.secondary} />

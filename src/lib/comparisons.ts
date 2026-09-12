@@ -4,6 +4,7 @@
  * Scaling Socials fits. Not doorway/thin content (§15) — real decision guidance.
  */
 import type { Faq } from '@/lib/services';
+import type { RichText } from './richtext';
 
 export interface VsContent {
   slug: string;
@@ -18,7 +19,7 @@ export interface VsContent {
   table: { cols: string[]; rows: string[][]; highlightCol: number; caption?: string };
   whenA: { heading: string; points: string[] };
   whenB: { heading: string; points: string[] };
-  fit: string[];       // where Scaling Socials fits (paragraphs)
+  fit: RichText[];     // where Scaling Socials fits (paragraphs)
   faqs: Faq[];
   relatedServices?: string[];
 }
@@ -172,7 +173,7 @@ export const COMPARISONS: VsContent[] = [
     },
     fit: [
       'Scaling Socials builds and migrates stores on both, and we give an honest recommendation rather than a default. For most D2C brands we build on Shopify: a store’s job is to turn expensive traffic into orders, and Shopify’s speed baseline and low maintenance protect both conversion and your team’s time. We migrate from WooCommerce, Wix or Magento without losing SEO, URLs or order history.',
-      'Where a brand genuinely needs custom backend logic beyond what Shopify does, we will say so — and either build it properly or point you to the web-and-app route. We build for revenue per session, not for whichever platform is easiest to sell.',
+      ['Where a brand genuinely needs custom backend logic beyond what Shopify does, we will say so — and either build it properly or point you to the ', { text: 'web-and-app route', href: '/web-development-company-bangalore/' }, '. We build for revenue per session, not for whichever platform is easiest to sell.'],
     ],
     faqs: [
       { q: 'Should I migrate from WooCommerce to Shopify?', a: 'If upkeep, speed or security are costing you conversion or team time, usually yes. We migrate while preserving URLs and SEO with a proper 301 map, plus product data and order history — losing rankings in a migration is avoidable if it is planned before anything moves.' },

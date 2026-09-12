@@ -5,8 +5,9 @@
  * figures can't drift) or a real client testimonial — never an invented metric (§15).
  */
 import type { Faq } from '@/lib/services';
+import type { RichText } from './richtext';
 
-export interface IndustryCard { glyph: string; title: string; body: string }
+export interface IndustryCard { glyph: string; title: string; body: RichText }
 export interface IndustryQuote { quote: string; name: string; brand?: string; tag: string }
 
 export interface IndustryContent {
@@ -142,7 +143,7 @@ export const INDUSTRIES: IndustryContent[] = [
       { quote: 'They revamped our cosmetic brand Timri’s ecommerce Shopify website. On-time delivery, a good sense of our business, and available whenever we need assistance. Highly recommended for ecommerce Shopify development.', name: 'Nikunj Vavadiya', brand: 'Timri', tag: 'Cosmetics · Shopify development' },
     ],
     whatWeDo: [
-      { glyph: 'cart', title: 'A store built for repeat purchase', body: 'Beauty is bought again and again. We build the product page, cart and checkout around revenue per session, not just how it photographs.' },
+      { glyph: 'cart', title: 'A store built for repeat purchase', body: ['Beauty is bought again and again. We build the ', { text: 'product page, cart and checkout', href: '/web-development-company-bangalore/' }, ' around revenue per session, not just how it photographs.'] },
       { glyph: 'spark', title: 'Creative that keeps moving', body: 'Beauty creative fatigues fast. You supply footage; we cut and test video-led ads and statics weekly so the account never runs stale.' },
       { glyph: 'chart', title: 'Growth led by beauty experience', body: 'Our ecommerce growth is led by a founder who has scaled brands across beauty, fashion and home — not a template applied blind.' },
     ],

@@ -14,6 +14,7 @@ import Delta from '@/components/blocks/Delta.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import Glyph from '@/components/graphics/Glyph.astro';
+import RichText from '@/components/primitives/RichText.astro';
 import DotField from '@/components/graphics/DotField.astro';
 import { CASE_STUDY_BY_SLUG, CASE_STUDY_KICKERS } from '@/lib/caseStudies';
 import { SERVICE_BY_SLUG } from '@/lib/services';
@@ -114,7 +115,7 @@ const nodes = [
         <li class="flex flex-col gap-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)]">
           <span class="ss-glyph"><Glyph name={it.glyph} size={20} /></span>
           <h3 class="text-h4 font-semibold text-[var(--fg)]">{it.title}</h3>
-          <p class="text-small leading-relaxed text-[var(--fg-muted)]">{it.body}</p>
+          <p class="text-small leading-relaxed text-[var(--fg-muted)]"><RichText value={it.body} /></p>
         </li>
       ))}
     </ul>
