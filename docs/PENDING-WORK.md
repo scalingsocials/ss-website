@@ -1,9 +1,16 @@
 # Pending work — Scaling Socials website
 
-Status as of 2026-09-06. The site builds green: `check`, `build`, `check:perf`
-(per-page tiers), `check:schema`, and `check:links` (0 broken, 0 orphans) all pass.
-**84 pages** are live in the repo. 2026-09-06: content collections, Keystatic, 25 glossary terms, 3 guides and 10 blog posts shipped. This document lists what remains, split by
-whether it needs **you** (content/decisions) or can be **built** by Claude Code.
+Status as of 2026-09-12. The site builds green: `check`, `build`, `check:perf`
+(per-page tiers), `check:schema`, `check:links` (0 broken, 0 orphans), `check:csp`,
+and the real WebKit+Chromium `check:browsers` gate all pass.
+**105 pages** are live in the repo. Since 2026-09-06: the full analytics stack
+(GA4 + Meta Pixel/CAPI + Clarity) went live and verified; 5 `/vs/` comparison pages,
+an industries hub + 5 vertical pages, per-founder author pages, and `/lp/` ad landing
+pages shipped; and a homepage v2 visual pass landed (interactive hero graphic,
+illustrated pastel service cards, site-wide floating WhatsApp button). **All go-live
+blockers are cleared** — what remains is the production cutover, owner content, and
+the deeper SEO/authority build. This document lists what remains, split by whether it
+needs **you** (content/decisions) or can be **built** by Claude Code.
 
 ---
 
@@ -30,6 +37,20 @@ whether it needs **you** (content/decisions) or can be **built** by Claude Code.
   across service pages, tools and interior heroes.
 - **Policy pages** rebuilt with the real published wording from scalingsocials.com,
   in a full-width docs layout (sticky TOC + full-width body).
+- **Analytics stack** live + verified — GA4 (server-side `generate_lead`), Meta Pixel
+  + CAPI (deduped Lead), Microsoft Clarity — deferred, host-gated, under the strict CSP.
+- **7 anonymised case studies** + editorial index (`CaseStudyLayout`, SVG heroes,
+  before→after deltas, `Article` schema).
+- **Content layer** — MDX collections + Keystatic (dev-only): 10 blog posts, 3 guides,
+  25 glossary `DefinedTerm` pages, all indexable.
+- **SEO/authority build** — 5 `/vs/` comparison pages, an industries hub + 5 vertical
+  pages, per-founder author pages (`Person` schema), and `/lp/` ad landing pages.
+- **Homepage v2** — transparent over-hero header, interactive hero graphic, illustrated
+  pastel service cards, 3-up mobile stats, one-line CTAs, site-wide floating WhatsApp
+  button (all CSP-safe: `data-*` + hashed CSS, no inline styles).
+- **Cross-browser gates** — `check:gotchas` (in build) + `check:browsers` (real WebKit +
+  Chromium, in CI): no horizontal overflow at any width.
+- **All pricing removed sitewide** (owner directive) — every service scoped to the brief.
 
 ---
 
@@ -53,9 +74,17 @@ Deploy runbook: **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)**.
    score (deal-size aware), human labels and reply-to the lead, from the verified
    `scalingsocials.com` domain; confirmed delivered to `support@scalingsocials.com`.
 5. ✅ **Promote → CRM** — handled by the owner directly in the CRM.
-6. 🔲 **Analytics** IDs — GA4, Meta CAPI (server-side), Microsoft Clarity (04).
-   The one open item in this section.
-7. 🔲 **Production cutover** — attach `scalingsocials.com` + DNS + `_redirects`
+6. ✅ **Analytics** (2026-09-11) — GA4 (`page_view`/`form_start` client + server-side
+   `generate_lead` via Measurement Protocol), Meta Pixel + Conversions API
+   (PageView/FormStart/Lead, browser↔server deduped via `event_id`), and Microsoft
+   Clarity. All loaded deferred + host-gated behind the strict CSP and verified live
+   on the preview. **Owner follow-up:** mark `generate_lead`/Lead as conversions in
+   GA4, Google Ads and Meta when building campaigns.
+7. 🔲 **Track contact clicks** — the site-wide WhatsApp button and the `tel:`/`mailto:`
+   links are plain links with no event. Per the core-funnel plan (04), fire a
+   *track-only* `contact` event (GA4 + Meta) so contact demand is measured without
+   becoming an optimisation goal. Not a blocker; the core funnel is complete.
+8. 🔲 **Production cutover** — attach `scalingsocials.com` + DNS + `_redirects`
    when ready (see §D).
 
 ## 🟠 B. Real content only you can supply
@@ -79,24 +108,41 @@ Deploy runbook: **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)**.
   "scoped".
 - **Partner directory URLs** (Google/Meta/Shopify) to link the verified badges and
   add to `entity.ts` `sameAs`.
+- **Confirm the WhatsApp business number.** The new site-wide floating chat button
+  opens WhatsApp to `ORG.telephone` (+91 96067 13608, from `entity.ts`). Confirm that
+  number is on WhatsApp / WhatsApp Business and actively monitored, or supply the
+  correct one — it is now a primary contact path.
 - **~20 real objections** (from sales calls) to deepen the FAQs sitewide.
 - Optional: the recorded service copy (05 Blocks A/B) to expand pillar pages toward
   the 2,200–3,000-word target.
 
 ## 🟡 C. Pages & features Claude can build next (some need C's content)
 
-- **Individual case-study pages** (`CaseStudyLayout`) — needs the data in B.
+- ✅ **Individual case-study pages** (`CaseStudyLayout`) — 7 anonymised studies +
+  editorial index are built and live, each with a hand-rolled SVG hero. **Named**
+  versions await owner data (B).
 - ✅ **Content collections + Keystatic** (2026-09-06) — `src/content.config.ts`
   with strict zod schemas; Keystatic admin at `/keystatic/` in `npm run dev`
   only (the site is static, so it has no server in production and ships none of
   its JS). **blog (10)**, **guides (3)** and **glossary (25 DefinedTerm pages)**
   are published; all three landers are now real indexable sections and are back
   in the XML sitemap.
-- **/vs/ comparison pages** (5) — high-intent, low-competition; Claude can draft.
-- **Industries** (`/industries/` + 6) — needs a little category content.
+- ✅ **/vs/ comparison pages** (2026-09-11) — 5 honest comparisons (agency vs
+  freelancer, in-house vs agency, Shopify vs WooCommerce, Advantage+ vs manual, SEO
+  vs performance) + a `/vs/` hub, linked from the footer.
+- ✅ **Industries** (2026-09-11) — `/industries/` hub + 5 vertical pages (fashion,
+  kids & baby, wellness, gifting, beauty), each anchored to real case-study proof or a
+  real testimonial — no thin clones.
 - **Locations/Dubai** — only with a UAE proof point + UAE-specific content (spec says
   don't ship a thin clone).
-- **/lp/ ad landing pages** (`LandingLayout`, noindex) — as campaigns need them.
+- ✅ **/lp/ ad landing pages** (2026-09-11) — conversion-first `LandingLayout` (noindex)
+  live for performance marketing + web development (sticky mobile CTA, real proof,
+  deduped GA4/Meta events). Add more per campaign from the same template.
+- ✅ **Homepage v2 visual pass** (2026-09-12) — transparent over-hero header with white
+  logo, interactive "live dashboard" hero graphic, illustrated pastel service cards
+  (per-service inline SVG, CSP-safe via `data-hue` + hashed CSS), 3-up mobile hero
+  stats, one-line CTAs, pastel testimonials band, and a site-wide floating WhatsApp
+  button with a relocated growth-plan CTA.
 - **Benchmark Index** — **PARKED** (do not build; owner directive).
 
 ## 🔵 D. Launch-gate infrastructure (03 §0)
@@ -110,7 +156,7 @@ Deploy runbook: **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)**.
 - ✅ **RSS `/rss.xml` + JSON `/feed.json`** (2026-09-06) — hand-built, no new
   dependency; both carry posts and guides, with discovery links in the head.
 - ✅ **XML sitemap** — blog, guides and glossary are indexable and no longer
-  excluded. 82 URLs, verified to include all 38 new content pages.
+  excluded; now also includes the `/vs/`, `/industries/` and `/team/[slug]` additions.
 - ✅ **`llms.txt` / `llms-full.txt`** (2026-09-06) — now generated from the MDX
   frontmatter, so they cannot drift. llms-full.txt carries every glossary
   definition and every guide/post answer block with source URLs (17.8 KB).
@@ -135,8 +181,16 @@ Deploy runbook: **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)**.
   for every inline script and style). Getting there meant removing all 81 inline
   `style=""` attributes from components and islands, since hashes cannot cover
   style attributes. `frame-ancestors` is a real header in `_headers` (it is
-  ignored inside a meta CSP). Only external origin allowed is Turnstile.
-  Verified in Chromium across 13 pages: zero violations.
+  ignored inside a meta CSP). External origins allowed are Turnstile, GA4, Meta and
+  Clarity. **Recurred 2026-09-12:** the homepage service cards set their per-card hue
+  via an inline `style="--c-a:…"` attribute — invisible on the dev server (which does
+  not enforce the built CSP) but silently stripped in production, so the cards lost
+  their colour. Fixed by moving the hues to a `data-hue` attribute mapped to CSS custom
+  properties in a hashed `<style>` block, and painting the SVGs with CSS `fill`/`stroke`
+  classes (never `fill="var(…)"` presentation attributes, which are also unreliable on
+  WebKit/iOS). **Rule: never use a static `style=""` attribute in components — use a
+  `data-*` attribute + hashed CSS. Verify colour/paint on the deployed domain, not just
+  dev.**
 - **robots.txt** — present; verify it matches 03 §5 (AI crawlers allowed). _(Audited
   2026-09-04: already allows GPTBot/OAI/ChatGPT-User/ClaudeBot/PerplexityBot/
   Google-Extended/Applebot-Extended/CCBot and points at the sitemap — good.)_
@@ -161,9 +215,9 @@ Deploy runbook: **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)**.
   form labels/errors, colour contrast, ARIA only where needed.
 - **Alt-text audit** — confirm every content image has descriptive (not stuffed)
   alt; logos derive alt from filenames via `logos.ts` today, so verify those read well.
-- **Third-party script discipline** — when GA4/GTM/Meta Pixel/Clarity/chat/Calendly
-  land (see A5), load them deferred/on-interaction and re-check INP; each one taxes
-  the main thread.
+- ✅ **Third-party script discipline** (2026-09-11) — GA4, Meta Pixel/CAPI and Clarity
+  load deferred + host-gated behind the strict CSP; re-check INP on the live domain
+  with the Core Web Vitals pass above. Any future chat/Calendly gets the same treatment.
 
 ## 🟣 F. SEO / AEO depth & authority (from external audit, 2026-09-04)
 
@@ -177,13 +231,12 @@ JSON-LD `@graph` behind a schema-validation gate, and an AI-crawler-friendly
 robots.txt. The genuinely new items it surfaced:
 
 **Authority & evidence** (its core theme: _positioning is ahead of the evidence_)
-- **Author / expertise pages** — per-founder `/team/[slug]` pages (bio, discipline,
-  experience, LinkedIn, `Person` schema) plus author bylines on guides and case
-  studies. Needs founder bios + LinkedIn (CONTENT-REQUIREMENTS §Still-open facts).
-- **Richer case-study template** — beyond the before→after table (B/C), each
-  `/case-studies/[slug]/` should carry situation, problem, strategy, the first
-  three changes, timeline, budget range, before/after for ROAS/CAC/AOV/CR/revenue/
-  spend, a client quote, team involved, date, and charts/screenshots. `Article` schema.
+- ✅ **Author / expertise pages** (2026-09-11) — per-founder `/team/[slug]` pages
+  (real bio, discipline, LinkedIn, `Person` schema), linked from the team index.
+  **Still open:** author bylines on guides and case studies.
+- ✅ **Richer case-study template** — `CaseStudyLayout` carries situation, problem,
+  strategy, the first changes, timeline, before/after (ROAS/CAC/AOV/CR/revenue/spend),
+  a client quote, charts and `Article` schema across all 7 studies.
 - ~~Link client logos to their case study~~ — **DROPPED.** Directly contradicts the
   owner's anonymity directive: four logos were removed from the marquee precisely
   because they identified case-study accounts by cross-reference.
@@ -226,9 +279,13 @@ robots.txt. The genuinely new items it surfaced:
   survives (ties to the redirect map in D).
 - **Deploy target** is now decided (Cloudflare Pages, §A / `DEPLOY-CLOUDFLARE.md`);
   the remaining blockers are the project setup + Supabase/Turnstile/Resend wiring.
-- Homepage HTML ~109 KB and styleguide ~153 KB exceed the 100 KB HTML *warn* (not a
-  fail). Homepage can be trimmed (marquee duplication, inline SVGs) if desired.
-- ✅ `astro check` is now clean: **0 errors, 0 warnings, 0 hints**.
+- Homepage HTML ~159 KB and styleguide ~185 KB exceed the 100 KB HTML *warn* (not a
+  fail). The homepage grew with the v2 illustrated cards + interactive hero (inline
+  SVG); optional to trim (marquee duplication, inline SVGs) — the enforced **JS**
+  budget still passes at ~10 KB / 60 KB and inline SVG gzips well, so revisit only if
+  it hurts field LCP.
+- `astro check`: **0 errors, 0 warnings**; a few non-blocking hints remain (e.g.
+  `document.execCommand` deprecation on `/contact`) — cosmetic.
 - Replace the picsum poster placeholders on the creative wall with real posters when
   the compressed videos land.
 - **Creative-wall image originals — root cause still open.** `src/lib/creatives.ts`
