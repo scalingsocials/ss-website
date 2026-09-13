@@ -43,7 +43,10 @@ const sites = Object.keys(d)
 
 {sites.length > 0 && (
   <div class:list={['ss-shots', className]}>
-    <h2 class="mb-[var(--space-5)] max-w-[24ch] text-h2 font-semibold">{heading}</h2>
+    {/* Callers that already print their own section heading above this block
+        (LandingLayout does) pass heading="" to suppress it. Rendering the tag
+        regardless shipped an empty <h2> straight under a real one. */}
+    {heading && <h2 class="mb-[var(--space-5)] max-w-[24ch] text-h2 font-semibold">{heading}</h2>}
     <div class="ss-shots__rail">
       <ul class="ss-shots__track">
         {sites.map((s) => (

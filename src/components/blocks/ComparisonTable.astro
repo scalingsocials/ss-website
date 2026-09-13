@@ -17,6 +17,11 @@
  * a label→value list — the same data, fully readable without scrolling. The
  * emphasised option's card carries the accent treatment. Both layouts hold the
  * identical content, so nothing is hidden from crawlers.
+ *
+ * That duplication is deliberate and kept: it is how the comparison stays
+ * readable on a phone without a scroll trap. The `caption` is the one thing
+ * pulled out of both branches, because it is prose rather than table data and
+ * was appearing verbatim twice in the served HTML.
  */
 import Table from '@/components/primitives/Table.astro';
 
@@ -37,9 +42,13 @@ const optionCols = columns.map((label, i) => ({ label, i })).filter((c) => c.i >
 ---
 
 <div data-comparison-table class:list={[className]}>
+  {/* The caption sits OUTSIDE both layouts. It used to be rendered twice — once
+      here as a <p> and once as the table's <caption> — so the sentence appeared
+      verbatim twice in the served HTML of every /vs/ page. */}
+  {caption && <p class="mb-[var(--space-3)] text-label text-[var(--fg-muted)]">{caption}</p>}
+
   {/* Phones: stacked option cards — no horizontal scroll. */}
   <div class="flex flex-col gap-[var(--space-3)] md:hidden">
-    {caption && <p class="text-label text-[var(--fg-muted)]">{caption}</p>}
     {optionCols.map((col) => {
       const isHi = col.i === highlightCol;
       return (
@@ -73,7 +82,6 @@ const optionCols = columns.map((label, i) => ({ label, i })).filter((c) => c.i >
     <Table
       columns={columns}
       rows={rows}
-      caption={caption}
       numericCols={numericCols}
       highlightCol={highlightCol}
     />

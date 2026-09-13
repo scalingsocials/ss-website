@@ -111,11 +111,19 @@ const ci = ((colorIndex % 7) + 7) % 7;
     min-height: 420px;
     padding: var(--space-5);
   }
+  /*
+   * The chip / kicker / foot alphas were 72% / 78% / 64% and failed WCAG AA on
+   * the saturated card grounds: 3.88, 4.26 and 3.40 against the periwinkle
+   * #4F52DB, where even pure white only reaches 5.90:1. There is no room to
+   * de-emphasise with opacity on those grounds, so all three sit at 88%
+   * (>= 4.9:1 on the worst card) and the hierarchy is carried by size and
+   * weight instead, which it mostly was already.
+   */
   .ss-cscard__chip {
     font-size: var(--text-label);
     font-weight: 600;
     letter-spacing: 0.02em;
-    color: color-mix(in srgb, var(--card-fg) 72%, transparent);
+    color: color-mix(in srgb, var(--card-fg) 88%, transparent);
   }
   .ss-cscard__headline {
     margin-top: var(--space-3);
@@ -131,7 +139,7 @@ const ci = ((colorIndex % 7) + 7) % 7;
   .ss-cscard__kicker {
     margin-top: var(--space-2);
     font-size: var(--text-small);
-    color: color-mix(in srgb, var(--card-fg) 78%, transparent);
+    color: color-mix(in srgb, var(--card-fg) 88%, transparent);
   }
   .ss-cscard__stat {
     margin-top: var(--space-4);
@@ -150,7 +158,7 @@ const ci = ((colorIndex % 7) + 7) % 7;
     gap: var(--space-2);
     padding-top: var(--space-4);
     font-size: var(--text-label);
-    color: color-mix(in srgb, var(--card-fg) 64%, transparent);
+    color: color-mix(in srgb, var(--card-fg) 88%, transparent);
   }
   .ss-cscard__read {
     display: inline-flex;

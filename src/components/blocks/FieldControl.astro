@@ -23,9 +23,11 @@ const isSel = (o: string) => f.defaultValue !== undefined && o === f.defaultValu
 const ph = f.placeholder ?? f.label;
 ---
 <label class="ss-fc flex flex-col gap-[0.3rem]">
-  {compact ? (
-    <span class="sr-only">{f.label}</span>
-  ) : (
+  {/* Compact fields carry `aria-label` on the control itself (below), so an
+      sr-only <span> here made a screen reader announce the same label twice —
+      three times on a select, where the empty option's text is the label too.
+      The control's aria-label is the accessible name; the span was redundant. */}
+  {!compact && (
     <span class="text-small font-medium text-[var(--fg)]">
       {f.label}{f.required && <span class="text-[var(--neg)]"> *</span>}
     </span>

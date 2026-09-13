@@ -444,7 +444,10 @@ const nodes = [
   <!-- ── PROOF LIGHTBOX (no library; a native <dialog>) ─────────────────────── -->
   <dialog class="lp-lightbox" data-lightbox>
     <button type="button" class="lp-lightbox__close" data-lightbox-close aria-label="Close">✕</button>
-    <img class="lp-lightbox__img" data-lightbox-img src="" alt="" />
+    {/* No src attribute: an empty one resolves to the document URL, so every
+        load re-fetched the whole page as an image. The script sets src (and a
+        real alt) when the lightbox opens. */}
+    <img class="lp-lightbox__img" data-lightbox-img alt="" width="1200" height="750" />
   </dialog>
 
   <script>
