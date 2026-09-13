@@ -8,6 +8,18 @@
  */
 type FormEl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
+/**
+ * Field names /api/lead models as top-level columns. MUST stay in sync with
+ * `leadSchema` in src/pages/api/lead.ts — anything not listed here is sent as
+ * an `answers` entry instead of being silently dropped by the server's schema.
+ */
+const TOP_LEVEL = new Set([
+  'lead_id', 'source', 'status', 'name', 'email', 'phone', 'company', 'website',
+  'message', 'page', 'company_website', 'cf-turnstile-response',
+  'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
+  'gclid', 'fbclid', 'landing_page', 'referrer',
+]);
+
 type GtagWin = Window & { gtag?: (...args: unknown[]) => void };
 type FbqWin = Window & { fbq?: (...args: unknown[]) => void };
 
@@ -178,7 +190,14 @@ function initForm(form: HTMLFormElement): void {
     for (const [k, v] of new FormData(form).entries()) {
       if (typeof v !== 'string') continue;
       if (k.startsWith('q_')) answers[k.slice(2)] = v;
-      else base[k] = v;
+      // Anything the API does not model as a top-level column belongs in
+      // `answers`. Pages that build their own steps (/audit/, /contact/, the
+      // /lp/ pages, the technical-SEO audit) name fields like `budget`,
+      // `ad_spend` or `category` without the q_ prefix; those used to be
+      // stripped by the server's schema and lost, which also left `answers`
+      // empty so lead scoring could never award the deal-size points.
+      else if (TOP_LEVEL.has(k)) base[k] = v;
+      else answers[k] = v;
     }
     base.answers = answers;
     return base;
@@ -230,7 +249,13 @@ function initForm(form: HTMLFormElement): void {
         headers: { 'content-type': 'application/json', 'x-requested-with': 'fetch' },
         body: JSON.stringify(collect('complete')),
       });
-      if (r.ok) {
+      // A 200 is not by itself success. The endpoint answers {ok:false} when it
+      // rejected or could not keep the enquiry; trusting r.ok alone used to send
+      // people to /thank-you/ for submissions that were thrown away.
+      const body = (await r.json().catch(() => null)) as
+        | { ok?: boolean; error?: string; fields?: string[] }
+        | null;
+      if (r.ok && body?.ok !== false) {
         // Browser Pixel Lead — best-effort; the server CAPI fires the same event
         // with this event_id, so Meta dedupes if both arrive. eventID is the
         // dedup key (note the capitalisation fbq expects).
@@ -238,10 +263,33 @@ function initForm(form: HTMLFormElement): void {
         location.assign(redirectTo());
         return;
       }
-      throw new Error('bad');
-    } catch {
+      submitted = false; // let the abandon beacon fire again if they now leave
+      if (body?.error === 'invalid' && body.fields?.length) {
+        // Point at the offending fields so they can actually fix it.
+        for (const name of body.fields) {
+          const el = form.querySelector<FormEl>(`[name="${CSS.escape(name)}"]`);
+          if (!el) continue;
+          el.setAttribute('aria-invalid', 'true');
+          const err = el.closest('label')?.querySelector<HTMLElement>('[data-err]');
+          if (err) {
+            err.textContent = 'Please check this.';
+            err.hidden = false;
+          }
+        }
+        const first = form.querySelector<FormEl>('[aria-invalid="true"]');
+        if (first) {
+          if (first.closest('[data-step="1"]')) show(1);
+          first.focus();
+        }
+        throw new Error('invalid');
+      }
+      throw new Error(body?.error ?? 'bad');
+    } catch (e) {
       if (status) {
-        status.textContent = 'Something went wrong — email support@scalingsocials.com.';
+        status.textContent =
+          (e as Error)?.message === 'invalid'
+            ? 'Please check the highlighted fields and send again.'
+            : "We couldn't send that — please try again, or email support@scalingsocials.com.";
         status.style.color = 'var(--neg)';
       }
     }

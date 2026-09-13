@@ -15,27 +15,42 @@
  */
 export interface Props {
   class?: string;
+  /**
+   * Suppress the band's own eyebrow/heading/intro. /teardowns/ already states
+   * all three in its <h1> hero, so the full band repeated them verbatim one
+   * section down — a duplicate heading and a duplicate paragraph on the page.
+   * Other pages (where this is a band among many) keep them.
+   */
+  headless?: boolean;
 }
-const { class: className = '' } = Astro.props;
+const { class: className = '', headless = false } = Astro.props;
 ---
 
 <div data-teardowns class:list={['grid gap-[var(--space-8)] lg:grid-cols-[1fr_1fr] lg:items-center', className]}>
   <div class="flex flex-col gap-[var(--space-3)]">
-    <span class="inline-flex w-fit items-center rounded-full border border-[var(--rule-c)] px-[0.7rem] py-[0.2rem] text-label font-semibold text-[var(--accent-text)]">
-      Teardowns
-    </span>
-    <h2 class="max-w-[18ch] text-h2 font-semibold text-[var(--fg)]">Honest teardowns of real D2C brands</h2>
-    <p class="max-w-[52ch] text-body text-[var(--fg-muted)]">
-      Every month, Scaling Socials pulls apart a real Indian D2C brand — their live store and their
-      public Meta Ad Library creatives, all public information — and shows exactly what we would
-      change and why. Constructive and specific, never a hit piece.
-    </p>
+    {!headless && (
+      <>
+        <span class="inline-flex w-fit items-center rounded-full border border-[var(--rule-c)] px-[0.7rem] py-[0.2rem] text-label font-semibold text-[var(--accent-text)]">
+          Teardowns
+        </span>
+        <h2 class="max-w-[18ch] text-h2 font-semibold text-[var(--fg)]">Honest teardowns of real D2C brands</h2>
+        <p class="max-w-[52ch] text-body text-[var(--fg-muted)]">
+          Every month, Scaling Socials pulls apart a real Indian D2C brand — their live store and their
+          public Meta Ad Library creatives, all public information — and shows exactly what we would
+          change and why. Constructive and specific, never a hit piece.
+        </p>
+      </>
+    )}
 
     <div class="mt-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-4)]">
       <p class="text-small font-semibold text-[var(--fg)]">The first teardown is publishing shortly.</p>
       <p class="mt-[0.25rem] text-small text-[var(--fg-muted)]">Get it in your inbox the day it goes live.</p>
-      <form action="/api/subscribe" method="post" class="mt-[var(--space-3)] flex flex-col gap-[var(--space-2)] sm:flex-row">
-        <input type="hidden" name="source_type" value="teardown_waitlist" />
+      <!-- Posts to /api/lead/, which stores into website_leads. It used to post
+           to /api/subscribe, an endpoint that has never existed — the button
+           returned a 404 and every waitlist signup was lost. -->
+      <form action="/api/lead/" method="post" class="mt-[var(--space-3)] flex flex-col gap-[var(--space-2)] sm:flex-row">
+        <input type="hidden" name="source" value="teardown-waitlist" />
+        <input type="hidden" name="status" value="complete" />
         <!-- honeypot (spam trap) -->
         <input type="text" name="company_website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
         <label class="sr-only" for="teardown-email">Email address</label>
@@ -56,7 +71,10 @@ const { class: className = '' } = Astro.props;
       </form>
     </div>
 
-    <a href="/teardowns/" class="inline-flex min-h-[44px] w-fit items-center text-small font-medium text-[var(--accent-text)] no-underline">All teardowns</a>
+    {/* Pointless self-link when the band IS /teardowns/. */}
+    {!headless && (
+      <a href="/teardowns/" class="inline-flex min-h-[44px] w-fit items-center text-small font-medium text-[var(--accent-text)] no-underline">All teardowns</a>
+    )}
   </div>
 
   <!-- Empty annotated mock — NO data, just the frame + our annotation motif. -->

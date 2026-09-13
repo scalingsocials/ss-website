@@ -26,7 +26,11 @@ import { z } from 'zod';
 export const prerender = false;
 
 const leadSchema = z.object({
-  lead_id: z.string().min(8).max(64),
+  // Optional, with a server-generated fallback below. leadform.ts fills this in
+  // the browser, but a NO-JS native form submit (CLAUDE.md §1) posts it empty —
+  // which made every JS-disabled submission fail validation. Same for the
+  // teardown waitlist, which has no island at all.
+  lead_id: z.string().max(64).optional().default(''),
   source: z.string().max(64).default('website'),
   status: z.enum(['partial', 'abandoned', 'complete']).default('partial'),
   name: z.string().max(120).optional().default(''),
@@ -38,8 +42,10 @@ const leadSchema = z.object({
   answers: z.record(z.string(), z.string().max(500)).optional().default({}),
   message: z.string().max(2000).optional().default(''),
   page: z.string().max(200).optional().default(''),
-  // honeypot — must be empty
-  company_website: z.string().max(0).optional().default(''),
+  // Honeypot. Deliberately permissive HERE so a filled one parses cleanly and
+  // falls to the explicit check below, which answers with a silent 200. If the
+  // schema rejected it instead, the 422 would tell a bot it had been caught.
+  company_website: z.string().max(200).optional().default(''),
   // Cloudflare Turnstile token (present on JS submissions once configured).
   'cf-turnstile-response': z.string().max(4096).optional().default(''),
   // Analytics stitching — the browser hands up its GA4 ids so the server-side
@@ -51,12 +57,50 @@ const leadSchema = z.object({
   // Meta browser cookies for CAPI ↔ Pixel matching/dedup.
   fbp: z.string().max(128).optional().default(''),
   fbc: z.string().max(256).optional().default(''),
+  // Campaign attribution. LeadForm renders these as hidden inputs on EVERY form
+  // and leadform.ts fills them from the landing URL — but until 2026-09-12 they
+  // were not declared here, so zod stripped them and they never reached the
+  // store. They are columns on website_leads now; keep them declared.
+  utm_source: z.string().max(200).optional().default(''),
+  utm_medium: z.string().max(200).optional().default(''),
+  utm_campaign: z.string().max(200).optional().default(''),
+  utm_content: z.string().max(200).optional().default(''),
+  utm_term: z.string().max(200).optional().default(''),
+  gclid: z.string().max(255).optional().default(''),
+  fbclid: z.string().max(255).optional().default(''),
+  landing_page: z.string().max(500).optional().default(''),
+  referrer: z.string().max(500).optional().default(''),
 });
+
+/** The attribution fields, in one place — schema, row and email all read this. */
+const ATTRIBUTION = [
+  'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
+  'gclid', 'fbclid', 'landing_page', 'referrer',
+] as const;
 
 type Lead = z.infer<typeof leadSchema>;
 
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } });
+
+/**
+ * Minimal HTML for a NO-JS submit we could not keep. Deliberately not a
+ * redirect to /thank-you/ — telling someone we have their enquiry when we do
+ * not is the failure this endpoint was fixed to stop. Inline-style-free so the
+ * production CSP (no unsafe-inline) does not strip it.
+ */
+const errorPage = () =>
+  new Response(
+    `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><title>We couldn't send that — Scaling Socials</title></head>
+<body><main><h1>We couldn't send that</h1>
+<p>Something went wrong on our side and your enquiry did not reach us. Nothing was saved, so please try again.</p>
+<p>If it keeps failing, email <a href="mailto:support@scalingsocials.com">support@scalingsocials.com</a>
+or WhatsApp <a href="https://wa.me/919606713608">+91 96067 13608</a> and we will pick it up from there.</p>
+<p><a href="/">Back to scalingsocials.com</a></p></main></body></html>`,
+    { status: 503, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } },
+  );
 
 /** Read config from the Cloudflare runtime env, with a local-dev fallback. */
 function getEnv(locals: unknown) {
@@ -85,9 +129,24 @@ function getEnv(locals: unknown) {
   };
 }
 
-/** Verify a Cloudflare Turnstile token server-side. */
-async function verifyTurnstile(secret: string, token: string, ip?: string): Promise<boolean> {
-  if (!token) return false;
+/**
+ * Verify a Cloudflare Turnstile token server-side.
+ *
+ * Three outcomes, not two, and the distinction matters:
+ *  - 'pass'  — Cloudflare says this is a human. Store it.
+ *  - 'fail'  — Cloudflare says the token is invalid/expired/replayed. Drop it.
+ *  - 'error' — we could not ask (network failure, non-2xx, no token produced
+ *              because the widget never rendered). We do NOT know, so we must
+ *              NOT guess "spam". A Turnstile outage or a blocked challenge
+ *              script used to delete every real enquiry silently; now the lead
+ *              is stored and flagged instead.
+ */
+type TurnstileResult = 'pass' | 'fail' | 'error' | 'skipped';
+
+async function verifyTurnstile(secret: string, token: string, ip?: string): Promise<TurnstileResult> {
+  // No token at all means the widget never produced one — a rendering or
+  // network problem on the visitor's side, not evidence of a bot.
+  if (!token) return 'error';
   const body = new URLSearchParams({ secret, response: token });
   if (ip) body.set('remoteip', ip);
   try {
@@ -96,10 +155,11 @@ async function verifyTurnstile(secret: string, token: string, ip?: string): Prom
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body,
     });
+    if (!res.ok) return 'error';
     const data = (await res.json()) as { success?: boolean };
-    return Boolean(data.success);
+    return data.success ? 'pass' : 'fail';
   } catch {
-    return false;
+    return 'error';
   }
 }
 
@@ -122,12 +182,18 @@ async function sendLeadEmail(apiKey: string, from: string, to: string, lead: Lea
     ['Page', lead.page || '—'],
   ];
   const answers: [string, string][] = Object.entries(lead.answers).map(([k, v]) => [humanise(k), v]);
+  // Where the lead came from. Only rows with a value — an organic lead should
+  // not show nine empty attribution lines.
+  const attribution: [string, string][] = ATTRIBUTION
+    .filter((k) => lead[k])
+    .map((k) => [humanise(k).replace(/^Utm /, 'UTM '), lead[k]]);
 
   // ---- plain-text fallback -------------------------------------------------
   const textRows = [
     `${temp.label} lead · score ${score}`,
     ...contact.map(([l, v]) => `${l}: ${v}`),
     ...(answers.length ? ['', 'What they told us:', ...answers.map(([l, v]) => `  ${l}: ${v}`)] : []),
+    ...(attribution.length ? ['', 'Came from:', ...attribution.map(([l, v]) => `  ${l}: ${v}`)] : []),
     ...(lead.message ? ['', `Message: ${lead.message}`] : []),
     '',
     `Submitted ${when} IST · reply to this email to reach ${who}.`,
@@ -144,6 +210,10 @@ async function sendLeadEmail(apiKey: string, from: string, to: string, lead: Lea
   const answersBlock = answers.length
     ? `<tr><td colspan="2" style="padding:14px 0 4px"><div style="border-top:1px solid #e6e5ec;padding-top:12px;color:#6a6a72;font-size:12px;letter-spacing:.05em;text-transform:uppercase">What they told us</div></td></tr>
        ${answers.map(([l, v]) => row(l, v)).join('')}`
+    : '';
+  const attributionBlock = attribution.length
+    ? `<tr><td colspan="2" style="padding:14px 0 4px"><div style="border-top:1px solid #e6e5ec;padding-top:12px;color:#6a6a72;font-size:12px;letter-spacing:.05em;text-transform:uppercase">Came from</div></td></tr>
+       ${attribution.map(([l, v]) => row(l, v)).join('')}`
     : '';
   const messageBlock = lead.message
     ? `<tr><td colspan="2" style="padding:14px 0 0"><div style="border-top:1px solid #e6e5ec;padding-top:12px;color:#6a6a72;font-size:12px;letter-spacing:.05em;text-transform:uppercase">Message</div>
@@ -166,6 +236,7 @@ async function sendLeadEmail(apiKey: string, from: string, to: string, lead: Lea
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           ${contact.map(([l, v, h]) => row(l, v, h)).join('')}
           ${answersBlock}
+          ${attributionBlock}
           ${messageBlock}
         </table>
       </td></tr>
@@ -293,17 +364,51 @@ async function sendMetaLead(
   return j;
 }
 
-// Points for the biggest budget/scale signal in the answers (ad spend, online
-// revenue or monthly sessions). Bigger prospect => hotter lead.
+/**
+ * Points for the biggest budget/scale signal in the answers (ad spend, online
+ * revenue or monthly sessions). Bigger prospect => hotter lead.
+ *
+ * These are matched as EXACT option strings, so every set of options rendered
+ * anywhere on the site has to appear below or it scores zero. Five sets exist:
+ *   A. /audit/ + /contact/ "Monthly budget"      src/pages/{audit,contact}/index.astro
+ *   B. service-page "Monthly ad spend"           src/lib/services.ts
+ *   C. /lp/ "Monthly ad spend" (spaced units)    src/lib/landings.ts
+ *   D. "Monthly online revenue"                  src/lib/services.ts
+ *   E. "Monthly sessions"                        src/lib/services.ts
+ * Sets A and C were missing entirely until 2026-09-12, so no lead from /audit/
+ * — the primary conversion page — could reach the 40-point "Hot" threshold.
+ * `unscored()` below logs anything budget-shaped that matches nothing, so the
+ * next set of options cannot drift out of this list silently.
+ */
+const BUDGET_TIERS: [points: number, options: string[]][] = [
+  [20, ['₹3L+', '₹5L+', '₹5 L+', 'Over ₹1Cr', 'Over 100k']],
+  [12, ['₹3–5L', '₹2–5 L', '₹20L–1Cr', '20k–100k']],
+  [6, ['₹1–3L', '₹60 K–2 L', '₹5–20L', '5k–20k']],
+  [2, ['₹50k–1L', '₹40–60 K']],
+];
+// Everything else is a deliberate zero, not an oversight: the bottom tier of
+// each set, plus the "haven't started" answers.
+const BUDGET_ZERO = [
+  'Under ₹50k', 'Under ₹1L', 'Under ₹5L', 'Under ₹40 K', 'Under 5k',
+  'Not running ads yet', 'Not sure yet', 'Not running yet', '',
+];
+
 function budgetPoints(answers: Record<string, string>): number {
   const vals = Object.values(answers);
-  const top = ['₹5L+', 'Over ₹1Cr', 'Over 100k'];
-  const high = ['₹3–5L', '₹20L–1Cr', '20k–100k'];
-  const mid = ['₹1–3L', '₹5–20L', '5k–20k'];
-  if (vals.some((v) => top.includes(v))) return 20;
-  if (vals.some((v) => high.includes(v))) return 12;
-  if (vals.some((v) => mid.includes(v))) return 6;
-  return 0; // Under ₹1L / Under ₹5L / Under 5k / not running yet
+  for (const [points, options] of BUDGET_TIERS) {
+    if (vals.some((v) => options.includes(v))) return points;
+  }
+  return 0;
+}
+
+/** Surface option strings that match no tier, so scoring drift is visible. */
+function warnUnscoredBudget(answers: Record<string, string>): void {
+  const known = new Set([...BUDGET_TIERS.flatMap(([, o]) => o), ...BUDGET_ZERO]);
+  for (const [k, v] of Object.entries(answers)) {
+    // Only complain about budget-shaped answers, not free text.
+    if (!/₹|\bk\b|Cr\b/i.test(v) || known.has(v)) continue;
+    console.error(`[lead] budget option "${v}" (${k}) matches no scoring tier — update BUDGET_TIERS`);
+  }
 }
 
 /**
@@ -339,8 +444,8 @@ const escapeHtml = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
 /** Upsert one lead row via PostgREST (merge on the unique lead_id). */
-async function upsertLead(url: string, key: string, lead: Lead): Promise<void> {
-  const row = {
+async function upsertLead(url: string, key: string, lead: Lead, turnstile: TurnstileResult): Promise<void> {
+  const row: Record<string, unknown> = {
     lead_id: lead.lead_id,
     status: lead.status,
     source: lead.source,
@@ -353,8 +458,12 @@ async function upsertLead(url: string, key: string, lead: Lead): Promise<void> {
     answers: lead.answers,
     page: lead.page || null,
     score: scoreLead(lead),
+    turnstile,
     updated_at: new Date().toISOString(),
   };
+  // Attribution: only write a key when we actually have a value, so a later
+  // `complete` upsert cannot blank what the `partial` already captured.
+  for (const k of ATTRIBUTION) if (lead[k]) row[k] = lead[k];
   const res = await fetch(`${url}/rest/v1/website_leads?on_conflict=lead_id`, {
     method: 'POST',
     headers: {
@@ -399,32 +508,50 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
 
   const parsed = leadSchema.safeParse(raw);
   if (!parsed.success) {
-    // Never leak validation internals; treat as accepted-but-ignored.
-    return json({ ok: true, stored: false });
+    // A real person whose input we rejected. This used to return 200 with
+    // {ok:true}, so the browser redirected them to /thank-you/ and the enquiry
+    // vanished with nothing logged. Answer honestly: the client shows an error
+    // and keeps what they typed. Field names only — never echo their values.
+    const fields = parsed.error.issues.map((i) => i.path.join('.')).filter(Boolean);
+    console.error('[lead] rejected', fields.join(',') || 'unknown');
+    return json({ ok: false, error: 'invalid', fields }, 422);
   }
   const lead = parsed.data;
+  // No-JS and non-island forms post no lead_id; mint one so the row still
+  // upserts cleanly. (A JS submission always supplies its own, so partial and
+  // complete continue to merge onto the same row.)
+  if (!lead.lead_id || lead.lead_id.length < 8) lead.lead_id = crypto.randomUUID();
+  warnUnscoredBudget(lead.answers);
 
-  // Honeypot tripped → pretend success, store nothing.
+  // Honeypot tripped → pretend success, store nothing. This is the ONE case
+  // where a silent 200 is correct: a bot should not learn it was caught.
   if (lead.company_website) return json({ ok: true, stored: false });
 
   const env = getEnv(locals);
   const wantsJson = ct.includes('application/json') || request.headers.get('x-requested-with') === 'fetch';
 
   // Turnstile: verify completed submissions from the JS path (where a token is
-  // produced). Missing/invalid token → drop silently as spam. The no-JS native
-  // form has no token and falls back to the honeypot, so it still works.
+  // produced). The no-JS native form has no token and falls back to the
+  // honeypot, so it still works.
+  //
+  // Only a definitive 'fail' — Cloudflare telling us the token is bad — drops
+  // the submission. An 'error' (outage, blocked challenge script, no token
+  // rendered) stores the lead flagged `turnstile: error` instead. Storing a
+  // spam row costs nothing; discarding a real enquiry costs a customer.
+  let turnstile: TurnstileResult = 'skipped';
   if (lead.status === 'complete' && env.turnstileSecret && wantsJson) {
     const token = lead['cf-turnstile-response'];
     const ip = request.headers.get('cf-connecting-ip') ?? undefined;
-    const ok = await verifyTurnstile(env.turnstileSecret, token, ip);
-    if (!ok) return json({ ok: true, stored: false });
+    turnstile = await verifyTurnstile(env.turnstileSecret, token, ip);
+    if (turnstile === 'fail') return json({ ok: true, stored: false });
+    if (turnstile === 'error') console.error('[lead] turnstile unverifiable, storing anyway', lead.lead_id);
   }
 
   // Persist by lead_id if Supabase is configured; otherwise log and carry on.
   let stored = false;
   if (env.supabaseUrl && env.supabaseKey) {
     try {
-      await upsertLead(env.supabaseUrl, env.supabaseKey, lead);
+      await upsertLead(env.supabaseUrl, env.supabaseKey, lead, turnstile);
       stored = true;
     } catch (e) {
       // Don't fail the visitor's submission on a store error — log it.
@@ -436,12 +563,25 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   }
 
   // Email the team about completed enquiries (best-effort; never blocks the reply).
+  let emailed = false;
   if (lead.status === 'complete' && env.resendKey) {
     try {
       await sendLeadEmail(env.resendKey, env.alertFrom, env.alertTo, lead);
+      emailed = true;
     } catch (e) {
       console.error('[lead] email failed', (e as Error).message);
     }
+  }
+
+  // If a COMPLETED enquiry reached neither the store nor the inbox, it is lost.
+  // Say so instead of redirecting the visitor to a thank-you page: they see the
+  // error, keep what they typed, and can retry or email us directly.
+  // Partials/abandoned beacons are fire-and-forget and never surface an error.
+  if (lead.status === 'complete' && !stored && !emailed) {
+    console.error('[lead] LOST — neither stored nor emailed', lead.lead_id, lead.source);
+    // A no-JS submit would otherwise be shown raw JSON. Give it a real page.
+    if (!wantsJson) return errorPage();
+    return json({ ok: false, error: 'unavailable' }, 503);
   }
 
   // GA4 conversion, server-side (best-effort). Only on completed enquiries with a
@@ -451,8 +591,12 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
     const host = (() => {
       try { return new URL(request.url).hostname; } catch { return ''; }
     })();
+    // Matches isProdHost() in src/scripts/analytics.ts — www counts as
+    // production, or a lead that arrived via www would be flagged debug_mode
+    // and dropped from standard GA4 reports.
+    const isProd = host === 'scalingsocials.com' || host === 'www.scalingsocials.com';
     try {
-      await sendGa4Lead(env.ga4Id, env.ga4Secret, lead, host !== 'scalingsocials.com');
+      await sendGa4Lead(env.ga4Id, env.ga4Secret, lead, !isProd);
     } catch (e) {
       console.error('[lead] ga4 mp failed', (e as Error).message);
     }
