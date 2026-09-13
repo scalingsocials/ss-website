@@ -154,16 +154,37 @@ function initForm(form: HTMLFormElement): void {
   };
   show(1, false);
 
-  // Default the dial code to the visitor's region. India is the fallback, so a
-  // UAE visitor is the only one who sees a change — and either can override it.
+  // Default the dial code to the visitor's country, best source first:
+  //   1. /api/geo — Cloudflare's CF-IPCountry, the only one that survives a
+  //      laptop still set to the wrong timezone.
+  //   2. the browser timezone, as an instant hint while (1) is in flight.
+  //   3. India, already selected server-side.
+  // Never overrides a visitor who has touched the control themselves.
+  const setCountry = (iso: string) => {
+    if (!iso) return;
+    for (const sel of form.querySelectorAll<HTMLSelectElement>('[data-phone-cc]')) {
+      if (sel.dataset.touched) continue;
+      if (!Array.from(sel.options).some((o) => o.value === iso)) continue;
+      sel.value = iso;
+    }
+  };
+
   const tz = (() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch { return ''; }
   })();
-  if (/Dubai|Abu_Dhabi|Muscat|Qatar|Bahrain|Riyadh/.test(tz)) {
-    for (const sel of form.querySelectorAll<HTMLSelectElement>('[data-phone-cc]')) {
-      if (!sel.dataset.touched) sel.value = 'AE';
-    }
-  }
+  const TZ_HINT: [RegExp, string][] = [
+    [/Dubai|Abu_Dhabi/, 'AE'], [/Karachi/, 'PK'], [/Dhaka/, 'BD'], [/Colombo/, 'LK'],
+    [/Kathmandu/, 'NP'], [/Riyadh/, 'SA'], [/Qatar/, 'QA'], [/Kuwait/, 'KW'],
+    [/Bahrain/, 'BH'], [/Muscat/, 'OM'], [/London/, 'GB'], [/Singapore/, 'SG'],
+  ];
+  for (const [re, iso] of TZ_HINT) if (re.test(tz)) { setCountry(iso); break; }
+
+  // Then let the edge correct it. keepalive so a fast form-filler does not abort
+  // it; failures are ignored because the field already has a usable default.
+  fetch('/api/geo/', { headers: { 'x-requested-with': 'fetch' } })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d: { country?: string } | null) => setCountry(d?.country ?? ''))
+    .catch(() => {});
   const validate = (el: FormEl): boolean => {
     const err = el.closest('label')?.querySelector<HTMLElement>('[data-err]');
     const v = el.value.trim();
@@ -173,8 +194,11 @@ function initForm(form: HTMLFormElement): void {
     else if (el.type === 'tel' && v) {
       // Country-aware. The old rule was "7 or more digits", which accepted
       // almost any string and let unreachable numbers through as leads.
-      const iso = el.parentElement?.querySelector<HTMLSelectElement>('[data-phone-cc]')?.value;
-      const r = checkPhone(v, iso);
+      // The dial code comes off the selected <option>, so the ~200-row country
+      // table never has to ship in this bundle.
+      const sel = el.parentElement?.querySelector<HTMLSelectElement>('[data-phone-cc]');
+      const opt = sel?.selectedOptions[0];
+      const r = checkPhone(v, sel?.value, opt?.dataset.dial ?? '');
       if (!r.ok) msg = r.error;
     }
     el.setAttribute('aria-invalid', msg ? 'true' : 'false');

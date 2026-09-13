@@ -9,7 +9,8 @@
  * service-page hero forms. Otherwise labels sit above the control.
  */
 import type { Field } from '@/lib/formFields';
-import { COUNTRIES, DEFAULT_ISO, countryOf } from '@/lib/phone';
+import { PRIMARY, REST } from '@/lib/countries';
+import { DEFAULT_ISO } from '@/lib/phone';
 
 export interface Props {
   field: Field;
@@ -30,7 +31,7 @@ const ph = f.placeholder ?? f.label;
 // upgrades the default to match the visitor's timezone.
 const isPhone = inputType === 'tel';
 const ccName = `${name}_cc`;
-const defaultCountry = countryOf(DEFAULT_ISO);
+const defaultExample = '96067 13608';
 ---
 <label class="ss-fc flex flex-col gap-[0.3rem]">
   {/* Compact fields carry `aria-label` on the control itself (below), so an
@@ -61,12 +62,23 @@ const defaultCountry = countryOf(DEFAULT_ISO);
         class="ss-input ss-phone__cc"
         aria-label="Country dialling code"
       >
-        {/* Dial code only. "+91 India" pushed the select to 230px of a 230px
-            row on a 360px phone, leaving the number field 50px wide. The
-            aria-label carries the meaning for screen readers. */}
-        {COUNTRIES.map((c) => (
-          <option value={c.iso} selected={c.iso === DEFAULT_ISO}>{c.dial}</option>
-        ))}
+        {/* Dial code FIRST, name second, and the select is width-capped in CSS.
+            A native select shows the selected option's own text when closed, so
+            it cannot be short closed and long open — capping the width means a
+            long name like "United Arab Emirates" clips, but the dial code is
+            always the part that survives, which is the part that matters. */}
+        <optgroup label="Where we work">
+          {PRIMARY.map((c) => (
+            <option value={c.iso} data-dial={c.dial} title={c.name} selected={c.iso === DEFAULT_ISO}>
+              {c.dial} {c.name}
+            </option>
+          ))}
+        </optgroup>
+        <optgroup label="All countries">
+          {REST.map((c) => (
+            <option value={c.iso} data-dial={c.dial} title={c.name}>{c.dial} {c.name}</option>
+          ))}
+        </optgroup>
       </select>
       <input
         type="tel"
@@ -74,7 +86,7 @@ const defaultCountry = countryOf(DEFAULT_ISO);
         data-phone-num
         required={f.required}
         aria-label={f.label}
-        placeholder={f.placeholder ?? defaultCountry.example}
+        placeholder={f.placeholder ?? defaultExample}
         autocomplete={f.autocomplete}
         inputmode="tel"
         class="ss-input ss-phone__num"
@@ -106,8 +118,15 @@ const defaultCountry = countryOf(DEFAULT_ISO);
   .ss-phone { display: flex; gap: var(--space-2); align-items: stretch; }
   .ss-phone > .ss-phone__cc {
     flex: 0 0 auto;
-    width: auto;
-    padding-inline: var(--space-2);
+    /* Wide enough for "+971 UAE"-length names; longer ones clip after the dial
+       code. max-width keeps it from eating the number field on a small phone. */
+    width: 8.25rem;
+    max-width: 42%;
+    /* padding-RIGHT only. `padding-inline` here overwrote the right padding
+       that select.ss-input reserves for its chevron, so the arrow rendered on
+       top of the dial code. */
+    padding-left: var(--space-2);
+    text-overflow: ellipsis;
   }
   .ss-phone > .ss-phone__num { flex: 1 1 auto; width: auto; min-width: 0; }
 </style>

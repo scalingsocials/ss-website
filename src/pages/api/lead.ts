@@ -23,6 +23,7 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { checkPhone, DEFAULT_ISO } from '@/lib/phone';
+import { dialFor } from '@/lib/countries';
 
 export const prerender = false;
 
@@ -40,7 +41,7 @@ const leadSchema = z.object({
   // Dial-code select that FieldControl renders beside every `tel` input. The
   // server composes the two into E.164 and validates per country, so the rule
   // holds even for a no-JS post or a handcrafted request.
-  phone_cc: z.string().max(4).optional().default(''),
+  phone_cc: z.string().max(2).optional().default(''),
   company: z.string().max(160).optional().default(''),
   website: z.string().max(200).optional().default(''),
   // Service-specific answers arrive as a flat map; keep them loose.
@@ -549,7 +550,8 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   // capture of someone mid-typing, and refusing it would throw away the very
   // lead the abandoned-capture feature exists to save.
   if (lead.phone) {
-    const r = checkPhone(lead.phone, lead.phone_cc || DEFAULT_ISO);
+    const iso = lead.phone_cc || DEFAULT_ISO;
+    const r = checkPhone(lead.phone, iso, dialFor(iso));
     if (r.ok) {
       lead.phone = r.e164;
     } else if (lead.status === 'complete') {
