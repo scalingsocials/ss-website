@@ -24,11 +24,11 @@ const modified = '2026-09-04';
 const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }), breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Work', url }])];
 ---
 
-<BaseLayout>
+<BaseLayout heroOver>
   <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
   <SchemaGraph slot="schema" nodes={nodes} />
 
-  <Section register="ink" size="lg">
+  <Section register="ink" size="lg" class="ss-hero-over">
     <span class="ss-eyebrow">Creative</span>
     <h1 class="max-w-[18ch]">Creative built to be tested</h1>
     <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">

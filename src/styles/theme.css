@@ -193,6 +193,20 @@
      scrolling, so this never changes mid-scroll. */
   .ss-header ~ main { padding-top: var(--hh, 68px); }
 
+  /* Opt-in for a dark FIRST section that the transparent header sits on top of.
+     motion.ts turns the header transparent (and switches it to the ink register,
+     so its text goes light) whenever the first section in <main> is ink. That is
+     only correct if the section actually reaches up behind the header — without
+     this class the rule above leaves main's white padding at the top of the
+     viewport, so the light header text lands on white and becomes unreadable.
+     Cancel the offset, then re-add it as padding so the content still clears the
+     bar. Same treatment .hero uses on the homepage; apply it to any section that
+     opens an ink page. */
+  .ss-hero-over {
+    margin-top: calc(-1 * var(--hh, 68px));
+    padding-top: calc(var(--hh, 68px) + var(--space-4));
+  }
+
   /* Media never overflows its container — a raw <img>/<svg>/<video> wider than a
      phone column is one of the most common sources of mobile horizontal scroll.
      width/height attrs still reserve space (CLS 0); this only caps, never upscales. */
