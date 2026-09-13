@@ -71,8 +71,13 @@ export const NAV: NavItem[] = [
     label: 'Work',
     kind: 'dropdown',
     items: [
-      { label: 'Case studies', href: '/case-studies/', descriptor: 'Real result tables, named clients.' },
-      { label: 'Creative gallery', href: '/work/', descriptor: 'Ad creatives we made, with results attached.' },
+      // Both descriptors used to overclaim, on every page in the site header:
+      // the case studies are deliberately ANONYMISED (the page itself has a
+      // "Why these brands aren't named" section), and /work/ attaches no results
+      // to the creatives. Same two overclaims were in llms.txt.
+      { label: 'Case studies', href: '/case-studies/', descriptor: 'Seven accounts, real before/after numbers.' },
+      { label: 'Industries', href: '/industries/', descriptor: 'Proof by category: fashion, kids, wellness, gifting, beauty.' },
+      { label: 'Creative gallery', href: '/work/', descriptor: 'The ad creative we make in-house.' },
     ],
   },
   {
@@ -86,6 +91,7 @@ export const NAV: NavItem[] = [
     items: [
       { label: 'Blog', href: '/blog/', descriptor: 'Notes from the accounts we run.' },
       { label: 'Guides', href: '/guides/', descriptor: 'Long-form, evergreen.' },
+      { label: 'Comparisons', href: '/vs/', descriptor: "Straight answers to the 'which should I choose?' questions." },
       { label: 'Tools', href: '/tools/', descriptor: 'Free calculators for D2C operators.' },
       { label: 'Glossary', href: '/glossary/', descriptor: 'Every metric, defined with a rupee example.' },
     ],
