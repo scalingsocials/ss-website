@@ -3,13 +3,21 @@
  * /thank-you/ — post-submit confirmation. noindex, excluded from sitemap.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
 import Section from '@/components/primitives/Section.astro';
 import Button from '@/components/primitives/Button.astro';
 ---
 
 <BaseLayout noindex>
-  <title slot="meta">Thank you — Scaling Socials</title>
-  <meta slot="meta" name="description" content="Thanks, we have your details and will reply within one working day." />
+  {/* Use <Meta> rather than hand-rolled tags so this page gets the canonical
+      and Open Graph tags too. noindex skips the title/description length gate. */}
+  <Meta
+    slot="meta"
+    noindex
+    title="Thank you — Scaling Socials"
+    description="Thanks, we have your details and will reply within one working day."
+    type="website"
+  />
 
   <Section size="lg">
     <div class="mx-auto max-w-[52ch] text-center">

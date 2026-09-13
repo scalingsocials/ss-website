@@ -6,6 +6,7 @@
  * useful next steps, not a bare error.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Meta from '@/components/seo/Meta.astro';
 import Section from '@/components/primitives/Section.astro';
 import Button from '@/components/primitives/Button.astro';
 
@@ -18,8 +19,16 @@ const links = [
 ---
 
 <BaseLayout noindex>
-  <title slot="meta">Page not found — Scaling Socials</title>
-  <meta slot="meta" name="description" content="That page has moved or never existed. Head back to the Scaling Socials homepage or pick a link below." />
+  {/* Was hand-rolling <title>/<description>, which skipped the canonical, the
+      Open Graph tags and the og:image. `noindex` opts out of the title/meta
+      length gate; BaseLayout still emits the robots tag. */}
+  <Meta
+    slot="meta"
+    noindex
+    title="Page not found — Scaling Socials"
+    description="That page has moved or never existed. Head back to the Scaling Socials homepage or pick a link below."
+    type="website"
+  />
 
   <Section size="lg">
     <div class="mx-auto max-w-[54ch] text-center">

@@ -57,8 +57,12 @@ const services = [
 ];
 
 const sections = [
-  ['Case studies', '/case-studies/', 'Real, attributed result tables.'],
-  ['Creative gallery', '/work/', 'Ad creatives with results attached.'],
+  // Both descriptions used to overclaim: the studies are deliberately
+  // anonymised (not "attributed"), and /work/ is a gallery with no results
+  // attached to the creatives. This file exists to be read by AI crawlers, so
+  // it is the last place that should describe pages inaccurately.
+  ['Case studies', '/case-studies/', 'Seven anonymised accounts with real before/after result tables.'],
+  ['Creative gallery', '/work/', 'Ad creative Scaling Socials produces in-house for D2C brands.'],
   ['Teardowns', '/teardowns/', 'Honest public CRO and ads teardowns of real D2C brands.'],
   ['Tools', '/tools/', 'Free calculators for D2C operators.'],
   ['Glossary', '/glossary/', 'Every metric, defined with a rupee example.'],

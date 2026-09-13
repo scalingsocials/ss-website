@@ -13,7 +13,7 @@ import BrandIcon from '@/components/graphics/BrandIcon.astro';
 import { ORG } from '@/lib/schema/entity';
 import { CATEGORY_FIELD } from '@/lib/serviceCategory';
 import type { Field } from '@/lib/formFields';
-import { base, webPage, breadcrumbs } from '@/lib/schema';
+import { professionalService, website, webPage, breadcrumbs } from '@/lib/schema';
 
 const url = '/contact/';
 const title = 'Contact Scaling Socials | D2C Growth Agency Bangalore';
@@ -25,8 +25,16 @@ const a = ORG.address;
 const tel = ORG.telephone.replace(/[^+\d]/g, '');
 const mapsQuery = encodeURIComponent(`${a.streetAddress}, ${a.addressLocality}, ${a.addressRegion} ${a.postalCode}`);
 
+// professionalService() instead of base()'s plain organization(): it is the
+// LocalBusiness subtype and carries the address, rooftop geo and opening hours.
+// It shares ORG_ID, so this replaces the Organization node rather than adding a
+// second one. /contact/ is the page that actually RENDERS the NAP and hours, so
+// it is the page that should mark them up (03 §8, and the "never mark up what
+// is not visible" rule in CLAUDE.md §9). Must stay identical to the Google
+// Business Profile — public address only, never the GST legalAddress.
 const nodes = [
-  ...base(),
+  professionalService(),
+  website(),
   webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }),
   breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Contact', url }]),
 ];

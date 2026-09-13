@@ -15,7 +15,7 @@ import Link from '@/components/primitives/Link.astro';
 import LeadForm from '@/components/blocks/LeadForm.astro';
 import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
-import { base, webPage, breadcrumbs, faqPage } from '@/lib/schema';
+import { base, webPage, breadcrumbs, faqPage, service, serviceId } from '@/lib/schema';
 import type { Field } from '@/lib/formFields';
 
 const url = '/technical-seo-audit-services/';
@@ -54,9 +54,20 @@ const faqs = [
   { q: 'What does a technical SEO audit cost?', a: 'It is scoped to the size and complexity of your site rather than sold as a fixed package, and it can be a one-off audit or the first step of an ongoing SEO engagement. Tell us your site and we will map out what it needs.' },
 ];
 
+// This was the ONLY service page emitting no Service node — every sibling
+// (ServiceLayout, ClusterLayout, IndustryLayout) emits one, and the page hangs
+// off the SEO pillar exactly like a cluster does. check:schema validates node
+// shape, not completeness, so the omission passed the gate.
 const nodes = [
   ...base(),
-  webPage({ url, name: title, description, hasBreadcrumb: true, datePublished: published, dateModified: modified }),
+  service({
+    url,
+    name: 'Technical SEO audit',
+    description,
+    serviceType: 'Technical SEO audit',
+    areaServed: ['IN', 'AE'],
+  }),
+  webPage({ url, name: title, description, aboutId: serviceId(url), hasBreadcrumb: true, datePublished: published, dateModified: modified }),
   breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'SEO', url: '/seo-agency-bangalore/' }, { name: 'Technical SEO audit', url }]),
   faqPage(url, faqs),
 ];
