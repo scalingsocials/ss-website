@@ -72,6 +72,17 @@ const leadSchema = z.object({
   referrer: z.string().max(500).optional().default(''),
 });
 
+/**
+ * Sources that are a SUBSCRIPTION, not an enquiry.
+ *
+ * These still store (the owner wants them in the CRM) and still notify, but they
+ * must NOT fire the GA4 or Meta conversions: an email-only newsletter signup
+ * counted as a `Lead` corrupts the exact signal the ad campaigns optimise
+ * against, and it is far easier to obtain than a real enquiry. Add a source here
+ * whenever a form asks for less than a real enquiry does.
+ */
+const SUBSCRIBE_SOURCES = new Set(['teardown-waitlist']);
+
 /** The attribution fields, in one place — schema, row and email all read this. */
 const ATTRIBUTION = [
   'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
@@ -256,7 +267,11 @@ async function sendLeadEmail(apiKey: string, from: string, to: string, lead: Lea
       from,
       to: [to],
       reply_to: lead.email || undefined,
-      subject: `New ${temp.label} lead: ${who} (${humanise(lead.source)})`,
+      // A subscription is not a sales lead, so it must not arrive in the inbox
+      // labelled Hot/Warm/Cool — that scoring only means something for enquiries.
+      subject: SUBSCRIBE_SOURCES.has(lead.source)
+        ? `New signup: ${who} (${humanise(lead.source)})`
+        : `New ${temp.label} lead: ${who} (${humanise(lead.source)})`,
       html,
       text: textRows.join('\n'),
     }),
@@ -517,6 +532,7 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
     return json({ ok: false, error: 'invalid', fields }, 422);
   }
   const lead = parsed.data;
+  const isSubscribe = SUBSCRIBE_SOURCES.has(lead.source);
   // No-JS and non-island forms post no lead_id; mint one so the row still
   // upserts cleanly. (A JS submission always supplies its own, so partial and
   // complete continue to merge onto the same row.)
@@ -587,7 +603,7 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   // GA4 conversion, server-side (best-effort). Only on completed enquiries with a
   // client_id; debug_mode on any non-production host so preview/localhost hits
   // show in GA4 DebugView without being mistaken for real traffic.
-  if (lead.status === 'complete' && env.ga4Secret && lead.ga_client_id) {
+  if (lead.status === 'complete' && !isSubscribe && env.ga4Secret && lead.ga_client_id) {
     const host = (() => {
       try { return new URL(request.url).hostname; } catch { return ''; }
     })();
@@ -604,7 +620,7 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
 
   // Meta Conversions API Lead (best-effort). Deduped against the browser Pixel
   // by the shared event_id; test_event_code (when set) routes to Test Events.
-  if (lead.status === 'complete' && env.metaCapiToken) {
+  if (lead.status === 'complete' && !isSubscribe && env.metaCapiToken) {
     try {
       const r = await sendMetaLead(env.metaPixelId, env.metaCapiToken, env.metaTestCode, lead, request);
       console.log('[lead] meta capi', r.events_received ?? 0, 'received', r.fbtrace_id ?? '');

@@ -25,9 +25,13 @@ import Button from '@/components/primitives/Button.astro';
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17l9-10" stroke="var(--accent-text)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <h1 class="text-h2 font-semibold">Thanks, we’ve got it.</h1>
+      {/* Two different journeys land here: an enquiry from a lead form, and a
+          teardown-list signup (a native form post, so the server picks the
+          redirect and cannot vary the page). The copy has to be true for both. */}
       <p class="mt-[var(--space-3)] text-body text-[var(--fg-muted)]">
-        A real person at Scaling Socials will read this and reply within one working day. If it’s
-        urgent, message us on WhatsApp at +91 96067 13608.
+        If you sent us your brand, a real person at Scaling Socials reads it and replies within one
+        working day. If you joined the teardown list, the first one reaches you the day it
+        publishes. Either way, WhatsApp us on +91 96067 13608 if it’s urgent.
       </p>
       <div class="mt-[var(--space-6)] flex flex-wrap justify-center gap-[var(--space-2)]">
         <Button href="/" variant="primary">Back to home</Button>
