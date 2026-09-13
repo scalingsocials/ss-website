@@ -44,14 +44,27 @@ export const ORG = {
   telephone: '+91-96067-13608',
   email: 'support@scalingsocials.com',
 
-  // Address — Google Maps form. Public use only.
+  /**
+   * Address — the Google Business Profile / Maps form, VERBATIM. Public use only.
+   *
+   * This must match the Google Business Profile character for character: local
+   * ranking leans on NAP consistency, and a website address that differs from
+   * the listing weakens both. Confirmed against Maps by the owner 2026-09-13.
+   * If the listing is ever edited, edit this in the same sitting — everything on
+   * the site (footer, /contact/, the PostalAddress in schema, and the directions
+   * link) reads from here.
+   *
+   * The landmark and both localities are part of the street line because that is
+   * how Maps formats them, and splitting them across schema fields would produce
+   * a different string from the listing.
+   */
   address: {
-    streetAddress: '203, CMR Main Road, HRBR Layout 3rd Block',
+    streetAddress:
+      '203, CMR Main Rd, next to Vasan Eye Care, HRBR Layout 3rd Block, Keshava Nagar, Kacharakanahalli',
     addressLocality: 'Bengaluru',
     addressRegion: 'Karnataka',
     postalCode: '560043',
     addressCountry: 'IN',
-    neighborhood: 'Kacharakanahalli',
   },
 
   // Rooftop coordinates from Google Business Profile, 6dp (~0.1m precision)
@@ -60,9 +73,17 @@ export const ORG = {
     longitude: 77.632886,
   },
 
+  /**
+   * Opening hours — the Google Business Profile values, VERBATIM.
+   *
+   * Was Monday–SATURDAY 10:00–18:00, which contradicted the listing on three
+   * counts: the listing closes Saturday, opens at 10:30 and closes at 18:30.
+   * That is worse than an SEO inconsistency — it could send someone to a closed
+   * office on a Saturday. Corrected against Maps 2026-09-13.
+   */
   openingHours: [
-    { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-      opens: '10:00', closes: '18:00' },
+    { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: '10:30', closes: '18:30' },
   ],
 
   // Google Business Profile primary category. Mirror this wherever a
