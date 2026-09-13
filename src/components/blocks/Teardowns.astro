@@ -45,9 +45,10 @@ const { class: className = '', headless = false } = Astro.props;
     <div class="mt-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-4)]">
       <p class="text-small font-semibold text-[var(--fg)]">The first teardown is publishing shortly.</p>
       <p class="mt-[0.25rem] text-small text-[var(--fg-muted)]">Get it in your inbox the day it goes live.</p>
-      <!-- Posts to /api/lead/, which stores into website_leads. It used to post
-           to /api/subscribe, an endpoint that has never existed — the button
-           returned a 404 and every waitlist signup was lost. -->
+      {/* Posts to /api/lead/, which stores into website_leads. It used to post
+          to /api/subscribe, an endpoint that has never existed — the button
+          returned a 404 and every waitlist signup was lost.
+          Braces, not an HTML comment: `<!-- -->` ships to the browser. */}
       <form action="/api/lead/" method="post" class="mt-[var(--space-3)] flex flex-col gap-[var(--space-2)] sm:flex-row">
         <input type="hidden" name="source" value="teardown-waitlist" />
         <input type="hidden" name="status" value="complete" />
