@@ -49,20 +49,41 @@ Set the compatibility flag for **both Production and Preview** environments.
 In **Settings → Environment variables**, add these (mark the keys as **encrypted /
 Secret**). Set them on **Production**; optionally add a separate test set on **Preview**.
 
-| Variable | What it's for |
-|---|---|
-| `SUPABASE_URL` | Supabase project URL (lead storage) |
-| `SUPABASE_SERVICE_KEY` | Supabase **service-role** key — server-only, never in the client |
-| `TURNSTILE_SECRET_KEY` | Server-side Turnstile verification |
-| `PUBLIC_TURNSTILE_SITE_KEY` | Turnstile widget (public; `PUBLIC_` is exposed to the browser by design) |
-| `RESEND_API_KEY` | Transactional email (lead receipt + internal alert) |
-| _(later)_ `PUBLIC_GA4_ID`, Meta CAPI token, Clarity ID | Analytics, when wired |
+These are the **exact names `src/pages/api/lead.ts` reads**. Every one of them is
+read through an `if (… && env.X)` guard, so a missing value produces **no error,
+no log and no retry** — the feature just silently does nothing. Check this table
+against the Cloudflare dashboard before cutover; a typo here is invisible.
 
-**Code gotcha for whoever wires `/api/lead` (PENDING §A2):** on the Cloudflare
-adapter, runtime secrets are **not** on `process.env`. Read them from the request
-context: `context.locals.runtime.env.SUPABASE_SERVICE_KEY`, etc. `import.meta.env`
-only holds build-time/`PUBLIC_` values. The current `/api/lead.ts` just logs and has
-a TODO for the upsert — that's where these get read.
+| Variable | Required? | What breaks if it is missing |
+|---|---|---|
+| `SUPABASE_URL` | **Yes** | No lead is stored. |
+| `SUPABASE_SERVICE_KEY` | **Yes** | No lead is stored. Service-role key — server-only, never in the client. |
+| `RESEND_API_KEY` | **Yes** | No alert email. With Supabase also missing, `/api/lead` returns 503 and the visitor is told the enquiry failed (by design — see below). |
+| `TURNSTILE_SECRET_KEY` | Recommended | Spam protection is skipped entirely; leads still store. |
+| `GA4_MP_API_SECRET` | **Yes, for conversions** | The server-side `generate_lead` never fires. GA4 records no conversions at all, so Google Ads has nothing to optimise against. |
+| `META_CAPI_TOKEN` | **Yes, for conversions** | The Conversions API `Lead` never fires. Only the browser Pixel reports, so iOS/ad-blocked conversions are lost. |
+| `META_TEST_EVENT_CODE` | **Must be UNSET in Production** | If left set from testing, every live Meta conversion is routed to Events Manager → Test Events and **reports nothing**. |
+| `GA4_MEASUREMENT_ID` | Optional | Defaults to the public `G-DQH1656N5W` in code. |
+| `META_PIXEL_ID` | Optional | Defaults to the public `2381316206031576` in code. |
+| `LEAD_ALERT_FROM` / `LEAD_ALERT_TO` | Optional | Default to `leads@scalingsocials.com` → `support@scalingsocials.com`. |
+
+The Turnstile **site** key is public and hardcoded in `src/components/blocks/LeadForm.astro`
+(`data-sitekey`). There is no `PUBLIC_TURNSTILE_SITE_KEY` env var — earlier revisions
+of this document listed one and nothing reads it.
+
+**Code gotcha:** on the Cloudflare adapter, runtime secrets are **not** on
+`process.env`. `/api/lead.ts` reads them from the request context
+(`context.locals.runtime.env.SUPABASE_SERVICE_KEY`); `import.meta.env` only holds
+build-time/`PUBLIC_` values. This is already implemented — the endpoint does the
+Supabase upsert, the Resend alert, the GA4 Measurement Protocol hit and the Meta
+CAPI hit.
+
+**Deliberate behaviour to know about before you test:** a completed enquiry that
+reaches **neither** the store **nor** the inbox returns **503**, and the visitor
+sees an error instead of `/thank-you/`. That is intentional. It replaced a silent
+`200 {"ok":true}` that redirected people to the thank-you page while the lead was
+discarded. If you see 503s after deploying, the env table above is wrong — do not
+"fix" it by restoring the silent success.
 
 ## Step 4 — Keep the staging URL private (so it can't be indexed)
 

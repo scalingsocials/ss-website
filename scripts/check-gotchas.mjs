@@ -48,7 +48,6 @@ const optedOut = (text, id) =>
 for (const file of await walk(ROOT)) {
   const src = await readFile(file, 'utf8');
   const lines = src.split(/\r?\n/);
-  const isCssCtx = /\.css$/.test(file);
 
   // --- File-level pairing rules (a property that needs a -webkit- sibling) ----
   // backdrop-filter MUST be paired with -webkit-backdrop-filter (iOS Safari).

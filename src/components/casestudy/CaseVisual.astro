@@ -94,7 +94,7 @@ const note = 'note' in v ? v.note : v.type === 'stepMarkers' ? v.spendNote : und
           {!thumb && <text class="cv__avglbl" x={W - R} y={avgY - 8} text-anchor="end">Avg {v.avgLine.display}</text>}
           <polygon class="cv__area" points={area} />
           <polyline class="cv__line" points={line} />
-          {pts.map((pt, i) => (
+          {pts.map((pt) => (
             <g>
               <circle class:list={['cv__dot', pt.p.dip && 'cv__dot--neg']} cx={pt.x} cy={pt.y} r={thumb ? 4 : 6}>
                 <title>{pt.p.label}: {pt.p.display} ROAS{pt.p.dip ? ' (dip)' : ''}</title>
@@ -121,7 +121,7 @@ const note = 'note' in v ? v.note : v.type === 'stepMarkers' ? v.spendNote : und
           <rect class="cv__dead" x={L} y={T} width={round(deadX2 - L)} height={round(yBase - T)} />
           {!thumb && <text class="cv__deadlbl" x={(L + deadX2) / 2} y={T + 18} text-anchor="middle">Two dead months</text>}
           <polyline class="cv__line" points={path} />
-          {pts.map((pt, i) => (
+          {pts.map((pt) => (
             <g>
               <circle class:list={['cv__dot', pt.nd.inflection && 'cv__dot--peak']} cx={pt.x} cy={pt.y} r={thumb ? 4 : pt.nd.inflection ? 7 : 5}>
                 <title>{pt.nd.label}: {pt.nd.value}{pt.nd.roas ? ` at ${pt.nd.roas}` : ''}</title>
