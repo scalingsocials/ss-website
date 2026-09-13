@@ -6,8 +6,13 @@
  * `logo-9.png`) — Intent Farm's nine case-study links read `Group-1171276648`
  * because their thumbnails had no alt (03 §Images).
  *
- * The folder is currently empty, so LOGOS is []. LogoWall renders gracefully
- * with zero logos — nothing invented, no fake marks (CLAUDE.md §15).
+ * 14 logos are in the folder today. LogoWall still renders gracefully with zero
+ * — nothing invented, no fake marks (CLAUDE.md §15) — so the wall degrades
+ * rather than breaking if the folder is ever emptied.
+ *
+ * Four marks were REMOVED deliberately: they identified accounts the case
+ * studies anonymise, and leaving them let a reader cross-reference the two. Do
+ * not re-add a logo without checking it against that directive first.
  */
 import type { ImageMetadata } from 'astro';
 import logoMeta from './logo-meta.json';
