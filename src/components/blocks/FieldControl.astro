@@ -11,6 +11,9 @@
 import type { Field } from '@/lib/formFields';
 import { PRIMARY, REST } from '@/lib/countries';
 import { DEFAULT_ISO } from '@/lib/phone';
+// The country shown before any JS runs. Server-rendered so the closed control
+// is never blank and never disagrees with the <select>'s own selected option.
+const DEF = PRIMARY.find((c) => c.iso === DEFAULT_ISO) ?? PRIMARY[0]!;
 
 export interface Props {
   field: Field;
@@ -55,32 +58,46 @@ const defaultExample = '96067 13608';
         : (f.options ?? []).map((o) => <option value={o} selected={isSel(o)}>{o}</option>)}
     </select>
   ) : isPhone ? (
-    <span class="ss-phone" data-phone-field>
-      <select
-        name={ccName}
-        data-phone-cc
-        class="ss-input ss-phone__cc"
-        aria-label="Country dialling code"
-      >
-        {/* Flag, dial code, then name — the order every mainstream phone field
-            uses, and the order that survives clipping. A native select shows
-            the selected option's own text when closed and cannot differ between
-            the two states, so the width cap trims a long name like "United Arab
-            Emirates" from the right, leaving the flag and dial code intact.
+    <span class="ss-input ss-phone" data-phone-field>
+      <span class="ss-phone__slot">
+        {/* What the visitor sees while the picker is closed: flag, dial code,
+            chevron. Nothing else — a half-clipped "+91 In…" is what made this
+            field look broken on a phone. aria-hidden because the <select>
+            underneath is the real, labelled control. */}
+        <span class="ss-phone__view" aria-hidden="true">
+          <span class="ss-phone__flag" data-phone-flag>{DEF.flag}</span>
+          <span class="ss-phone__dial" data-phone-dial>{DEF.dial}</span>
+          <svg class="ss-phone__chev" width="12" height="12" viewBox="0 0 14 14" fill="none">
+            <path d="M3 5.25 7 9.25l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+        <select
+          name={ccName}
+          data-phone-cc
+          class="ss-phone__cc"
+          aria-label="Country dialling code"
+        >
+          {/* Options keep the FULL name. A native select paints its closed state
+              from the selected option's own text and cannot show something
+              different in the two states — so the list stays searchable (typing
+              "United" still jumps to United Arab Emirates, and 209 rows of bare
+              dial codes would be unusable) while the transparent layer above
+              lets the closed state show just the flag and the code.
 
-            The two pinned entries carry no group heading: labelling them would
-            tell a visitor which markets we sell into, which a phone field has
-            no business announcing. A disabled rule separates them instead. */}
-        {PRIMARY.map((c) => (
-          <option value={c.iso} data-dial={c.dial} title={c.name} selected={c.iso === DEFAULT_ISO}>
-            {c.flag} {c.dial} {c.name}
-          </option>
-        ))}
-        <option disabled>──────────</option>
-        {REST.map((c) => (
-          <option value={c.iso} data-dial={c.dial} title={c.name}>{c.flag} {c.dial} {c.name}</option>
-        ))}
-      </select>
+              The two pinned entries carry no group heading: labelling them would
+              tell a visitor which markets we sell into, which a phone field has
+              no business announcing. A disabled rule separates them instead. */}
+          {PRIMARY.map((c) => (
+            <option value={c.iso} data-dial={c.dial} data-flag={c.flag} selected={c.iso === DEFAULT_ISO}>
+              {c.flag} {c.dial} {c.name}
+            </option>
+          ))}
+          <option disabled>──────────</option>
+          {REST.map((c) => (
+            <option value={c.iso} data-dial={c.dial} data-flag={c.flag}>{c.flag} {c.dial} {c.name}</option>
+          ))}
+        </select>
+      </span>
       <input
         type="tel"
         name={name}
@@ -90,7 +107,7 @@ const defaultExample = '96067 13608';
         placeholder={f.placeholder ?? defaultExample}
         autocomplete={f.autocomplete}
         inputmode="tel"
-        class="ss-input ss-phone__num"
+        class="ss-phone__num"
       />
     </span>
   ) : f.type === 'textarea' ? (
@@ -110,40 +127,92 @@ const defaultExample = '96067 13608';
 </label>
 
 <style is:global>
-  /* The dial code sits flush against the number as one control. Auto width on
-     the select so "+971 UAE" is never clipped, and the number field takes the
-     rest. Both inherit .ss-input, so focus and error states already match. */
-  /* Two-class selectors on purpose: .ss-input sets `width: 100%`, which made
-     the select fill the whole row and squeeze the number field to 50px on a
-     360px phone. A single-class rule here would lose or win by source order. */
-  /* min-width:0 on the ROW as well as its children. Without it the row is a
-     flex item with min-width:auto, so its own min-content size (driven by the
-     select's option list) propagates up through the form to the hero grid track
-     and widens the whole column past the viewport. */
-  /* The label is a flex item of the step column and has min-width:auto too, so
-     it would re-introduce the same propagation one level up. */
+  /* ONE control, not two boxes side by side (owner feedback, 2026-09-13: the
+     old pair "looks clumsy"). The bordered box is the WRAPPER; the dial-code
+     picker and the number sit inside it divided by a hairline, which is the
+     shape every mainstream phone field uses. The wrapper carries .ss-input, so
+     it inherits the border, radius, background and every contextual override
+     (compact, elevated, the ink hero) for free, and only the padding is undone. */
+  /* min-width:0 on the label as well: it is a flex item of the step column with
+     min-width:auto, so a wide child's min-content size propagates up through
+     the form to the hero grid track and widens the column past the viewport. */
   .ss-fc { min-width: 0; }
-  .ss-phone { display: flex; gap: var(--space-2); align-items: stretch; min-width: 0; }
-  .ss-phone > .ss-phone__cc {
-    /* 0 1 basis, not 0 0: the dial code may shrink on a narrow phone rather
-       than force the row wider than the column it sits in. */
-    flex: 0 1 8.25rem;
-    /* Wide enough for "+971 UAE"-length names; longer ones clip after the dial
-       code. max-width keeps it from eating the number field on a small phone. */
-    width: 8.25rem;
-    max-width: 42%;
-    /* REQUIRED, not defensive. A flex item defaults to min-width:auto, which for
-       a <select> resolves to the width of its WIDEST OPTION — 276px here, set by
-       "+236 Central African Republic". That min-content size propagates up
-       through the form to the hero grid track and pushed the whole column to
-       438px inside a 390px viewport, clipping the page on mobile. The `width`
-       above cannot win against it; only min-width:0 lets the select shrink. */
+
+  /* 0,3,0 on purpose. `.ss-leadform--compact .ss-input` is 0,2,0 and sets the
+     padding this element must not have; a single-class rule here would win or
+     lose by bundle order. */
+  .ss-leadform .ss-phone.ss-input { padding: 0; }
+  .ss-phone {
+    display: flex;
+    align-items: stretch;
+    overflow: hidden; /* keeps the children square inside the rounded border */
     min-width: 0;
-    /* padding-RIGHT only. `padding-inline` here overwrote the right padding
-       that select.ss-input reserves for its chevron, so the arrow rendered on
-       top of the dial code. */
-    padding-left: var(--space-2);
-    text-overflow: ellipsis;
   }
-  .ss-phone > .ss-phone__num { flex: 1 1 auto; width: auto; min-width: 0; }
+  /* The wrapper owns focus and error now, because neither child draws a border. */
+  .ss-phone:focus-within {
+    outline: none;
+    border-color: var(--accent-text);
+    box-shadow: 0 0 0 3px var(--accent-wash);
+  }
+  .ss-phone:has(.ss-phone__num[aria-invalid='true']) { border-color: var(--neg); }
+
+  .ss-phone__slot {
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    border-right: 1px solid color-mix(in srgb, var(--fg-muted) 40%, transparent);
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+  /* Keyboard users need to see WHICH half has focus — the wrapper ring alone
+     cannot say that. */
+  .ss-phone__slot:focus-within { background: var(--accent-wash); }
+  .ss-phone__view {
+    display: flex;
+    align-items: center;
+    gap: 0.34rem;
+    padding: 0 0.6rem 0 0.8rem;
+    font: inherit;
+    line-height: 1;
+    color: var(--fg);
+    white-space: nowrap;
+    pointer-events: none; /* the transparent <select> beneath takes the tap */
+  }
+  .ss-phone__flag { font-size: 1.12em; line-height: 1; }
+  .ss-phone__dial { font-variant-numeric: tabular-nums; }
+  .ss-phone__chev { flex: none; opacity: 0.65; }
+
+  /* The REAL control: full size, on top, invisible. opacity (not visibility or
+     display) so it keeps its place in the accessibility tree and still opens
+     the platform's own picker on tap. */
+  .ss-phone__cc {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .ss-phone__num {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--fg);
+    font: inherit;
+    padding: 0.62rem var(--space-3);
+  }
+  .ss-phone__num::placeholder { color: var(--fg-muted); }
+  .ss-phone__num:focus-visible { outline: none; }
 </style>

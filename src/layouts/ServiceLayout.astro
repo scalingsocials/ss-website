@@ -87,7 +87,7 @@ const nodes = [
       <a href="/" class="svc-hero__crumb-link inline-flex items-center text-[var(--accent-text)] no-underline">Home</a><span class="mx-[0.35rem]">/</span><span>{svc.name}</span>
     </nav>
     <div class="svc-hero__grid relative grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-      <div>
+      <div class="svc-hero__copy">
         <span class="ss-eyebrow">{svc.eyebrow}</span>
         <h1>{svc.h1}</h1>
         <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.45] text-[var(--fg)]">{svc.answer}</p>
@@ -99,7 +99,11 @@ const nodes = [
             </li>
           ))}
         </ul>
-        <div class="mt-[var(--space-5)] flex flex-wrap gap-[var(--space-2)]">
+        {/* Two columns, not flex-wrap: on a phone the two labels are too long to
+            share a flex row, so they wrapped into a stack that ate ~90px of the
+            first screen and pushed the form further down. A grid puts them side
+            by side at every width and lets each button shrink its own text. */}
+        <div class="svc-hero__cta mt-[var(--space-5)] grid grid-cols-2 gap-[var(--space-2)]">
           <Button href="/audit/" variant="primary">Get a free growth plan</Button>
           <Button href="/case-studies/" variant="secondary">See case studies</Button>
         </div>
@@ -292,16 +296,63 @@ const nodes = [
       padding-top: calc(var(--hh, 68px) + var(--space-6)) !important;
       padding-bottom: var(--space-6) !important;
     }
-    /* Same two-light ambient wash as the homepage hero, so the pages read as one
-       site: accent from the top right, teal from the bottom left. Decorative. */
+    /* Same ink ground as the homepage, DELIBERATELY NOT the same composition
+       (owner-directed: service pages should read as a sibling, not a copy). The
+       homepage lights the top right hard and drops teal bottom-left. Here a
+       broad low glow rises from the bottom left behind the copy and a tight
+       highlight sits top-right behind the form, so the two halves of the hero
+       are lit separately and the eye lands on the form. Decorative. */
     .svc-hero::before {
       content: '';
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(60% 55% at 82% 18%, color-mix(in srgb, var(--accent-fill) 26%, transparent), transparent 70%),
-        radial-gradient(55% 55% at 3% 100%, color-mix(in srgb, var(--color-teal) 18%, transparent), transparent 70%);
+        radial-gradient(120% 78% at 0% 100%, color-mix(in srgb, var(--accent-fill) 22%, transparent), transparent 62%),
+        radial-gradient(44% 48% at 94% 4%, color-mix(in srgb, var(--color-teal) 22%, transparent), transparent 70%);
       pointer-events: none;
+    }
+    /* The annotation axis. Design brief §3 draws the motif as a vertical marker
+       crossing a horizontal baseline; this is that baseline, closing the hero
+       where it meets the next band. The homepage has no equivalent line. */
+    .svc-hero::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        color-mix(in srgb, var(--accent-graphic) 55%, transparent) 22%,
+        color-mix(in srgb, var(--accent-graphic) 55%, transparent) 78%,
+        transparent
+      );
+      pointer-events: none;
+    }
+    /* The marker itself, tagging the heading — the use the brief names
+       explicitly. It fades downward so it reads as an annotation on the copy
+       rather than a border around it. */
+    .svc-hero__copy {
+      position: relative;
+      padding-left: var(--space-4);
+    }
+    .svc-hero__copy::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.3rem;
+      bottom: 0;
+      width: 2px;
+      border-radius: 2px;
+      background: linear-gradient(
+        180deg,
+        var(--accent-graphic),
+        color-mix(in srgb, var(--accent-graphic) 8%, transparent)
+      );
+    }
+    @media (max-width: 640px) {
+      .svc-hero__copy { padding-left: var(--space-3); }
     }
     /* The lead form as a glass card. On ink the form's own --ground is near-black,
        so without this it is a black card on a black hero with only a hairline to
@@ -320,8 +371,21 @@ const nodes = [
       background-color: color-mix(in srgb, var(--fg) 9%, transparent);
       border-color: color-mix(in srgb, var(--fg) 26%, transparent);
     }
-    .svc-hero :global(.ss-leadform--elevated .ss-input:focus-visible) {
+    /* Focus and error must be restated here. The background/border rule above is
+       0,3,0 and the base `.ss-input:focus-visible` / `.ss-input[aria-invalid]`
+       rules in LeadForm are 0,2,0, so without these the hero form would lose its
+       focus ring AND its red error border — the two states a form can least
+       afford to drop. Caught by the phone-field test, not by eye. */
+    .svc-hero :global(.ss-leadform--elevated .ss-input:focus-visible),
+    .svc-hero :global(.ss-leadform--elevated .ss-phone:focus-within) {
       background-color: color-mix(in srgb, var(--fg) 13%, transparent);
+      border-color: var(--accent-text);
+      box-shadow: 0 0 0 3px var(--accent-wash);
+    }
+    /* After focus, so an invalid field reads red even while focused. */
+    .svc-hero :global(.ss-leadform--elevated .ss-input[aria-invalid='true']),
+    .svc-hero :global(.ss-leadform--elevated .ss-phone:has(.ss-phone__num[aria-invalid='true'])) {
+      border-color: var(--neg);
     }
     /* A native dropdown paints its list with the CONTROL's colours, so a glass
        background leaves the options unreadable in some engines. The option list
@@ -330,6 +394,13 @@ const nodes = [
     .svc-hero :global(.ss-leadform--elevated optgroup) {
       background-color: var(--ground);
       color: var(--fg);
+    }
+    /* The shared select chevron is a data-URI SVG with a hardcoded near-black
+       stroke, which is all but invisible on the ink hero. It cannot read a CSS
+       variable from inside a url(), so the ink register needs its own copy.
+       (The phone field draws its own chevron in currentColor and is unaffected.) */
+    .svc-hero :global(select.ss-input) {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Cpath d='M3 5.25 7 9.25l4-4' stroke='%23EDEDED' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     }
     .svc-hero__grid { width: 100%; }
     /* Grid items default to min-width:auto, so a track sizes to its content's
@@ -347,6 +418,21 @@ const nodes = [
        read as a mis-set margin. The target is now built from padding cancelled by
        an equal negative margin — the tappable box is still 44px, but it overflows
        the line box instead of setting the row's height. */
+    /* Both hero CTAs share one row at every width. Button sets whitespace-nowrap
+       for good reason elsewhere, but "Get a free growth plan" cannot hold one
+       line inside a half-width phone column, so here the label is allowed to
+       wrap and drops a size. Equal-height grid cells keep the pair aligned
+       whether one wraps or both do. */
+    .svc-hero__cta > :global(*) { width: 100%; }
+    @media (max-width: 600px) {
+      .svc-hero__cta :global(a) {
+        white-space: normal;
+        text-align: center;
+        font-size: var(--text-small);
+        line-height: 1.25;
+        padding-inline: var(--space-2);
+      }
+    }
     .svc-hero__crumb { margin-bottom: var(--space-2); line-height: 1.2; }
     .svc-hero__crumb-link {
       padding-block: 0.8rem;

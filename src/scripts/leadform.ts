@@ -160,12 +160,28 @@ function initForm(form: HTMLFormElement): void {
   //   2. the browser timezone, as an instant hint while (1) is in flight.
   //   3. India, already selected server-side.
   // Never overrides a visitor who has touched the control themselves.
+  // The dial-code <select> is transparent and sits on top of a flag + dial code
+  // display (FieldControl). A native select cannot show different text open and
+  // closed, so the list keeps full country names and this keeps the visible
+  // summary in step with whatever is selected. Every path that changes the
+  // select must call it, or the field shows one country and submits another.
+  const syncCc = (sel: HTMLSelectElement) => {
+    const opt = sel.selectedOptions[0];
+    const slot = sel.closest('[data-phone-field]');
+    if (!opt || !slot) return;
+    const flag = slot.querySelector<HTMLElement>('[data-phone-flag]');
+    const dial = slot.querySelector<HTMLElement>('[data-phone-dial]');
+    if (flag && opt.dataset.flag) flag.textContent = opt.dataset.flag;
+    if (dial && opt.dataset.dial) dial.textContent = opt.dataset.dial;
+  };
+
   const setCountry = (iso: string) => {
     if (!iso) return;
     for (const sel of form.querySelectorAll<HTMLSelectElement>('[data-phone-cc]')) {
       if (sel.dataset.touched) continue;
       if (!Array.from(sel.options).some((o) => o.value === iso)) continue;
       sel.value = iso;
+      syncCc(sel);
     }
   };
 
@@ -196,7 +212,7 @@ function initForm(form: HTMLFormElement): void {
       // almost any string and let unreachable numbers through as leads.
       // The dial code comes off the selected <option>, so the ~200-row country
       // table never has to ship in this bundle.
-      const sel = el.parentElement?.querySelector<HTMLSelectElement>('[data-phone-cc]');
+      const sel = el.closest('[data-phone-field]')?.querySelector<HTMLSelectElement>('[data-phone-cc]');
       const opt = sel?.selectedOptions[0];
       const r = checkPhone(v, sel?.value, opt?.dataset.dial ?? '');
       if (!r.ok) msg = r.error;
@@ -220,7 +236,10 @@ function initForm(form: HTMLFormElement): void {
   for (const sel of form.querySelectorAll<HTMLSelectElement>('[data-phone-cc]')) {
     sel.addEventListener('change', () => {
       sel.dataset.touched = '1';
-      const num = sel.parentElement?.querySelector<HTMLInputElement>('[data-phone-num]');
+      syncCc(sel);
+      // closest('[data-phone-field]'), not parentElement: the select now sits
+      // one level deeper, inside the dial-code slot that holds the overlay.
+      const num = sel.closest('[data-phone-field]')?.querySelector<HTMLInputElement>('[data-phone-num]');
       if (num && num.value.trim()) validate(num);
     });
   }
