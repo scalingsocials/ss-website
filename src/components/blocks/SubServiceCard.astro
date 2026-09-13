@@ -1,0 +1,163 @@
+---
+/**
+ * SubServiceCard — one sub-service in the homepage ServiceCard's visual
+ * language (owner-directed, 2026-09-13): the same pastel hue wash, the same
+ * 20px radius, the same corner arrow badge, the same hover lift.
+ *
+ * ONE deliberate difference from ServiceCard. That component's art is six
+ * hand-drawn illustrations selected by index — a magnifier for SEO, a bag for
+ * Shopify — and they are drawn for those six pillars specifically. Sub-services
+ * are a different, longer and per-service list ("Advantage+ campaigns",
+ * "Keyword research", "Replatforming"), so reusing the illustrations by index
+ * would print a shopping bag on "Conversion tracking". This card uses the
+ * sub-service's own Glyph instead, enlarged and anchored bottom-right in the
+ * card's hue, which keeps the family resemblance without making the picture lie.
+ *
+ * Renders as <a> when the sub-service links somewhere and <div> when it does
+ * not — a card with no destination must not be a link.
+ */
+import Glyph from '@/components/graphics/Glyph.astro';
+
+interface Props {
+  title: string;
+  body: string;
+  href?: string;
+  glyph: string;
+  /** 0-based position — drives the pastel hue, as on the homepage. */
+  index: number;
+  /** Set on the last card when the count is odd, so it spans the grid row. */
+  wide?: boolean;
+}
+const { title, body, href, glyph, index, wide = false } = Astro.props;
+// Same six-hue cycle as ServiceCard. Set via data attribute, never an inline
+// style: the production CSP is strict hash-based and drops style="" silently.
+const hue = index % 6;
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag class:list={['ssub', wide && 'ssub--wide']} data-hue={hue} {...(href ? { href } : {})}>
+  {href && (
+    <span class="ssub__arrow" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M5 11 11 5M6 5h5v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </span>
+  )}
+
+  <div class="ssub__body">
+    <h3 class="ssub__title">{title}</h3>
+    <p class="ssub__desc">{body}</p>
+  </div>
+
+  <span class="ssub__art" aria-hidden="true"><Glyph name={glyph} size={210} /></span>
+</Tag>
+
+<style>
+  /* Hue palette copied from ServiceCard rather than shared, deliberately: the
+     homepage grid is the highest-traffic block on the site and this change
+     landed the day before launch. If these ever need editing, edit both. */
+  .ssub[data-hue='0'] { --c-a: #eef0ff; --c-b: #c6c9ff; --c-ink: #4b4ed6; } /* periwinkle */
+  .ssub[data-hue='1'] { --c-a: #e1f5f0; --c-b: #a9e2d7; --c-ink: #1c857a; } /* teal */
+  .ssub[data-hue='2'] { --c-a: #e6f1fb; --c-b: #b7ddf4; --c-ink: #2181b4; } /* sky */
+  .ssub[data-hue='3'] { --c-a: #f2ebfe; --c-b: #d6c2fb; --c-ink: #6c43c8; } /* violet */
+  .ssub[data-hue='4'] { --c-a: #fdeaf1; --c-b: #f6c6d9; --c-ink: #c0446f; } /* blush */
+  .ssub[data-hue='5'] { --c-a: #feefe1; --c-b: #fbd2ac; --c-ink: #b67328; } /* amber */
+
+  .ssub {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 210px;
+    padding: var(--space-4);
+    border-radius: 20px;
+    background: linear-gradient(158deg, var(--c-a), color-mix(in srgb, var(--c-b) 55%, var(--c-a)));
+    border: 1px solid color-mix(in srgb, var(--c-ink) 14%, transparent);
+    text-decoration: none;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out);
+  }
+
+  .ssub__body { position: relative; z-index: 2; }
+  /* A row-spanning card is twice as wide but holds the same words, so it needs
+     a shorter measure and a shallower box — otherwise the copy stretches to a
+     single unreadable line and the card becomes a letterbox. */
+  .ssub--wide { min-height: 176px; }
+  .ssub--wide .ssub__title { max-width: 26ch; }
+  .ssub--wide .ssub__desc { max-width: 52ch; }
+  .ssub__title {
+    max-width: 20ch;
+    font-size: var(--text-h4);
+    font-weight: 600;
+    line-height: 1.18;
+    letter-spacing: var(--tracking-heading);
+    color: var(--fg);
+    padding-right: 2.5rem; /* clear the corner arrow badge */
+  }
+  .ssub__desc {
+    margin-top: var(--space-2);
+    max-width: 38ch;
+    font-size: var(--text-small);
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--fg) 82%, var(--c-ink));
+  }
+
+  .ssub__arrow {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--c-ink) 30%, transparent);
+    color: var(--c-ink);
+    background: color-mix(in srgb, #fff 45%, transparent);
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  /* Oversized glyph as the card's art: bottom-right, low contrast, cropped by
+     the card's own overflow so it reads as a watermark rather than an icon. */
+  .ssub__art {
+    position: absolute;
+    right: -46px;
+    bottom: -54px;
+    z-index: 1;
+    display: block;
+    color: var(--c-ink);
+    opacity: 0.2;
+    pointer-events: none;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    a.ssub:hover {
+      transform: translateY(-6px);
+      border-color: color-mix(in srgb, var(--c-ink) 32%, transparent);
+      box-shadow: 0 30px 60px -32px color-mix(in srgb, var(--c-ink) 70%, transparent);
+    }
+    a.ssub:hover .ssub__art { transform: scale(1.08) rotate(-4deg); }
+    a.ssub:hover .ssub__arrow {
+      background: var(--c-ink);
+      border-color: var(--c-ink);
+      color: #fff;
+      transform: translate(2px, -2px);
+    }
+  }
+  a.ssub:focus-visible { outline: 2px solid var(--c-ink); outline-offset: 3px; }
+  a.ssub:focus-visible .ssub__arrow {
+    background: var(--c-ink);
+    border-color: var(--c-ink);
+    color: #fff;
+  }
+</style>

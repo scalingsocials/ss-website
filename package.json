@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "_comment_build": "pagefind is intentionally NOT in the build. It was emitting a ~1.3MB search index into dist/pagefind/ on every deploy that nothing referenced — grep -rn pagefind src/ returns no hits and /blog/ has no search input. The dependency stays installed so re-enabling is one step: add `pagefind --site dist &&` back before build-llms-txt, and build the blog-search island (CLAUDE.md §2 sanctions it).",
-    "build": "node scripts/check-gotchas.mjs && node scripts/check-proofstats.mjs && astro build && node scripts/unify-csp.mjs && node scripts/build-llms-txt.mjs && node scripts/prune-orphan-assets.mjs",
+    "build": "node scripts/check-gotchas.mjs && node scripts/check-glyphs.mjs && node scripts/check-proofstats.mjs && astro build && node scripts/unify-csp.mjs && node scripts/build-llms-txt.mjs && node scripts/prune-orphan-assets.mjs",
     "build:search": "pagefind --site dist",
     "preview": "astro preview",
     "check": "astro check && tsc --noEmit",
@@ -16,7 +16,8 @@
     "check:stats": "node scripts/check-proofstats.mjs",
     "check:browsers": "node scripts/check-browsers.mjs",
     "lh": "lhci autorun",
-    "check:csp": "node scripts/check-csp.mjs"
+    "check:csp": "node scripts/check-csp.mjs",
+    "check:glyphs": "node scripts/check-glyphs.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.0.0",
