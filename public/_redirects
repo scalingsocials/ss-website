@@ -21,11 +21,27 @@
 /new-terms-conditions/  /terms/  301
 /terms-and-conditions/  /terms/  301
 /new-privacy-policy/  /privacy/  301
-/%E2%82%B91-4-million-in-3-months/  /case-studies/  301
-/₹1-4-million-in-3-months/  /case-studies/  301
-/%E2%82%B91-million-in-90-days/  /case-studies/  301
-/₹1-million-in-90-days/  /case-studies/  301
+# Legacy case-study pages (1490 + 606 + 284 impressions/12mo). Each is emitted
+# both percent-encoded and raw, because GSC and the WP crawl disagree on which
+# form is indexed. Pointing all three at the /case-studies/ hub reads to Google
+# as a soft 404, so each one that has a genuine equivalent now goes to it.
+# Matched on the SHAPE of the original claim, not the figure — the new studies
+# are anonymised and carry different numbers.
+#   "₹1.4 million in 3 months" -> the first-quarter launch result
+/%E2%82%B91-4-million-in-3-months/  /case-studies/gifting-brand-new-concept-launch/  301
+/₹1-4-million-in-3-months/  /case-studies/gifting-brand-new-concept-launch/  301
+#   "₹1 million in 90 days"    -> the explicit 90-day launch result
+/%E2%82%B91-million-in-90-days/  /case-studies/indo-western-launch-90-days/  301
+/₹1-million-in-90-days/  /case-studies/indo-western-launch-90-days/  301
+#   "₹44.3 million in 90 days" -> no single study matches a ₹4.43 Cr claim, so
+#   this one deliberately stays on the hub, where all seven results are listed.
 /%E2%82%B944-3-million-in-90-days/  /case-studies/  301
 /₹44-3-million-in-90-days/  /case-studies/  301
 /thank_you/  /thank-you/  301
 /category/blog/  /blog/  301
+
+# Indexed on the old WordPress site and returning 200 there today, but missing
+# from the original crawl-derived map — both would have 404'd at cutover.
+# (Confirmed present in the live Yoast post-sitemap and author-sitemap.)
+/hello-world/  /blog/  301
+/author/darkcyan-fox-581548-hostingersite-com/  /team/  301

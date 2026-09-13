@@ -16,9 +16,11 @@ old_url,new_url,status,impressions_12mo,found_by,notes
 /new-terms-conditions/,/terms/,301,246,gsc-only,ORPHAN — indexed but not linked.
 /terms-and-conditions/,/terms/,301,19,both,"H1 wrongly 'Ready to Transform Your Online Store?'"
 /new-privacy-policy/,/privacy/,301,66,both,"H1 wrongly 'Ready to Transform Your Online Store?'"
-/₹1-4-million-in-3-months/,/case-studies/,301,1490,both,"1490 impressions. Unencoded rupee in the slug. Repoint to the real case study when it ships."
-/₹1-million-in-90-days/,/case-studies/,301,606,both,"No H1 on the page at all. Repoint when the case study ships."
-/₹44-3-million-in-90-days/,/case-studies/,301,284,both,"No H1. Repoint when the case study ships."
+/₹1-4-million-in-3-months/,/case-studies/gifting-brand-new-concept-launch/,301,1490,both,"1490 impressions. Unencoded rupee in the slug. Repointed 2026-09-12 to the first-quarter launch study (closest claim shape; the new studies are anonymised and carry different figures)."
+/₹1-million-in-90-days/,/case-studies/indo-western-launch-90-days/,301,606,both,"No H1 on the page at all. Repointed 2026-09-12 to the explicit 90-day launch study."
+/₹44-3-million-in-90-days/,/case-studies/,301,284,both,"No H1. Deliberately stays on the hub — no single study matches a ₹4.43 Cr claim, so the index of all seven results is the honest destination."
+/hello-world/,/blog/,301,0,sitemap-only,"Default WordPress post. Live 200 and in post-sitemap.xml; missing from the original crawl-derived map. Added 2026-09-12."
+/author/darkcyan-fox-581548-hostingersite-com/,/team/,301,0,sitemap-only,"WP author archive. Live 200 and in author-sitemap.xml; missing from the original map. Added 2026-09-12."
 /thank_you/,/thank-you/,301,420,gsc-only,ORPHAN. Underscore variant. New page is noindex but the redirect must exist.
 /thank-you/,/thank-you/,200,153,gsc-only,"ORPHAN. Noindex on the new site. Do not drop the URL."
 /category/blog/,/blog/,301,268,gsc-only,ORPHAN. Empty WordPress category archive.
