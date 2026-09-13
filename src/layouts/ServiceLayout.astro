@@ -305,6 +305,14 @@ const nodes = [
       padding-bottom: var(--space-5) !important;
     }
     .svc-hero__grid { width: 100%; }
+    /* Grid items default to min-width:auto, so a track sizes to its content's
+       min-content rather than to the container. A <select> reports a large
+       intrinsic minimum — measured here: with the dial-code select the single
+       mobile track became 437.8px inside a 342px container and clipped the whole
+       hero; removing the select alone returned it to 342px. min-width:0 lets the
+       items obey the track. Same reasoning as the minmax(0, …) rule that
+       check:gotchas warns about for multi-track fr grids. */
+    .svc-hero__grid > * { min-width: 0; }
     /* Compact breadcrumb — a tight, subtle line, not a full row of space. */
     .svc-hero__crumb { margin-bottom: var(--space-3); }
     /* Three stats always share one row; the value scales so they never wrap out. */

@@ -67,6 +67,17 @@ for (const file of await walk(ROOT)) {
       'mask-image without -webkit-mask-image — mask is dropped on older iOS Safari.');
   }
 
+  // Children whose min-content width is set by content the author never sized:
+  // a <select> is as wide as its widest <option>, a table as wide as its widest
+  // unbreakable cell, <pre> as its longest line. Drop one of these into an
+  // unfloored `fr` track and the track adopts that width. LeadForm counts —
+  // it renders the country-dial <select> for every `tel` field.
+  const hasWideChild = /<select\b|<table\b|<pre\b|<LeadForm\b|<FieldControl\b/.test(src);
+  // The other accepted remedy: floor the CHILDREN instead of the track, either
+  // per-grid with Tailwind's `[&>*]:min-w-0` (checked on the line) or in this
+  // file's <style> with a `> * { min-width: 0 }` rule (checked here).
+  const floorsChildren = />\s*\*\s*\{[^}]*min-width:\s*0/.test(src);
+
   // --- Line-level rules ------------------------------------------------------
   lines.forEach((line, i) => {
     const ln = i + 1;
@@ -85,6 +96,35 @@ for (const file of await walk(ROOT)) {
         && !optedOut(line, 'grid-minmax')) {
       add(warns, file, ln, 'grid-minmax',
         `grid-template-columns uses fr without minmax(0, …): "${gt[1].trim()}". On WebKit the track can floor at a child's min-content and overflow. Prefer minmax(0, 1fr).`);
+    }
+
+    // The SAME hazard in Tailwind's arbitrary-value form. The comment above is
+    // only half true: numeric utilities (grid-cols-2) compile to
+    // repeat(2, minmax(0,1fr)) and are safe, but an arbitrary track list
+    // (grid-cols-[1.05fr_0.95fr]) compiles to exactly what you wrote — no
+    // minmax floor — and behaves like the hand-written rule.
+    //
+    // This is the gap that let the Sept 2026 phone-field clip through: every
+    // hero grid on the site is a Tailwind arbitrary value, so a regex looking
+    // for `grid-template-columns:` in raw CSS never saw any of them. A <select>
+    // reports its widest <option> as its min-content width (276px for the
+    // country list), the unfloored track adopted it, and the column grew to
+    // 438px inside a 390px phone.
+    // Scoped to files that actually render a wide-min-content child, because
+    // unfloored arbitrary tracks are everywhere on this site and only a handful
+    // can overflow. A gate that prints 30 warnings gets ignored, and an ignored
+    // gate is how this shipped. `hasWideChild` is set per file above.
+    for (const m of (hasWideChild && !floorsChildren ? line.matchAll(/grid-cols-\[([^\]]+)\]/g) : [])) {
+      const tracks = m[1];
+      // Tailwind spells the space between tracks as `_`. One track can't overflow.
+      const multi = tracks.includes('_') || /repeat\(/.test(tracks);
+      // NOT \bfr\b: in `1.05fr_0.95fr` the `fr` is flanked by word characters on
+      // both sides, so a word-boundary test silently matches nothing.
+      if (!multi || !/\dfr(?![a-z])/i.test(tracks) || /minmax\(\s*0/.test(tracks)) continue;
+      if (/\[&>\*\]:min-w-0|\bmin-w-0\b/.test(line)) continue;
+      if (optedOut(line, 'grid-minmax')) continue;
+      add(warns, file, ln, 'grid-minmax',
+        `Tailwind grid-cols-[${tracks}] compiles to a raw fr track list with no minmax(0, …). A child with a large min-content (a <select>, a long unbroken string, a wide table) will push the track past the viewport. Use grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)], or add [&>*]:min-w-0.`);
     }
 
     // 100vh (and its friends) in a size property, when not paired with a small/

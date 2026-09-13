@@ -116,13 +116,29 @@ const defaultExample = '96067 13608';
   /* Two-class selectors on purpose: .ss-input sets `width: 100%`, which made
      the select fill the whole row and squeeze the number field to 50px on a
      360px phone. A single-class rule here would lose or win by source order. */
-  .ss-phone { display: flex; gap: var(--space-2); align-items: stretch; }
+  /* min-width:0 on the ROW as well as its children. Without it the row is a
+     flex item with min-width:auto, so its own min-content size (driven by the
+     select's option list) propagates up through the form to the hero grid track
+     and widens the whole column past the viewport. */
+  /* The label is a flex item of the step column and has min-width:auto too, so
+     it would re-introduce the same propagation one level up. */
+  .ss-fc { min-width: 0; }
+  .ss-phone { display: flex; gap: var(--space-2); align-items: stretch; min-width: 0; }
   .ss-phone > .ss-phone__cc {
-    flex: 0 0 auto;
+    /* 0 1 basis, not 0 0: the dial code may shrink on a narrow phone rather
+       than force the row wider than the column it sits in. */
+    flex: 0 1 8.25rem;
     /* Wide enough for "+971 UAE"-length names; longer ones clip after the dial
        code. max-width keeps it from eating the number field on a small phone. */
     width: 8.25rem;
     max-width: 42%;
+    /* REQUIRED, not defensive. A flex item defaults to min-width:auto, which for
+       a <select> resolves to the width of its WIDEST OPTION — 276px here, set by
+       "+236 Central African Republic". That min-content size propagates up
+       through the form to the hero grid track and pushed the whole column to
+       438px inside a 390px viewport, clipping the page on mobile. The `width`
+       above cannot win against it; only min-width:0 lets the select shrink. */
+    min-width: 0;
     /* padding-RIGHT only. `padding-inline` here overwrote the right padding
        that select.ss-input reserves for its chevron, so the arrow rendered on
        top of the dial code. */

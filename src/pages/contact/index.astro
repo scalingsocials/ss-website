@@ -32,7 +32,12 @@ const mapsQuery = encodeURIComponent(`${a.streetAddress}, ${a.addressLocality}, 
 // openingHoursSpecification in schema cannot disagree.
 const hours = ORG.openingHours
   .map((h) => {
-    const days = h.days.length === 1 ? h.days[0] : `${h.days[0]} to ${h.days[h.days.length - 1]}`;
+    // `n` is widened to number on purpose. ORG is `as const`, so h.days is a
+    // 5-tuple and TS calls `length === 1` an impossible comparison — but the
+    // single-day branch has to survive the day we open Saturdays only, or the
+    // sentence silently reads "Saturday to Saturday".
+    const n: number = h.days.length;
+    const days = n === 1 ? h.days[0] : `${h.days[0]} to ${h.days[n - 1]}`;
     return `${days}, ${h.opens}–${h.closes} IST`;
   })
   .join(' · ');
@@ -79,7 +84,7 @@ const contactStep2: Field[] = [
       claim a free growth audit and we’ll come back with what we’d change first.
     </p>
 
-    <div class="relative mt-[var(--space-8)] grid gap-[var(--space-8)] lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+    <div class="[&>*]:min-w-0 relative mt-[var(--space-8)] grid gap-[var(--space-8)] lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
       <div class="flex flex-col gap-[var(--space-5)]">
         <div>
           <h2 class="text-small font-semibold text-[var(--fg-muted)]">Call or WhatsApp</h2>

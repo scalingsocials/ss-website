@@ -63,7 +63,7 @@ const nodes = [
       <a href={c.parentUrl} class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">{c.parentName}</a><span> / </span>
       <span>{c.name}</span>
     </nav>
-    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+    <div class="[&>*]:min-w-0 grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
       <div>
         <span class="ss-eyebrow">{c.parentName}</span>
         <h1>{c.h1}</h1>
@@ -80,7 +80,7 @@ const nodes = [
   </Section>
 
   <Section size="md" class="!bg-[var(--surface-c)]">
-    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.4fr_1fr] lg:items-start">
+    <div class="[&>*]:min-w-0 grid gap-[var(--space-8)] lg:grid-cols-[1.4fr_1fr] lg:items-start">
       <Prose>
         {c.sections.map((s) => (<><h2>{s.heading}</h2><p><RichText value={s.body} /></p></>))}
       </Prose>
@@ -98,7 +98,7 @@ const nodes = [
   </Section>
 
   <Section size="md">
-    <div class="grid gap-[var(--space-8)] lg:grid-cols-[1.5fr_1fr] lg:items-start">
+    <div class="[&>*]:min-w-0 grid gap-[var(--space-8)] lg:grid-cols-[1.5fr_1fr] lg:items-start">
       <div>
         <span class="ss-eyebrow">Questions</span>
         <h2 class="max-w-[22ch] text-h2 font-semibold">Questions founders ask</h2>

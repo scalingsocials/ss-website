@@ -173,6 +173,18 @@ const gap = compact ? 'gap-[var(--space-2)]' : 'gap-[var(--space-3)]';
 <!-- Global: these class-scoped rules must reach the inputs rendered by the
      FieldControl child component, so they are intentionally not Astro-scoped. -->
 <style is:global>
+  /* Stop the form inflating whatever contains it.
+     Flex and grid children default to min-width:auto, so the dial-code <select>
+     reports a large intrinsic minimum that propagates up through the label, the
+     fieldset and the form into the hero grid track — which sized to 437.8px
+     inside a 342px column and clipped entire pages on mobile. Constraining every
+     level INSIDE the form fixes it everywhere the form is used, instead of
+     patching each of the eight layouts that embed it. */
+  .ss-leadform,
+  .ss-leadform > *,
+  .ss-lf-step,
+  .ss-fc { min-width: 0; }
+
   .ss-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .ss-input {
     width: 100%;
