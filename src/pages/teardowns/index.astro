@@ -39,8 +39,54 @@ const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb
     </div>
   </Section>
 
+  {/* What a teardown actually covers. This page is the signup point for a
+      monthly series that has not published its first issue yet, so without this
+      it was 77 words of "publishing shortly" sitting in the main nav — a thin
+      page on a top-level URL. Everything below describes the method, which is
+      real; no teardown findings are invented (CLAUDE.md §15). */}
+  <Section size="lg">
+    <h2 class="max-w-[22ch] text-h2 font-semibold">What a teardown covers</h2>
+    <p class="mt-[var(--space-3)] max-w-[62ch] text-body leading-[1.6] text-[var(--fg-muted)]">
+      One brand a month, picked because something about it is instructive rather than because it is
+      doing badly. We work only from what anyone can see: the live storefront and whatever is running
+      in the Meta Ad Library. No client data, no account access, no insider numbers.
+    </p>
+    <div class="mt-[var(--space-6)] grid gap-[var(--space-5)] md:grid-cols-3">
+      <div>
+        <h3 class="text-h4 font-semibold">The store</h3>
+        <p class="mt-[var(--space-2)] text-body leading-[1.6] text-[var(--fg-muted)]">
+          The path from ad click to checkout: what the landing page asks for, where the friction is,
+          how the product page answers the questions a first-time buyer actually has, and what the
+          store costs itself in load time on an Indian mobile connection.
+        </p>
+      </div>
+      <div>
+        <h3 class="text-h4 font-semibold">The creative</h3>
+        <p class="mt-[var(--space-2)] text-body leading-[1.6] text-[var(--fg-muted)]">
+          What is live in the Ad Library, how long it has been running, how much of it is variations
+          on one idea, and which hooks are doing the work. Longevity in the library is public
+          evidence of what is working for them.
+        </p>
+      </div>
+      <div>
+        <h3 class="text-h4 font-semibold">What we would change first</h3>
+        <p class="mt-[var(--space-2)] text-body leading-[1.6] text-[var(--fg-muted)]">
+          A short, ordered list — the one thing we would fix before anything else, and why. The same
+          judgement we would apply on day one of running the account, written down in public.
+        </p>
+      </div>
+    </div>
+    <p class="mt-[var(--space-6)] max-w-[62ch] text-body leading-[1.6] text-[var(--fg-muted)]">
+      Teardowns are constructive and never a hit piece. If a brand asks us to take theirs down, we
+      take it down. If you would rather have this done privately on your own account instead of
+      publicly on someone else's, that is the
+      <a href="/audit/" class="underline">free growth audit</a> — same analysis, your numbers, three
+      working days.
+    </p>
+  </Section>
+
   <Section register="ink" size="lg">
-    <Teardowns />
+    <Teardowns headless />
   </Section>
 
   <style>.ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }</style>

@@ -5,8 +5,14 @@
  * Images only for now: the supplied videos are 14–118MB each, far over the
  * 1.5MB per-clip budget (08 §8), so they must be compressed to ~1.5MB webm+mp4
  * before they can ship. These stills are real client creatives, optimised by
- * astro:assets. Client permission is required before client creative appears
- * (02 §1.2) — confirm before launch.
+ * astro:assets.
+ *
+ * CLIENT PERMISSION: confirmed by the owner on 2026-09-12. The brand names are
+ * derived from the filenames and surface publicly in the alt text on /work/
+ * (Avila International, Meraki, Sanmal, Senren, Tessuti, Tritiksha, Urbanrac),
+ * so renaming a file renames the brand on the live page — check the name is one
+ * we are permitted to show before adding a creative here. Note this is a
+ * DIFFERENT permission from the case studies, which stay anonymised.
  */
 import type { ImageMetadata } from 'astro';
 

@@ -12,8 +12,13 @@ import { base, webPage, breadcrumbs } from '@/lib/schema';
 
 const url = '/work/';
 const title = 'Creative Gallery: Our D2C Ad Creative | Scaling Socials';
+// Describes what this page actually SHOWS. The previous wording promised
+// "statics and video", but src/lib/creatives.ts globs images only — the supplied
+// videos are 14-118MB against a 1.5MB per-clip budget (08 §8) and are gitignored
+// until they are compressed, so no video ships. Restore the video wording here
+// and in the body when the compressed clips land (PENDING §B).
 const description =
-  'The ad creative Scaling Socials produces in-house for D2C brands: statics and video built to be tested. The portfolio nobody else in the industry shows.';
+  'Real ad creative Scaling Socials produced in-house for D2C brands in India and the UAE — the statics that ran, not mockups. The portfolio nobody else shows.';
 const modified = '2026-09-04';
 
 const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }), breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Work', url }])];
@@ -26,9 +31,18 @@ const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb
   <Section register="ink" size="lg">
     <span class="ss-eyebrow">Creative</span>
     <h1 class="max-w-[18ch]">Creative built to be tested</h1>
-    <p class="mt-[var(--space-4)] mb-[var(--space-8)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">
+    <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">
       We produce ad creative in-house — statics and video. Real client work, at the volume a testing
       pipeline needs. Most agencies describe their creative; this is ours.
+    </p>
+    <p class="mt-[var(--space-4)] mb-[var(--space-8)] max-w-[62ch] text-body leading-[1.6] text-[var(--fg-muted)]">
+      Every image below is an ad that actually ran on a client account. Nothing here is a mockup or a
+      concept deck. Creative is the biggest lever on Meta today, which is why we cut it ourselves
+      rather than briefing it out: a new batch goes live each week, the losers are capped early, and
+      budget concentrates behind whatever holds attention longest. The
+      <a href="/case-studies/" class="underline">case studies</a> show what that did to the numbers;
+      this page is what it looked like. Video from these accounts is being compressed for the web and
+      will join the wall — until then, these are the statics.
     </p>
     <CreativeWall variant="grid" />
   </Section>
