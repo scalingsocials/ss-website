@@ -45,14 +45,23 @@ const { class: className = '', headless = false } = Astro.props;
     <div class="mt-[var(--space-2)] rounded-[var(--radius-card)] border border-[var(--rule-c)] p-[var(--space-4)]">
       <p class="text-small font-semibold text-[var(--fg)]">The first teardown is publishing shortly.</p>
       <p class="mt-[0.25rem] text-small text-[var(--fg-muted)]">Get it in your inbox the day it goes live.</p>
-      {/* Posts to /api/lead/, which stores into website_leads. It used to post
-          to /api/subscribe, an endpoint that has never existed — the button
-          returned a 404 and every waitlist signup was lost.
-          Braces, not an HTML comment: `<!-- -->` ships to the browser. */}
-      <form action="/api/lead/" method="post" class="mt-[var(--space-3)] flex flex-col gap-[var(--space-2)] sm:flex-row">
-        <input type="hidden" name="source" value="teardown-waitlist" />
-        <input type="hidden" name="status" value="complete" />
-        <!-- honeypot (spam trap) -->
+      {/* Posts to /api/subscribe/, which writes to its own `subscribers` table.
+          NOT /api/lead/: this is a list signup, not an enquiry, so it must not
+          reach the sales inbox and must not fire a GA4 or Meta conversion.
+          subscribe.ts confirms inline; no /thank-you/ redirect. */}
+      <form
+        data-subscribe-form
+        action="/api/subscribe/"
+        method="post"
+        class="mt-[var(--space-3)] flex flex-col gap-[var(--space-2)] sm:flex-row"
+      >
+        <input type="hidden" name="source" value="teardowns" />
+        <input type="hidden" name="page" value="" />
+        <input type="hidden" name="referrer" value="" />
+        <input type="hidden" name="utm_source" value="" />
+        <input type="hidden" name="utm_medium" value="" />
+        <input type="hidden" name="utm_campaign" value="" />
+        {/* honeypot (spam trap) */}
         <input type="text" name="company_website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
         <label class="sr-only" for="teardown-email">Email address</label>
         <input
@@ -70,6 +79,13 @@ const { class: className = '', headless = false } = Astro.props;
           Notify me
         </button>
       </form>
+      <p
+        class="ss-sub-status mt-[var(--space-2)] text-small"
+        data-sub-status
+        role="status"
+        aria-live="polite"
+        hidden
+      ></p>
     </div>
 
     {/* Pointless self-link when the band IS /teardowns/. */}
@@ -98,7 +114,17 @@ const { class: className = '', headless = false } = Astro.props;
   </figure>
 </div>
 
+<script>
+  import '@/scripts/subscribe.ts';
+</script>
+
 <style>
+  /* Inline confirmation for the signup. Replaces the form rather than sending
+     the visitor to /thank-you/, which is an enquiry page. */
+  .ss-sub-status { color: var(--fg-muted); }
+  .ss-sub-status[data-state='ok'] { color: var(--pos); font-weight: 500; }
+  .ss-sub-status[data-state='error'] { color: var(--neg); }
+
   @media (prefers-reduced-motion: no-preference) {
     .ss-td-mock::after {
       content: '';

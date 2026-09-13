@@ -75,13 +75,14 @@ const leadSchema = z.object({
 /**
  * Sources that are a SUBSCRIPTION, not an enquiry.
  *
- * These still store (the owner wants them in the CRM) and still notify, but they
- * must NOT fire the GA4 or Meta conversions: an email-only newsletter signup
- * counted as a `Lead` corrupts the exact signal the ad campaigns optimise
- * against, and it is far easier to obtain than a real enquiry. Add a source here
- * whenever a form asks for less than a real enquiry does.
+ * Nothing posts these here any more — list signups have their own endpoint and
+ * their own table (`/api/subscribe` → `public.subscribers`). This stays as a
+ * backstop: if a signup form is ever pointed at /api/lead by mistake, it must
+ * not email the sales inbox or fire a GA4/Meta conversion. An email-only signup
+ * counted as a `Lead` corrupts the exact signal the campaigns optimise against,
+ * and it is far cheaper to obtain than a real enquiry.
  */
-const SUBSCRIBE_SOURCES = new Set(['teardown-waitlist']);
+const SUBSCRIBE_SOURCES = new Set(['teardown-waitlist', 'teardowns', 'newsletter']);
 
 /** The attribution fields, in one place — schema, row and email all read this. */
 const ATTRIBUTION = [
