@@ -6,6 +6,8 @@
  * an `abandoned` beacon fires if the visitor leaves without submitting. On submit
  * it posts `complete` and redirects to /thank-you/. Re-inits on view transitions.
  */
+import { checkPhone } from '@/lib/phone';
+
 type FormEl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
 /**
@@ -14,7 +16,7 @@ type FormEl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
  * an `answers` entry instead of being silently dropped by the server's schema.
  */
 const TOP_LEVEL = new Set([
-  'lead_id', 'source', 'status', 'name', 'email', 'phone', 'company', 'website',
+  'lead_id', 'source', 'status', 'name', 'email', 'phone', 'phone_cc', 'company', 'website',
   'message', 'page', 'company_website', 'cf-turnstile-response',
   'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
   'gclid', 'fbclid', 'landing_page', 'referrer',
@@ -152,13 +154,29 @@ function initForm(form: HTMLFormElement): void {
   };
   show(1, false);
 
+  // Default the dial code to the visitor's region. India is the fallback, so a
+  // UAE visitor is the only one who sees a change — and either can override it.
+  const tz = (() => {
+    try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch { return ''; }
+  })();
+  if (/Dubai|Abu_Dhabi|Muscat|Qatar|Bahrain|Riyadh/.test(tz)) {
+    for (const sel of form.querySelectorAll<HTMLSelectElement>('[data-phone-cc]')) {
+      if (!sel.dataset.touched) sel.value = 'AE';
+    }
+  }
   const validate = (el: FormEl): boolean => {
     const err = el.closest('label')?.querySelector<HTMLElement>('[data-err]');
     const v = el.value.trim();
     let msg = '';
     if (el.required && !v) msg = 'Required.';
     else if (el.type === 'email' && v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) msg = 'Enter a valid email.';
-    else if (el.type === 'tel' && v && v.replace(/\D/g, '').length < 7) msg = 'Enter a valid number.';
+    else if (el.type === 'tel' && v) {
+      // Country-aware. The old rule was "7 or more digits", which accepted
+      // almost any string and let unreachable numbers through as leads.
+      const iso = el.parentElement?.querySelector<HTMLSelectElement>('[data-phone-cc]')?.value;
+      const r = checkPhone(v, iso);
+      if (!r.ok) msg = r.error;
+    }
     el.setAttribute('aria-invalid', msg ? 'true' : 'false');
     if (err) {
       err.textContent = msg;
@@ -171,6 +189,16 @@ function initForm(form: HTMLFormElement): void {
 
   for (const el of form.querySelectorAll<FormEl>('input, select, textarea')) {
     el.addEventListener('blur', () => validate(el));
+  }
+
+  // Changing the dial code re-checks the number against the new country's rule,
+  // and marks the select as chosen so nothing overwrites it afterwards.
+  for (const sel of form.querySelectorAll<HTMLSelectElement>('[data-phone-cc]')) {
+    sel.addEventListener('change', () => {
+      sel.dataset.touched = '1';
+      const num = sel.parentElement?.querySelector<HTMLInputElement>('[data-phone-num]');
+      if (num && num.value.trim()) validate(num);
+    });
   }
 
   const collect = (statusVal: string): Record<string, unknown> => {

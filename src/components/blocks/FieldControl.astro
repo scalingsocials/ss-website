@@ -9,6 +9,7 @@
  * service-page hero forms. Otherwise labels sit above the control.
  */
 import type { Field } from '@/lib/formFields';
+import { COUNTRIES, DEFAULT_ISO, countryOf } from '@/lib/phone';
 
 export interface Props {
   field: Field;
@@ -21,6 +22,15 @@ const inputType: 'text' | 'email' | 'tel' | 'url' =
   f.type && f.type !== 'select' && f.type !== 'textarea' ? f.type : 'text';
 const isSel = (o: string) => f.defaultValue !== undefined && o === f.defaultValue;
 const ph = f.placeholder ?? f.label;
+
+// Every `tel` field becomes a dial-code select + local number, so the rule is
+// the same on all five forms without touching each one. The select submits as
+// `<name>_cc`; /api/lead composes the two into E.164 and validates per country.
+// Rendered server-side so it works with JavaScript off — leadform.ts only
+// upgrades the default to match the visitor's timezone.
+const isPhone = inputType === 'tel';
+const ccName = `${name}_cc`;
+const defaultCountry = countryOf(DEFAULT_ISO);
 ---
 <label class="ss-fc flex flex-col gap-[0.3rem]">
   {/* Compact fields carry `aria-label` on the control itself (below), so an
@@ -43,6 +53,33 @@ const ph = f.placeholder ?? f.label;
           ))
         : (f.options ?? []).map((o) => <option value={o} selected={isSel(o)}>{o}</option>)}
     </select>
+  ) : isPhone ? (
+    <span class="ss-phone" data-phone-field>
+      <select
+        name={ccName}
+        data-phone-cc
+        class="ss-input ss-phone__cc"
+        aria-label="Country dialling code"
+      >
+        {/* Dial code only. "+91 India" pushed the select to 230px of a 230px
+            row on a 360px phone, leaving the number field 50px wide. The
+            aria-label carries the meaning for screen readers. */}
+        {COUNTRIES.map((c) => (
+          <option value={c.iso} selected={c.iso === DEFAULT_ISO}>{c.dial}</option>
+        ))}
+      </select>
+      <input
+        type="tel"
+        name={name}
+        data-phone-num
+        required={f.required}
+        aria-label={f.label}
+        placeholder={f.placeholder ?? defaultCountry.example}
+        autocomplete={f.autocomplete}
+        inputmode="tel"
+        class="ss-input ss-phone__num"
+      />
+    </span>
   ) : f.type === 'textarea' ? (
     <textarea name={name} required={f.required} rows="3" aria-label={f.label} placeholder={compact ? ph : f.placeholder} class="ss-input"></textarea>
   ) : (
@@ -58,3 +95,19 @@ const ph = f.placeholder ?? f.label;
   )}
   <span class="ss-err text-label text-[var(--neg)]" data-err hidden></span>
 </label>
+
+<style is:global>
+  /* The dial code sits flush against the number as one control. Auto width on
+     the select so "+971 UAE" is never clipped, and the number field takes the
+     rest. Both inherit .ss-input, so focus and error states already match. */
+  /* Two-class selectors on purpose: .ss-input sets `width: 100%`, which made
+     the select fill the whole row and squeeze the number field to 50px on a
+     360px phone. A single-class rule here would lose or win by source order. */
+  .ss-phone { display: flex; gap: var(--space-2); align-items: stretch; }
+  .ss-phone > .ss-phone__cc {
+    flex: 0 0 auto;
+    width: auto;
+    padding-inline: var(--space-2);
+  }
+  .ss-phone > .ss-phone__num { flex: 1 1 auto; width: auto; min-width: 0; }
+</style>

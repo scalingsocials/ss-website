@@ -193,7 +193,7 @@ export const LANDINGS: LandingContent[] = [
       step1: [
         { name: 'name', label: 'Full name', type: 'text', required: true, autocomplete: 'name' },
         { name: 'email', label: 'Email', type: 'email', required: true, autocomplete: 'email' },
-        { name: 'phone', label: 'Phone or WhatsApp', type: 'tel', required: true, autocomplete: 'tel', placeholder: '+91 or +971' },
+        { name: 'phone', label: 'Phone or WhatsApp', type: 'tel', required: true, autocomplete: 'tel', placeholder: '50 123 4567' },
       ],
       step2: [
         { name: 'website', label: 'Website or Instagram URL', type: 'text', required: false, autocomplete: 'url', placeholder: 'yourbrand.com or @handle' },

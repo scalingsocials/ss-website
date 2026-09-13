@@ -22,6 +22,7 @@
  */
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
+import { checkPhone, DEFAULT_ISO } from '@/lib/phone';
 
 export const prerender = false;
 
@@ -36,6 +37,10 @@ const leadSchema = z.object({
   name: z.string().max(120).optional().default(''),
   email: z.string().email().max(160).optional().or(z.literal('')),
   phone: z.string().max(32).optional().default(''),
+  // Dial-code select that FieldControl renders beside every `tel` input. The
+  // server composes the two into E.164 and validates per country, so the rule
+  // holds even for a no-JS post or a handcrafted request.
+  phone_cc: z.string().max(4).optional().default(''),
   company: z.string().max(160).optional().default(''),
   website: z.string().max(200).optional().default(''),
   // Service-specific answers arrive as a flat map; keep them loose.
@@ -499,6 +504,9 @@ async function upsertLead(url: string, key: string, lead: Lead, turnstile: Turns
 export const POST: APIRoute = async ({ request, redirect, locals }) => {
   let raw: Record<string, unknown> = {};
   const ct = request.headers.get('content-type') ?? '';
+  // Hoisted: the phone and validation branches below both need it to decide
+  // between a JSON body and an HTML page for a no-JS submit.
+  const wantsJson = ct.includes('application/json') || request.headers.get('x-requested-with') === 'fetch';
   try {
     if (ct.includes('application/json')) {
       raw = await request.json();
@@ -534,6 +542,22 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   }
   const lead = parsed.data;
   const isSubscribe = SUBSCRIBE_SOURCES.has(lead.source);
+
+  // Normalise the phone to E.164 so the CRM gets one consistent format instead
+  // of whatever punctuation each visitor used. Only a COMPLETED enquiry is
+  // rejected for a bad number — a partial or an abandon beacon is a best-effort
+  // capture of someone mid-typing, and refusing it would throw away the very
+  // lead the abandoned-capture feature exists to save.
+  if (lead.phone) {
+    const r = checkPhone(lead.phone, lead.phone_cc || DEFAULT_ISO);
+    if (r.ok) {
+      lead.phone = r.e164;
+    } else if (lead.status === 'complete') {
+      console.error('[lead] rejected phone', lead.phone_cc || DEFAULT_ISO);
+      const body = { ok: false, error: 'invalid', fields: ['phone'] };
+      return wantsJson ? json(body, 422) : errorPage();
+    }
+  }
   // No-JS and non-island forms post no lead_id; mint one so the row still
   // upserts cleanly. (A JS submission always supplies its own, so partial and
   // complete continue to merge onto the same row.)
@@ -545,7 +569,6 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   if (lead.company_website) return json({ ok: true, stored: false });
 
   const env = getEnv(locals);
-  const wantsJson = ct.includes('application/json') || request.headers.get('x-requested-with') === 'fetch';
 
   // Turnstile: verify completed submissions from the JS path (where a token is
   // produced). The no-JS native form has no token and falls back to the
