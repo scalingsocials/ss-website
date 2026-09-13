@@ -23,6 +23,18 @@ export {}; // module scope — keeps these declarations out of the global type s
 const GA_ID = 'G-DQH1656N5W';
 const PROD_HOST = 'scalingsocials.com';
 
+/**
+ * Production = the apex OR www. An exact-match check on the apex alone meant
+ * anyone who reached www.scalingsocials.com before the edge 301 fired was
+ * flagged `debug_mode`, which EXCLUDES the hit from standard GA4 reports — so
+ * any traffic arriving on www during or after the DNS cutover would silently
+ * vanish from reporting. The preview (*.pages.dev) and localhost still count as
+ * non-production, exactly as before.
+ */
+function isProdHost(h: string): boolean {
+  return h === PROD_HOST || h === `www.${PROD_HOST}`;
+}
+
 type GtagWin = Window & {
   dataLayer?: unknown[];
   gtag?: (...args: unknown[]) => void;
@@ -34,7 +46,7 @@ function boot(): void {
   if (w.__ssGaReady) return;
   w.__ssGaReady = true;
 
-  const isProd = location.hostname === PROD_HOST;
+  const isProd = isProdHost(location.hostname);
 
   w.dataLayer = w.dataLayer || [];
   // The canonical gtag stub MUST push the `arguments` object verbatim — GA reads

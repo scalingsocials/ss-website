@@ -14,7 +14,20 @@ export {}; // module scope
  */
 const PIXEL_ID = '2381316206031576';
 
+/**
+ * Local development only. Every `npm run dev` session was firing real PageView
+ * / FormStart / Lead events into the live pixel, polluting the audiences these
+ * campaigns optimise against.
+ *
+ * Deliberately NOT gated on the *.pages.dev preview: the pixel was verified
+ * end-to-end there, and it needs to stay verifiable there before every deploy.
+ */
+const isLocal = (): boolean =>
+  ['localhost', '127.0.0.1', '[::1]', '0.0.0.0'].includes(location.hostname) ||
+  location.hostname.endsWith('.local');
+
 function boot(): void {
+  if (isLocal()) return;
   const w = window as unknown as { fbq?: FbqFn; _fbq?: FbqFn; __ssFbReady?: boolean };
   if (w.__ssFbReady) return;
   w.__ssFbReady = true;

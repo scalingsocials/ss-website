@@ -9,7 +9,13 @@ export {}; // module scope
  */
 const CLARITY_ID = 'ygppsnwfcq';
 
+/** Local dev only — see the same gate in meta.ts. The preview still records. */
+const isLocal = (): boolean =>
+  ['localhost', '127.0.0.1', '[::1]', '0.0.0.0'].includes(location.hostname) ||
+  location.hostname.endsWith('.local');
+
 function boot(): void {
+  if (isLocal()) return;
   const w = window as unknown as { clarity?: unknown; __ssClarity?: boolean };
   if (w.__ssClarity) return;
   w.__ssClarity = true;
