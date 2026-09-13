@@ -38,6 +38,22 @@ export interface CountryRow {
   dial: string;
   /** English name from the platform's own data — no hand-maintained list. */
   name: string;
+  /** Emoji flag, e.g. "🇮🇳". */
+  flag: string;
+}
+
+/**
+ * ISO alpha-2 → emoji flag, by mapping each letter to its regional indicator.
+ * No image assets, no sprite sheet, nothing to load.
+ *
+ * Windows does not render regional indicator pairs as flags — it shows the two
+ * letters instead. That is a clean degradation: "IN +91 India" still reads
+ * correctly, so no fallback is needed.
+ */
+export function flagOf(iso: string): string {
+  return String.fromCodePoint(
+    ...[...iso.toUpperCase()].map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65),
+  );
 }
 
 // Intl.DisplayNames ships with Node and every target browser, so the country
@@ -60,14 +76,15 @@ export const COUNTRIES: CountryRow[] = TABLE.split(',')
     } catch {
       /* unknown region code — fall back to the ISO */
     }
-    return { iso, cc, dial: `+${cc}`, name };
+    return { iso, cc, dial: `+${cc}`, name, flag: flagOf(iso) };
   })
   .sort((a, b) => a.name.localeCompare(b.name, 'en'));
 
 /**
- * The markets Scaling Socials actually sells into (entity.ts `areaServed`).
  * Pinned to the top of the select so the common case is the first thing a
- * visitor sees, with everything else below.
+ * visitor sees, with everything else alphabetically below a plain separator.
+ * Deliberately unlabelled in the markup — a group heading naming these as our
+ * markets tells a visitor more about us than a phone field needs to.
  */
 export const PRIMARY_ISO = ['IN', 'AE'] as const;
 

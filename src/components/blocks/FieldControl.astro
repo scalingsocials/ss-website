@@ -62,23 +62,24 @@ const defaultExample = '96067 13608';
         class="ss-input ss-phone__cc"
         aria-label="Country dialling code"
       >
-        {/* Dial code FIRST, name second, and the select is width-capped in CSS.
-            A native select shows the selected option's own text when closed, so
-            it cannot be short closed and long open — capping the width means a
-            long name like "United Arab Emirates" clips, but the dial code is
-            always the part that survives, which is the part that matters. */}
-        <optgroup label="Where we work">
-          {PRIMARY.map((c) => (
-            <option value={c.iso} data-dial={c.dial} title={c.name} selected={c.iso === DEFAULT_ISO}>
-              {c.dial} {c.name}
-            </option>
-          ))}
-        </optgroup>
-        <optgroup label="All countries">
-          {REST.map((c) => (
-            <option value={c.iso} data-dial={c.dial} title={c.name}>{c.dial} {c.name}</option>
-          ))}
-        </optgroup>
+        {/* Flag, dial code, then name — the order every mainstream phone field
+            uses, and the order that survives clipping. A native select shows
+            the selected option's own text when closed and cannot differ between
+            the two states, so the width cap trims a long name like "United Arab
+            Emirates" from the right, leaving the flag and dial code intact.
+
+            The two pinned entries carry no group heading: labelling them would
+            tell a visitor which markets we sell into, which a phone field has
+            no business announcing. A disabled rule separates them instead. */}
+        {PRIMARY.map((c) => (
+          <option value={c.iso} data-dial={c.dial} title={c.name} selected={c.iso === DEFAULT_ISO}>
+            {c.flag} {c.dial} {c.name}
+          </option>
+        ))}
+        <option disabled>──────────</option>
+        {REST.map((c) => (
+          <option value={c.iso} data-dial={c.dial} title={c.name}>{c.flag} {c.dial} {c.name}</option>
+        ))}
       </select>
       <input
         type="tel"
