@@ -13,6 +13,8 @@ import Section from '@/components/primitives/Section.astro';
 import Prose from '@/components/primitives/Prose.astro';
 import Link from '@/components/primitives/Link.astro';
 import LeadForm from '@/components/blocks/LeadForm.astro';
+import DotField from '@/components/graphics/DotField.astro';
+import Button from '@/components/primitives/Button.astro';
 import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import { base, webPage, breadcrumbs, faqPage, service, serviceId } from '@/lib/schema';
@@ -83,23 +85,30 @@ const auditStep2: Field[] = [
 ];
 ---
 
-<BaseLayout>
+<BaseLayout heroOver>
   <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
   <SchemaGraph slot="schema" nodes={nodes} />
 
-  <Section size="lg">
-    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] flex flex-wrap items-center gap-x-[0.15rem] text-small text-[var(--fg-muted)]">
-      <a href="/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Home</a><span> / </span>
-      <a href="/seo-agency-bangalore/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">SEO</a><span> / </span>
+  <!-- HERO — the shared ink opener, --sub variant, same as every other
+       sub-service page. -->
+  <Section register="ink" size="lg" class="ss-inkhero ss-inkhero--sub ss-hero-over">
+    <DotField origin="top-right" />
+    <nav aria-label="Breadcrumb" class="ss-inkhero__crumb relative flex flex-wrap items-center gap-x-[0.15rem] text-label text-[var(--fg-muted)]">
+      <a href="/" class="inline-flex items-center text-[var(--accent-text)] no-underline">Home</a><span> / </span>
+      <a href="/seo-agency-bangalore/" class="inline-flex items-center text-[var(--accent-text)] no-underline">SEO</a><span> / </span>
       <span>Technical SEO audit</span>
     </nav>
-    <div class="[&>*]:min-w-0 grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-      <div>
+    <div class="ss-inkhero__grid relative grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div class="ss-inkhero__copy">
         <span class="ss-eyebrow">Technical SEO audit</span>
         <h1 class="max-w-[20ch]">Technical SEO audit services</h1>
         <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.5] text-[var(--fg)]">{answer}</p>
+        <div class="ss-inkhero__cta mt-[var(--space-6)] grid grid-cols-2 gap-[var(--space-2)]">
+          <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+          <Button href="/seo-agency-bangalore/" variant="secondary">SEO</Button>
+        </div>
       </div>
-      <div class="lg:sticky lg:top-[88px]">
+      <div>
         <LeadForm
           source="technical-seo-audit"
           heading="Get your technical SEO audit"
@@ -108,6 +117,7 @@ const auditStep2: Field[] = [
           step2Lead={auditStep2}
           messageLabel="Anything specific you’re worried about? (optional)"
           submitLabel="Get my SEO audit"
+          elevated
         />
       </div>
     </div>

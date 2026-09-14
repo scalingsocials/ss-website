@@ -38,6 +38,9 @@ const PAGES = [
   '/',                                          // home
   '/seo-agency-bangalore/',                     // ServiceLayout (hero lead form)
   '/audit/',                                     // standalone form page
+  '/google-ads-agency-bangalore/',               // ClusterLayout (sub-service, ink hero)
+  '/meta-ads-agency-india/',                     // bespoke sub-service (tables, bars, chips)
+  '/technical-seo-audit-services/',              // bespoke sub-service
   '/glossary/cac/',                             // ClusterLayout leaf
   '/case-studies/',                             // case index
   '/case-studies/wellness-brand-zero-to-scale/',// CaseStudyLayout

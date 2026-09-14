@@ -88,20 +88,20 @@ const nodes = [
        header treatment via `heroOver` + .ss-hero-over. Still form-forward, so the
        lead form becomes a glass card — on ink, --ground is near-black and the
        form's default card would be black-on-black. -->
-  <Section register="ink" size="lg" class="svc-hero ss-hero-over relative overflow-hidden">
+  <Section register="ink" size="lg" class="ss-inkhero ss-inkhero--pillar ss-hero-over">
     <DotField origin="top-right" />
-    <nav aria-label="Breadcrumb" class="svc-hero__crumb relative flex flex-wrap items-center text-label text-[var(--fg-muted)]">
-      <a href="/" class="svc-hero__crumb-link inline-flex items-center text-[var(--accent-text)] no-underline">Home</a><span class="mx-[0.35rem]">/</span><span>{svc.name}</span>
+    <nav aria-label="Breadcrumb" class="ss-inkhero__crumb relative flex flex-wrap items-center text-label text-[var(--fg-muted)]">
+      <a href="/" class="inline-flex items-center text-[var(--accent-text)] no-underline">Home</a><span class="mx-[0.35rem]">/</span><span>{svc.name}</span>
     </nav>
-    <div class="svc-hero__grid relative grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-      <div class="svc-hero__copy">
+    <div class="ss-inkhero__grid relative grid gap-[var(--space-8)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div class="ss-inkhero__copy">
         <span class="ss-eyebrow">{svc.eyebrow}</span>
         <h1>{svc.h1}</h1>
         <p class="mt-[var(--space-4)] max-w-[54ch] text-h4 leading-[1.45] text-[var(--fg)]">{svc.answer}</p>
-        <ul class="svc-hero__stats mt-[var(--space-5)] grid grid-cols-3 gap-x-[var(--space-3)] gap-y-[var(--space-2)]">
+        <ul class="ss-inkhero__stats mt-[var(--space-5)] grid grid-cols-3 gap-x-[var(--space-3)] gap-y-[var(--space-2)]">
           {heroStats.map((s) => (
             <li class="flex flex-col gap-[3px]">
-              <span class="svc-hero__stat-val display-type font-bold leading-none text-[var(--fg)]" data-num>{s.value}</span>
+              <span class="ss-inkhero__stat-val display-type font-bold leading-none text-[var(--fg)]" data-num>{s.value}</span>
               <span class="text-label leading-snug text-[var(--fg-muted)]">{s.label}</span>
             </li>
           ))}
@@ -110,7 +110,7 @@ const nodes = [
             share a flex row, so they wrapped into a stack that ate ~90px of the
             first screen and pushed the form further down. A grid puts them side
             by side at every width and lets each button shrink its own text. */}
-        <div class="svc-hero__cta mt-[var(--space-5)] grid grid-cols-2 gap-[var(--space-2)]">
+        <div class="ss-inkhero__cta mt-[var(--space-5)] grid grid-cols-2 gap-[var(--space-2)]">
           <Button href="/audit/" variant="primary">Get a free growth plan</Button>
           <Button href="/case-studies/" variant="secondary">See case studies</Button>
         </div>
@@ -293,234 +293,8 @@ const nodes = [
     .ss-eyebrow { display: inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 600; color: var(--accent-text); }
     /* Hero fills the screen below the sticky header, so the copy + form land in
        one view. Padding is trimmed from the Section default to help it fit. */
-    .svc-hero {
-      /* .ss-hero-over already pulls the section up behind the fixed header and
-         pads the header's height back on, so this is a full screen, not a screen
-         minus the header — the same sum the homepage hero arrives at. */
-      min-height: 100vh; /* fallback for iOS < 15.4, which has no svh unit */
-      min-height: 100svh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      /* More than .ss-hero-over's own --space-4: this hero opens with a
-         breadcrumb, which the homepage does not, and at the shared value the
-         crumb sat ~18px under the logo and read as part of the header. */
-      padding-top: calc(var(--hh, 68px) + var(--space-6)) !important;
-      padding-bottom: var(--space-6) !important;
-    }
-    /* Same ink ground as the homepage, DELIBERATELY NOT the same composition
-       (owner-directed: service pages should read as a sibling, not a copy). The
-       homepage lights the top right hard and drops teal bottom-left. Here a
-       broad low glow rises from the bottom left behind the copy and a tight
-       highlight sits top-right behind the form, so the two halves of the hero
-       are lit separately and the eye lands on the form. Decorative. */
-    .svc-hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(120% 78% at 0% 100%, color-mix(in srgb, var(--accent-fill) 22%, transparent), transparent 62%),
-        radial-gradient(44% 48% at 94% 4%, color-mix(in srgb, var(--color-teal) 22%, transparent), transparent 70%);
-      pointer-events: none;
-    }
-    /* The annotation axis. Design brief §3 draws the motif as a vertical marker
-       crossing a horizontal baseline; this is that baseline, closing the hero
-       where it meets the next band. The homepage has no equivalent line. */
-    .svc-hero::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        color-mix(in srgb, var(--accent-graphic) 55%, transparent) 22%,
-        color-mix(in srgb, var(--accent-graphic) 55%, transparent) 78%,
-        transparent
-      );
-      pointer-events: none;
-    }
-    /* The marker itself, tagging the heading — the use the brief names
-       explicitly. It fades downward so it reads as an annotation on the copy
-       rather than a border around it. */
-    .svc-hero__copy {
-      position: relative;
-      padding-left: var(--space-4);
-    }
-    .svc-hero__copy::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0.3rem;
-      bottom: 0;
-      width: 2px;
-      border-radius: 2px;
-      background: linear-gradient(
-        180deg,
-        var(--accent-graphic),
-        color-mix(in srgb, var(--accent-graphic) 8%, transparent)
-      );
-    }
-    @media (max-width: 640px) {
-      .svc-hero__copy { padding-left: var(--space-3); }
-    }
-    /* The lead form as a glass card. On ink the form's own --ground is near-black,
-       so without this it is a black card on a black hero with only a hairline to
-       separate them. A light translucent wash reads as lifted on the dark ground
-       and keeps every colour semantic (§5) — no raw palette value here. */
-    .svc-hero :global(.ss-leadform--elevated) {
-      background: color-mix(in srgb, var(--fg) 7%, transparent);
-      border-color: color-mix(in srgb, var(--fg) 18%, transparent);
-      -webkit-backdrop-filter: blur(16px) saturate(1.4);
-      backdrop-filter: blur(16px) saturate(1.4);
-      box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.75);
-    }
-    /* Controls need their own lift for the same reason — a --ground input on a
-       glass card over ink is three near-blacks stacked. */
-    .svc-hero :global(.ss-leadform--elevated .ss-input) {
-      background-color: color-mix(in srgb, var(--fg) 9%, transparent);
-      border-color: color-mix(in srgb, var(--fg) 26%, transparent);
-    }
-    /* Focus and error must be restated here. The background/border rule above is
-       0,3,0 and the base `.ss-input:focus-visible` / `.ss-input[aria-invalid]`
-       rules in LeadForm are 0,2,0, so without these the hero form would lose its
-       focus ring AND its red error border — the two states a form can least
-       afford to drop. Caught by the phone-field test, not by eye. */
-    .svc-hero :global(.ss-leadform--elevated .ss-input:focus-visible),
-    .svc-hero :global(.ss-leadform--elevated .ss-phone:focus-within) {
-      background-color: color-mix(in srgb, var(--fg) 13%, transparent);
-      border-color: var(--accent-text);
-      box-shadow: 0 0 0 3px var(--accent-wash);
-    }
-    /* After focus, so an invalid field reads red even while focused. */
-    .svc-hero :global(.ss-leadform--elevated .ss-input[aria-invalid='true']),
-    .svc-hero :global(.ss-leadform--elevated .ss-phone:has(.ss-phone__num[aria-invalid='true'])) {
-      border-color: var(--neg);
-    }
-    /* A native dropdown paints its list with the CONTROL's colours, so a glass
-       background leaves the options unreadable in some engines. The option list
-       gets opaque ink and light text explicitly. */
-    .svc-hero :global(.ss-leadform--elevated option),
-    .svc-hero :global(.ss-leadform--elevated optgroup) {
-      background-color: var(--ground);
-      color: var(--fg);
-    }
-    /* The shared select chevron is a data-URI SVG with a hardcoded near-black
-       stroke, which is all but invisible on the ink hero. It cannot read a CSS
-       variable from inside a url(), so the ink register needs its own copy.
-       (The phone field draws its own chevron in currentColor and is unaffected.) */
-    .svc-hero :global(select.ss-input) {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Cpath d='M3 5.25 7 9.25l4-4' stroke='%23EDEDED' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    }
-    .svc-hero__grid { width: 100%; }
-    /* Grid items default to min-width:auto, so a track sizes to its content's
-       min-content rather than to the container. A <select> reports a large
-       intrinsic minimum — measured here: with the dial-code select the single
-       mobile track became 437.8px inside a 342px container and clipped the whole
-       hero; removing the select alone returned it to 342px. min-width:0 lets the
-       items obey the track. Same reasoning as the minmax(0, …) rule that
-       check:gotchas warns about for multi-track fr grids. */
-    .svc-hero__grid > * { min-width: 0; }
-    /* Compact breadcrumb — a tight, subtle line, not a full row of space.
-       The awkward mobile gap between "Home / Paid media" and the H1 was the 44px
-       touch target: min-height on the link made the whole nav row 44px tall while
-       the text inside it is ~17px, so ~27px of dead space sat under the crumb and
-       read as a mis-set margin. The target is now built from padding cancelled by
-       an equal negative margin — the tappable box is still 44px, but it overflows
-       the line box instead of setting the row's height. */
-    /* Both hero CTAs share one row at every width. Button sets whitespace-nowrap
-       for good reason elsewhere, but "Get a free growth plan" cannot hold one
-       line inside a half-width phone column, so here the label is allowed to
-       wrap and drops a size. Equal-height grid cells keep the pair aligned
-       whether one wraps or both do. */
-    .svc-hero__cta > :global(*) { width: 100%; }
-    @media (max-width: 600px) {
-      .svc-hero__cta :global(a) {
-        white-space: normal;
-        text-align: center;
-        font-size: var(--text-small);
-        line-height: 1.25;
-        padding-inline: var(--space-2);
-      }
-    }
-    /* TWELVE tracks, each card spanning four (three-up) or six (two-up), so a
-       short final row can be centred on exact track boundaries and every card
-       keeps one size — nothing is ever stretched to fill a gap.
-       Twelve, not six: centring a lone card in a two-up row needs a HALF-card
-       offset, which on six tracks would be track 1.5. On twelve it is track 4,
-       a real boundary. Flex-basis percentages were the other option and wrap
-       unpredictably on sub-pixel rounding. Track counts include their internal
-       gaps, so the arithmetic holds at any gap value. */
-    .ss-subgrid {
-      display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      /* Every row the same height as the tallest, so "same size card" holds
-         DOWN the grid and not just across a row. Grid rows are sized
-         independently by default, which left the 5-card page with a 340px top
-         row and a 355px bottom row once the art became a flow child and cards
-         could grow with their copy. */
-      grid-auto-rows: 1fr;
-      gap: var(--space-3);
-    }
-    .ss-subgrid > li { grid-column: span 4; display: grid; min-width: 0; }
-    /* One card left over: start at 5, occupy 5–8, four tracks clear either side.
-       Two left over: the first starts at 3 and the second flows to 7, so the
-       pair occupies 3–10 with two tracks clear either side. */
-    .ss-subgrid > li[data-row3='1'] { grid-column: 5 / span 4; }
-    .ss-subgrid > li[data-row3='2'] { grid-column: 3 / span 4; }
-
-    /* Two-up. The three-up offsets have to be reset explicitly — an element
-       still matching [data-row3] would keep a start track it no longer needs
-       and throw the whole row out by a card. */
-    @media (max-width: 940px) {
-      .ss-subgrid > li,
-      .ss-subgrid > li[data-row3='1'],
-      .ss-subgrid > li[data-row3='2'] { grid-column: span 6; }
-      .ss-subgrid > li[data-row2] { grid-column: 4 / span 6; }
-    }
-    @media (max-width: 620px) {
-      .ss-subgrid > li,
-      .ss-subgrid > li[data-row3='1'],
-      .ss-subgrid > li[data-row3='2'],
-      .ss-subgrid > li[data-row2] { grid-column: span 12; }
-    }
-
-    /* FOUR sub-services get one clean row instead of three-over-one
-       (owner-directed, 2026-09-14), which is the weakest shape the centring
-       rule can produce. Twelve tracks divides by four too, so this is a span
-       change and nothing else.
-
-       Only above 1200px: four cards in a 1100px container are ~225px wide and
-       the descriptions turn into narrow ribbons. Below that they go straight to
-       2x2 — the other shape four cards make well — so three-over-one never
-       appears at any width. The [data-row3] offset has to be cancelled in both
-       branches or the fourth card keeps the centring start it no longer needs. */
-    @media (min-width: 1200px) {
-      .ss-subgrid[data-n='4'] > li,
-      .ss-subgrid[data-n='4'] > li[data-row3='1'] { grid-column: span 3; }
-      /* A quarter-width card held at 340px would read portrait rather than
-         square, so the row it sits in is shorter. */
-      .ss-subgrid[data-n='4'] { --ssub-h: 300px; }
-    }
-    @media (max-width: 1199px) {
-      .ss-subgrid[data-n='4'] > li,
-      .ss-subgrid[data-n='4'] > li[data-row3='1'] { grid-column: span 6; }
-    }
-    @media (max-width: 620px) {
-      .ss-subgrid[data-n='4'] > li,
-      .ss-subgrid[data-n='4'] > li[data-row3='1'] { grid-column: span 12; }
-    }
-
-    .svc-hero__crumb { margin-bottom: var(--space-2); line-height: 1.2; }
-    .svc-hero__crumb-link {
-      padding-block: 0.8rem;
-      margin-block: -0.8rem;
-    }
-    /* Three stats always share one row; the value scales so they never wrap out. */
-    .svc-hero__stat-val { font-size: clamp(1.05rem, 1.5vw, 1.5rem); }
-    @media (max-width: 480px) { .svc-hero__stat-val { font-size: 1rem; } }
+    .ss-inkhero__stat-val { font-size: clamp(1.05rem, 1.5vw, 1.5rem); }
+    @media (max-width: 480px) { .ss-inkhero__stat-val { font-size: 1rem; } }
     .ss-svc-glyph {
       display: grid;
       place-items: center;

@@ -16,6 +16,11 @@ import Button from '@/components/primitives/Button.astro';
 import LeadForm from '@/components/blocks/LeadForm.astro';
 import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
+import ComparisonTable from '@/components/blocks/ComparisonTable.astro';
+import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
+import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
+import DotField from '@/components/graphics/DotField.astro';
+import Glyph from '@/components/graphics/Glyph.astro';
 import { SERVICE_BY_SLUG } from '@/lib/services';
 import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
 import { adSpendManaged, brandsServed, brandsPast10L, brandsPast1Cr } from '@/data/proofStats';
@@ -36,6 +41,70 @@ const answer =
 // ad-spend figure has no channel qualifier and is gated by check:stats, so it
 // can never drift from the other pages.
 const stats = [brandsServed, brandsPast10L, brandsPast1Cr, adSpendManaged].map((s) => ({ v: s.value, l: s.label }));
+
+// Budget shape, drawn as bars further down. Both splits are the ones the copy
+// states in prose; `w` drives a flex ratio through a data attribute rather than
+// an inline style, because the production CSP is strict hash-based and drops
+// style="" silently (it already ate the per-card colours once).
+const BUDGET_SPLITS = [
+  {
+    stage: 'Early-stage brand',
+    note: 'No pixel data, no warm audience yet',
+    parts: [
+      { label: 'Prospecting', pct: '80%', w: '80' },
+      { label: 'Retargeting', pct: '20%', w: '20' },
+    ],
+  },
+  {
+    stage: 'Scaling brand',
+    note: 'Purchase data in the account to build on',
+    parts: [
+      { label: 'Prospecting', pct: '50%', w: '50' },
+      { label: 'Retargeting', pct: '20–25%', w: '25' },
+      { label: 'Lookalikes', pct: '25%', w: '25' },
+    ],
+  },
+];
+
+// The 90-day shape, lifted out of the prose it used to be buried in. Every
+// phrase here comes from that copy — nothing new is claimed.
+const NINETY_DAYS = [
+  { title: 'Onboarding', body: 'A health check before a single campaign goes live: your whole path from homepage to purchase confirmation, your pixel, and an audit of everything the account has run before.' },
+  { title: 'Month one — content', body: 'Campaigns go live and the month is spent finding which content angles work: statics, video, catalogue. A call every week on what happened and what is next.' },
+  { title: 'Month two — targeting', body: 'With the content question answered, the month goes on audiences: which interests, which age bands, which locations, which structures.' },
+  { title: 'Month three — consistency', body: 'All three answers in hand — the content, the targeting and the structure that work. This is where consistent sales and stable revenue become a fair expectation.' },
+];
+
+// Already an enumerated list in the copy; NotForYouBlock renders it as the
+// disqualifier block the service pages use.
+const NOT_FOR_YOU = [
+  'Brands expecting 5X or 7X in month one. That is not how testing works and we will not pretend otherwise to win an account.',
+  'Ad-spend budgets of ₹10,000–₹20,000 a month. There is no version of that budget that produces a meaningful result, and taking it would waste your money and our time.',
+  'Brands that want a vendor rather than a partner — not open to changing pricing, improving the product, fixing the website or investing in content.',
+  'Illegal products, and anything overpriced and sold on hype without delivering value.',
+];
+
+// The three differentiators, verbatim from the copy they replaced.
+// "Official Meta Business Partner" is a bare fact with no sentence behind it,
+// and §15 forbids writing one to fill the card. It renders as a badge above
+// instead, so the two items that DO have substance keep equal-height cards.
+const WHY_STAY = [
+  { glyph: 'gauge', title: 'Social Analytix, our in-house AI tool', body: 'Monitors every live campaign in your ad account in real time and flags what to pause, what to scale, and where budget is leaking — so decisions happen on the day, not at the end of the month.' },
+  { glyph: 'handshake', title: 'Experienced media buyers only', body: 'We keep the team small and qualified rather than filling it with volume hires and assigning your account to whoever is free.' },
+];
+
+// Priority order, with the reason the copy gives for each.
+const TARGETING = [
+  { name: 'Broad', why: 'Meta’s models in 2026 are considerably better at finding buyers than a hand-built interest stack.' },
+  { name: 'Manual interests', why: 'The foundation of advertising, and it still works — particularly where a brand has a sharply defined customer.' },
+  { name: 'Lookalikes', why: 'In proportion to the purchase data available. With enough purchasers in the account, these become one of the most reliable parts of the structure.' },
+];
+
+// Ordered by spend, exactly as the copy states it.
+const CATEGORIES = {
+  largest: ['Apparel', 'Home decor', 'Skincare', 'F&B'],
+  rest: ['Services', 'Real estate', 'Study abroad', 'Pet', 'Electronics', 'Home appliances'],
+};
 
 const faqs: FaqItem[] = [
   { q: 'How long before I see results?', a: 'Positive traction usually shows in the first month. Consistent sales, stable ROAS and dependable revenue take at least three months, because that is how long a proper testing cycle takes.' },
@@ -68,18 +137,21 @@ const nodes = [
 ];
 ---
 
-<BaseLayout>
+<BaseLayout heroOver>
   <Meta slot="meta" title={title} description={description} type="website" modifiedTime={modified} />
   <SchemaGraph slot="schema" nodes={nodes} />
 
-  <Section size="lg">
-    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] flex flex-wrap items-center gap-x-[0.15rem] text-small text-[var(--fg-muted)]">
-      <a href="/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Home</a><span> / </span>
-      <a href="/performance-marketing-agency-bangalore/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Performance marketing</a><span> / </span>
+  <!-- HERO — the shared ink opener, --sub variant, same as every other
+       sub-service page so the whole service tree reads as one system. -->
+  <Section register="ink" size="lg" class="ss-inkhero ss-inkhero--sub ss-hero-over">
+    <DotField origin="top-right" />
+    <nav aria-label="Breadcrumb" class="ss-inkhero__crumb relative flex flex-wrap items-center gap-x-[0.15rem] text-label text-[var(--fg-muted)]">
+      <a href="/" class="inline-flex items-center text-[var(--accent-text)] no-underline">Home</a><span> / </span>
+      <a href="/performance-marketing-agency-bangalore/" class="inline-flex items-center text-[var(--accent-text)] no-underline">Performance marketing</a><span> / </span>
       <span>Meta Ads</span>
     </nav>
-    <div class="[&>*]:min-w-0 grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-      <div>
+    <div class="ss-inkhero__grid relative grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+      <div class="ss-inkhero__copy">
         <span class="ss-eyebrow">Performance marketing</span>
         <h1 class="max-w-[20ch]">Meta Ads agency for D2C brands in India</h1>
         <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">{answer}</p>
@@ -87,13 +159,13 @@ const nodes = [
           Five years in, we have run Meta ads for {brandsServed.value} brands, always inside their own ad accounts.
           The account stays yours. So does the pixel. And so does the data we build in it.
         </p>
-        <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+        <div class="ss-inkhero__cta mt-[var(--space-6)] grid grid-cols-2 gap-[var(--space-2)]">
           <Button href="/audit/" variant="primary">Get a free growth plan</Button>
           <Button href="/performance-marketing-agency-bangalore/" variant="secondary">Performance marketing</Button>
         </div>
       </div>
-      <div class="lg:sticky lg:top-[88px]">
-        <LeadForm source="meta-ads" heading="Get a free Meta ads review" questions={parent?.formQuestions ?? []} submitLabel="Get my free review" />
+      <div>
+        <LeadForm source="meta-ads" heading="Get a free Meta ads review" questions={parent?.formQuestions ?? []} submitLabel="Get my free review" elevated />
       </div>
     </div>
   </Section>
@@ -103,14 +175,52 @@ const nodes = [
       <h2>How we structure a Meta account</h2>
       <p>There is no template. The structure follows the budget and the stage the brand is at, and both of those change.</p>
       <p><strong>Number of campaigns follows the budget.</strong> A brand spending ₹10,000 a day cannot support the same account architecture as a brand spending ₹1 lakh a day, and pretending otherwise is how testing budgets get spread so thin that nothing reaches significance. We have run both ends of that range and completed a clean testing phase in both, but the campaign count, the ad count and the daily allocation get worked out from your <a href="/tools/meta-ads-budget-planner/">monthly marketing budget</a> downward, not from a slide deck.</p>
-      <p><strong>Prospecting versus retargeting follows the audience you already have.</strong> If you come to us with an existing customer base, a real Instagram following and warm audiences already sitting in your account, we start retargeting from week one because the money is already there to be collected. If you are starting cold with no pixel data and no audience, almost everything goes to prospecting first, because until we know which cold audiences add to cart and initiate checkout, there is nothing to retarget. As a rough shape:</p>
-      <ul>
-        <li><strong>Early-stage brand:</strong> around 80% of budget into prospecting, 20% into retargeting.</li>
-        <li><strong>Scaling brand:</strong> around 50% into prospecting, 20–25% into retargeting, and the remaining 25% into lookalikes built off purchasers, website visitors and Instagram engagers.</li>
-      </ul>
-      <p>The funnel runs in that order every time — cold, then warm, then retarget, then convert.</p>
-      <p><strong>CBO or ABO is a testing decision, not a preference.</strong> When a brand has enough budget to move through the testing phase quickly, we run a high-budget CBO with multiple ad sets and creatives, changing one variable at a time — creative, or interest, or age, or gender, never all at once. The moment a winner is clear, that creative or that audience moves into ABO, where we can control its budget directly and scale it. Some accounts stay CBO-led, some ABO-led. It depends on the account.</p>
+      <p><strong>Prospecting versus retargeting follows the audience you already have.</strong> If you come to us with an existing customer base, a real Instagram following and warm audiences already sitting in your account, we start retargeting from week one because the money is already there to be collected. If you are starting cold with no pixel data and no audience, almost everything goes to prospecting first, because until we know which cold audiences add to cart and initiate checkout, there is nothing to retarget.</p>
     </Prose>
+
+    {/* The budget shape, drawn rather than listed. Both splits are the ones
+        stated in the copy above — an early-stage brand and a scaling one — and
+        each bar is built from those same percentages, so the picture and the
+        sentence can never disagree. */}
+    <div class="ma-splits">
+      {BUDGET_SPLITS.map((b) => (
+        <figure class="ma-split">
+          <figcaption class="ma-split__head">
+            <span class="ma-split__stage">{b.stage}</span>
+            <span class="ma-split__note">{b.note}</span>
+          </figcaption>
+          <div class="ma-split__bar" role="img" aria-label={`${b.stage}: ${b.parts.map((x) => `${x.label} ${x.pct}`).join(', ')}`}>
+            {b.parts.map((x, i) => <span class="ma-split__seg" data-seg={i} data-w={x.w}></span>)}
+          </div>
+          <ul class="ma-split__key">
+            {b.parts.map((x, i) => (
+              <li><span class="ma-split__dot" data-seg={i}></span>{x.label} <strong>{x.pct}</strong></li>
+            ))}
+          </ul>
+        </figure>
+      ))}
+    </div>
+
+    {/* The funnel order, which the copy states as a single sentence. */}
+    <ol class="ma-flow" aria-label="Funnel order">
+      {['Cold', 'Warm', 'Retarget', 'Convert'].map((stepName) => <li><span>{stepName}</span></li>)}
+    </ol>
+    <p class="ma-flow__note">The funnel runs in that order every time.</p>
+
+    <Prose class="mt-[var(--space-6)]">
+      <h3>CBO or ABO is a testing decision, not a preference</h3>
+      <p>Some accounts stay CBO-led, some ABO-led. It depends on the account, and on where that account is in its testing cycle.</p>
+    </Prose>
+    <ComparisonTable
+      columns={['', 'High-budget CBO', 'ABO']}
+      rows={[
+        ['We reach for it when', 'The budget can move through testing quickly', 'A winner is already clear'],
+        ['What it is doing', 'Multiple ad sets and creatives, one variable changed at a time — creative, or interest, or age, or gender, never all at once', 'Holding a proven creative or audience on a budget we control directly'],
+        ['What it buys us', 'Speed to a verdict', 'Control, so the winner can be scaled'],
+      ]}
+      caption="How we choose between campaign budget optimisation and ad-set budgets."
+      class="mt-[var(--space-4)]"
+    />
     <figure class="ss-pullout">
       <span class="ss-pullout__tag">Inherited account · women’s fashion</span>
       <p class="ss-pullout__line"><span>Starting point:</span> 1.75x ROAS under a previous agency, spend spread across positions that never earned it.</p>
@@ -125,9 +235,19 @@ const nodes = [
       <p>Since the Andromeda update, the volume and quality of creative running through an account matters far more than how neatly the account is organised. We produce statics and video-led ads in-house and push them through a <a href="/guides/meta-ads-creative-testing/">structured testing pipeline</a>, so winners get found by spend rather than by the loudest opinion in the room.</p>
       <p>We do not commit to a fixed number of creatives per month, because that number is an output, not a target. If ten a week is producing results, ten a week is right. If it is not, we go to twenty, thirty, forty. The requirement sets the number.</p>
       <h3>How a test is judged</h3>
-      <p>We review every campaign on a three to four day cycle against the objective it was launched for. A sales campaign that has produced no sales in that window gets killed and replaced — new interest, new age band, new creative, new angle. A campaign that is producing strong <a href="/glossary/ctr/">CTR</a> and healthy add-to-carts gets more time even if the sales have not landed yet, because the signal is there. When we are in a brand-building phase and sales are not yet the fair measure, we judge on <a href="/glossary/ctr/">CTR</a>, <a href="/glossary/cpc/">CPC</a> and <a href="/glossary/cpm/">CPM</a> instead, and anything not trending toward a winner gets switched off quickly.</p>
-      <p><strong>What makes something a winner:</strong> for sales campaigns, profitable ROAS and consistent orders. For lead generation, cost per lead and lead quality — cheap leads your sales team cannot close are not a result.</p>
+      <p>Every campaign is reviewed on a three to four day cycle against the objective it was launched for. A campaign producing strong <a href="/glossary/ctr/">CTR</a> and healthy add-to-carts gets more time even if the sales have not landed yet, because the signal is there. Anything not trending toward a winner gets switched off quickly.</p>
     </Prose>
+    <ComparisonTable
+      columns={['Campaign is for', 'Judged on', 'What counts as a winner', 'Killed when']}
+      rows={[
+        ['Sales', 'ROAS and order volume', 'Profitable ROAS and consistent orders', 'No sales inside the three-to-four-day window'],
+        ['Lead generation', 'Cost per lead and lead quality', 'Leads your sales team can actually close', 'Leads are cheap but unclosable'],
+        ['Brand building', 'CTR, CPC and CPM', 'Metrics trending toward a winner', 'No trend toward a winner'],
+      ]}
+      caption="Sales are not the fair measure in every phase, so the measure changes with the objective."
+      class="mt-[var(--space-5)]"
+    />
+    <p class="ma-note">A killed campaign is replaced, not just switched off — new interest, new age band, new creative, new angle. Cheap leads your sales team cannot close are not a result.</p>
   </Section>
 
   <Section size="md" class="!bg-[var(--surface-c)]">
@@ -148,26 +268,40 @@ const nodes = [
   <Section size="md">
     <Prose>
       <h2>How we approach targeting</h2>
-      <p>We have not dropped anything. Broad, manual interests and lookalikes all still get tested, in that order of priority.</p>
-      <p>Broad comes first, because Meta’s models in 2026 are considerably better at finding buyers than a hand-built interest stack. Manual targeting comes next — it is the foundation of advertising and it still works, particularly where a brand has a sharply defined customer. Lookalikes come in proportion to the purchase data available; with enough purchasers in the account, lookalike campaigns become one of the most reliable parts of the structure. What works is decided per brand, by testing, not by a house rule.</p>
+      <p>We have not dropped anything. Broad, manual interests and lookalikes all still get tested — in that order of priority.</p>
     </Prose>
+    {/* A genuine ranking: the copy states these three in priority order and gives
+        a reason for each, so the numbering carries information rather than
+        decorating the list. */}
+    <ol class="ma-rank">
+      {TARGETING.map((t, i) => (
+        <li class="ma-rank__item">
+          <span class="ma-rank__n">{i + 1}</span>
+          <div>
+            <h3 class="ma-rank__t">{t.name}</h3>
+            <p class="ma-rank__b">{t.why}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <p class="ma-note">What works is decided per brand, by testing, not by a house rule.</p>
   </Section>
 
   <Section size="md" class="!bg-[var(--surface-c)]">
-    <Prose>
-      <h2>What the first 90 days look like</h2>
-      <h3>Onboarding: the health check</h3>
+    <span class="ss-eyebrow">The engagement</span>
+    <h2 class="max-w-[24ch] text-h2 font-semibold">What the first 90 days look like</h2>
+    {/* The same four phases the prose described, on the step component the
+        service pages already use — a timeline is what this content always was. */}
+    <div class="mt-[var(--space-6)]"><ProcessSteps steps={NINETY_DAYS} /></div>
+    <Prose class="mt-[var(--space-6)]">
+      <h3>Inside onboarding</h3>
       <p>Before a single campaign goes live, we walk your entire path from homepage to purchase confirmation, looking for the breaks — add to cart, checkout initiation, billing details, payment. A slow or broken store is the most common thing quietly capping paid results, so this is also where we flag <a href="/web-development-company-bangalore/">website</a> and <a href="/shopify-speed-optimisation-services/">store-speed</a> problems that campaign changes can never fix. We then verify your pixel is firing correctly and connected properly to the ad account, and audit everything run on the account historically — money already spent is data already bought.</p>
       <p>That audit becomes your month-one plan. Whatever showed positive signal in the past gets priority; whatever failed gets avoided outright. Alongside it you get a creative brief, so you know exactly what images and videos we need from you and by when. When we produce the creative, our design team and our media buyers plan the campaigns and the creative together, in the same room. Most agencies get this wrong — designers make whatever they make and the buyer runs it. We do not work that way.</p>
-      <h3>Month one — content</h3>
-      <p>Campaigns go live and the first month is spent finding out which content angles work: statics, video, catalogue. You also get a weekly call, every week, covering what happened in the account and the plan for the next seven days.</p>
-      <h3>Month two — targeting</h3>
-      <p>With the content question answered, month two is spent finding the audiences: which interests, which age bands, which locations, which structures.</p>
-      <h3>Month three — consistency</h3>
-      <p>By the end of 90 days we have all three answers in hand — the content that works, the targeting that works, and the campaign structure that works. That is the point where consistent sales and stable revenue become a fair expectation.</p>
-      <h3>What not to expect in the first 30 to 60 days</h3>
-      <p>Strong, consistent ROAS. During testing, losing campaigns will outnumber winners — that is what testing is. Brands that hold their nerve through that window are the ones that see month-on-month growth afterwards. Patience in the testing phase is not optional.</p>
     </Prose>
+    <div class="ma-warn">
+      <span class="ma-warn__tag">What not to expect in the first 30 to 60 days</span>
+      <p>Strong, consistent ROAS. During testing, losing campaigns will outnumber winners — that is what testing is. Brands that hold their nerve through that window are the ones that see month-on-month growth afterwards. Patience in the testing phase is not optional.</p>
+    </div>
     <figure class="ss-pullout">
       <span class="ss-pullout__tag">The testing window, with a real account behind it · wellness D2C</span>
       <p class="ss-pullout__line"><span>Starting point:</span> the first two months returned ₹0 — no proven product, no data, a genuinely hard call to keep going.</p>
@@ -177,19 +311,28 @@ const nodes = [
   </Section>
 
   <Section size="md">
-    <Prose>
-      <h2>Brands we do not work with</h2>
-      <p>We turn down work, and it is worth being clear about when:</p>
-      <ul>
-        <li>Brands expecting 5X or 7X in month one. That is not how testing works and we will not pretend otherwise to win an account.</li>
-        <li>Ad-spend budgets of ₹10,000–₹20,000 a month. There is no version of that budget that produces a meaningful result, and taking it would waste your money and our time.</li>
-        <li>Brands that want a vendor rather than a partner — not open to changing pricing, improving the product, fixing the website or investing in content. We will always tell you what is actually holding sales back, and that only works if you want to hear it.</li>
-        <li>Illegal products, and anything overpriced and sold on hype without delivering value.</li>
+    <NotForYouBlock heading="Brands we do not work with" items={NOT_FOR_YOU} />
+    <p class="ma-note mt-[var(--space-4)]">
+      We will always tell you what is actually holding sales back, and that only works if you want to
+      hear it. We work with brands that have a realistic view of where they want to be in a year and
+      are willing to build toward it. If you are not sure that is you, our note on
+      <a href="/blog/who-we-turn-down-and-why/">who we turn down and why</a> is an honest read.
+    </p>
+
+    <div class="mt-[var(--space-10)]">
+      <span class="ss-eyebrow">Where the spend has gone</span>
+      <h2 class="max-w-[24ch] text-h2 font-semibold">Categories we have spent in</h2>
+      <p class="ma-note mt-[var(--space-3)] max-w-[62ch]">
+        Five years across Indian and UAE ecommerce means most niches have come through the door.
+        Ordered by spend:
+      </p>
+      {/* Two tiers because the copy draws that line itself — four largest by
+          spend, then the rest. The emphasis is the information. */}
+      <ul class="ma-cats mt-[var(--space-4)]">
+        {CATEGORIES.largest.map((cat) => <li class="ma-cat ma-cat--lead">{cat}</li>)}
+        {CATEGORIES.rest.map((cat) => <li class="ma-cat">{cat}</li>)}
       </ul>
-      <p>We work with brands that have a realistic view of where they want to be in a year and are willing to build toward it. If you are not sure that is you, our note on <a href="/blog/who-we-turn-down-and-why/">who we turn down and why</a> is an honest read.</p>
-      <h2>Categories we have spent in</h2>
-      <p>Five years across Indian and UAE ecommerce means most niches have come through the door. By spend, the largest are apparel, home decor, skincare and F&B — followed by services, real estate, study abroad, pet, electronics and home appliances.</p>
-    </Prose>
+    </div>
   </Section>
 
   <Section size="md" class="!bg-[var(--surface-c)]">
@@ -203,15 +346,22 @@ const nodes = [
         </li>
       ))}
     </ul>
-    <div class="mt-[var(--space-5)] max-w-[760px]">
-      <Prose>
-        <ul>
-          <li>Official Meta Business Partner.</li>
-          <li>Social Analytix, our in-house AI tool, monitors every live campaign in your ad account in real time and flags what to pause, what to scale, and where budget is leaking — so decisions happen on the day, not at the end of the month.</li>
-          <li>Experienced media buyers only. We keep the team small and qualified rather than filling it with volume hires and assigning your account to whoever is free.</li>
-        </ul>
-      </Prose>
-    </div>
+    {/* Was an unmarked <ul> inside Prose that rendered as three run-on lines with
+        no markers. These are the three differentiators, so they get the weight. */}
+    <p class="ma-badge mt-[var(--space-5)]">
+      <span class="ma-badge__ico"><Glyph name="shield" size={16} /></span>Official Meta Business Partner
+    </p>
+    <ul class="ma-why mt-[var(--space-3)]">
+      {WHY_STAY.map((w) => (
+        <li class="ma-why__item">
+          <span class="ma-why__ico"><Glyph name={w.glyph} size={18} /></span>
+          <div>
+            <h3 class="ma-why__t">{w.title}</h3>
+            {w.body && <p class="ma-why__b">{w.body}</p>}
+          </div>
+        </li>
+      ))}
+    </ul>
   </Section>
 
   <Section size="md">
@@ -231,5 +381,149 @@ const nodes = [
     .ss-pullout__line { font-size: var(--text-small); line-height: 1.55; color: var(--fg); }
     .ss-pullout__line span { font-weight: 600; color: var(--fg-muted); }
     .ss-pullout__link { align-self: flex-start; margin-top: var(--space-1); font-size: var(--text-small); font-weight: 600; color: var(--accent-text); }
+
+    /* --- budget split bars ------------------------------------------------ */
+    .ma-splits { margin-top: var(--space-5); display: grid; gap: var(--space-4); }
+    @media (min-width: 780px) { .ma-splits { grid-template-columns: 1fr 1fr; } }
+    .ma-split {
+      border: 1px solid var(--rule-c);
+      border-radius: var(--radius-card);
+      background: var(--ground);
+      padding: var(--space-4);
+    }
+    .ma-split__head { display: flex; flex-direction: column; gap: 0.15rem; margin-bottom: var(--space-3); }
+    .ma-split__stage { font-size: var(--text-h4); font-weight: 600; color: var(--fg); }
+    .ma-split__note { font-size: var(--text-label); color: var(--fg-muted); }
+    .ma-split__bar { display: flex; height: 14px; border-radius: 999px; overflow: hidden; gap: 2px; }
+    /* Widths come from a data attribute, never an inline style: the production
+       CSP is strict hash-based and drops style="" without an error anywhere.
+       Only four ratios exist in the copy, so four rules cover it. */
+    .ma-split__seg[data-w='80'] { flex: 80; }
+    .ma-split__seg[data-w='50'] { flex: 50; }
+    .ma-split__seg[data-w='25'] { flex: 25; }
+    .ma-split__seg[data-w='20'] { flex: 20; }
+    .ma-split__seg[data-seg='0'] { background: var(--accent-graphic); }
+    .ma-split__seg[data-seg='1'] { background: color-mix(in srgb, var(--accent-graphic) 52%, var(--surface-c)); }
+    .ma-split__seg[data-seg='2'] { background: var(--accent-graphic-2); }
+    .ma-split__key { margin-top: var(--space-3); display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); font-size: var(--text-small); color: var(--fg-muted); }
+    .ma-split__key li { display: flex; align-items: center; gap: 0.4rem; }
+    .ma-split__key strong { color: var(--fg); font-variant-numeric: tabular-nums; }
+    .ma-split__dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+    .ma-split__dot[data-seg='0'] { background: var(--accent-graphic); }
+    .ma-split__dot[data-seg='1'] { background: color-mix(in srgb, var(--accent-graphic) 52%, var(--surface-c)); }
+    .ma-split__dot[data-seg='2'] { background: var(--accent-graphic-2); }
+
+    /* --- funnel order ----------------------------------------------------- */
+    .ma-flow { margin-top: var(--space-5); display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); }
+    /* The pill is the inner span, so the connector drawn on the li lands
+       BETWEEN two pills instead of inside the left one. */
+    .ma-flow li { display: flex; align-items: center; gap: var(--space-1); }
+    .ma-flow li span {
+      padding: 0.5rem var(--space-3);
+      border: 1px solid var(--rule-c);
+      border-radius: 999px;
+      background: var(--ground);
+      font-size: var(--text-small);
+      font-weight: 600;
+      color: var(--fg);
+    }
+    .ma-flow li:not(:last-child)::after { content: '→'; color: var(--accent-text); font-weight: 700; }
+    .ma-flow__note { margin-top: var(--space-2); font-size: var(--text-small); color: var(--fg-muted); }
+
+    /* --- ranked list ------------------------------------------------------ */
+    .ma-rank { margin-top: var(--space-5); display: grid; gap: var(--space-3); }
+    @media (min-width: 900px) { .ma-rank { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .ma-rank__item {
+      display: flex;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      border: 1px solid var(--rule-c);
+      border-radius: var(--radius-card);
+      background: var(--ground);
+    }
+    .ma-rank__n {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: var(--accent-fill);
+      color: var(--accent-on);
+      font-size: var(--text-label);
+      font-weight: 800;
+    }
+    .ma-rank__t { font-size: var(--text-h4); font-weight: 600; color: var(--fg); }
+    .ma-rank__b { margin-top: var(--space-1); font-size: var(--text-small); line-height: 1.55; color: var(--fg-muted); }
+
+    /* --- inline note + caution ------------------------------------------- */
+    .ma-note { max-width: 68ch; font-size: var(--text-small); line-height: 1.6; color: var(--fg-muted); }
+    .ma-note a { color: var(--accent-text); }
+    .ma-warn {
+      margin-top: var(--space-5);
+      border: 1px solid color-mix(in srgb, var(--neg) 38%, var(--rule-c));
+      border-radius: var(--radius-card);
+      background: var(--ground);
+      padding: var(--space-4) var(--space-5);
+    }
+    .ma-warn__tag { display: block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 700; color: var(--neg); }
+    .ma-warn p { font-size: var(--text-small); line-height: 1.6; color: var(--fg); max-width: 68ch; }
+
+    /* --- why brands stay --------------------------------------------------- */
+    .ma-why { display: grid; gap: var(--space-3); }
+    @media (min-width: 760px) { .ma-why { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .ma-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem var(--space-3);
+      border: 1px solid color-mix(in srgb, var(--accent-graphic) 34%, transparent);
+      border-radius: 999px;
+      background: var(--accent-wash);
+      font-size: var(--text-small);
+      font-weight: 600;
+      color: var(--accent-text);
+    }
+    .ma-badge__ico { display: grid; place-items: center; color: var(--accent-graphic); }
+    .ma-why__item {
+      display: flex;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      border: 1px solid var(--rule-c);
+      border-radius: var(--radius-card);
+      background: var(--ground);
+    }
+    .ma-why__ico {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-input);
+      background: var(--accent-wash);
+      color: var(--accent-graphic);
+    }
+    .ma-why__t { font-size: var(--text-small); font-weight: 700; color: var(--fg); line-height: 1.3; }
+    .ma-why__b { margin-top: var(--space-1); font-size: var(--text-small); line-height: 1.55; color: var(--fg-muted); }
+
+    /* --- category chips --------------------------------------------------- */
+    .ma-cats { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+    .ma-cat {
+      padding: 0.45rem var(--space-3);
+      border: 1px solid var(--rule-c);
+      border-radius: 999px;
+      background: var(--ground);
+      font-size: var(--text-small);
+      color: var(--fg-muted);
+    }
+    /* The four largest by spend carry the accent; the rest are quieter. The
+       copy draws that line, so the styling repeats information rather than
+       inventing a hierarchy. */
+    .ma-cat--lead {
+      border-color: color-mix(in srgb, var(--accent-graphic) 42%, transparent);
+      background: var(--accent-wash);
+      color: var(--accent-text);
+      font-weight: 600;
+    }
   </style>
 </BaseLayout>

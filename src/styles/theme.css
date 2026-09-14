@@ -207,6 +207,261 @@
     padding-top: calc(var(--hh, 68px) + var(--space-4));
   }
 
+  /* ── Ink hero ───────────────────────────────────────────────────────────────
+     The dark, form-forward opener shared by the service pillars and their
+     sub-service pages. Lives here rather than in either layout because three
+     templates use it and a copy in each would drift within a week.
+
+     Two variants, so the hierarchy is visible before a word is read:
+       --pillar  a pillar service page. Fills the screen, and the annotation
+                 motif runs the full height of the copy as a vertical marker.
+       --sub     a sub-service one level down. Shorter, lit from the opposite
+                 corners, and the motif is reduced to a short horizontal tag
+                 above the eyebrow — the same device, quieter.
+     Use with .ss-hero-over, which pulls the section up behind the fixed header. */
+  .ss-inkhero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* More than .ss-hero-over's own --space-4: these heroes open with a
+       breadcrumb, which the homepage does not, and at the shared value the crumb
+       sat ~18px under the logo and read as part of the header. */
+    padding-top: calc(var(--hh, 68px) + var(--space-6)) !important;
+    padding-bottom: var(--space-6) !important;
+  }
+  /* Pillar pages fill one screen, the way the homepage opener does. Sub-service
+     pages deliberately do not — they are a narrower promise and a shorter hero
+     gets the reader into the content sooner. */
+  .ss-inkhero--pillar {
+    min-height: 100vh; /* fallback for iOS < 15.4, which has no svh unit */
+    min-height: 100svh;
+  }
+
+  /* Ambient wash. Decorative; states nothing. Same ink ground as the homepage,
+     deliberately not the same composition — the homepage lights the top right
+     hard and drops teal bottom-left. */
+  .ss-inkhero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  /* Pillar: a broad low glow rises behind the copy, a tight highlight sits
+     behind the form, so the two halves are lit separately. */
+  .ss-inkhero--pillar::before {
+    background:
+      radial-gradient(120% 78% at 0% 100%, color-mix(in srgb, var(--accent-fill) 22%, transparent), transparent 62%),
+      radial-gradient(44% 48% at 94% 4%, color-mix(in srgb, var(--color-teal) 22%, transparent), transparent 70%);
+  }
+  /* Sub: the same two lights from the opposite corners and dimmer, so a
+     sub-service page reads as related but subordinate. */
+  .ss-inkhero--sub::before {
+    background:
+      radial-gradient(92% 64% at 100% 0%, color-mix(in srgb, var(--accent-fill) 17%, transparent), transparent 66%),
+      radial-gradient(72% 62% at 4% 96%, color-mix(in srgb, var(--color-teal) 15%, transparent), transparent 70%);
+  }
+
+  /* The annotation axis. Design brief §3 draws the motif as a vertical marker
+     crossing a horizontal baseline; this is that baseline, closing the hero
+     where it meets the next band. The homepage has no equivalent line. */
+  .ss-inkhero::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--accent-graphic) 55%, transparent) 22%,
+      color-mix(in srgb, var(--accent-graphic) 55%, transparent) 78%,
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  /* The marker itself, tagging the heading — the use the brief names explicitly.
+     It fades away from its anchor so it reads as an annotation on the copy
+     rather than a border around it. */
+  .ss-inkhero__copy { position: relative; }
+  .ss-inkhero--pillar .ss-inkhero__copy { padding-left: var(--space-4); }
+  .ss-inkhero--pillar .ss-inkhero__copy::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.3rem;
+    bottom: 0;
+    width: 2px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, var(--accent-graphic), color-mix(in srgb, var(--accent-graphic) 8%, transparent));
+  }
+  /* Sub: the marker laid flat above the eyebrow. Same motif, a quieter reading. */
+  .ss-inkhero--sub .ss-inkhero__copy { padding-top: var(--space-4); }
+  .ss-inkhero--sub .ss-inkhero__copy::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 46px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent-graphic), color-mix(in srgb, var(--accent-graphic) 8%, transparent));
+  }
+  @media (max-width: 640px) {
+    .ss-inkhero--pillar .ss-inkhero__copy { padding-left: var(--space-3); }
+  }
+
+  /* REQUIRED, not defensive. A grid item defaults to min-width:auto, so a track
+     sizes to its content's min-content rather than to its container. A <select>
+     reports its widest <option> as that minimum — 276px for the country list —
+     which propagated up through the form and pushed the hero column to 438px
+     inside a 390px phone, clipping every page with a lead form. */
+  .ss-inkhero__grid { width: 100%; }
+  .ss-inkhero__grid > * { min-width: 0; }
+
+  /* Compact breadcrumb. The awkward mobile gap under "Home / …" was the 44px
+     touch target: min-height on the link made the nav row 44px tall around ~17px
+     of text, leaving ~27px of dead space that read as a mis-set margin. The
+     target is now padding cancelled by an equal negative margin — still 44px
+     tappable, but it overflows the line box instead of setting the row height. */
+  .ss-inkhero__crumb { margin-bottom: var(--space-2); line-height: 1.2; }
+  .ss-inkhero__crumb a { padding-block: 0.8rem; margin-block: -0.8rem; }
+
+  /* Both hero CTAs share one row at every width. Button sets whitespace-nowrap
+     for good reason elsewhere, but a label like "Get a free growth plan" cannot
+     hold one line inside a half-width phone column, so here it may wrap and
+     drops a size. Equal grid cells keep the pair aligned either way. */
+  .ss-inkhero__cta > * { width: 100%; }
+  @media (max-width: 600px) {
+    .ss-inkhero__cta a {
+      white-space: normal;
+      text-align: center;
+      font-size: var(--text-small);
+      line-height: 1.25;
+      padding-inline: var(--space-2);
+    }
+  }
+
+  /* The lead form as a glass card. On ink the form's own --ground is near-black,
+     so without this it is a black card on a black hero separated by a hairline.
+     A light translucent wash reads as lifted and keeps every colour semantic
+     (§5) — no raw palette value here. */
+  .ss-inkhero .ss-leadform {
+    background: color-mix(in srgb, var(--fg) 7%, transparent);
+    border-color: color-mix(in srgb, var(--fg) 18%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.75);
+  }
+  /* Controls need their own lift for the same reason — a --ground input on a
+     glass card over ink is three near-blacks stacked. */
+  .ss-inkhero .ss-leadform .ss-input {
+    background-color: color-mix(in srgb, var(--fg) 9%, transparent);
+    border-color: color-mix(in srgb, var(--fg) 26%, transparent);
+  }
+  /* Focus and error must be restated. The rule above is more specific than
+     LeadForm's own :focus-visible and [aria-invalid] rules, so without these the
+     hero form loses its focus ring AND its red error border — the two states a
+     form can least afford to drop. */
+  .ss-inkhero .ss-leadform .ss-input:focus-visible,
+  .ss-inkhero .ss-leadform .ss-phone:focus-within {
+    background-color: color-mix(in srgb, var(--fg) 13%, transparent);
+    border-color: var(--accent-text);
+    box-shadow: 0 0 0 3px var(--accent-wash);
+  }
+  /* After focus, so an invalid field reads red even while focused. */
+  .ss-inkhero .ss-leadform .ss-input[aria-invalid='true'],
+  .ss-inkhero .ss-leadform .ss-phone:has(.ss-phone__num[aria-invalid='true']) {
+    border-color: var(--neg);
+  }
+  /* A native dropdown paints its list with the CONTROL's colours, so a glass
+     background leaves the options unreadable in some engines. */
+  .ss-inkhero .ss-leadform option,
+  .ss-inkhero .ss-leadform optgroup {
+    background-color: var(--ground);
+    color: var(--fg);
+  }
+  /* The shared select chevron is a data-URI SVG with a hardcoded near-black
+     stroke, all but invisible on ink, and a url() cannot read a CSS variable —
+     so the ink register needs its own copy. (The phone field draws its own
+     chevron in currentColor and is unaffected.) */
+  .ss-inkhero select.ss-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Cpath d='M3 5.25 7 9.25l4-4' stroke='%23EDEDED' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
+  /* TWELVE tracks, each card spanning four (three-up) or six (two-up), so a
+     short final row can be centred on exact track boundaries and every card
+     keeps one size — nothing is ever stretched to fill a gap.
+     Twelve, not six: centring a lone card in a two-up row needs a HALF-card
+     offset, which on six tracks would be track 1.5. On twelve it is track 4,
+     a real boundary. Flex-basis percentages were the other option and wrap
+     unpredictably on sub-pixel rounding. Track counts include their internal
+     gaps, so the arithmetic holds at any gap value. */
+  .ss-subgrid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    /* Every row the same height as the tallest, so "same size card" holds
+       DOWN the grid and not just across a row. Grid rows are sized
+       independently by default, which left the 5-card page with a 340px top
+       row and a 355px bottom row once the art became a flow child and cards
+       could grow with their copy. */
+    grid-auto-rows: 1fr;
+    gap: var(--space-3);
+  }
+  .ss-subgrid > li { grid-column: span 4; display: grid; min-width: 0; }
+  /* One card left over: start at 5, occupy 5–8, four tracks clear either side.
+     Two left over: the first starts at 3 and the second flows to 7, so the
+     pair occupies 3–10 with two tracks clear either side. */
+  .ss-subgrid > li[data-row3='1'] { grid-column: 5 / span 4; }
+  .ss-subgrid > li[data-row3='2'] { grid-column: 3 / span 4; }
+
+  /* Two-up. The three-up offsets have to be reset explicitly — an element
+     still matching [data-row3] would keep a start track it no longer needs
+     and throw the whole row out by a card. */
+  @media (max-width: 940px) {
+    .ss-subgrid > li,
+    .ss-subgrid > li[data-row3='1'],
+    .ss-subgrid > li[data-row3='2'] { grid-column: span 6; }
+    .ss-subgrid > li[data-row2] { grid-column: 4 / span 6; }
+  }
+  @media (max-width: 620px) {
+    .ss-subgrid > li,
+    .ss-subgrid > li[data-row3='1'],
+    .ss-subgrid > li[data-row3='2'],
+    .ss-subgrid > li[data-row2] { grid-column: span 12; }
+  }
+
+  /* FOUR sub-services get one clean row instead of three-over-one
+     (owner-directed, 2026-09-14), which is the weakest shape the centring
+     rule can produce. Twelve tracks divides by four too, so this is a span
+     change and nothing else.
+
+     Only above 1200px: four cards in a 1100px container are ~225px wide and
+     the descriptions turn into narrow ribbons. Below that they go straight to
+     2x2 — the other shape four cards make well — so three-over-one never
+     appears at any width. The [data-row3] offset has to be cancelled in both
+     branches or the fourth card keeps the centring start it no longer needs. */
+  @media (min-width: 1200px) {
+    .ss-subgrid[data-n='4'] > li,
+    .ss-subgrid[data-n='4'] > li[data-row3='1'] { grid-column: span 3; }
+    /* A quarter-width card held at 340px would read portrait rather than
+       square, so the row it sits in is shorter. */
+    .ss-subgrid[data-n='4'] { --ssub-h: 300px; }
+  }
+  @media (max-width: 1199px) {
+    .ss-subgrid[data-n='4'] > li,
+    .ss-subgrid[data-n='4'] > li[data-row3='1'] { grid-column: span 6; }
+  }
+  @media (max-width: 620px) {
+    .ss-subgrid[data-n='4'] > li,
+    .ss-subgrid[data-n='4'] > li[data-row3='1'] { grid-column: span 12; }
+  }
+
+  /* Three stats always share one row; the value scales so they never wrap out. */
+
   /* Media never overflows its container — a raw <img>/<svg>/<video> wider than a
      phone column is one of the most common sources of mobile horizontal scroll.
      width/height attrs still reserve space (CLS 0); this only caps, never upscales. */

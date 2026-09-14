@@ -17,6 +17,9 @@ import FaqAccordion from '@/components/blocks/FaqAccordion.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import Glyph from '@/components/graphics/Glyph.astro';
 import PanelMotif from '@/components/graphics/PanelMotif.astro';
+import DotField from '@/components/graphics/DotField.astro';
+import SubServiceCard from '@/components/blocks/SubServiceCard.astro';
+import { glyphFor } from '@/lib/glyphFor';
 import { CLUSTERS, type Cluster } from '@/lib/clusters';
 import { SERVICE_BY_SLUG } from '@/lib/services';
 import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
@@ -44,6 +47,16 @@ const METRICS_BY_SLUG: Record<string, { primary: string; secondary: string }> = 
 };
 const metrics = METRICS_BY_SLUG[c.slug] ?? METRICS_BY_PARENT[c.parentSlug] ?? { primary: 'ROAS', secondary: 'CAC' };
 
+// The related rail: the parent service first, then every sibling sub-service.
+// Built here so the card grid gets one uniform list rather than a special-cased
+// first item glued onto a map.
+const related = [
+  { title: c.parentName, body: 'The full service this page belongs to.', href: c.parentUrl, glyph: 'layers' },
+  ...siblings.map((s) => ({ title: s.name, body: s.answer.split('. ')[0] + '.', href: s.url, glyph: glyphFor(s.name) })),
+];
+const relRest3 = related.length % 3;
+const relRest2 = related.length % 2;
+
 const nodes = [
   ...base(),
   service({ url, name: c.name, description: c.description, serviceType: c.name, areaServed: ['IN', 'AE'] }),
@@ -53,28 +66,33 @@ const nodes = [
 ];
 ---
 
-<BaseLayout>
+<BaseLayout heroOver>
   <Meta slot="meta" title={c.title} description={c.description} type="website" modifiedTime={modified} />
   <SchemaGraph slot="schema" nodes={nodes} />
 
-  <Section size="lg">
-    <nav aria-label="Breadcrumb" class="mb-[var(--space-4)] flex flex-wrap items-center gap-x-[0.15rem] text-small text-[var(--fg-muted)]">
-      <a href="/" class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">Home</a><span> / </span>
-      <a href={c.parentUrl} class="inline-flex min-h-[44px] items-center text-[var(--accent-text)] no-underline">{c.parentName}</a><span> / </span>
+  <!-- HERO — the shared ink opener in its SUB variant: shorter than a pillar
+       hero, lit from the opposite corners, and the annotation motif laid flat
+       above the eyebrow instead of running the full height of the copy. Same
+       family as the parent service page, visibly one level down. -->
+  <Section register="ink" size="lg" class="ss-inkhero ss-inkhero--sub ss-hero-over">
+    <DotField origin="top-right" />
+    <nav aria-label="Breadcrumb" class="ss-inkhero__crumb relative flex flex-wrap items-center gap-x-[0.15rem] text-label text-[var(--fg-muted)]">
+      <a href="/" class="inline-flex items-center text-[var(--accent-text)] no-underline">Home</a><span> / </span>
+      <a href={c.parentUrl} class="inline-flex items-center text-[var(--accent-text)] no-underline">{c.parentName}</a><span> / </span>
       <span>{c.name}</span>
     </nav>
-    <div class="[&>*]:min-w-0 grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-      <div>
+    <div class="ss-inkhero__grid relative grid gap-[var(--space-8)] lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+      <div class="ss-inkhero__copy">
         <span class="ss-eyebrow">{c.parentName}</span>
         <h1>{c.h1}</h1>
         <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">{c.answer}</p>
-        <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
+        <div class="ss-inkhero__cta mt-[var(--space-6)] grid grid-cols-2 gap-[var(--space-2)]">
           <Button href="/audit/" variant="primary">Get a free growth plan</Button>
           <Button href={c.parentUrl} variant="secondary">{c.parentName}</Button>
         </div>
       </div>
-      <div class="lg:sticky lg:top-[88px]">
-        <LeadForm source={c.slug} heading="Get a free review" questions={parent?.formQuestions ?? []} submitLabel="Get my free review" />
+      <div>
+        <LeadForm source={c.slug} heading="Get a free review" questions={parent?.formQuestions ?? []} submitLabel="Get my free review" elevated />
       </div>
     </div>
   </Section>
@@ -89,7 +107,7 @@ const nodes = [
         <a href={c.parentUrl} class="ss-rel group flex items-center gap-[var(--space-3)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline">
           <span class="ss-svc-glyph shrink-0"><Glyph name="layers" size={20} /></span>
           <span class="flex flex-col">
-            <span class="text-small font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">Part of {c.parentName.toLowerCase()}</span>
+            <span class="text-small font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">Part of {c.parentName}</span>
             <span class="text-label text-[var(--fg-muted)]">See the full service</span>
           </span>
         </a>
@@ -122,20 +140,18 @@ const nodes = [
   {siblings.length > 0 && (
     <Section size="md" class="!bg-[var(--surface-c)]">
       <span class="ss-eyebrow">Related</span>
-      <h2 class="max-w-[24ch] text-h2 font-semibold">More {c.parentName.toLowerCase()}</h2>
-      <ul class="mt-[var(--space-5)] grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-3">
-        <li>
-          <a href={c.parentUrl} class="ss-rel group flex h-full flex-col gap-[var(--space-1)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline">
-            <span class="text-h4 font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">{c.parentName}</span>
-            <span class="text-small text-[var(--fg-muted)]">The full service</span>
-          </a>
-        </li>
-        {siblings.map((s) => (
-          <li>
-            <a href={s.url} class="ss-rel group flex h-full flex-col gap-[var(--space-1)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-4)] no-underline">
-              <span class="text-h4 font-semibold text-[var(--fg)] group-hover:text-[var(--accent-text)]">{s.name}</span>
-              <span class="text-small text-[var(--fg-muted)]">Learn more</span>
-            </a>
+      <h2 class="max-w-[24ch] text-h2 font-semibold">More in {c.parentName}</h2>
+      {/* Same card as the pillar pages' "what's included" grid, so a reader
+          meets one card shape across the whole service tree. Same twelve-track
+          centring too: the parent link plus the siblings is rarely a multiple
+          of three, and a short row is centred rather than left hanging. */}
+      <ul class="ss-subgrid mt-[var(--space-5)]" data-n={related.length}>
+        {related.map((r, i) => (
+          <li
+            data-row3={relRest3 !== 0 && i === related.length - relRest3 ? String(relRest3) : undefined}
+            data-row2={relRest2 !== 0 && i === related.length - relRest2 ? '1' : undefined}
+          >
+            <SubServiceCard title={r.title} body={r.body} href={r.href} glyph={r.glyph} index={i} />
           </li>
         ))}
       </ul>
