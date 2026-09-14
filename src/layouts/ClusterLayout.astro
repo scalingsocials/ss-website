@@ -33,6 +33,13 @@ const modified = '2026-09-04';
 const parent = SERVICE_BY_SLUG[c.parentSlug];
 const siblings = CLUSTERS.filter((x) => x.parentSlug === c.parentSlug && x.slug !== c.slug);
 
+// The CTA names what this page actually offers, inherited from the parent
+// service — "Get a free store review" on a Shopify page, not "Get a free growth
+// plan", which is paid-media language and reads wrong everywhere else (owner
+// feedback, 2026-09-14). formHeading is owner-written per service and already
+// imperative, so the button and the form on the same page cannot drift apart.
+const ctaLabel = parent?.formHeading ?? 'Get a free review';
+
 // Graph metrics relevant to each page: a rising metric (periwinkle) and a
 // falling-is-good metric (teal). Slug overrides win over the pillar default.
 const METRICS_BY_PARENT: Record<string, { primary: string; secondary: string }> = {
@@ -87,7 +94,7 @@ const nodes = [
         <h1>{c.h1}</h1>
         <p class="mt-[var(--space-4)] max-w-[56ch] text-h4 leading-[1.5] text-[var(--fg)]">{c.answer}</p>
         <div class="ss-inkhero__cta mt-[var(--space-6)] grid grid-cols-2 gap-[var(--space-2)]">
-          <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+          <Button href="/audit/" variant="primary">{ctaLabel}</Button>
           <Button href={c.parentUrl} variant="secondary">{c.parentName}</Button>
         </div>
       </div>
@@ -130,7 +137,7 @@ const nodes = [
           go on to hire us.
         </p>
         <div class="mt-[var(--space-4)] flex flex-col gap-[var(--space-2)]">
-          <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+          <Button href="/audit/" variant="primary">{ctaLabel}</Button>
           <Button href="/contact/" variant="secondary">Talk to us</Button>
         </div>
       </aside>
@@ -159,7 +166,7 @@ const nodes = [
   )}
 
   <Section register="ink" size="md">
-    <CtaBand heading="Find out what is leaking money" body="A written audit in three working days, whether or not you hire us." ctaLabel="Get a free growth plan" ctaHref="/audit/" secondaryLabel="Talk to us" secondaryHref="/contact/" />
+    <CtaBand heading="Find out what is leaking money" body="A written audit in three working days, whether or not you hire us." ctaLabel={ctaLabel} ctaHref="/audit/" secondaryLabel="Talk to us" secondaryHref="/contact/" />
   </Section>
 
   <style>

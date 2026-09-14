@@ -108,5 +108,12 @@ export const NAV: NavItem[] = [
   },
 ];
 
-/** Primary header CTA. The indexed audit page, not the ad landing page. */
-export const NAV_CTA = { label: 'Get a free growth plan', href: '/audit/' };
+/** Primary header CTA. The indexed audit page, not the ad landing page.
+ *
+ * Label matches what /audit/ actually hands over — its own form says "Claim your
+ * free audit". It used to say "Get a free growth plan", which is paid-media
+ * language: fine on a performance page, wrong on a Shopify build or an SEO page
+ * (owner feedback, 2026-09-14). Service pages override this with their own offer
+ * ("Get a free store review", "Get a free SEO audit"); this is the neutral label
+ * for persistent chrome and every page without a single service behind it. */
+export const NAV_CTA = { label: 'Get a free audit', href: '/audit/' };
