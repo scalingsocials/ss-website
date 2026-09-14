@@ -39,6 +39,9 @@ const siblings = CLUSTERS.filter((x) => x.parentSlug === c.parentSlug && x.slug 
 // feedback, 2026-09-14). formHeading is owner-written per service and already
 // imperative, so the button and the form on the same page cannot drift apart.
 const ctaLabel = parent?.formHeading ?? 'Get a free review';
+const ctaAsk = parent?.ctaAsk ?? 'your accounts';
+const ctaHeading = parent?.ctaHeading ?? 'Find out what is holding you back';
+const ctaThing = /review$/i.test(ctaLabel) ? 'review' : 'audit';
 
 // Graph metrics relevant to each page: a rising metric (periwinkle) and a
 // falling-is-good metric (teal). Slug overrides win over the pillar default.
@@ -133,7 +136,7 @@ const nodes = [
         <span class="ss-svc-glyph mb-[var(--space-3)]"><Glyph name="chat" size={20} /></span>
         <h3 class="text-h4 font-semibold text-[var(--fg)]">Not sure where to start?</h3>
         <p class="mt-[var(--space-2)] text-small leading-relaxed text-[var(--fg-muted)]">
-          Send us your accounts and you get a written audit in three working days, whether or not you
+          Send us {ctaAsk} and you get a written {ctaThing} in three working days, whether or not you
           go on to hire us.
         </p>
         <div class="mt-[var(--space-4)] flex flex-col gap-[var(--space-2)]">
@@ -166,7 +169,7 @@ const nodes = [
   )}
 
   <Section register="ink" size="md">
-    <CtaBand heading="Find out what is leaking money" body="A written audit in three working days, whether or not you hire us." ctaLabel={ctaLabel} ctaHref="/audit/" secondaryLabel="Talk to us" secondaryHref="/contact/" />
+    <CtaBand heading={ctaHeading} body={`A written ${ctaThing} in three working days, whether or not you hire us.`} ctaLabel={ctaLabel} ctaHref="/audit/" secondaryLabel="Talk to us" secondaryHref="/contact/" />
   </Section>
 
   <style>

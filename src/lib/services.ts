@@ -41,6 +41,16 @@ export interface ServiceContent {
   notForYou: string[];
   faqs: Faq[];
   formHeading: string;
+  /** CTA microcopy, per service. `formHeading` already names the offer and is
+   *  reused as the button label; these two make the surrounding sentence match
+   *  it, so a Shopify page stops asking for "your accounts" and stops promising
+   *  to find "what is leaking money" (owner feedback, 2026-09-14).
+   *  `ctaAsk` is the thing the visitor sends us — it slots into
+   *  "Send us <ctaAsk> and you get a written <audit|review> in three working
+   *  days", where the deliverable word is taken from formHeading so the two can
+   *  never disagree. */
+  ctaAsk: string;
+  ctaHeading: string;
   formQuestions: Field[];
 }
 
@@ -125,6 +135,8 @@ export const SERVICES: ServiceContent[] = [
       { q: 'Do you run ads for B2B or lead-generation businesses?', a: 'Yes. Alongside D2C and ecommerce, Scaling Socials runs performance marketing for B2B and service businesses. That means lead-generation campaigns on Meta and Google, with landing pages and tracking built to fill a pipeline, measured on cost per qualified lead instead of ROAS.' },
     ],
     formHeading: 'Get a free performance audit',
+    ctaAsk: 'your ad accounts',
+    ctaHeading: 'Find out what is leaking money',
     formQuestions: [
       spendQ,
       { name: 'platforms', label: 'Where you run ads', type: 'select', required: true, options: ['Meta only', 'Google only', 'Meta and Google', 'Not running yet'] },
@@ -202,6 +214,8 @@ export const SERVICES: ServiceContent[] = [
       { q: 'Do you do SEO for B2B or service businesses?', a: 'Yes. Beyond ecommerce, Scaling Socials runs SEO for B2B and service businesses. The technical and intent work is much the same: we target the commercial and service queries your buyers search, then build the pages that turn those searches into leads.' },
     ],
     formHeading: 'Get a free SEO audit',
+    ctaAsk: 'your site',
+    ctaHeading: 'Find out what is holding your rankings back',
     formQuestions: [
       { name: 'website', label: 'Website to audit', type: 'text', required: true, placeholder: 'yourbrand.com' },
       { name: 'market', label: 'Where you want to rank', type: 'select', required: false, options: ['India', 'UAE', 'Both', 'A specific city'] },
@@ -277,6 +291,8 @@ export const SERVICES: ServiceContent[] = [
       { q: 'Do you also run the ads for the store you build?', a: 'Often, yes. Because we run performance marketing as well, the store and the acquisition are built to work together. Landing pages match the creative and tracking is clean, so nothing falls through the gap between the media and the dev.' },
     ],
     formHeading: 'Get a free store review',
+    ctaAsk: 'your store',
+    ctaHeading: 'Find out what your store is leaving on the table',
     formQuestions: [
       { name: 'need', label: 'What you need', type: 'select', required: true, options: ['New store build', 'Migration to Shopify', 'Redesign', 'Speed fix', 'Not sure'] },
       { name: 'platform', label: 'Current platform', type: 'select', required: false, options: ['Shopify', 'WooCommerce', 'Wix', 'Magento', 'None yet'] },
@@ -354,6 +370,8 @@ export const SERVICES: ServiceContent[] = [
       { q: 'Do you build websites for B2B or lead-gen businesses?', a: 'Yes. Beyond ecommerce, Scaling Socials builds fast, measurable websites, lead-generation landing pages and web apps for B2B and service businesses, designed around the enquiry, booking or task you want, with clean tracking so you can see what converts.' },
     ],
     formHeading: 'Get a free site review',
+    ctaAsk: 'your site',
+    ctaHeading: 'Find out what your site is leaving on the table',
     formQuestions: [
       { name: 'need', label: 'What you need', type: 'select', required: true, options: ['New website', 'Rebuild', 'Landing pages', 'Web or mobile app', 'Not sure'] },
       { name: 'timeline', label: 'Timeline', type: 'select', required: false, options: ['As soon as possible', '1–2 months', 'Flexible'] },
@@ -429,6 +447,8 @@ export const SERVICES: ServiceContent[] = [
       { q: 'Do you handle social media for B2B brands?', a: 'Yes. Alongside D2C, Scaling Socials handles social media for B2B and service businesses, LinkedIn and founder-led content included, built to warm buyers and support lead generation rather than just to chase followers.' },
     ],
     formHeading: 'Get a free social review',
+    ctaAsk: 'your channels',
+    ctaHeading: 'Find out what your content is missing',
     formQuestions: [
       { name: 'platforms', label: 'Channels you care about', type: 'select', required: true, options: ['Instagram', 'YouTube', 'Instagram and YouTube', 'Other'] },
       { name: 'need', label: 'What you need', type: 'select', required: false, options: ['Content and editing', 'Posting and grid planning', 'Both', 'Creator/UGC direction'] },
@@ -503,6 +523,8 @@ export const SERVICES: ServiceContent[] = [
       { q: 'Do I need enough traffic for CRO?', a: 'Yes. CRO needs a few thousand sessions a month to test cleanly. If you are below that, we will say so plainly and point you at acquisition first, then bring CRO in once there is enough volume to read a result you can trust.' },
     ],
     formHeading: 'Get a free funnel review',
+    ctaAsk: 'your store and your analytics',
+    ctaHeading: 'Find out where your funnel leaks',
     formQuestions: [
       { name: 'platform', label: 'Store platform', type: 'select', required: true, options: ['Shopify', 'WooCommerce', 'Custom', 'Other'] },
       { name: 'sessions', label: 'Monthly sessions', type: 'select', required: false, options: ['Under 5k', '5k–20k', '20k–100k', 'Over 100k'] },

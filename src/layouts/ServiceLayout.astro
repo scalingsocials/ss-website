@@ -60,6 +60,10 @@ const svcDefault =
 // in CSS, because centring a short row needs to know where that row begins —
 // :nth-last-child can express it, but only as one rule per remainder per
 // breakpoint, and this is the same fact stated once.
+// "audit" or "review", taken from the offer's own name so the sentence under the
+// button always matches the button. formHeading ends in the deliverable word.
+const deliverable = (h: string) => (/review$/i.test(h) ? 'review' : 'audit');
+
 const rest3 = svc.subservices.length % 3;
 const rest2 = svc.subservices.length % 2;
 
@@ -230,8 +234,8 @@ const nodes = [
         <span class="ss-svc-glyph mb-[var(--space-3)]"><Glyph name="chat" size={20} /></span>
         <h3 class="text-h4 font-semibold text-[var(--fg)]">Still weighing it up?</h3>
         <p class="mt-[var(--space-2)] text-small leading-relaxed text-[var(--fg-muted)]">
-          Send us your accounts and you get a written audit in three working days, whether or not you
-          go on to hire us. No sales deck.
+          Send us {svc.ctaAsk} and you get a written {deliverable(svc.formHeading)} in three working
+          days, whether or not you go on to hire us. No sales deck.
         </p>
         <div class="mt-[var(--space-4)] flex flex-col gap-[var(--space-2)]">
           <Button href="/audit/" variant="primary">{svc.formHeading}</Button>
@@ -280,8 +284,8 @@ const nodes = [
   <!-- CTA -->
   <Section register="ink" size="md">
     <CtaBand
-      heading="Find out what is leaking money"
-      body="Send us access and, within three working days, you get a written audit of what is working, what is not, and what we would change first, whether or not you hire us."
+      heading={svc.ctaHeading}
+      body={`Send us ${svc.ctaAsk} and, within three working days, you get a written ${deliverable(svc.formHeading)} of what is working, what is not, and what we would change first, whether or not you hire us.`}
       ctaLabel={svc.formHeading}
       ctaHref="/audit/"
       secondaryLabel="Talk to us"
