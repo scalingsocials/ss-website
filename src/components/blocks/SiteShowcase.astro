@@ -8,16 +8,20 @@
  * Each card frames the desktop shot in a minimal browser chrome with the phone
  * shot inset in the corner. Two-row horizontal scroll rail — swipe/drag, no JS.
  *
- * KNOWN BAD ASSET (2026-09-14): eazywagon-desktop.webp was captured before the
- * site's hero carousel loaded, so 56% of the frame is flat rgb(232,232,232)
- * placeholder grey with only the carousel dots visible. It needs recapturing at
- * 1440x900 with the hero settled. The other eleven were checked the same way and
- * are clean — their large flat areas are real photography, brand colour and
- * white page background, each confirmed by eye.
+ * RECAPTURING ONE OF THESE: do not screenshot on `load`. eazywagon-desktop.webp
+ * was taken that way and caught the hero carousel mid-flight — 56% of the frame
+ * came out as flat rgb(232,232,232) placeholder grey with only the carousel dots
+ * showing, and it shipped like that (fixed 2026-09-14 by recapturing at 1440x900
+ * after polling every above-the-fold <img> for naturalWidth > 0).
  *
- * When recapturing any of these: let the page fully settle first. A screenshot
- * taken on `load` catches lazy hero images mid-flight, which is exactly how this
- * one broke.
+ * Two traps when writing that capture script: a Shopify storefront polls
+ * analytics forever so `networkidle` never fires, and `img.decode()` returns a
+ * promise that never settles for an image that never loads, so awaiting them all
+ * hangs rather than failing. Poll `complete && naturalWidth` instead.
+ *
+ * All twelve were audited for this by finding large connected regions of
+ * near-exact uniform colour; the remaining flat areas are real photography,
+ * brand colour and white page background.
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
