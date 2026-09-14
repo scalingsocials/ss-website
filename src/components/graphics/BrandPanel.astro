@@ -1,0 +1,190 @@
+---
+/**
+ * BrandPanel — the brand mark as the About page's opening graphic.
+ *
+ * Replaces the generic five-node "team" diagram, which said nothing about this
+ * company (owner-directed, 2026-09-14). The mark sits in the same glass panel
+ * chrome the hero motifs use, over a slow orbit of rings — the annotation
+ * motif's circle, repeated outward, so the movement is the brand's own device
+ * rather than decoration borrowed from somewhere else.
+ *
+ * Uses the REAL mark asset (src/assets/brand/mark-accent.png). It is a raster
+ * file, so the animation moves and lights the mark rather than drawing its
+ * strokes — hand-rebuilding a logo as SVG to get a path animation would mean
+ * shipping an approximation of the company's own mark.
+ *
+ * Decorative: aria-hidden, states nothing, and holds its finished position with
+ * no animation at all under prefers-reduced-motion.
+ */
+import { Image } from 'astro:assets';
+import mark from '@/assets/brand/mark-accent.png';
+
+export interface Props {
+  /** Chrome label, matching the other panels' `something.live` convention. */
+  label?: string;
+  class?: string;
+}
+const { label = 'scalingsocials.com', class: className = '' } = Astro.props;
+---
+
+<div class:list={['ss-brandpanel', className]} aria-hidden="true">
+  <div class="ss-brandpanel__card">
+    <div class="ss-brandpanel__bar">
+      <span class="ss-brandpanel__dot"></span><span class="ss-brandpanel__dot"></span><span class="ss-brandpanel__dot"></span>
+      <span class="ss-brandpanel__label">{label}</span>
+    </div>
+
+    <div class="ss-brandpanel__stage">
+      <span class="ss-brandpanel__glow"></span>
+      {/* Three rings, staggered — the annotation circle pushed outward. */}
+      <span class="ss-brandpanel__ring" data-ring="0"></span>
+      <span class="ss-brandpanel__ring" data-ring="1"></span>
+      <span class="ss-brandpanel__ring" data-ring="2"></span>
+      <span class="ss-brandpanel__sweep"></span>
+
+      <Image
+        src={mark}
+        {/* Real alt, not alt="": the panel above is aria-hidden so this is never
+            announced, but check:perf enforces CLAUDE.md §11 ("every image has
+            real alt text") and Astro serialises alt="" as a bare `alt`, which
+            its regex reads as no alt at all. Real text satisfies both, and it
+            is the right text if the aria-hidden ever comes off. */}
+        alt="Scaling Socials"
+        width={168}
+        height={168}
+        densities={[1, 2]}
+        loading="eager"
+        class="ss-brandpanel__mark"
+      />
+    </div>
+
+    <p class="ss-brandpanel__word">Scaling Socials</p>
+    <p class="ss-brandpanel__sub">Bengaluru · India &amp; UAE · since 2021</p>
+  </div>
+</div>
+
+<style>
+  .ss-brandpanel { position: relative; }
+  .ss-brandpanel__card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--rule-c);
+    border-radius: var(--radius-card);
+    background: linear-gradient(168deg, var(--surface-c), var(--ground));
+    box-shadow: 0 40px 80px -52px color-mix(in srgb, var(--accent-fill) 55%, transparent);
+  }
+  .ss-brandpanel__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--rule-c);
+  }
+  .ss-brandpanel__dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: color-mix(in srgb, var(--fg-muted) 40%, transparent);
+  }
+  .ss-brandpanel__label {
+    margin-left: auto;
+    font-size: var(--text-label);
+    color: var(--fg-muted);
+  }
+
+  .ss-brandpanel__stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 300px;
+    padding: var(--space-6) var(--space-4) var(--space-4);
+  }
+  /* Everything in the stage stacks on one grid cell. */
+  .ss-brandpanel__stage > * { grid-area: 1 / 1; }
+
+  .ss-brandpanel__glow {
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent-fill) 26%, transparent), transparent 68%);
+    filter: blur(6px);
+  }
+
+  .ss-brandpanel__ring {
+    width: 128px; height: 128px;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--accent-graphic) 42%, transparent);
+    opacity: 0;
+  }
+
+  /* A single rotating highlight, so the panel is never completely still without
+     anything actually moving position. */
+  .ss-brandpanel__sweep {
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      color-mix(in srgb, var(--accent-graphic) 16%, transparent) 34deg,
+      transparent 78deg,
+      transparent 360deg
+    );
+    -webkit-mask-image: radial-gradient(circle, transparent 44%, #000 46%, #000 70%, transparent 72%);
+    mask-image: radial-gradient(circle, transparent 44%, #000 46%, #000 70%, transparent 72%);
+  }
+
+  .ss-brandpanel__mark {
+    position: relative;
+    width: 108px;
+    height: auto;
+    filter: drop-shadow(0 12px 28px color-mix(in srgb, var(--accent-fill) 45%, transparent));
+  }
+
+  .ss-brandpanel__word {
+    padding-inline: var(--space-4);
+    text-align: center;
+    font-size: var(--text-h4);
+    font-weight: 700;
+    letter-spacing: var(--tracking-heading);
+    color: var(--fg);
+  }
+  .ss-brandpanel__sub {
+    padding: 0 var(--space-4) var(--space-5);
+    text-align: center;
+    font-size: var(--text-label);
+    color: var(--fg-muted);
+  }
+
+  /* Motion is opt-in. With reduced motion the rings simply rest visible at their
+     mid state and nothing animates — the panel still reads as finished. */
+  @media (prefers-reduced-motion: reduce) {
+    .ss-brandpanel__ring { opacity: 0.4; }
+    .ss-brandpanel__ring[data-ring='1'] { width: 176px; height: 176px; opacity: 0.26; }
+    .ss-brandpanel__ring[data-ring='2'] { width: 224px; height: 224px; opacity: 0.14; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ss-brandpanel__ring { animation: ss-bp-ring 5.6s var(--ease-out) infinite; }
+    .ss-brandpanel__ring[data-ring='1'] { animation-delay: 1.85s; }
+    .ss-brandpanel__ring[data-ring='2'] { animation-delay: 3.7s; }
+    .ss-brandpanel__sweep { animation: ss-bp-spin 14s linear infinite; }
+    .ss-brandpanel__mark { animation: ss-bp-rise 900ms var(--ease-out) both, ss-bp-float 7s ease-in-out 900ms infinite; }
+    .ss-brandpanel__glow { animation: ss-bp-pulse 7s ease-in-out infinite; }
+  }
+
+  @keyframes ss-bp-ring {
+    0%   { width: 118px; height: 118px; opacity: 0; }
+    12%  { opacity: 0.55; }
+    100% { width: 268px; height: 268px; opacity: 0; }
+  }
+  @keyframes ss-bp-spin { to { transform: rotate(360deg); } }
+  @keyframes ss-bp-rise {
+    from { opacity: 0; transform: translateY(10px) scale(0.94); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes ss-bp-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-7px); }
+  }
+  @keyframes ss-bp-pulse {
+    0%, 100% { opacity: 0.75; }
+    50%      { opacity: 1; }
+  }
+</style>
