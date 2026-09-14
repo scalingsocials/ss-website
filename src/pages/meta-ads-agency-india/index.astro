@@ -93,6 +93,14 @@ const WHY_STAY = [
   { glyph: 'handshake', title: 'Experienced media buyers only', body: 'We keep the team small and qualified rather than filling it with volume hires and assigning your account to whoever is free.' },
 ];
 
+// The Advantage+ call, taken straight from the paragraph it replaces: two
+// situations where it earns its place, and the one where we stay manual.
+const ADV_CALL = [
+  { mode: 'yes', when: 'A proven product with sales behind it', then: 'Advantage+', why: 'With a serious budget, often the fastest way to scale that product.' },
+  { mode: 'yes', when: 'You do not yet know what your winner is', then: 'Advantage+', why: 'It tests multiple products at once and says which the market wants faster than a manual structure.' },
+  { mode: 'no', when: 'Control is worth paying for', then: 'Stay manual', why: 'Where a manual structure earns its keep, we keep it.' },
+];
+
 // Priority order, with the reason the copy gives for each.
 const TARGETING = [
   { name: 'Broad', why: 'Meta’s models in 2026 are considerably better at finding buyers than a hand-built interest stack.' },
@@ -100,11 +108,6 @@ const TARGETING = [
   { name: 'Lookalikes', why: 'In proportion to the purchase data available. With enough purchasers in the account, these become one of the most reliable parts of the structure.' },
 ];
 
-// Ordered by spend, exactly as the copy states it.
-const CATEGORIES = {
-  largest: ['Apparel', 'Home decor', 'Skincare', 'F&B'],
-  rest: ['Services', 'Real estate', 'Study abroad', 'Pet', 'Electronics', 'Home appliances'],
-};
 
 const faqs: FaqItem[] = [
   { q: 'How long before I see results?', a: 'Positive traction usually shows in the first month. Consistent sales, stable ROAS and dependable revenue take at least three months, because that is how long a proper testing cycle takes.' },
@@ -212,10 +215,17 @@ const nodes = [
     </ol>
     <p class="ma-flow__note">The funnel runs in that order every time.</p>
 
-    <Prose class="mt-[var(--space-6)]">
-      <h3>CBO or ABO is a testing decision, not a preference</h3>
-      <p>Some accounts stay CBO-led, some ABO-led. It depends on the account, and on where that account is in its testing cycle.</p>
-    </Prose>
+    {/* Heading left, the one-line lead-in right, so this row fills the width
+        above a full-width table instead of ending at a 68ch measure. */}
+    <div class="ma-lede mt-[var(--space-8)]">
+      <div class="ma-lede__head">
+        <span class="ss-eyebrow">Campaign budgets</span>
+        <h3 class="text-h3 font-semibold text-[var(--fg)]">CBO or ABO is a testing decision, not a preference</h3>
+      </div>
+      <Prose>
+        <p>Some accounts stay CBO-led, some ABO-led. It depends on the account, and on where that account is in its testing cycle.</p>
+      </Prose>
+    </div>
     <ComparisonTable
       columns={['', 'High-budget CBO', 'ABO']}
       rows={[
@@ -235,13 +245,44 @@ const nodes = [
   </Section>
 
   <Section size="md">
+    <div class="ma-two">
+      <div>
     <Prose>
       <h2>Creative is the lever, not the settings</h2>
       <p>Since the Andromeda update, the volume and quality of creative running through an account matters far more than how neatly the account is organised. We produce statics and video-led ads in-house and push them through a <a href="/guides/meta-ads-creative-testing/">structured testing pipeline</a>, so winners get found by spend rather than by the loudest opinion in the room.</p>
-      <p>We do not commit to a fixed number of creatives per month, because that number is an output, not a target. If ten a week is producing results, ten a week is right. If it is not, we go to twenty, thirty, forty. The requirement sets the number.</p>
-      <h3>How a test is judged</h3>
-      <p>Every campaign is reviewed on a three to four day cycle against the objective it was launched for. A campaign producing strong <a href="/glossary/ctr/">CTR</a> and healthy add-to-carts gets more time even if the sales have not landed yet, because the signal is there. Anything not trending toward a winner gets switched off quickly.</p>
+      <p>We do not commit to a fixed number of creatives per month, because that number is an output, not a target.</p>
     </Prose>
+      </div>
+
+      {/* The four weekly volumes the copy names, drawn as the climb they
+          describe. No figure here is new — 10/20/30/40 and "the requirement
+          sets the number" are the sentence this replaces. */}
+      <aside class="ma-vol">
+        <span class="ma-vol__tag">Creatives a week</span>
+        <ul class="ma-vol__bars">
+          {[10, 20, 30, 40].map((n, i) => (
+            <li class="ma-vol__col">
+              <span class="ma-vol__bar" data-step={i}></span>
+              <span class="ma-vol__n">{n}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="ma-vol__note">
+          If ten a week is producing results, ten a week is right. If it is not, we go to twenty,
+          thirty, forty. The requirement sets the number.
+        </p>
+      </aside>
+    </div>
+
+    <div class="ma-lede mt-[var(--space-8)]">
+      <div class="ma-lede__head">
+        <span class="ss-eyebrow">The review cycle</span>
+        <h3 class="text-h3 font-semibold text-[var(--fg)]">How a test is judged</h3>
+      </div>
+      <Prose>
+        <p>Every campaign is reviewed on a three to four day cycle against the objective it was launched for. A campaign producing strong <a href="/glossary/ctr/">CTR</a> and healthy add-to-carts gets more time even if the sales have not landed yet, because the signal is there. Anything not trending toward a winner gets switched off quickly.</p>
+      </Prose>
+    </div>
     <ComparisonTable
       columns={['Campaign is for', 'Judged on', 'What counts as a winner', 'Killed when']}
       rows={[
@@ -256,12 +297,27 @@ const nodes = [
   </Section>
 
   <Section size="md" class="!bg-[var(--surface-c)]">
+    <div class="ma-two">
+      <div>
     <Prose>
       <h2>Advantage+ where it earns its place</h2>
       <p><a href="/glossary/advantage-plus-shopping/">Advantage+ Shopping</a> is a genuinely good update and we have seen it produce strong results, but it earns its place in two specific situations rather than by default.</p>
-      <p>If you already have a proven product with sales behind it, Advantage+ with a serious budget is often the fastest way to scale that product. If you do not yet know what your winner is, Advantage+ is still useful, because it will test multiple products at once and tell you faster than a manual structure which of them the market actually wants.</p>
       <p>Where a manual structure gives us control worth paying for, we stay manual — the same call we weigh on <a href="/vs/advantage-plus-vs-manual/">Advantage+ versus a manual campaign structure</a>, and the one Google forces too with <a href="/glossary/performance-max/">Performance Max</a>. Either way, the campaign is held to your <a href="/glossary/roas/">break-even ROAS</a>, calculated from your margin with our <a href="/tools/break-even-roas-calculator/">break-even ROAS calculator</a>, not to a rule of thumb.</p>
     </Prose>
+      </div>
+
+      {/* The two situations the copy says earn it, and the one that does not.
+          Each row is that paragraph, split into the condition and the call. */}
+      <aside class="ma-dec">
+        {ADV_CALL.map((d) => (
+          <div class="ma-dec__row" data-mode={d.mode}>
+            <span class="ma-dec__when">{d.when}</span>
+            <span class="ma-dec__then">{d.then}</span>
+            <span class="ma-dec__why">{d.why}</span>
+          </div>
+        ))}
+      </aside>
+    </div>
     <figure class="ss-pullout">
       <span class="ss-pullout__tag">Scaling a proven product · mid-luxury womenswear</span>
       <p class="ss-pullout__line"><span>Starting point:</span> capped at 3–5x for a year — a stable account that had quietly stopped growing.</p>
@@ -271,10 +327,15 @@ const nodes = [
   </Section>
 
   <Section size="md">
-    <Prose>
-      <h2>How we approach targeting</h2>
-      <p>We have not dropped anything. Broad, manual interests and lookalikes all still get tested — in that order of priority.</p>
-    </Prose>
+    <div class="ma-lede">
+      <div class="ma-lede__head">
+        <span class="ss-eyebrow">Audiences</span>
+        <h2 class="text-h2 font-semibold">How we approach targeting</h2>
+      </div>
+      <Prose>
+        <p>We have not dropped anything. Broad, manual interests and lookalikes all still get tested — in that order of priority.</p>
+      </Prose>
+    </div>
     {/* A genuine ranking: the copy states these three in priority order and gives
         a reason for each, so the numbering carries information rather than
         decorating the list. */}
@@ -298,11 +359,16 @@ const nodes = [
     {/* The same four phases the prose described, on the step component the
         service pages already use — a timeline is what this content always was. */}
     <div class="mt-[var(--space-6)]"><ProcessSteps steps={NINETY_DAYS} /></div>
-    <Prose class="mt-[var(--space-6)]">
-      <h3>Inside onboarding</h3>
+    <div class="ma-lede mt-[var(--space-8)]">
+      <div class="ma-lede__head">
+        <span class="ss-eyebrow">Before anything goes live</span>
+        <h3 class="text-h3 font-semibold text-[var(--fg)]">Inside onboarding</h3>
+      </div>
+      <Prose>
       <p>Before a single campaign goes live, we walk your entire path from homepage to purchase confirmation, looking for the breaks — add to cart, checkout initiation, billing details, payment. A slow or broken store is the most common thing quietly capping paid results, so this is also where we flag <a href="/web-development-company-bangalore/">website</a> and <a href="/shopify-speed-optimisation-services/">store-speed</a> problems that campaign changes can never fix. We then verify your pixel is firing correctly and connected properly to the ad account, and audit everything run on the account historically — money already spent is data already bought.</p>
       <p>That audit becomes your month-one plan. Whatever showed positive signal in the past gets priority; whatever failed gets avoided outright. Alongside it you get a creative brief, so you know exactly what images and videos we need from you and by when. When we produce the creative, our design team and our media buyers plan the campaigns and the creative together, in the same room. Most agencies get this wrong — designers make whatever they make and the buyer runs it. We do not work that way.</p>
-    </Prose>
+      </Prose>
+    </div>
     <div class="ma-warn">
       <span class="ma-warn__tag">What not to expect in the first 30 to 60 days</span>
       <p>Strong, consistent ROAS. During testing, losing campaigns will outnumber winners — that is what testing is. Brands that hold their nerve through that window are the ones that see month-on-month growth afterwards. Patience in the testing phase is not optional.</p>
@@ -324,20 +390,6 @@ const nodes = [
       <a href="/blog/who-we-turn-down-and-why/">who we turn down and why</a> is an honest read.
     </p>
 
-    <div class="mt-[var(--space-10)]">
-      <span class="ss-eyebrow">Where the spend has gone</span>
-      <h2 class="max-w-[24ch] text-h2 font-semibold">Categories we have spent in</h2>
-      <p class="ma-note mt-[var(--space-3)] max-w-[62ch]">
-        Five years across Indian and UAE ecommerce means most niches have come through the door.
-        Ordered by spend:
-      </p>
-      {/* Two tiers because the copy draws that line itself — four largest by
-          spend, then the rest. The emphasis is the information. */}
-      <ul class="ma-cats mt-[var(--space-4)]">
-        {CATEGORIES.largest.map((cat) => <li class="ma-cat ma-cat--lead">{cat}</li>)}
-        {CATEGORIES.rest.map((cat) => <li class="ma-cat">{cat}</li>)}
-      </ul>
-    </div>
   </Section>
 
   <Section size="md" class="!bg-[var(--surface-c)]">
@@ -370,9 +422,23 @@ const nodes = [
   </Section>
 
   <Section size="md">
-    <span class="ss-eyebrow">Questions</span>
-    <h2 class="max-w-[24ch] text-h2 font-semibold">Questions founders ask</h2>
-    <div class="mt-[var(--space-5)] max-w-[820px]"><FaqAccordion items={faqs} openFirst /></div>
+    {/* Heading and a standing offer on the left, the accordion on the right.
+        The accordion alone used 58% of the container and left ~500px empty. */}
+    <div class="ma-faq">
+      <div class="ma-faq__aside">
+        <span class="ss-eyebrow">Questions</span>
+        <h2 class="max-w-[16ch] text-h2 font-semibold">Questions founders ask</h2>
+        <p class="ma-note mt-[var(--space-3)]">
+          If yours is not here, ask it directly — you get a written answer whether or not you go on
+          to hire us.
+        </p>
+        <div class="mt-[var(--space-4)] flex flex-col gap-[var(--space-2)]">
+          <Button href="/audit/" variant="primary">Get a free growth plan</Button>
+          <Button href="/contact/" variant="secondary">Talk to us</Button>
+        </div>
+      </div>
+      <div><FaqAccordion items={faqs} openFirst /></div>
+    </div>
   </Section>
 
   <Section register="ink" size="md">
@@ -484,6 +550,54 @@ const nodes = [
     .ma-warn__tag { display: block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 700; color: var(--neg); }
     .ma-warn p { font-size: var(--text-small); line-height: 1.6; color: var(--fg); max-width: 68ch; }
 
+    /* --- creative volume -------------------------------------------------- */
+    .ma-vol {
+      border: 1px solid var(--rule-c);
+      border-radius: var(--radius-card);
+      background: var(--ground);
+      padding: var(--space-4);
+    }
+    .ma-vol__tag { display: block; font-size: var(--text-label); font-weight: 700; color: var(--accent-text); }
+    .ma-vol__bars { margin-top: var(--space-4); display: flex; align-items: flex-end; gap: var(--space-2); height: 150px; }
+    .ma-vol__col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; height: 100%; justify-content: flex-end; }
+    .ma-vol__bar { width: 100%; border-radius: 6px 6px 0 0; background: var(--accent-graphic); }
+    /* Four fixed heights rather than an inline style — the production CSP is
+       strict hash-based and drops style="" without an error anywhere. */
+    .ma-vol__bar[data-step='0'] { height: 25%; opacity: 0.45; }
+    .ma-vol__bar[data-step='1'] { height: 50%; opacity: 0.6; }
+    .ma-vol__bar[data-step='2'] { height: 75%; opacity: 0.8; }
+    .ma-vol__bar[data-step='3'] { height: 100%; }
+    .ma-vol__n { font-size: var(--text-small); font-weight: 700; color: var(--fg); font-variant-numeric: tabular-nums; }
+    .ma-vol__note { margin-top: var(--space-3); font-size: var(--text-small); line-height: 1.55; color: var(--fg-muted); }
+
+    /* --- Advantage+ decision rail ----------------------------------------- */
+    .ma-dec { display: grid; gap: var(--space-2); }
+    .ma-dec__row {
+      display: grid;
+      gap: 0.25rem;
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--rule-c);
+      border-left-width: 3px;
+      border-radius: var(--radius-card);
+      background: var(--ground);
+    }
+    .ma-dec__row[data-mode='yes'] { border-left-color: var(--accent-graphic); }
+    .ma-dec__row[data-mode='no'] { border-left-color: var(--fg-muted); }
+    .ma-dec__when { font-size: var(--text-label); font-weight: 700; color: var(--fg-muted); }
+    .ma-dec__then { font-size: var(--text-h4); font-weight: 700; color: var(--fg); line-height: 1.2; }
+    .ma-dec__row[data-mode='yes'] .ma-dec__then { color: var(--accent-text); }
+    .ma-dec__why { font-size: var(--text-small); line-height: 1.5; color: var(--fg-muted); }
+
+    /* --- heading-left lede ------------------------------------------------- */
+    .ma-lede { display: grid; gap: var(--space-4); align-items: start; }
+    @media (min-width: 960px) { .ma-lede { grid-template-columns: 0.62fr 1.38fr; gap: var(--space-6); } }
+    @media (min-width: 960px) { .ma-lede__head { position: sticky; top: 96px; } }
+
+    /* --- FAQ two-column ---------------------------------------------------- */
+    .ma-faq { display: grid; gap: var(--space-5); align-items: start; }
+    @media (min-width: 960px) { .ma-faq { grid-template-columns: 0.72fr 1.28fr; gap: var(--space-8); } }
+    @media (min-width: 960px) { .ma-faq__aside { position: sticky; top: 96px; } }
+
     /* --- why brands stay --------------------------------------------------- */
     .ma-why { display: grid; gap: var(--space-3); }
     @media (min-width: 760px) { .ma-why { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -521,24 +635,5 @@ const nodes = [
     .ma-why__t { font-size: var(--text-small); font-weight: 700; color: var(--fg); line-height: 1.3; }
     .ma-why__b { margin-top: var(--space-1); font-size: var(--text-small); line-height: 1.55; color: var(--fg-muted); }
 
-    /* --- category chips --------------------------------------------------- */
-    .ma-cats { display: flex; flex-wrap: wrap; gap: var(--space-1); }
-    .ma-cat {
-      padding: 0.45rem var(--space-3);
-      border: 1px solid var(--rule-c);
-      border-radius: 999px;
-      background: var(--ground);
-      font-size: var(--text-small);
-      color: var(--fg-muted);
-    }
-    /* The four largest by spend carry the accent; the rest are quieter. The
-       copy draws that line, so the styling repeats information rather than
-       inventing a hierarchy. */
-    .ma-cat--lead {
-      border-color: color-mix(in srgb, var(--accent-graphic) 42%, transparent);
-      background: var(--accent-wash);
-      color: var(--accent-text);
-      font-weight: 600;
-    }
   </style>
 </BaseLayout>
