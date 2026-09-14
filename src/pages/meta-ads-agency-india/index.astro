@@ -456,7 +456,12 @@ const nodes = [
     /* --- budget split bars ------------------------------------------------ */
     /* Copy left, the bars that illustrate it in a rail on the right. Falls to
        one column below 960px, where a rail would be too narrow to read a bar in. */
-    .ma-two { display: grid; gap: var(--space-6); align-items: start; }
+    /* The rail is centred against the copy, not pinned to its top. The bars
+       illustrate the whole passage rather than its first paragraph, and at
+       `start` they sat against the heading with a few hundred pixels of gap
+       under them. Centring only bites when the two columns differ in height;
+       where they are close, it moves nothing. */
+    .ma-two { display: grid; gap: var(--space-6); align-items: center; }
     @media (min-width: 960px) { .ma-two { grid-template-columns: 1.12fr 0.88fr; } }
     /* Stacked, not side by side: inside the rail there is no width for two. */
     .ma-splits { display: grid; gap: var(--space-3); }
