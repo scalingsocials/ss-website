@@ -2,7 +2,7 @@
 /**
  * SiteShowcase — a scrolling wall of real client store/site screenshots, desktop
  * and mobile, so the Shopify and Web/App pages show the look, not just describe
- * it. Screenshots live in src/assets/sites/<name>-desktop.png and -mobile.png
+ * it. Screenshots live in src/assets/sites/<name>-desktop.webp and -mobile.webp
  * (captured from live client sites) and are optimised by astro:assets.
  *
  * Each card frames the desktop shot in a minimal browser chrome with the phone
@@ -99,8 +99,21 @@ const sites = Object.keys(d)
     padding-bottom: var(--space-2);
   }
   .ss-shots__rail::-webkit-scrollbar { display: none; }
-  .ss-shots__track { display: flex; gap: var(--space-4); width: max-content; }
-  .ss-shots__item { flex: none; width: min(460px, 84vw); scroll-snap-align: start; }
+  /* TWO rows that scroll sideways together (owner-directed, 2026-09-14). Grid
+     with column auto-flow, not flex: the browser fills row 1 then row 2 of each
+     column for us, so the pairing needs no markup change and no JS. With six
+     sites that is three columns of two. An odd count simply leaves the last
+     column's lower cell empty rather than breaking the rhythm. */
+  .ss-shots__track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(2, auto);
+    grid-auto-columns: min(460px, 84vw);
+    gap: var(--space-4);
+    width: max-content;
+    align-items: start;
+  }
+  .ss-shots__item { scroll-snap-align: start; }
 
   .ss-frame {
     position: relative;
