@@ -6,7 +6,18 @@
  * (captured from live client sites) and are optimised by astro:assets.
  *
  * Each card frames the desktop shot in a minimal browser chrome with the phone
- * shot inset in the corner. Horizontal scroll rail — swipe/drag, no JS.
+ * shot inset in the corner. Two-row horizontal scroll rail — swipe/drag, no JS.
+ *
+ * KNOWN BAD ASSET (2026-09-14): eazywagon-desktop.webp was captured before the
+ * site's hero carousel loaded, so 56% of the frame is flat rgb(232,232,232)
+ * placeholder grey with only the carousel dots visible. It needs recapturing at
+ * 1440x900 with the hero settled. The other eleven were checked the same way and
+ * are clean — their large flat areas are real photography, brand colour and
+ * white page background, each confirmed by eye.
+ *
+ * When recapturing any of these: let the page fully settle first. A screenshot
+ * taken on `load` catches lazy hero images mid-flight, which is exactly how this
+ * one broke.
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
