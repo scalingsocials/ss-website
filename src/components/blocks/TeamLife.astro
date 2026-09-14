@@ -1,0 +1,152 @@
+---
+/**
+ * TeamLife — the people behind the accounts, as a photo mosaic.
+ *
+ * Real photographs of the Scaling Socials team, supplied by the owner and taken
+ * from careers.scalingsocials.com with permission (2026-09-14). Optimised into
+ * src/assets/team-life/ rather than hotlinked, so they go through astro:assets
+ * and cannot break when the careers site changes.
+ *
+ * Auto-discovered the same way LogoWall works: drop a file in the folder and it
+ * appears on the next build. Alt text is looked up by filename below — a photo
+ * with no entry still renders, with a plain descriptive fallback, because a
+ * missing caption should never remove a real photo of the team.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+export interface Props {
+  eyebrow?: string;
+  heading?: string;
+  body?: string;
+  class?: string;
+}
+const {
+  eyebrow = 'Life at Scaling Socials',
+  heading = 'The people behind the accounts',
+  body = 'Every account is run by people on this team, not handed to whoever happens to be free. We hire for capability and keep the team small enough that you know who is working on your brand.',
+  class: className = '',
+} = Astro.props;
+
+const files = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/team-life/*.{webp,jpg,jpeg,png,avif}',
+  { eager: true }
+);
+
+// Written from what is actually in each photograph — nothing about when, where
+// or who, because that is not knowable from the file (CLAUDE.md §11 wants real
+// alt text, §15 forbids inventing the details around it).
+const ALT: Record<string, string> = {
+  'life-1': 'The Scaling Socials team together outside the office',
+  'life-2': 'The team at a company dinner',
+  'life-3': 'The team outdoors on a team day',
+  'life-4': 'The team dressed up for a festival celebration',
+  'life-5': 'The team around a long table at a shared meal',
+  'life-6': 'The full Scaling Socials team photographed outdoors',
+  'life-7': 'Four colleagues on a team day out',
+  'life-8': 'The team at an office celebration',
+  'life-9': 'Two colleagues arm-wrestling across a table on a team day',
+};
+
+const photos = Object.entries(files)
+  .map(([path, mod]) => {
+    const slug = path.split('/').pop()!.replace(/\.\w+$/, '');
+    return { slug, src: mod.default, alt: ALT[slug] ?? 'The Scaling Socials team' };
+  })
+  .sort((a, b) => a.slug.localeCompare(b.slug, undefined, { numeric: true }));
+---
+
+{photos.length > 0 && (
+  <div class:list={['ss-life', className]}>
+    <div class="ss-life__intro">
+      <span class="ss-eyebrow">{eyebrow}</span>
+      <h2 class="max-w-[20ch] text-h2 font-semibold">{heading}</h2>
+      <p class="ss-life__body">{body}</p>
+    </div>
+
+    {/* Mosaic, not a rail: these are group photos and they read better seen at
+        once. Two tiles are promoted to a larger cell so the grid has a rhythm
+        rather than nine identical squares. */}
+    <ul class="ss-life__grid">
+      {photos.map((p, i) => (
+        <li class:list={['ss-life__cell', i === 0 && 'ss-life__cell--wide']}>
+          <Image
+            src={p.src}
+            alt={p.alt}
+            width={p.src.width}
+            height={p.src.height}
+            widths={[320, 640, 900]}
+            sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 24vw"
+            loading="lazy"
+            decoding="async"
+            class="ss-life__img"
+          />
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
+<style>
+  /* Local copy, like every other layout carries. .ss-eyebrow is defined
+     identically in ~10 files and is not global, so a component cannot inherit
+     it from the page that renders it — without this the eyebrow renders as
+     plain body text. Worth promoting to theme.css one day; not the night of a
+     launch, with ten pages depending on the current copies. */
+  .ss-eyebrow {
+    display: inline-block;
+    margin-bottom: var(--space-2);
+    font-size: var(--text-label);
+    font-weight: 600;
+    color: var(--accent-text);
+  }
+
+  .ss-life__intro { max-width: 62ch; }
+  .ss-life__body {
+    margin-top: var(--space-3);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    color: var(--fg-muted);
+  }
+
+  /* Cell counts are chosen so every row fills exactly — nine photos with one
+     promoted 2x2 tile is 12 cells, which divides by both 4 and 3. On two
+     columns the promotion is swapped for a single full-width banner, making 10.
+     `dense` is a backstop if a photo is ever added or removed. */
+  .ss-life__grid {
+    margin-top: var(--space-6);
+    display: grid;
+    grid-auto-flow: dense;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 150px;
+    gap: var(--space-2);
+  }
+  .ss-life__cell--wide { grid-column: span 2; }
+  @media (min-width: 640px) {
+    .ss-life__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 180px; }
+  }
+  @media (min-width: 1024px) {
+    .ss-life__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 200px; }
+  }
+  /* From three columns up the promoted tile also takes two rows. */
+  @media (min-width: 640px) {
+    .ss-life__cell--wide { grid-column: span 2; grid-row: span 2; }
+  }
+
+  .ss-life__cell {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: var(--surface-c);
+  }
+  .ss-life__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ss-life__cell:hover .ss-life__img { transform: scale(1.04); }
+  }
+</style>

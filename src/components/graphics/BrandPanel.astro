@@ -42,13 +42,15 @@ const { label = 'scalingsocials.com', class: className = '' } = Astro.props;
       <span class="ss-brandpanel__ring" data-ring="2"></span>
       <span class="ss-brandpanel__sweep"></span>
 
+      {/* Real alt, not alt="": the panel is aria-hidden so this is never
+          announced, but check:perf enforces CLAUDE.md §11 ("every image has real
+          alt text") and Astro serialises alt="" as a bare `alt`, which its regex
+          reads as no alt at all. Real text satisfies both, and it is the right
+          text if the aria-hidden ever comes off.
+          (A comment between attributes parses in the build but not in
+          `astro check` — keep it outside the tag.) */}
       <Image
         src={mark}
-        {/* Real alt, not alt="": the panel above is aria-hidden so this is never
-            announced, but check:perf enforces CLAUDE.md §11 ("every image has
-            real alt text") and Astro serialises alt="" as a bare `alt`, which
-            its regex reads as no alt at all. Real text satisfies both, and it
-            is the right text if the aria-hidden ever comes off. */}
         alt="Scaling Socials"
         width={168}
         height={168}

@@ -9,6 +9,7 @@ import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import { Image } from 'astro:assets';
 import CtaBand from '@/components/blocks/CtaBand.astro';
+import TeamLife from '@/components/blocks/TeamLife.astro';
 import HeroMotif from '@/components/graphics/HeroMotif.astro';
 import { PARTNERS } from '@/lib/team';
 import { base, webPage, breadcrumbs, person } from '@/lib/schema';
@@ -72,6 +73,12 @@ const nodes = [
         </li>
       ))}
     </ul>
+  </Section>
+
+  {/* The wider team, after the founders — the page claimed "one team" and then
+      showed four people. */}
+  <Section size="md" class="!bg-[var(--surface-c)]">
+    <TeamLife />
   </Section>
 
   <Section register="ink" size="md">
