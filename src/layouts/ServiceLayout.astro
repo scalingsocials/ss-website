@@ -56,6 +56,13 @@ const svcDefault =
   SERVICE_NAMES.find((n) => n.toLowerCase().includes(svc.name.toLowerCase().split(' ')[0]!)) ??
   SERVICE_NAMES[0];
 
+// Cards left over on the last row at three-up and at two-up. Computed here, not
+// in CSS, because centring a short row needs to know where that row begins —
+// :nth-last-child can express it, but only as one rule per remainder per
+// breakpoint, and this is the same fact stated once.
+const rest3 = svc.subservices.length % 3;
+const rest2 = svc.subservices.length % 2;
+
 const nodes = [
   ...base(),
   service({
@@ -151,13 +158,18 @@ const nodes = [
   <Section size="md" class="!bg-[var(--surface-c)]">
     <span class="ss-eyebrow">What’s included</span>
     <h2 class="max-w-[24ch] text-h2 font-semibold">{svc.subheading}</h2>
-    {/* Two columns, not three: services carry 3–5 sub-services, so a 3-col grid
-        would orphan a card on four of the six pages. Where the count is odd the
-        last card spans the row instead of sitting alone beside a gap. */}
-    <ul class="mt-[var(--space-6)] grid gap-[var(--space-3)] sm:grid-cols-2">
+    {/* Three across, like the homepage grid, and a short final row is CENTRED
+        rather than stretched (owner-directed, 2026-09-14) — cards keep one size
+        everywhere. `rest3`/`rest2` are how many cards are left over on the last
+        row at three-up and two-up; the card that STARTS that row carries the
+        offset, and the rest flow in beside it. */}
+    <ul class="ss-subgrid mt-[var(--space-6)]">
       {svc.subservices.map((s, i) => (
-        <li class:list={['grid', svc.subservices.length % 2 === 1 && i === svc.subservices.length - 1 && 'sm:col-span-2']}>
-          <SubServiceCard title={s.title} body={s.body} href={s.href} glyph={glyphFor(s.title)} index={i} wide={svc.subservices.length % 2 === 1 && i === svc.subservices.length - 1} />
+        <li
+          data-row3={rest3 !== 0 && i === svc.subservices.length - rest3 ? String(rest3) : undefined}
+          data-row2={rest2 !== 0 && i === svc.subservices.length - rest2 ? '1' : undefined}
+        >
+          <SubServiceCard title={s.title} body={s.body} href={s.href} glyph={glyphFor(s.title)} index={i} />
         </li>
       ))}
     </ul>
@@ -433,6 +445,42 @@ const nodes = [
         padding-inline: var(--space-2);
       }
     }
+    /* TWELVE tracks, each card spanning four (three-up) or six (two-up), so a
+       short final row can be centred on exact track boundaries and every card
+       keeps one size — nothing is ever stretched to fill a gap.
+       Twelve, not six: centring a lone card in a two-up row needs a HALF-card
+       offset, which on six tracks would be track 1.5. On twelve it is track 4,
+       a real boundary. Flex-basis percentages were the other option and wrap
+       unpredictably on sub-pixel rounding. Track counts include their internal
+       gaps, so the arithmetic holds at any gap value. */
+    .ss-subgrid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+    .ss-subgrid > li { grid-column: span 4; display: grid; min-width: 0; }
+    /* One card left over: start at 5, occupy 5–8, four tracks clear either side.
+       Two left over: the first starts at 3 and the second flows to 7, so the
+       pair occupies 3–10 with two tracks clear either side. */
+    .ss-subgrid > li[data-row3='1'] { grid-column: 5 / span 4; }
+    .ss-subgrid > li[data-row3='2'] { grid-column: 3 / span 4; }
+
+    /* Two-up. The three-up offsets have to be reset explicitly — an element
+       still matching [data-row3] would keep a start track it no longer needs
+       and throw the whole row out by a card. */
+    @media (max-width: 940px) {
+      .ss-subgrid > li,
+      .ss-subgrid > li[data-row3='1'],
+      .ss-subgrid > li[data-row3='2'] { grid-column: span 6; }
+      .ss-subgrid > li[data-row2] { grid-column: 4 / span 6; }
+    }
+    @media (max-width: 620px) {
+      .ss-subgrid > li,
+      .ss-subgrid > li[data-row3='1'],
+      .ss-subgrid > li[data-row3='2'],
+      .ss-subgrid > li[data-row2] { grid-column: span 12; }
+    }
+
     .svc-hero__crumb { margin-bottom: var(--space-2); line-height: 1.2; }
     .svc-hero__crumb-link {
       padding-block: 0.8rem;
