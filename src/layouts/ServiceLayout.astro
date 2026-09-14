@@ -163,7 +163,7 @@ const nodes = [
         everywhere. `rest3`/`rest2` are how many cards are left over on the last
         row at three-up and two-up; the card that STARTS that row carries the
         offset, and the rest flow in beside it. */}
-    <ul class="ss-subgrid mt-[var(--space-6)]">
+    <ul class="ss-subgrid mt-[var(--space-6)]" data-n={svc.subservices.length}>
       {svc.subservices.map((s, i) => (
         <li
           data-row3={rest3 !== 0 && i === svc.subservices.length - rest3 ? String(rest3) : undefined}
@@ -456,6 +456,12 @@ const nodes = [
     .ss-subgrid {
       display: grid;
       grid-template-columns: repeat(12, minmax(0, 1fr));
+      /* Every row the same height as the tallest, so "same size card" holds
+         DOWN the grid and not just across a row. Grid rows are sized
+         independently by default, which left the 5-card page with a 340px top
+         row and a 355px bottom row once the art became a flow child and cards
+         could grow with their copy. */
+      grid-auto-rows: 1fr;
       gap: var(--space-3);
     }
     .ss-subgrid > li { grid-column: span 4; display: grid; min-width: 0; }
@@ -479,6 +485,32 @@ const nodes = [
       .ss-subgrid > li[data-row3='1'],
       .ss-subgrid > li[data-row3='2'],
       .ss-subgrid > li[data-row2] { grid-column: span 12; }
+    }
+
+    /* FOUR sub-services get one clean row instead of three-over-one
+       (owner-directed, 2026-09-14), which is the weakest shape the centring
+       rule can produce. Twelve tracks divides by four too, so this is a span
+       change and nothing else.
+
+       Only above 1200px: four cards in a 1100px container are ~225px wide and
+       the descriptions turn into narrow ribbons. Below that they go straight to
+       2x2 — the other shape four cards make well — so three-over-one never
+       appears at any width. The [data-row3] offset has to be cancelled in both
+       branches or the fourth card keeps the centring start it no longer needs. */
+    @media (min-width: 1200px) {
+      .ss-subgrid[data-n='4'] > li,
+      .ss-subgrid[data-n='4'] > li[data-row3='1'] { grid-column: span 3; }
+      /* A quarter-width card held at 340px would read portrait rather than
+         square, so the row it sits in is shorter. */
+      .ss-subgrid[data-n='4'] { --ssub-h: 300px; }
+    }
+    @media (max-width: 1199px) {
+      .ss-subgrid[data-n='4'] > li,
+      .ss-subgrid[data-n='4'] > li[data-row3='1'] { grid-column: span 6; }
+    }
+    @media (max-width: 620px) {
+      .ss-subgrid[data-n='4'] > li,
+      .ss-subgrid[data-n='4'] > li[data-row3='1'] { grid-column: span 12; }
     }
 
     .svc-hero__crumb { margin-bottom: var(--space-2); line-height: 1.2; }
