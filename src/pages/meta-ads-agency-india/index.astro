@@ -59,9 +59,9 @@ const BUDGET_SPLITS = [
     stage: 'Scaling brand',
     note: 'Purchase data in the account to build on',
     parts: [
-      { label: 'Prospecting', pct: '50%', w: '50' },
-      { label: 'Retargeting', pct: '20–25%', w: '25' },
-      { label: 'Lookalikes', pct: '25%', w: '25' },
+      { label: 'Prospecting', pct: '30%', w: '30' },
+      { label: 'Retargeting', pct: '25%', w: '25' },
+      { label: 'Lookalikes', pct: '45%', w: '45' },
     ],
   },
 ];
@@ -171,6 +171,8 @@ const nodes = [
   </Section>
 
   <Section size="md" class="!bg-[var(--surface-c)]">
+    <div class="ma-two">
+      <div>
     <Prose>
       <h2>How we structure a Meta account</h2>
       <p>There is no template. The structure follows the budget and the stage the brand is at, and both of those change.</p>
@@ -178,11 +180,13 @@ const nodes = [
       <p><strong>Prospecting versus retargeting follows the audience you already have.</strong> If you come to us with an existing customer base, a real Instagram following and warm audiences already sitting in your account, we start retargeting from week one because the money is already there to be collected. If you are starting cold with no pixel data and no audience, almost everything goes to prospecting first, because until we know which cold audiences add to cart and initiate checkout, there is nothing to retarget.</p>
     </Prose>
 
-    {/* The budget shape, drawn rather than listed. Both splits are the ones
-        stated in the copy above — an early-stage brand and a scaling one — and
-        each bar is built from those same percentages, so the picture and the
-        sentence can never disagree. */}
-    <div class="ma-splits">
+      </div>
+
+      {/* The budget shape, drawn rather than listed, in a rail beside the copy
+          it illustrates — it is the picture of the paragraph above it, so it
+          belongs next to it rather than under it. Stacked here, because two
+          bars side by side inside a narrow rail are unreadable. */}
+      <aside class="ma-splits">
       {BUDGET_SPLITS.map((b) => (
         <figure class="ma-split">
           <figcaption class="ma-split__head">
@@ -199,6 +203,7 @@ const nodes = [
           </ul>
         </figure>
       ))}
+      </aside>
     </div>
 
     {/* The funnel order, which the copy states as a single sentence. */}
@@ -383,8 +388,17 @@ const nodes = [
     .ss-pullout__link { align-self: flex-start; margin-top: var(--space-1); font-size: var(--text-small); font-weight: 600; color: var(--accent-text); }
 
     /* --- budget split bars ------------------------------------------------ */
-    .ma-splits { margin-top: var(--space-5); display: grid; gap: var(--space-4); }
-    @media (min-width: 780px) { .ma-splits { grid-template-columns: 1fr 1fr; } }
+    /* Copy left, the bars that illustrate it in a rail on the right. Falls to
+       one column below 960px, where a rail would be too narrow to read a bar in. */
+    .ma-two { display: grid; gap: var(--space-6); align-items: start; }
+    @media (min-width: 960px) { .ma-two { grid-template-columns: 1.12fr 0.88fr; } }
+    /* Stacked, not side by side: inside the rail there is no width for two. */
+    .ma-splits { display: grid; gap: var(--space-3); }
+    @media (max-width: 959px) {
+      .ma-splits { margin-top: var(--space-4); }
+      /* Below the rail breakpoint there IS room for two across again. */
+      @media (min-width: 780px) { .ma-splits { grid-template-columns: 1fr 1fr; } }
+    }
     .ma-split {
       border: 1px solid var(--rule-c);
       border-radius: var(--radius-card);
@@ -399,7 +413,8 @@ const nodes = [
        CSP is strict hash-based and drops style="" without an error anywhere.
        Only four ratios exist in the copy, so four rules cover it. */
     .ma-split__seg[data-w='80'] { flex: 80; }
-    .ma-split__seg[data-w='50'] { flex: 50; }
+    .ma-split__seg[data-w='45'] { flex: 45; }
+    .ma-split__seg[data-w='30'] { flex: 30; }
     .ma-split__seg[data-w='25'] { flex: 25; }
     .ma-split__seg[data-w='20'] { flex: 20; }
     .ma-split__seg[data-seg='0'] { background: var(--accent-graphic); }
