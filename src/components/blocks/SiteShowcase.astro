@@ -6,7 +6,8 @@
  * (captured from live client sites) and are optimised by astro:assets.
  *
  * Each card frames the desktop shot in a minimal browser chrome with the phone
- * shot inset in the corner. Two-row horizontal scroll rail — swipe/drag, no JS.
+ * shot inset in the corner. Two rows. Phones and touch get a swipe rail; a
+ * desktop with a mouse gets a CSS-only loop that pauses on hover. No JS either way.
  *
  * RECAPTURING ONE OF THESE: do not screenshot on `load`. eazywagon-desktop.webp
  * was taken that way and caught the hero carousel mid-flight — 56% of the frame
@@ -54,6 +55,12 @@ const m = byName(mobiles);
 const sites = Object.keys(d)
   .sort()
   .map((name) => ({ name, label: title(name), desktop: d[name]!, mobile: m[name] }));
+
+// Rendered twice for the desktop marquee: the second copy is what scrolls into
+// view as the first leaves, so the loop has no visible jump. It is aria-hidden
+// and display:none everywhere except the desktop marquee, so screen readers and
+// the phone swipe rail only ever see each site once.
+const loop = [...sites.map((s) => ({ ...s, dup: false })), ...sites.map((s) => ({ ...s, dup: true }))];
 ---
 
 {sites.length > 0 && (
@@ -64,8 +71,8 @@ const sites = Object.keys(d)
     {heading && <h2 class="mb-[var(--space-5)] max-w-[24ch] text-h2 font-semibold">{heading}</h2>}
     <div class="ss-shots__rail">
       <ul class="ss-shots__track">
-        {sites.map((s) => (
-          <li class="ss-shots__item">
+        {loop.map((s) => (
+          <li class:list={['ss-shots__item', s.dup && 'ss-shots__item--dup']} aria-hidden={s.dup ? 'true' : undefined}>
             <figure class="ss-frame">
               <div class="ss-frame__bar" aria-hidden="true">
                 <span class="ss-frame__dot"></span><span class="ss-frame__dot"></span><span class="ss-frame__dot"></span>
@@ -129,6 +136,48 @@ const sites = Object.keys(d)
     align-items: start;
   }
   .ss-shots__item { scroll-snap-align: start; }
+  .ss-shots__item--dup { display: none; }
+
+  /* DESKTOP: an auto-scrolling loop that pauses under the pointer (owner-directed,
+     2026-09-15). A mouse wheel scrolls vertically and the rail hides its
+     scrollbar, so on a PC the sideways rail simply could not be moved — the
+     second half of the showcase was unreachable.
+
+     Gated on a real hovering pointer, not just width: a touch laptop or tablet at
+     1280px still gets the swipe rail, because "pause on hover" means nothing
+     without a hover. Under reduced motion the loop is off and the rail stays a
+     manual scroller with a visible scrollbar instead. */
+  @media (hover: hover) and (pointer: fine) and (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    .ss-shots__rail {
+      overflow: hidden;
+      scroll-snap-type: none;
+      margin-inline: 0;
+      padding-inline: 0;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+    }
+    .ss-shots__item--dup { display: block; }
+    .ss-shots__track {
+      --shots-gap: var(--space-4);
+      animation: ssShotsLoop 64s linear infinite;
+    }
+    /* Pause while the pointer is over the rail, or while anything inside it has
+       keyboard focus; resume the moment it leaves. */
+    .ss-shots__rail:hover .ss-shots__track,
+    .ss-shots__rail:focus-within .ss-shots__track { animation-play-state: paused; }
+  }
+  /* The copy doubles the column count, so -50% lands HALF A GAP short of the
+     first duplicate: 2N columns have 2N-1 gaps, and the seam gap belongs to
+     neither half. Subtracting that half-gap is what makes the wrap invisible —
+     without it every loop visibly jumps by 16px. */
+  @keyframes ssShotsLoop {
+    from { transform: translateX(0); }
+    to   { transform: translateX(calc(-50% - var(--shots-gap) / 2)); }
+  }
+  @media (hover: hover) and (pointer: fine) and (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+    .ss-shots__rail { scrollbar-width: thin; }
+    .ss-shots__rail::-webkit-scrollbar { display: block; height: 8px; }
+  }
 
   .ss-frame {
     position: relative;
