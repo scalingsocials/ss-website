@@ -50,3 +50,32 @@ export function glyphFor(title: string): string {
   for (const [re, g] of RULES) if (re.test(t)) return g;
   return 'spark';
 }
+
+/**
+ * Pick the glyph for a process step card (ProcessSteps). Same first-match,
+ * specific-to-generic rule as glyphFor. Unmatched titles fall back by position
+ * through the canonical engagement order, so a new step never renders an empty
+ * art tile.
+ */
+const STEP_RULES: [RegExp, string][] = [
+  [/onboard/, 'handshake'],
+  [/content/, 'layers'],
+  [/targeting/, 'target'],
+  [/consistency/, 'scale'],
+  [/call|walkthrough/, 'chat'],
+  [/send your url/, 'search'],
+  [/keep the document|fix list|hand over/, 'doc'],
+  [/live|ship/, 'spark'],
+  [/access|review|audit|crawl|analys/, 'audit'],
+  [/plan|intent|strateg|calendar|prioriti|scope/, 'plan'],
+  [/build|create|fix|produce|capture|creative|variant/, 'build'],
+  [/test|measure/, 'test'],
+  [/scale|post/, 'scale'],
+];
+const STEP_FALLBACK = ['audit', 'plan', 'build', 'test', 'scale'];
+
+export function stepGlyphFor(title: string, index = 0): string {
+  const t = title.toLowerCase();
+  for (const [re, g] of STEP_RULES) if (re.test(t)) return g;
+  return STEP_FALLBACK[index % STEP_FALLBACK.length]!;
+}

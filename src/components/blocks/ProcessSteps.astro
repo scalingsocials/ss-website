@@ -1,14 +1,25 @@
 ---
 /**
- * ProcessSteps — the numbered engagement phases. See 02 §3 and 08 §7. The one
- * place numbered markers appear (08 §7), because it is a real sequence.
+ * ProcessSteps — the numbered engagement phases, as a centred stack of pastel
+ * step cards (owner-directed, 2026-09-15, after a "Public Grid" reference).
  *
- * Mobile: compact cards, a 28px number chip beside the title, a short description
- * below. No connecting rail (it used to run through the body text). Desktop: a
- * horizontal row, chip above title, a thin connector between the chips only —
- * never through the text — with equal-height columns. Register-agnostic, renders
- * fully without JS, and adds no on-load opacity animation.
+ * Our language, not the reference's: the same six pastel hues as the homepage
+ * service cards, a line glyph in the card's hue where the reference used 3D
+ * renders, and the annotation motif — a thin vertical rule with a node — as the
+ * connector between steps. The first step is the deep card, marking where the
+ * engagement starts; the rest are pastel.
+ *
+ * The one place numbered markers appear (08 §7), because this is a real
+ * sequence. Renders fully without JS, adds no on-load animation, and every
+ * colour pairing is contrast-checked (text sits on the pastel, not on the art).
+ *
+ * Glyphs are chosen from the step title (stepGlyphFor), falling back by position
+ * through audit → plan → build → test → scale, so an unrecognised title still
+ * gets a sensible picture rather than an empty tile.
  */
+import Glyph from '@/components/graphics/Glyph.astro';
+import { stepGlyphFor } from '@/lib/glyphFor';
+
 export interface Step {
   title: string;
   body: string;
@@ -18,85 +29,164 @@ export interface Props {
   class?: string;
 }
 const { steps, class: className = '' } = Astro.props;
+
+// "Month one — content" → lead "Month one", accent "content". Titles without a
+// dash stay one colour; nothing is emphasised that the author did not separate.
+const split = (t: string) => {
+  const i = t.indexOf(' — ');
+  return i === -1 ? { lead: t, tail: '' } : { lead: t.slice(0, i), tail: t.slice(i + 3) };
+};
 ---
 
 <ol data-process-steps class:list={['ss-process', className]}>
-  {steps.map((step, i) => (
-    <li class="ss-process__step">
-      <div class="ss-process__head">
-        <span class="ss-process__chip display-type" data-num aria-hidden="true">{i + 1}</span>
-        <h3 class="ss-process__title">{step.title}</h3>
-      </div>
-      <p class="ss-process__body">{step.body}</p>
-    </li>
-  ))}
+  {steps.map((step, i) => {
+    const { lead, tail } = split(step.title);
+    return (
+      <li class:list={['ss-process__step', i === 0 && 'ss-process__step--lead']} data-hue={i % 6}>
+        <span class="ss-process__num" data-num aria-hidden="true">{i + 1}</span>
+        <div class="ss-process__text">
+          <h3 class="ss-process__title">
+            {lead}{tail && <> <span class="ss-process__tail">{tail}</span></>}
+          </h3>
+          <p class="ss-process__body">{step.body}</p>
+        </div>
+        <span class="ss-process__art" aria-hidden="true">
+          <Glyph name={stepGlyphFor(step.title, i)} size={40} strokeWidth={1.6} />
+        </span>
+      </li>
+    );
+  })}
 </ol>
 
 <style>
-  /* Mobile: a stack of compact cards. */
+  /* Hue palette — the same six as ServiceCard / SubServiceCard, so a process
+     card and a service card read as one family. Set by data attribute, never an
+     inline style: the production CSP drops style="" silently. */
+  .ss-process__step[data-hue='0'] { --c-a: #eef0ff; --c-b: #c6c9ff; --c-ink: #4b4ed6; }
+  .ss-process__step[data-hue='1'] { --c-a: #e1f5f0; --c-b: #a9e2d7; --c-ink: #1c857a; }
+  .ss-process__step[data-hue='2'] { --c-a: #e6f1fb; --c-b: #b7ddf4; --c-ink: #2181b4; }
+  .ss-process__step[data-hue='3'] { --c-a: #f2ebfe; --c-b: #d6c2fb; --c-ink: #6c43c8; }
+  .ss-process__step[data-hue='4'] { --c-a: #fdeaf1; --c-b: #f6c6d9; --c-ink: #c0446f; }
+  .ss-process__step[data-hue='5'] { --c-a: #feefe1; --c-b: #fbd2ac; --c-ink: #b67328; }
+
   .ss-process {
-    position: relative;
+    max-width: 820px;
+    margin-inline: auto;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    /* The gap is where the connector lives. */
+    gap: var(--space-4);
   }
+
   .ss-process__step {
-    border: 1px solid var(--rule-c);
-    border-radius: var(--radius-card);
-    background: var(--ground);
-    padding: var(--space-4);
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--space-4);
+    padding: var(--space-4) var(--space-5) var(--space-4) var(--space-4);
+    border-radius: 20px;
+    background: linear-gradient(158deg, var(--c-a), color-mix(in srgb, var(--c-b) 42%, var(--c-a)));
+    border: 1px solid color-mix(in srgb, var(--c-ink) 14%, transparent);
   }
-  .ss-process__head { display: flex; align-items: center; gap: var(--space-3); }
-  .ss-process__chip {
+
+  /* The connector: the annotation motif laid between two steps — a thin rule
+     running down from this card's number to the next, with a node halfway. It
+     sits in the flex gap, so it never crosses any text. */
+  .ss-process__step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: calc(var(--space-4) + 17px);
+    top: 100%;
+    width: 2px;
+    height: var(--space-4);
+    background: color-mix(in srgb, var(--c-ink) 45%, transparent);
+  }
+  .ss-process__step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--space-4) + 13px);
+    top: calc(100% + var(--space-4) / 2 - 5px);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--c-ink);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-a) 90%, transparent);
+    z-index: 1;
+  }
+
+  .ss-process__num {
+    align-self: start;
     display: grid;
     place-items: center;
-    width: 28px;
-    height: 28px;
-    flex: none;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: var(--accent-fill);
-    color: var(--accent-on);
-    font-size: var(--text-label);
+    background: color-mix(in srgb, #fff 70%, var(--c-b));
+    border: 1px solid color-mix(in srgb, var(--c-ink) 22%, transparent);
+    color: color-mix(in srgb, var(--c-ink) 78%, #000);
+    font-size: var(--text-small);
     font-weight: 700;
     line-height: 1;
   }
-  .ss-process__title { font-size: var(--text-body); font-weight: 600; color: var(--fg); }
+
+  .ss-process__title {
+    font-size: var(--text-h4);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: var(--tracking-heading);
+    color: var(--fg);
+  }
+  .ss-process__tail { color: color-mix(in srgb, var(--c-ink) 82%, #000); }
   .ss-process__body {
-    margin-top: var(--space-2);
+    margin-top: var(--space-1);
+    max-width: 52ch;
     font-size: var(--text-small);
-    line-height: 1.5;
-    color: var(--fg-muted);
-    /* keep it to ~two lines on the phone card */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    line-height: 1.55;
+    color: color-mix(in srgb, var(--fg) 84%, var(--c-ink));
   }
 
-  /* Desktop: a horizontal row; chip above title; connector between chips only. */
-  @media (min-width: 768px) {
-    .ss-process {
-      display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: minmax(0, 1fr);
-      gap: var(--space-5);
-      align-items: start;
+  .ss-process__art {
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    border-radius: 18px;
+    color: var(--c-ink);
+    background: color-mix(in srgb, #fff 55%, var(--c-b));
+    border: 1px solid color-mix(in srgb, var(--c-ink) 16%, transparent);
+    box-shadow: 0 14px 28px -18px color-mix(in srgb, var(--c-ink) 70%, transparent);
+  }
+
+  /* The lead step: the deep card that marks where an engagement starts. */
+  .ss-process__step--lead {
+    background: linear-gradient(158deg, color-mix(in srgb, var(--c-ink) 58%, #000), color-mix(in srgb, var(--c-ink) 42%, #000));
+    border-color: transparent;
+  }
+  .ss-process__step--lead .ss-process__title { color: #fff; }
+  .ss-process__step--lead .ss-process__tail { color: var(--c-b); }
+  .ss-process__step--lead .ss-process__body { color: color-mix(in srgb, #fff 84%, var(--c-b)); }
+  .ss-process__step--lead .ss-process__num {
+    background: var(--c-b);
+    border-color: transparent;
+    color: color-mix(in srgb, var(--c-ink) 60%, #000);
+  }
+  .ss-process__step--lead .ss-process__art {
+    color: #fff;
+    background: color-mix(in srgb, #fff 12%, transparent);
+    border-color: color-mix(in srgb, #fff 18%, transparent);
+    box-shadow: none;
+  }
+
+  /* Phones: the art tile would squeeze the copy, so it steps aside. */
+  @media (max-width: 520px) {
+    .ss-process__step {
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: var(--space-3);
+      padding: var(--space-3) var(--space-3) var(--space-3) var(--space-3);
     }
-    .ss-process__step { border: none; background: transparent; padding: 0; position: relative; }
-    .ss-process__head { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
-    .ss-process__chip { position: relative; z-index: 1; }
-    .ss-process__title { font-size: var(--text-h4); }
-    .ss-process__body { margin-top: var(--space-1); -webkit-line-clamp: unset; overflow: visible; display: block; max-width: 32ch; }
-    /* thin rail behind the chips only (chips sit on top and cover it) */
-    .ss-process::before {
-      content: '';
-      position: absolute;
-      top: 14px;
-      left: 8%;
-      right: 8%;
-      height: 2px;
-      background: var(--rule-c);
-      z-index: 0;
-    }
+    .ss-process__art { display: none; }
+    .ss-process__step:not(:last-child)::after { left: calc(var(--space-3) + 17px); }
+    .ss-process__step:not(:last-child)::before { left: calc(var(--space-3) + 13px); }
   }
 </style>

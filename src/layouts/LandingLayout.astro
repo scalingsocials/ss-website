@@ -270,8 +270,10 @@ const nodes = [
 
   <!-- ── PROCESS ────────────────────────────────────────────────────────────── -->
   <Section size="md">
-    <span class="lp-eyebrow">How it works</span>
-    <h2 class="lp-h2">A clear path from first call to results</h2>
+    <div class="text-center">
+      <span class="lp-eyebrow">How it works</span>
+    <h2 class="lp-h2 mx-auto">A clear path from first call to results</h2>
+    </div>
     <div class="mt-[var(--space-5)]"><ProcessSteps steps={c.process} /></div>
   </Section>
 
@@ -373,8 +375,10 @@ const nodes = [
   <!-- ── GETTING STARTED ────────────────────────────────────────────────────── -->
   {c.gettingStarted && (
     <Section size="md">
-      <span class="lp-eyebrow">Getting started</span>
-      <h2 class="lp-h2">From first call to live campaigns in 10 days</h2>
+      <div class="text-center">
+        <span class="lp-eyebrow">Getting started</span>
+      <h2 class="lp-h2 mx-auto">From first call to live campaigns in 10 days</h2>
+      </div>
       <div class="mt-[var(--space-5)]"><ProcessSteps steps={c.gettingStarted} /></div>
     </Section>
   )}
