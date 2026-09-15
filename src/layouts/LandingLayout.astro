@@ -26,6 +26,7 @@ import { Image } from 'astro:assets';
 import lockup from '@/assets/brand/lockup-black.png';
 import jamalPhoto from '@/assets/founders/jamal-khan.jpg';
 import CreativeWall from '@/components/blocks/CreativeWall.astro';
+import TeamLife from '@/components/blocks/TeamLife.astro';
 import CaseStudyPoster from '@/components/blocks/CaseStudyPoster.astro';
 import { CASE_STUDY_BY_SLUG, CASE_STUDY_KICKERS, INDEX_ORDER } from '@/lib/caseStudies';
 import { readdirSync } from 'node:fs';
@@ -106,21 +107,6 @@ const nodes = [
     <DotField origin="top-right" />
     <div class="[&>*]:min-w-0 lp-hero__grid relative grid gap-[var(--space-7)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
       <div class="lp-hero__copy">
-        <!-- Visual opener: a plan → execute graphic, so the page leads with a
-             picture of the approach, not a wall of text. Decorative. -->
-        <div class="lp-plan" aria-hidden="true">
-          <div class="lp-plan__step">
-            <span class="lp-plan__num">1</span>
-            <div class="lp-plan__txt"><span class="lp-plan__t">Plan</span><span class="lp-plan__s">Your margins & break-even ROAS</span></div>
-            <span class="lp-plan__ico"><Glyph name="doc" size={20} /></span>
-          </div>
-          <svg class="lp-plan__arrow" width="34" height="16" viewBox="0 0 34 16" fill="none"><path d="M1 8h29M24 2l7 6-7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div class="lp-plan__step lp-plan__step--go">
-            <span class="lp-plan__num">2</span>
-            <div class="lp-plan__txt"><span class="lp-plan__t">Execute</span><span class="lp-plan__s">Create, test & scale weekly</span></div>
-            <span class="lp-plan__ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 3 3 7-8"/><path d="M17 4h4v4"/></svg></span>
-          </div>
-        </div>
         <span class="lp-eyebrow">{c.hero.eyebrow}</span>
         <h1 class="lp-h1">{c.hero.h1}</h1>
         <p class="lp-sub">{c.hero.sub}</p>
@@ -133,15 +119,9 @@ const nodes = [
           ))}
         </ul>
         {c.hero.qualifier && <p class="lp-qual">{c.hero.qualifier}</p>}
-        <ul class="lp-stats">
-          {c.hero.stats.map((s) => (
-            <li>
-              <span class="lp-stats__val display-type" data-num>{s.value}</span>
-              <span class="lp-stats__lbl">{s.label}</span>
-            </li>
-          ))}
-        </ul>
-        <p class="lp-trust">{c.trustLine}</p>
+        <p class="lp-rating lp-rating--hero">
+          <span class="lp-rating__stars" aria-hidden="true">★★★★★</span> Rated 5.0 on Google by D2C founders
+        </p>
       </div>
       <div class="lp-hero__form" id="lead">
         <LeadForm
@@ -164,6 +144,13 @@ const nodes = [
         )}
       </div>
     </div>
+
+    {/* Social proof immediately under the fold: real client marks, auto-discovered
+        from src/assets/logos/ — the first thing a cold ad click should see. */}
+    <div class="lp-herologos">
+      <p class="lp-herologos__lbl">{c.trustLine}</p>
+      <LogoWall />
+    </div>
   </Section>
 
   <!-- ── WHAT HAPPENS NEXT ──────────────────────────────────────────────────── -->
@@ -182,14 +169,65 @@ const nodes = [
     </Section>
   )}
 
-  <!-- ── TRUST STRIP ────────────────────────────────────────────────────────── -->
-  <Section size="sm" class="!bg-[var(--surface-c)]">
-    <div class="lp-truststrip">
-      <PartnerBadges label="Official partners" />
-      <p class="lp-rating"><span class="lp-rating__stars" aria-hidden="true">★★★★★</span> Rated 5.0 on Google by D2C founders</p>
+  <!-- ── NUMBERS BAND (ink) ─────────────────────────────────────────────────────
+       The hero stats, given a black band of their own so the page has rhythm
+       instead of six paper card grids in a row. Every value is a real string in
+       the HTML — nothing counts up from zero (CLAUDE.md §10). -->
+  <Section register="ink" size="md" class="lp-numbers relative overflow-hidden">
+    <DotField origin="top-right" />
+    <div class="relative">
+      <ul class="lp-nums">
+        {c.hero.stats.map((s) => (
+          <li class="lp-nums__item">
+            <span class="lp-nums__val display-type" data-num>{s.value}</span>
+            <span class="lp-nums__lbl">{s.label}</span>
+          </li>
+        ))}
+      </ul>
+      <div class="lp-truststrip"><PartnerBadges label="Official partners" /></div>
     </div>
-    <div class="mt-[var(--space-6)]"><LogoWall heading="Brands we work with" /></div>
   </Section>
+
+  <!-- ── WHO WE WORK BEST WITH ──────────────────────────────────────────────────
+       The categories, each carrying its own documented before→after. A card with
+       no documented account states the category and nothing else — no borrowed
+       number (§15). -->
+  {c.segments && (
+    <Section size="md">
+      <span class="lp-eyebrow">{c.segments.eyebrow}</span>
+      <h2 class="lp-h2">{c.segments.heading}</h2>
+      <p class="lp-lede">{c.segments.sub}</p>
+      <ul class="lp-segs">
+        {c.segments.items.map((sg) => (
+          <li class="lp-seg">
+            <span class="lp-seg__glyph"><Glyph name={sg.glyph} size={22} /></span>
+            <h3 class="lp-seg__t">{sg.title}</h3>
+            <p class="lp-seg__b">{sg.body}</p>
+            {sg.proof ? (
+              <div class="lp-seg__proof">
+                <span class="lp-seg__metric">{sg.proof.metric}</span>
+                <span class="lp-seg__move">
+                  {sg.proof.kind === 'delta' ? (
+                    <>
+                      <span class="lp-seg__before">{sg.proof.before}</span>
+                      <svg class="lp-seg__arrow" width="18" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true"><path d="M1 5h14M11 1l5 4-5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      <span class="lp-seg__after">{sg.proof.after}</span>
+                    </>
+                  ) : (
+                    <span class="lp-seg__after">{sg.proof.value}</span>
+                  )}
+                </span>
+                <span class="lp-seg__period">{sg.proof.period}</span>
+              </div>
+            ) : (
+              <p class="lp-seg__noproof">{sg.note}</p>
+            )}
+          </li>
+        ))}
+      </ul>
+      <div class="lp-cta-row"><a href="#lead" class="lp-btn">{c.ctaLabel}</a></div>
+    </Section>
+  )}
 
   <!-- ── PROOF (perf) or SHOWCASE (web) ─────────────────────────────────────── -->
   {c.proof && (
@@ -214,12 +252,15 @@ const nodes = [
             ))}
           </div>
         ) : (
-          <div class="lp-slider__empty">
-            {[0, 1, 2].map(() => <span class="lp-shot lp-shot--ph">Ads Manager screenshot</span>)}
-          </div>
+          <p class="lp-shot--todo">
+            TODO: [Ads Manager screenshots] — drop anonymised PNGs into <code>public/lp/proof/</code>
+            and this row becomes a live screenshot slider.
+          </p>
         )}
       </div>
-      <p class="lp-slider__cap">Screenshots from client Meta Ads Manager accounts. Brand names hidden.</p>
+      {proofShots.length > 0 && (
+        <p class="lp-slider__cap">Screenshots from client Meta Ads Manager accounts. Brand names hidden.</p>
+      )}
 
       <div class="lp-cta-row"><a href="#lead" class="lp-btn">{c.ctaLabel}</a></div>
     </Section>
@@ -227,7 +268,7 @@ const nodes = [
 
   {/* ── CREATIVES ─ reuse the homepage creative wall (real creatives) ────────── */}
   {c.creatives && (
-    <Section size="md" class="!bg-[var(--surface-c)]">
+    <Section register="ink" size="md">
       <span class="lp-eyebrow">Creative we ship</span>
       <h2 class="lp-h2">Ads we've made and scaled</h2>
       <p class="lp-lede">Shot, cut and tested in-house. Creative is the lever — this is what ours looks like.</p>
@@ -304,6 +345,20 @@ const nodes = [
       </ul>
     )}
   </Section>
+
+  <!-- ── THE TEAM ───────────────────────────────────────────────────────────────
+       Real photographs of the actual team (src/assets/team-life/). The objection
+       this answers on an ad page is "who will actually be on my account" — a
+       stock photo answers it with a lie, so the mosaic is the real one or none. -->
+  {c.teamStrip && (
+    <Section size="md" class="!bg-[var(--surface-c)]">
+      <TeamLife
+        eyebrow="Who runs your account"
+        heading="A senior team you can name, not a ticket queue"
+        body="You talk to the people making the decisions on your account — the media buyer, the creative lead and the person fixing the store. The team is kept small on purpose so nobody is handed your brand because they happened to be free."
+      />
+    </Section>
+  )}
 
   <!-- ── FOUNDER NOTE ───────────────────────────────────────────────────────── -->
   {c.founderNote && (
@@ -509,26 +564,11 @@ const nodes = [
 
     /* Hero */
     .lp-hero { padding-top: var(--space-7) !important; padding-bottom: var(--space-8) !important; scroll-margin-top: 76px; }
-    /* Hero opener graphic: plan → execute */
-    .lp-plan { display:flex; align-items:stretch; gap: var(--space-2); margin-bottom: var(--space-5); }
-    .lp-plan__step { flex:1; display:flex; align-items:center; gap: var(--space-2); padding: var(--space-3); border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); box-shadow: 0 10px 26px -20px color-mix(in srgb, var(--accent-fill) 40%, transparent); }
-    .lp-plan__step--go { background: linear-gradient(180deg, color-mix(in srgb, var(--accent-wash) 70%, var(--ground)), var(--ground)); border-color: color-mix(in srgb, var(--accent-graphic) 24%, var(--rule-c)); }
-    .lp-plan__num { display:grid; place-items:center; width:22px; height:22px; flex:none; border-radius:50%; background: var(--accent-fill); color: var(--accent-on); font-size: var(--text-label); font-weight:800; }
-    .lp-plan__txt { display:flex; flex-direction:column; line-height:1.1; min-width:0; }
-    .lp-plan__t { font-size: var(--text-body); font-weight:700; color: var(--fg); }
-    .lp-plan__s { font-size: var(--text-label); color: var(--fg-muted); }
-    .lp-plan__ico { margin-left:auto; flex:none; color: var(--accent-graphic); }
-    .lp-plan__arrow { flex:none; align-self:center; color: var(--fg-muted); }
-    @media (max-width: 420px) { .lp-plan__s { display:none; } }
     .lp-h1 { margin-top: var(--space-2); font-size: clamp(2rem, 4.4vw, 3.15rem); line-height:1.05; font-weight:800; letter-spacing:-0.025em; text-wrap:balance; }
     .lp-sub { margin-top: var(--space-4); max-width: 54ch; font-size: var(--text-h4); line-height:1.5; color: var(--fg-muted); }
     .lp-bullets { margin-top: var(--space-5); display:flex; flex-direction:column; gap: var(--space-2); }
     .lp-bullets li { display:flex; gap:0.6rem; align-items:flex-start; font-size: var(--text-body); font-weight:500; color: var(--fg); }
     .lp-bullets__tick { display:grid; place-items:center; width:22px; height:22px; flex:none; margin-top:1px; border-radius:6px; background: var(--accent-wash); color: var(--accent-graphic); }
-    .lp-stats { margin-top: var(--space-6); display:grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); padding-top: var(--space-4); border-top:1px solid var(--rule-c); }
-    .lp-stats__val { display:block; font-weight:800; line-height:1; font-size: clamp(1.25rem, 2.3vw, 1.9rem); color: var(--fg); }
-    .lp-stats__lbl { display:block; margin-top:0.35rem; font-size: var(--text-label); line-height:1.35; color: var(--fg-muted); }
-    .lp-trust { margin-top: var(--space-5); font-size: var(--text-small); color: var(--fg-muted); }
     .lp-hero__form { position: relative; }
 
     /* Trust strip */
@@ -720,6 +760,42 @@ const nodes = [
     .lp-from__foot span { font-size: var(--text-body); color: var(--fg); }
 
     .lp-fit__note { margin-top: var(--space-3); font-size: var(--text-small); color: var(--fg-muted); }
+
+    /* Placeholder for owner-supplied Ads Manager shots. Obviously a placeholder
+       (§15) without three empty boxes dominating the middle of the page. */
+    .lp-shot--todo { border:1px dashed var(--rule-c); border-radius: var(--radius-card); padding: var(--space-4); font-size: var(--text-small); color: var(--fg-muted); }
+
+    /* ── Hero client logos (social proof under the fold) ─────────────────── */
+    .lp-herologos { margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--rule-c); }
+    .lp-herologos__lbl { margin-bottom: var(--space-4); text-align: center; font-size: var(--text-small); color: var(--fg-muted); }
+    .lp-rating--hero { margin-top: var(--space-5); }
+
+    /* ── Numbers band (ink) ──────────────────────────────────────────────── */
+    .lp-nums { display:grid; gap: var(--space-5); grid-template-columns:1fr; }
+    @media (min-width:640px){ .lp-nums { grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--space-4); } }
+    .lp-nums__item { padding-left: var(--space-4); border-left: 2px solid color-mix(in srgb, var(--accent-graphic) 55%, transparent); }
+    .lp-nums__val { display:block; font-weight:800; line-height:1; letter-spacing:-0.02em; font-size: clamp(2.1rem, 5.2vw, 3.4rem); color: var(--fg); }
+    .lp-nums__lbl { display:block; margin-top: var(--space-2); font-size: var(--text-small); line-height:1.4; color: var(--fg-muted); }
+    .lp-numbers .lp-truststrip { margin-top: var(--space-8); padding-top: var(--space-6); border-top:1px solid var(--rule-c); }
+
+    /* ── Who we work best with ───────────────────────────────────────────── */
+    .lp-segs { margin-top: var(--space-6); display:grid; gap: var(--space-3); grid-template-columns:1fr; }
+    @media (min-width:640px){ .lp-segs { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (min-width:1024px){ .lp-segs { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    .lp-seg { display:flex; flex-direction:column; gap: var(--space-2); padding: var(--space-5); border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); }
+    .lp-seg__glyph { display:grid; place-items:center; width:44px; height:44px; border-radius: var(--radius-input); color: var(--accent-graphic); background: var(--accent-wash); border:1px solid color-mix(in srgb, var(--accent-graphic) 22%, transparent); }
+    .lp-seg__t { margin-top: var(--space-2); font-size: var(--text-h4); font-weight:700; color: var(--fg); }
+    .lp-seg__b { font-size: var(--text-small); line-height:1.55; color: var(--fg-muted); }
+    /* The proof block sits on the card floor so every card lines up regardless of
+       how long its blurb runs. */
+    .lp-seg__proof { margin-top:auto; padding-top: var(--space-4); border-top:1px solid var(--rule-c); }
+    .lp-seg__metric { display:block; font-size: var(--text-label); font-weight:600; color: var(--fg-muted); }
+    .lp-seg__move { display:flex; align-items:baseline; gap:0.5rem; margin-top:0.35rem; font-weight:800; font-size: var(--text-h4); line-height:1.1; }
+    .lp-seg__before { color: var(--fg-muted); }
+    .lp-seg__arrow { flex:none; align-self:center; color: var(--fg-muted); }
+    .lp-seg__after { color: var(--pos); }
+    .lp-seg__period { display:block; margin-top:0.35rem; font-size: var(--text-label); color: var(--fg-muted); }
+    .lp-seg__noproof { margin-top:auto; padding-top: var(--space-4); border-top:1px solid var(--rule-c); font-size: var(--text-label); color: var(--fg-muted); }
 
     @media (prefers-reduced-motion: reduce) {
       .lp-btn, .lp-sticky__cta { transition:none; }

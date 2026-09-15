@@ -86,7 +86,7 @@ const roleLine = (t: Testimonial) => t.brand ?? t.tag;
       <div class="ss-tstsl__row" data-slider>
         <div class:list={['ss-tstsl__track', ri === 1 && 'ss-tstsl__track--rev']}>
           {[...row, ...row].map((t, i) => (
-            <figure class="ss-tstcard" aria-hidden={i >= row.length ? 'true' : undefined}>
+            <figure class="ss-tstcard" aria-hidden={i >= row.length ? 'true' : undefined} inert={i >= row.length ? true : undefined}>
               <div class="ss-tstcard__head">
                 <span class="ss-tstcard__avatar">
                   {!isMarquee && t.photo && <img src={`/lp/testimonials/${slug(t.name)}.jpg`} alt="" width="44" height="44" loading="lazy" decoding="async" class="ss-tstcard__img" />}

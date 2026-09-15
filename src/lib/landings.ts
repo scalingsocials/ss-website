@@ -12,6 +12,7 @@ import type { Field } from '@/lib/formFields';
 import type { Faq } from '@/lib/services';
 import { SERVICE_BY_SLUG } from '@/lib/services';
 import { CASE_STUDY_BY_SLUG, CASE_STUDY_TOTALS } from '@/lib/caseStudies';
+import { INDUSTRIES } from '@/lib/industries';
 import { brandsServed } from '@/data/proofStats';
 
 export interface LandingProof {
@@ -63,6 +64,31 @@ export interface LandingFit {
   note?: string;
 }
 
+/**
+ * "Who we work best with" card — one D2C category we actually run.
+ *
+ * Derived from INDUSTRIES (the real verticals) and anchored to that vertical's
+ * documented case study, so the before→after on the card is the same figure the
+ * case study states and cannot drift (§15). A vertical with no documented
+ * account carries no proof line rather than an invented one.
+ */
+export interface LandingSegment {
+  glyph: string;
+  title: string;
+  body: string;
+  /**
+   * The vertical's documented proof, in whichever shape that account actually
+   * has. A transformed account carries a before→after; a mature retainer carries
+   * a floor that held — inventing a Delta for the second kind is exactly the
+   * drift caseStudies.ts forbids. A vertical with no documented paid account
+   * carries `note` and no figure at all.
+   */
+  proof?:
+    | { kind: 'delta'; metric: string; before: string; after: string; period: string }
+    | { kind: 'held'; metric: string; value: string; period: string };
+  note?: string;
+}
+
 export interface LandingContent {
   slug: string;
   url: string;
@@ -102,6 +128,10 @@ export interface LandingContent {
    *  existing CaseStudyPoster with the full study detail). */
   proofStudies?: string[];
   proof?: LandingProof[];
+  /** "Who we work best with" — the D2C categories, with real proof per card. */
+  segments?: { eyebrow: string; heading: string; sub: string; items: LandingSegment[] };
+  /** Show the real team photo mosaic (answers "who is actually on my account"). */
+  teamStrip?: boolean;
   showcase?: boolean;
   benefits: { eyebrow: string; heading: string; sub: string; items: LandingCard[] };
   process: { title: string; body: string }[];
@@ -134,6 +164,36 @@ const proofFrom = (slug: string): LandingProof => {
   if (!c || !c.delta) throw new Error(`landings: ${slug} has no delta`);
   return { metric: c.delta.metric, before: c.delta.before, after: c.delta.after, client: c.client, period: c.period, channel: c.channels };
 };
+
+// ── "Who we work best with" ───────────────────────────────────────────────────
+// One card per real vertical, in INDUSTRIES order. The proof line is the anchor
+// case study's own Delta, so the card can never state a figure the case study
+// does not. Beauty & cosmetics has no documented paid account yet, so it carries
+// the category line and no proof — never a borrowed or invented number (§15).
+const SEGMENT_GLYPH: Record<string, string> = {
+  'fashion-apparel': 'spark',
+  'kids-baby': 'handshake',
+  'wellness-health': 'shield',
+  gifting: 'cart',
+  'beauty-cosmetics': 'layers',
+};
+
+const SEGMENTS: LandingSegment[] = INDUSTRIES.map((ind) => {
+  const studies = ind.proofSlugs.map((sl) => CASE_STUDY_BY_SLUG[sl]).filter(Boolean);
+  const withDelta = studies.find((cs) => cs!.delta);
+  const withHeld = studies.find((cs) => cs!.held);
+  const base = { glyph: SEGMENT_GLYPH[ind.slug] ?? 'target', title: ind.name, body: ind.blurb };
+
+  if (withDelta?.delta) {
+    const { metric, before, after } = withDelta.delta;
+    return { ...base, proof: { kind: 'delta' as const, metric, before, after, period: withDelta.period } };
+  }
+  if (withHeld?.held) {
+    const { metric, value } = withHeld.held;
+    return { ...base, proof: { kind: 'held' as const, metric, value, period: withHeld.period } };
+  }
+  return { ...base, note: 'Store, creative and paid work running. No paid case study published in this category yet.' };
+});
 
 // Pick a subset of a service's FAQs by question keyword, in a deliberate order.
 const faqsByKeyword = (slug: string, keys: string[]): Faq[] => {
@@ -209,6 +269,13 @@ export const LANDINGS: LandingContent[] = [
       { n: '03', text: '30 minutes, your account on screen, a clear first-30-days plan.' },
     ],
     creatives: true,
+    teamStrip: true,
+    segments: {
+      eyebrow: 'Who we work best with',
+      heading: 'Five D2C categories we run every day',
+      sub: 'We are not a generalist agency with an ecommerce page. Where a category has a documented account, that account\u2019s own numbers are on the card — read straight from the client\u2019s Ads Manager, never rounded up.',
+      items: SEGMENTS,
+    },
     proofStudies: ['womens-fashion-account-turnaround', 'wellness-brand-zero-to-scale', 'womenswear-breaking-the-ceiling'],
     proof: [
       proofFrom('womens-fashion-account-turnaround'),
