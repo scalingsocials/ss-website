@@ -1,21 +1,25 @@
 ---
 /**
- * ProcessSteps — the numbered engagement phases, as a centred stack of pastel
- * step cards (owner-directed, 2026-09-15, after a "Public Grid" reference).
+ * ProcessSteps — the numbered engagement phases as pastel step cards
+ * (owner-directed, 2026-09-15, after a "Public Grid" reference).
+ *
+ * Phones and tablets: a centred vertical stack. Desktop (1024px+): one
+ * horizontal row, with the steps revealing one after another left to right as
+ * the row scrolls into view, and each connector drawing across to the next card.
  *
  * Our language, not the reference's: the same six pastel hues as the homepage
  * service cards, a line glyph in the card's hue where the reference used 3D
- * renders, and the annotation motif — a thin vertical rule with a node — as the
- * connector between steps. The first step is the deep card, marking where the
- * engagement starts; the rest are pastel.
+ * renders, and the annotation motif — a thin rule with a node — as the connector
+ * between steps. The first step is the deep card marking where the engagement
+ * starts.
  *
- * The one place numbered markers appear (08 §7), because this is a real
- * sequence. Renders fully without JS, adds no on-load animation, and every
- * colour pairing is contrast-checked (text sits on the pastel, not on the art).
+ * The reveal rides the site's existing [data-reveal] observer (motion.ts), so it
+ * is progressive enhancement: with JS off, no IntersectionObserver, or reduced
+ * motion, every card is simply visible. Nothing is parked at opacity 0 unless
+ * the script that will un-hide it is already running.
  *
- * Glyphs are chosen from the step title (stepGlyphFor), falling back by position
- * through audit → plan → build → test → scale, so an unrecognised title still
- * gets a sensible picture rather than an empty tile.
+ * The one place numbered markers appear (08 §7), because this is a real sequence.
+ * Glyphs are chosen from the step title (stepGlyphFor), falling back by position.
  */
 import Glyph from '@/components/graphics/Glyph.astro';
 import { stepGlyphFor } from '@/lib/glyphFor';
@@ -38,11 +42,11 @@ const split = (t: string) => {
 };
 ---
 
-<ol data-process-steps class:list={['ss-process', className]}>
+<ol data-process-steps data-reveal="steps" class:list={['ss-process', className]}>
   {steps.map((step, i) => {
     const { lead, tail } = split(step.title);
     return (
-      <li class:list={['ss-process__step', i === 0 && 'ss-process__step--lead']} data-hue={i % 6}>
+      <li class:list={['ss-process__step', i === 0 && 'ss-process__step--lead']} data-hue={i % 6} data-i={Math.min(i, 8)}>
         <span class="ss-process__num" data-num aria-hidden="true">{i + 1}</span>
         <div class="ss-process__text">
           <h3 class="ss-process__title">
@@ -59,9 +63,8 @@ const split = (t: string) => {
 </ol>
 
 <style>
-  /* Hue palette — the same six as ServiceCard / SubServiceCard, so a process
-     card and a service card read as one family. Set by data attribute, never an
-     inline style: the production CSP drops style="" silently. */
+  /* Hue palette — the same six as ServiceCard / SubServiceCard. Set by data
+     attribute, never an inline style: the production CSP drops style="". */
   .ss-process__step[data-hue='0'] { --c-a: #eef0ff; --c-b: #c6c9ff; --c-ink: #4b4ed6; }
   .ss-process__step[data-hue='1'] { --c-a: #e1f5f0; --c-b: #a9e2d7; --c-ink: #1c857a; }
   .ss-process__step[data-hue='2'] { --c-a: #e6f1fb; --c-b: #b7ddf4; --c-ink: #2181b4; }
@@ -69,13 +72,13 @@ const split = (t: string) => {
   .ss-process__step[data-hue='4'] { --c-a: #fdeaf1; --c-b: #f6c6d9; --c-ink: #c0446f; }
   .ss-process__step[data-hue='5'] { --c-a: #feefe1; --c-b: #fbd2ac; --c-ink: #b67328; }
 
+  /* ---- base: the vertical stack (phones and tablets) ---------------------- */
   .ss-process {
     max-width: 820px;
     margin-inline: auto;
     display: flex;
     flex-direction: column;
-    /* The gap is where the connector lives. */
-    gap: var(--space-4);
+    gap: var(--space-4); /* the connector lives in the gap */
   }
 
   .ss-process__step {
@@ -90,9 +93,8 @@ const split = (t: string) => {
     border: 1px solid color-mix(in srgb, var(--c-ink) 14%, transparent);
   }
 
-  /* The connector: the annotation motif laid between two steps — a thin rule
-     running down from this card's number to the next, with a node halfway. It
-     sits in the flex gap, so it never crosses any text. */
+  /* Connector: a thin rule from this card's number down to the next, with a node
+     halfway. It sits in the gap, so it never crosses any text. */
   .ss-process__step:not(:last-child)::after {
     content: '';
     position: absolute;
@@ -158,7 +160,7 @@ const split = (t: string) => {
     box-shadow: 0 14px 28px -18px color-mix(in srgb, var(--c-ink) 70%, transparent);
   }
 
-  /* The lead step: the deep card that marks where an engagement starts. */
+  /* The lead step: the deep card marking where an engagement starts. */
   .ss-process__step--lead {
     background: linear-gradient(158deg, color-mix(in srgb, var(--c-ink) 58%, #000), color-mix(in srgb, var(--c-ink) 42%, #000));
     border-color: transparent;
@@ -183,10 +185,116 @@ const split = (t: string) => {
     .ss-process__step {
       grid-template-columns: auto minmax(0, 1fr);
       column-gap: var(--space-3);
-      padding: var(--space-3) var(--space-3) var(--space-3) var(--space-3);
+      padding: var(--space-3);
     }
     .ss-process__art { display: none; }
     .ss-process__step:not(:last-child)::after { left: calc(var(--space-3) + 17px); }
     .ss-process__step:not(:last-child)::before { left: calc(var(--space-3) + 13px); }
+  }
+
+  /* ---- desktop: one horizontal row ---------------------------------------- */
+  @media (min-width: 1024px) {
+    .ss-process {
+      max-width: none;
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+      gap: var(--space-3);
+      align-items: stretch;
+    }
+    /* Card becomes a column: number and art share the top row, copy below. */
+    .ss-process__step {
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto 1fr;
+      align-items: start;
+      column-gap: var(--space-2);
+      row-gap: var(--space-3);
+      padding: var(--space-3);
+    }
+    .ss-process__num { grid-column: 1; grid-row: 1; align-self: center; }
+    .ss-process__art {
+      grid-column: 2; grid-row: 1;
+      justify-self: end;
+      width: 56px; height: 56px;
+      border-radius: 14px;
+    }
+    .ss-process__text { grid-column: 1 / -1; grid-row: 2; }
+    .ss-process__body { max-width: none; }
+
+    /* Connector turns horizontal: across the gap at the number's centre line. */
+    .ss-process__step:not(:last-child)::after {
+      left: 100%;
+      top: calc(var(--space-3) + 17px);
+      width: var(--space-3);
+      height: 2px;
+      transform-origin: left center;
+    }
+    .ss-process__step:not(:last-child)::before {
+      left: calc(100% + var(--space-3) / 2 - 5px);
+      top: calc(var(--space-3) + 13px);
+    }
+  }
+
+  /* ---- desktop reveal: one card at a time --------------------------------- */
+  /* motion.ts arms `.js-reveal` only when it is running with IntersectionObserver
+     and motion allowed. The site-wide rule would fade this whole list as one
+     block; cancel that and stagger the cards instead. On phones the stack is
+     simply shown. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js-reveal) .ss-process[data-reveal] { opacity: 1; transform: none; }
+  }
+  @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    :global(.js-reveal) .ss-process[data-reveal] .ss-process__step {
+      opacity: 0;
+      transform: translateY(26px) scale(0.97);
+    }
+    :global(.js-reveal) .ss-process[data-reveal] .ss-process__step::after {
+      transform: scaleX(0);
+    }
+    :global(.js-reveal) .ss-process[data-reveal] .ss-process__step::before {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step {
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+    }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step::after { transform: scaleX(1); transition: transform 0.45s var(--ease-out); }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step::before { opacity: 1; transform: none; transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out); }
+
+    /* Stagger: each card ~0.18s after the last; its connector draws once the card
+       has landed, and the node pops as the line arrives.
+
+       Transitions and delays exist ONLY in the revealed state. motion.ts adds
+       .js-reveal after first paint, so if the hidden state carried a transition
+       the cards would visibly fade OUT on load, staggered — and a card whose
+       fade-out delay had not started when the row came into view would never
+       hide at all. The selectors repeat the full prefix because the transition
+       shorthand resets delay to 0 and, at lower specificity, it wins. */
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='1'] { transition-delay: 0.18s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='2'] { transition-delay: 0.36s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='3'] { transition-delay: 0.54s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='4'] { transition-delay: 0.72s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='5'] { transition-delay: 0.9s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='6'] { transition-delay: 1.08s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='7'] { transition-delay: 1.26s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='8'] { transition-delay: 1.44s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='0']::after { transition-delay: 0.3s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='1']::after { transition-delay: 0.48s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='2']::after { transition-delay: 0.66s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='3']::after { transition-delay: 0.84s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='4']::after { transition-delay: 1.02s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='5']::after { transition-delay: 1.2s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='6']::after { transition-delay: 1.38s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='7']::after { transition-delay: 1.56s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='0']::before { transition-delay: 0.45s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='1']::before { transition-delay: 0.63s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='2']::before { transition-delay: 0.81s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='3']::before { transition-delay: 0.99s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='4']::before { transition-delay: 1.17s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='5']::before { transition-delay: 1.35s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='6']::before { transition-delay: 1.53s; }
+    :global(.js-reveal) .ss-process[data-reveal]:global(.is-visible) .ss-process__step[data-i='7']::before { transition-delay: 1.71s; }
   }
 </style>
