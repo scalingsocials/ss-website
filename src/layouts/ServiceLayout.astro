@@ -18,6 +18,7 @@ import LeadForm from '@/components/blocks/LeadForm.astro';
 import LogoWall from '@/components/blocks/LogoWall.astro';
 import SiteShowcase from '@/components/blocks/SiteShowcase.astro';
 import CreativeWall from '@/components/blocks/CreativeWall.astro';
+import ReelWall from '@/components/blocks/ReelWall.astro';
 import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
 import PricingBlock from '@/components/blocks/PricingBlock.astro';
 import ComparisonTable from '@/components/blocks/ComparisonTable.astro';
@@ -141,6 +142,10 @@ const nodes = [
     <Section size="md">
       <span class="ss-eyebrow">Content we make</span>
       <h2 class="mb-[var(--space-5)] max-w-[24ch] text-h2 font-semibold">Social content, edited and posted in-house</h2>
+      {/* Reels first — motion is what social content is — then the stills. */}
+      <p class="mb-[var(--space-3)] text-small font-semibold text-[var(--fg)]">Reels</p>
+      <ReelWall />
+      <p class="mb-[var(--space-3)] mt-[var(--space-6)] text-small font-semibold text-[var(--fg)]">Statics</p>
       <CreativeWall variant="grid" limit={9} />
     </Section>
   )}

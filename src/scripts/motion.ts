@@ -126,6 +126,46 @@ function setupPage(): void {
       vio.observe(v);
     }
   }
+  // --- ad reels (ReelWall) --------------------------------------------------
+  // Muted loops that play only while on screen. Sources are injected on first
+  // sight rather than written into the HTML: a <video> with <source> children
+  // starts resource selection even at preload="none" and holds the page's load
+  // event open. Under reduced motion nothing plays and the poster stays.
+  const reels = Array.from(document.querySelectorAll<HTMLVideoElement>('video[data-reel]'));
+  if (reels.length && hasIO && !reduce) {
+    const rio = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const v = e.target as HTMLVideoElement;
+          if (e.isIntersecting) {
+            if (!v.dataset.loaded) {
+              v.dataset.loaded = '1';
+              for (const [attr, type] of [['webm', 'video/webm'], ['mp4', 'video/mp4']] as const) {
+                const url = v.dataset[attr];
+                if (!url) continue;
+                const s = document.createElement('source');
+                s.src = url;
+                s.type = type;
+                v.appendChild(s);
+              }
+              v.load();
+            }
+            v.muted = true;
+            v.play().catch(() => {});
+          } else {
+            v.pause();
+          }
+        }
+      },
+      { threshold: 0.35 }
+    );
+    for (const v of reels) {
+      if ((v as El).dataset.bound) continue;
+      (v as El).dataset.bound = '1';
+      rio.observe(v);
+    }
+  }
+
   // click a clip → unmute + expand (fullscreen)
   document.querySelectorAll<El>('[data-clip]').forEach((btn) => {
     if (btn.dataset.bound) return;

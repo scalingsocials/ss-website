@@ -1,0 +1,81 @@
+---
+/**
+ * ReelWall — client ad reels as silent looping tiles.
+ *
+ * Each tile is a poster until it scrolls into view; motion.ts then injects the
+ * webm + mp4 sources, plays muted, and pauses again when it leaves. Sources are
+ * injected rather than written into the HTML because a <video> with <source>
+ * children starts resource selection even at preload="none", which holds the
+ * page's load event open (see VideoTestimonials.astro for the incident).
+ *
+ * With JS off, or under reduced motion, the posters are the content — every
+ * tile still shows a real frame of the reel (rule 1). Desktop: one row of six.
+ * Phones: a swipe rail, so six tall tiles do not become a very long page.
+ */
+import { REELS, type Reel } from '@/lib/reels';
+
+export interface Props {
+  reels?: Reel[];
+  class?: string;
+}
+const { reels = REELS, class: className = '' } = Astro.props;
+---
+
+{reels.length > 0 && (
+  <ul class:list={['ss-reels', className]} aria-label="Client ad reels">
+    {reels.map((r) => (
+      <li class="ss-reels__item">
+        <video
+          class="ss-reels__video"
+          preload="none"
+          muted
+          loop
+          playsinline
+          poster={r.poster}
+          width={r.width}
+          height={r.height}
+          aria-label={r.label}
+          data-reel
+          data-webm={r.webm}
+          data-mp4={r.mp4}
+        ></video>
+      </li>
+    ))}
+  </ul>
+)}
+
+<style>
+  .ss-reels {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(46vw, 220px);
+    gap: var(--space-2);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: var(--space-1);
+  }
+  .ss-reels::-webkit-scrollbar { display: none; }
+  @media (min-width: 900px) {
+    .ss-reels {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      overflow: visible;
+    }
+  }
+  .ss-reels__item {
+    scroll-snap-align: start;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--surface-c);
+    border: 1px solid var(--rule-c);
+    aspect-ratio: 540 / 946;
+  }
+  .ss-reels__video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

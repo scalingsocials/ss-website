@@ -13,6 +13,15 @@
  * so renaming a file renames the brand on the live page — check the name is one
  * we are permitted to show before adding a creative here. Note this is a
  * DIFFERENT permission from the case studies, which stay anonymised.
+ *
+ * Added 2026-09-16, supplied by the owner for the gallery: Doma, Get and Glow,
+ * GetSetWear, Luxeraa (x2), Sanmal (x2 more), Tots n Weaves, Vara India. File
+ * names follow each brand's own spelling as printed on the creative; "Get and
+ * Glow" is the one inferred from the supplied filename alone (no wordmark on the
+ * creative), so confirm it before relying on it.
+ *
+ * Client ad VIDEOS are not here — they are reels in /public/creatives/reels/,
+ * listed in src/lib/reels.ts and shown by ReelWall.
  */
 import type { ImageMetadata } from 'astro';
 
@@ -28,8 +37,13 @@ const files = import.meta.glob<{ default: ImageMetadata }>(
 
 const MONTHS = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\b/gi;
 
-const caseWord = (w: string) => {
+// Joining words stay lowercase, so "Tots n Weaves" and "Get and Glow" read the
+// way the brands write them rather than as "Tots N Weaves".
+const SMALL = new Set(['n', 'and', 'of', 'the']);
+
+const caseWord = (w: string, i = 0) => {
   if (!w) return w;
+  if (i > 0 && SMALL.has(w.toLowerCase())) return w.toLowerCase();
   const allCaps = w === w.toUpperCase() && /[A-Z]/.test(w);
   if (allCaps && w.length > 1) return w[0]! + w.slice(1).toLowerCase();
   return w[0]!.toUpperCase() + w.slice(1);
