@@ -152,6 +152,13 @@ function getEnv(locals: unknown) {
     telecrmBase: pick('TELECRM_API_BASE') ?? 'https://next-api.telecrm.in',
     // Note action type (TeleCRM docs: SYSTEM_NOTE). Overridable if the workspace differs.
     telecrmNoteType: pick('TELECRM_NOTE_TYPE') ?? 'SYSTEM_NOTE',
+    // Who every website lead is assigned to in TeleCRM (owner: the Scaling
+    // Socials account). Sent as a lead field under TELECRM_ASSIGN_FIELD (the
+    // workspace's API name for its "Assigned to" field — TeleCRM drops unknown
+    // keys silently, so an assignment rule in TeleCRM is the belt to this brace)
+    // and repeated on the first line of the note.
+    telecrmAssignTo: pick('TELECRM_ASSIGN_TO') ?? 'support@scalingsocials.com',
+    telecrmAssignField: pick('TELECRM_ASSIGN_FIELD') ?? 'assigned_to',
   };
 }
 
@@ -511,7 +518,7 @@ function splitBrandLink(raw: string): { instagram_link?: string; website_link?: 
   if (/instagram\.com\//i.test(v)) return { instagram_link: /^https?:\/\//i.test(v) ? v : `https://${v}` };
   return { website_link: /^https?:\/\//i.test(v) ? v : `https://${v}` };
 }
-async function sendTeleCrmLead(base: string, enterpriseId: string, token: string, noteType: string, lead: Lead): Promise<number> {
+async function sendTeleCrmLead(base: string, enterpriseId: string, token: string, noteType: string, assign: { field: string; to: string }, lead: Lead): Promise<number> {
   const score = scoreLead(lead);
   const person = lead.name || lead.company || 'Website enquiry';
   const fields: Record<string, string> = {
@@ -522,8 +529,10 @@ async function sendTeleCrmLead(base: string, enterpriseId: string, token: string
   if (lead.email) fields.email = lead.email;
   if (lead.company) fields.brand_name = lead.company;
   if (lead.website) Object.assign(fields, splitBrandLink(lead.website));
+  if (assign.to && assign.field) fields[assign.field] = assign.to;
 
   const lines: string[] = [`Website enquiry — ${lead.source}${lead.page ? ` (${lead.page})` : ''}`];
+  if (assign.to) lines.push(`Assign to: ${assign.to}`);
   if (lead.website) lines.push(`Brand website / Instagram: ${lead.website}`);
   if (lead.company) lines.push(`Brand: ${lead.company}`);
   for (const [k, v] of Object.entries(lead.answers)) if (v) lines.push(`${humanise(k)}: ${v}`);
@@ -740,7 +749,7 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   if (lead.status === 'complete' && !isSubscribe && lead.phone) {
     if (env.telecrmToken && env.telecrmEnterprise) {
       try {
-        const status = await sendTeleCrmLead(env.telecrmBase, env.telecrmEnterprise, env.telecrmToken, env.telecrmNoteType, lead);
+        const status = await sendTeleCrmLead(env.telecrmBase, env.telecrmEnterprise, env.telecrmToken, env.telecrmNoteType, { field: env.telecrmAssignField, to: env.telecrmAssignTo }, lead);
         console.log('[lead] telecrm accepted', status, lead.lead_id);
       } catch (e) {
         console.error('[lead] telecrm failed', (e as Error).message);

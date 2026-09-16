@@ -155,7 +155,12 @@ Deploy runbook: **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)**.
   `name` + `customer_name`, `brand_name` (when collected), and the brand link split by shape —
   `instagram_link` for an @handle / instagram.com URL, else `website_link`; every qualifying
   answer, lead score, source and UTM/click ids go into ONE note on the lead (`SYSTEM_NOTE`; override with
-  `TELECRM_NOTE_TYPE` if the workspace rejects it). No custom lead fields to create. Test
+  `TELECRM_NOTE_TYPE` if the workspace rejects it). No custom lead fields to create. Assignment: every lead is
+  sent with `assigned_to = support@scalingsocials.com` (override the value with
+  `TELECRM_ASSIGN_TO`, the field's API name with `TELECRM_ASSIGN_FIELD` — check it under Lead
+  Fields → Assigned to → Information) and "Assign to: …" is the first note line. Because
+  TeleCRM drops unknown field keys silently, ALSO add a TeleCRM lead-assignment rule:
+  source contains `lp-` → assign to support@scalingsocials.com. Test
   with one form submit; the Worker log prints `telecrm accepted 2xx` or the error body.
 - ✅ **Homepage v2 visual pass** (2026-09-12) — transparent over-hero header with white
   logo, interactive "live dashboard" hero graphic, illustrated pastel service cards
