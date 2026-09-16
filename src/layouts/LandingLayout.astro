@@ -5,15 +5,20 @@
  * matched, proof-heavy, objection-handling, with a sticky mobile CTA so the form
  * is always one tap away. Renders from a LandingContent object.
  *
- * Rebuilt 2026-09-15 against the conversion teardown. Reading order:
- *   hero → trust → problem → results (expand in place, real Ads Manager shots)
- *   → creative wall → what you get → how it works → why us (comparison table +
- *   founder note) → fit → founder videos + reviews → fee + FAQ → final CTA.
- * Zero links leave the page above the footer.
+ * Visual revamp 2026-09-16 (owner: "make it feel like an experienced agency").
+ * Reading order:
+ *   ink hero (copy + a real Ads Manager view in a browser frame) → booking card
+ *   overlapping the hero edge (form + what you get) → logos → problem →
+ *   results (expand in place) → creative wall (ink) → what you get → how it
+ *   works → why us (table + founder) → fit → founder videos (ink) + reviews →
+ *   fee + FAQ → final CTA (ink). Four ink bands, under the five allowed.
+ *
+ * The LP is its own visual world: it re-scopes the radius tokens (softer corners)
+ * and uses the brand accent, not the site's punchier --cta, for every button.
+ * Colours, spacing and type still come from the semantic tokens only.
  *
  * Reuses BaseLayout in `bare` mode (no global header/footer) so the page still
  * gets the shared shell: fonts, theme, strict CSP, analytics, view transitions.
- * The minimal LP header/footer are provided here instead.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Meta from '@/components/seo/Meta.astro';
@@ -29,15 +34,15 @@ import PartnerBadges from '@/components/blocks/PartnerBadges.astro';
 import ComparisonTable from '@/components/blocks/ComparisonTable.astro';
 import VideoTestimonials from '@/components/blocks/VideoTestimonials.astro';
 import Glyph from '@/components/graphics/Glyph.astro';
-import DotField from '@/components/graphics/DotField.astro';
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import lockup from '@/assets/brand/lockup-black.png';
+import lockupBlack from '@/assets/brand/lockup-black.png';
+import lockupWhite from '@/assets/brand/lockup-white.png';
 import jamalPhoto from '@/assets/founders/jamal-khan.jpg';
 import CreativeWall from '@/components/blocks/CreativeWall.astro';
 import CaseStudyPoster from '@/components/blocks/CaseStudyPoster.astro';
 import { ARCHETYPES, CASE_STUDY_BY_SLUG, CASE_STUDY_KICKERS, INDEX_ORDER } from '@/lib/caseStudies';
-import { googleReviews } from '@/data/proofStats';
+import { googleReviews, googleRating } from '@/data/proofStats';
 import { ORG } from '@/lib/schema/entity';
 import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
 import type { LandingContent } from '@/lib/landings';
@@ -53,11 +58,13 @@ const reply = c.replyPromise ?? 'No spam. We reply within one working day.';
 
 // Real Ads Manager screenshots (owner-supplied 2026-09-15, brand names hidden),
 // optimised by astro:assets. Nothing renders if the folder is empty — no
-// placeholder row on a paid page, ever.
+// placeholder row on a paid page, ever. The last one (the fullest table) is
+// also the hero visual, shown in a browser frame.
 const shotFiles = import.meta.glob<{ default: ImageMetadata }>('/src/assets/lp/proof/*.{webp,png,jpg,jpeg,avif}', { eager: true });
 const proofShots: ImageMetadata[] = c.proof
   ? Object.keys(shotFiles).sort().map((k) => shotFiles[k]!.default)
   : [];
+const heroShot = proofShots.length ? proofShots[proofShots.length - 1] : null;
 
 // Proof row = the existing case-study poster cards (full detail), by slug. The
 // same study object feeds the expand-in-place panel, so nothing can drift.
@@ -67,8 +74,11 @@ const proofPosters = (c.proofStudies ?? [])
     return study ? { study, colorIndex: (INDEX_ORDER as readonly string[]).indexOf(sl) % 7, kicker: CASE_STUDY_KICKERS[sl] ?? '' } : null;
   })
   .filter((x): x is NonNullable<typeof x> => x !== null);
+// The floating delta on the hero frame: the first featured study's real before→after.
+const heroDelta = proofPosters[0]?.study.delta ? { ...proofPosters[0].study.delta, period: proofPosters[0].study.period } : null;
+
 const published = '2026-09-11';
-const modified = '2026-09-15';
+const modified = '2026-09-16';
 
 // Schema service name: the eyebrow's subject ("Performance marketing for …" →
 // "Performance marketing").
@@ -76,34 +86,32 @@ const serviceName = c.hero.eyebrow.split(' for ')[0] ?? c.hero.eyebrow;
 
 const nodes = [
   ...base(),
-  service({
-    url,
-    name: serviceName,
-    description: c.description,
-    serviceType: serviceName,
-    areaServed: ['IN', 'AE'],
-  }),
+  service({ url, name: serviceName, description: c.description, serviceType: serviceName, areaServed: ['IN', 'AE'] }),
   webPage({ url, name: c.title, description: c.description, aboutId: serviceId(url), hasBreadcrumb: true, datePublished: published, dateModified: modified }),
   breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: serviceName, url }]),
   faqPage(url, c.faqs),
 ];
 
 const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.32-1.95 1.36-.5.05-1.14.24-3.84-.8-3.22-1.27-5.28-4.55-5.44-4.76-.16-.21-1.31-1.74-1.31-3.32s.83-2.36 1.12-2.68c.29-.32.63-.4.84-.4l.6.01c.19.01.45-.07.7.54.24.6.83 2.07.9 2.22.07.15.12.32.02.53-.1.21-.15.32-.29.5-.15.18-.31.4-.44.53-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.45.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.19-.29.39-.24.65-.15.27.1 1.7.8 1.99.95.29.15.48.22.55.34.07.13.07.72-.17 1.4z';
+const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
 ---
 
 <BaseLayout bare noindex>
   <Meta slot="meta" title={c.title} description={c.description} type="website" modifiedTime={modified} />
   <SchemaGraph slot="schema" nodes={nodes} />
 
-  <!-- ── LP HEADER (minimal, no nav — one goal) ─────────────────────────────── -->
-  <header class="lp-head">
+  <div class="lp">
+
+  <!-- ── HEADER — transparent over the ink hero, solid once the page scrolls ─── -->
+  <header class="lp-head" data-lp-head>
     <div class="lp-head__in">
       <span class="lp-brand" aria-label="Scaling Socials">
-        <Image src={lockup} alt="Scaling Socials" height={30} width={Math.round(30 * (lockup.width / lockup.height))} densities={[1, 2]} loading="eager" />
+        <Image src={lockupWhite} alt="Scaling Socials" height={28} width={Math.round(28 * (lockupWhite.width / lockupWhite.height))} densities={[1, 2]} loading="eager" class="lp-brand__img lp-brand__img--light" />
+        <Image src={lockupBlack} alt="Scaling Socials" height={28} width={Math.round(28 * (lockupBlack.width / lockupBlack.height))} densities={[1, 2]} loading="eager" class="lp-brand__img lp-brand__img--dark" aria-hidden="true" />
       </span>
       <div class="lp-head__cta">
-        <a href={`tel:${tel}`} class="lp-tel lp-tel--icon" aria-label={`${c.phoneCtaLabel} ${ORG.telephone}`}>
-          <Glyph name="phone" size={20} />
+        <a href={`tel:${tel}`} class="lp-head__tel" aria-label={`${c.phoneCtaLabel} ${ORG.telephone}`}>
+          <Glyph name="phone" size={18} /><span>{ORG.telephone}</span>
         </a>
         <a href="#lead" class="lp-btn lp-btn--sm">{c.ctaLabelShort}</a>
       </div>
@@ -112,30 +120,24 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
 
   <span id="top" class="sr-only"></span>
 
-  <!-- ── HERO ───────────────────────────────────────────────────────────────── -->
-  <Section size="lg" class="lp-hero relative overflow-hidden" id="hero">
-    <DotField origin="top-right" />
-    <div class="[&>*]:min-w-0 lp-hero__grid relative grid gap-[var(--space-6)] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start">
+  <!-- ── HERO (ink) ─────────────────────────────────────────────────────────── -->
+  <Section register="ink" size="lg" class="lp-hero" id="hero">
+    <div class="lp-hero__grid">
       <div class="lp-hero__copy">
-        <span class="lp-eyebrow">{c.hero.eyebrow}</span>
+        <span class="lp-chip">{c.hero.eyebrow}</span>
         <h1 class="lp-h1">{c.hero.h1}</h1>
         <p class="lp-sub">{c.hero.sub}</p>
         {c.hero.bullets && (
           <ul class="lp-bullets">
             {c.hero.bullets.map((b) => (
-              <li>
-                <span class="lp-bullets__tick"><Glyph name="scale" size={15} /></span>
-                <span>{b}</span>
-              </li>
+              <li><span class="lp-bullets__tick"><Glyph name="scale" size={14} /></span><span>{b}</span></li>
             ))}
           </ul>
         )}
-        {/* The CTA sits in the first phone screen. From lg up the form itself is
-            the hero CTA, so this row hides to keep one accent action per view. */}
         <div class="lp-hero__cta">
-          <a href="#lead" class="lp-btn">{c.ctaLabel}</a>
+          <a href="#lead" class="lp-btn lp-btn--lg">{c.ctaLabel}</a>
           {wa && (
-            <a href={wa} target="_blank" rel="noopener" class="lp-walink">
+            <a href={wa} target="_blank" rel="noopener" class="lp-btn lp-btn--ghost">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WA_PATH} /></svg>
               Chat on WhatsApp
             </a>
@@ -143,19 +145,64 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
         </div>
         {c.hero.micro && <p class="lp-micro">{c.hero.micro}</p>}
         {c.hero.qualifier && <p class="lp-qual">{c.hero.qualifier}</p>}
-        {c.hero.stats && (
-          <ul class="lp-stats">
-            {c.hero.stats.map((s) => (
-              <li>
-                <span class="lp-stats__val display-type" data-num>{s.value}</span>
-                <span class="lp-stats__lbl">{s.label}</span>
-              </li>
+      </div>
+
+      {heroShot ? (
+        <figure class="lp-frame" data-reveal>
+          <div class="lp-frame__bar" aria-hidden="true">
+            <span class="lp-frame__dot"></span><span class="lp-frame__dot"></span><span class="lp-frame__dot"></span>
+            <span class="lp-frame__url">Meta Ads Manager, client account</span>
+          </div>
+          <Image src={heroShot} alt="Meta Ads Manager view from a client account showing spend, purchases and purchase ROAS, account name hidden" widths={[640, 1000, 1600]} sizes="(min-width: 1024px) 600px, 92vw" loading="eager" fetchpriority="high" class="lp-frame__img" />
+          {heroDelta && (
+            <div class="lp-frame__chip" data-num>
+              <span class="lp-frame__chip-l">{heroDelta.metric}, {heroDelta.period}</span>
+              <span class="lp-frame__chip-v"><span class="lp-frame__chip-b">{heroDelta.before}</span><svg width="18" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true"><path d="M1 5h14M11 1l5 4-5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>{heroDelta.after}</span>
+            </div>
+          )}
+        </figure>
+      ) : (
+        <div class="lp-hero__side">
+          {c.hero.stats && (
+            <ul class="lp-stats">
+              {c.hero.stats.map((s) => (
+                <li><span class="lp-stats__val display-type" data-num>{s.value}</span><span class="lp-stats__lbl">{s.label}</span></li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+
+    {heroShot && c.hero.stats && (
+      <ul class="lp-strip" data-reveal>
+        {c.hero.stats.map((s) => (
+          <li><span class="lp-strip__val display-type" data-num>{s.value}</span><span class="lp-strip__lbl">{s.label}</span></li>
+        ))}
+        <li class="lp-strip__rating"><span class="lp-strip__val display-type" data-num>{googleRating.value}<span class="lp-strip__star" aria-hidden="true">★</span></span><span class="lp-strip__lbl">{googleRating.label}, {googleReviews.value} reviews</span></li>
+      </ul>
+    )}
+  </Section>
+
+  <!-- ── BOOKING CARD — overlaps the hero edge; the page's one job ──────────── -->
+  <Section size="sm" class="lp-book" id="lead">
+    <div class="lp-book__card" data-reveal>
+      <div class="lp-book__copy">
+        <span class="lp-eyebrow">Free account review</span>
+        <h2 class="lp-book__h">{c.hero.formHeading}</h2>
+        <p class="lp-book__sub">{c.hero.formSub}</p>
+        {bookBullets.length > 0 && (
+          <ul class="lp-book__list">
+            {bookBullets.map((b) => (
+              <li><span class="lp-tick"><Glyph name="scale" size={14} /></span><span>{b}</span></li>
             ))}
           </ul>
         )}
-        <p class="lp-trust">{c.trustLine}</p>
+        <div class="lp-book__trust">
+          <PartnerBadges label="Official partners" />
+        </div>
       </div>
-      <div class="lp-hero__form" id="lead">
+      <div class="lp-book__form">
         <LeadForm
           source={c.source}
           heading={c.hero.formHeading}
@@ -180,27 +227,25 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
     </div>
   </Section>
 
-  <!-- ── TRUST STRIP ────────────────────────────────────────────────────────── -->
-  <Section size="sm" class="!bg-[var(--surface-c)]">
-    <div class="lp-truststrip">
-      <PartnerBadges label="Official partners" />
-      <p class="lp-rating"><span class="lp-rating__stars" aria-hidden="true">★★★★★</span> 5.0 on Google, {googleReviews.value} reviews</p>
-    </div>
-    <div class="mt-[var(--space-6)]"><LogoWall heading="Brands we work with" /></div>
+  <!-- ── LOGOS ──────────────────────────────────────────────────────────────── -->
+  <Section size="sm" class="lp-logos">
+    <LogoWall heading={c.trustLine} />
     {c.nicheLine && <p class="lp-niche">{c.nicheLine}</p>}
   </Section>
 
   <!-- ── PROBLEM — founder-voice pain, early, so cold traffic recognises itself ─ -->
   {c.problem && (
-    <Section size="md">
-      <span class="lp-eyebrow">Sound familiar?</span>
-      <h2 class="lp-h2">{c.problem.heading}</h2>
-      <ul class="lp-quotes">
+    <Section size="md" class="lp-band">
+      <div class="lp-head2" data-reveal>
+        <span class="lp-eyebrow">Sound familiar?</span>
+        <h2 class="lp-h2">{c.problem.heading}</h2>
+      </div>
+      <ul class="lp-quotes" data-reveal>
         {c.problem.quotes.map((q) => (
-          <li class="lp-quote"><blockquote>“{q}”</blockquote></li>
+          <li class="lp-quote"><span class="lp-quote__mark" aria-hidden="true">“</span><blockquote>{q}</blockquote></li>
         ))}
       </ul>
-      <div class="lp-quotes__foot">
+      <div class="lp-quotes__foot" data-reveal>
         <p>{c.problem.pivot}</p>
         <a href="#results" class="lp-textlink">See the accounts</a>
       </div>
@@ -209,12 +254,14 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
 
   <!-- ── RESULTS (perf) — number first, expand in place, no exits ───────────── -->
   {c.proof && (
-    <Section size="md" class="!bg-[var(--surface-c)]" id="results">
-      <span class="lp-eyebrow">Real accounts, real numbers</span>
-      <h2 class="lp-h2">Results, not reports</h2>
-      {c.proofLede && <p class="lp-lede">{c.proofLede}</p>}
+    <Section size="md" id="results">
+      <div class="lp-head2" data-reveal>
+        <span class="lp-eyebrow">Real accounts, real numbers</span>
+        <h2 class="lp-h2">Results, not reports</h2>
+        {c.proofLede && <p class="lp-lede">{c.proofLede}</p>}
+      </div>
 
-      <ul class="lp-proofposters">
+      <ul class="lp-proofposters" data-reveal>
         {proofPosters.map((pp) => (
           <li>
             <a href={`#case-${pp.study.slug}`} class="lp-case__open" data-case-open={pp.study.slug}>
@@ -224,9 +271,6 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
         ))}
       </ul>
 
-      {/* The full story of each account, on this page. <details> keeps it in the
-          DOM for crawlers and works with JavaScript off; the poster above just
-          opens it and scrolls. */}
       <div class="lp-case__panels">
         {proofPosters.map((pp) => (
           <details class="lp-case" id={`case-${pp.study.slug}`} data-case={pp.study.slug}>
@@ -267,8 +311,8 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
       </div>
 
       {proofShots.length > 0 && (
-        <>
-          <div class="lp-slider lp-slider--proof mt-[var(--space-7)]" data-slider>
+        <div data-reveal>
+          <div class="lp-slider lp-slider--proof mt-[var(--space-8)]" data-slider>
             <div class="lp-slider__track">
               {[...proofShots, ...proofShots].map((img, i) => (
                 <button type="button" class="lp-slider__item lp-shot" data-shot aria-hidden={i >= proofShots.length ? 'true' : undefined} tabindex={i >= proofShots.length ? -1 : undefined} aria-label="Enlarge Ads Manager screenshot">
@@ -278,38 +322,44 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
             </div>
           </div>
           {c.proofCaption && <p class="lp-slider__cap">{c.proofCaption}</p>}
-        </>
+        </div>
       )}
 
       <div class="lp-cta-row"><a href="#lead" class="lp-btn">{c.ctaLabel}</a></div>
     </Section>
   )}
 
-  {/* ── CREATIVES ─ the homepage creative wall (real creatives). No CTA of its own. */}
+  {/* ── CREATIVES (ink) ─ the homepage creative wall (real creatives). */}
   {c.creatives && (
-    <Section size="md">
-      <span class="lp-eyebrow">Creative we ship</span>
-      <h2 class="lp-h2">Ads we shot, cut and scaled</h2>
-      <p class="lp-lede">Creative is the biggest lever in paid. You send raw footage; this is what comes back, tested weekly.</p>
-      <div class="mt-[var(--space-6)]"><CreativeWall variant="marquee" limit={12} /></div>
+    <Section register="ink" size="md" class="lp-creative">
+      <div class="lp-head2 lp-head2--center" data-reveal>
+        <span class="lp-eyebrow">Creative we ship</span>
+        <h2 class="lp-h2 mx-auto">Ads we shot, cut and scaled</h2>
+        <p class="lp-lede mx-auto">Creative is the biggest lever in paid. You send raw footage; this is what comes back, tested weekly.</p>
+      </div>
+      <div class="mt-[var(--space-8)]"><CreativeWall variant="marquee" limit={12} /></div>
     </Section>
   )}
 
   {c.showcase && (
     <Section size="md">
-      <span class="lp-eyebrow">Recent work</span>
-      <h2 class="lp-h2">Stores and sites we've built</h2>
+      <div class="lp-head2" data-reveal>
+        <span class="lp-eyebrow">Recent work</span>
+        <h2 class="lp-h2">Stores and sites we've built</h2>
+      </div>
       <div class="mt-[var(--space-5)]"><SiteShowcase heading="" /></div>
       <div class="lp-cta-row"><a href="#lead" class="lp-btn">{c.ctaLabel}</a></div>
     </Section>
   )}
 
   <!-- ── WHAT YOU GET ───────────────────────────────────────────────────────── -->
-  <Section size="md" class="!bg-[var(--surface-c)]">
-    <span class="lp-eyebrow">{c.benefits.eyebrow}</span>
-    <h2 class="lp-h2">{c.benefits.heading}</h2>
-    <p class="lp-lede">{c.benefits.sub}</p>
-    <ul class:list={['lp-cards', c.benefits.items.some((i) => i.list) && 'lp-cards--2x2']}>
+  <Section size="md" class="lp-band">
+    <div class="lp-head2" data-reveal>
+      <span class="lp-eyebrow">{c.benefits.eyebrow}</span>
+      <h2 class="lp-h2">{c.benefits.heading}</h2>
+      <p class="lp-lede">{c.benefits.sub}</p>
+    </div>
+    <ul class:list={['lp-cards', c.benefits.items.some((i) => i.list) && 'lp-cards--2x2']} data-reveal>
       {c.benefits.items.map((it) => (
         <li class="lp-card">
           <span class="lp-card__glyph"><Glyph name={it.glyph} size={20} /></span>
@@ -318,7 +368,7 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
           {it.list && (
             <ul class="lp-card__list">
               {it.list.map((li) => (
-                <li><span class="lp-card__tick" aria-hidden="true"><Glyph name="scale" size={13} /></span>{li}</li>
+                <li><span class="lp-tick lp-tick--sm" aria-hidden="true"><Glyph name="scale" size={12} /></span>{li}</li>
               ))}
             </ul>
           )}
@@ -329,28 +379,27 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
 
   <!-- ── HOW IT WORKS — one dated timeline ──────────────────────────────────── -->
   <Section size="md">
-    <div class="text-center">
+    <div class="lp-head2 lp-head2--center" data-reveal>
       <span class="lp-eyebrow">How it works</span>
       <h2 class="lp-h2 mx-auto">{c.processHeading ?? 'A clear path from first call to results'}</h2>
     </div>
-    <div class="mt-[var(--space-5)]"><ProcessSteps steps={c.process} /></div>
+    <div class="mt-[var(--space-6)]"><ProcessSteps steps={c.process} /></div>
   </Section>
 
   <!-- ── WHY US — a fair decision table, then the founder ───────────────────── -->
-  <Section size="md" class="!bg-[var(--surface-c)]">
-    <span class="lp-eyebrow">{c.why.eyebrow}</span>
-    <h2 class="lp-h2">{c.why.heading}</h2>
+  <Section size="md" class="lp-band">
+    <div class="lp-head2" data-reveal>
+      <span class="lp-eyebrow">{c.why.eyebrow}</span>
+      <h2 class="lp-h2">{c.why.heading}</h2>
+    </div>
     {c.why.table ? (
-      <div class="mt-[var(--space-5)]">
+      <div class="lp-table" data-reveal>
         <ComparisonTable columns={c.why.table.columns} rows={c.why.table.rows} highlightCol={c.why.table.highlightCol} caption={c.why.table.caption} />
       </div>
     ) : c.why.pointers ? (
       <ul class="lp-pointers">
         {c.why.pointers.map((p) => (
-          <li class="lp-pointer">
-            <span class="lp-pointer__tick" aria-hidden="true"><Glyph name="scale" size={15} /></span>
-            <span>{p}</span>
-          </li>
+          <li class="lp-pointer"><span class="lp-tick" aria-hidden="true"><Glyph name="scale" size={14} /></span><span>{p}</span></li>
         ))}
       </ul>
     ) : (
@@ -368,23 +417,27 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
     )}
 
     {c.founderNote && (
-      <div class="lp-note">
-        <Image src={jamalPhoto} alt="Jamal Khan, Co-founder at Scaling Socials" width={112} height={112} class="lp-note__photo2" />
+      <figure class="lp-note" data-reveal>
+        <Image src={jamalPhoto} alt="Jamal Khan, Co-founder at Scaling Socials" width={160} height={160} class="lp-note__photo" />
         <blockquote class="lp-note__q">
           <p>{c.founderNote.quote}</p>
-          <cite class="lp-note__cite">— {c.founderNote.attribution}</cite>
-          {c.founderNote.line && <span class="lp-note__line">{c.founderNote.line}</span>}
         </blockquote>
-      </div>
+        <figcaption class="lp-note__cap">
+          <span class="lp-note__cite">{c.founderNote.attribution}</span>
+          {c.founderNote.line && <span class="lp-note__line">{c.founderNote.line}</span>}
+        </figcaption>
+      </figure>
     )}
   </Section>
 
   <!-- ── WHO IT'S FOR / NOT FOR ─────────────────────────────────────────────── -->
   {c.fit && (
     <Section size="md">
-      <span class="lp-eyebrow">Honest about fit</span>
-      <h2 class="lp-h2">Who we do our best work with</h2>
-      <div class="lp-fit">
+      <div class="lp-head2" data-reveal>
+        <span class="lp-eyebrow">Honest about fit</span>
+        <h2 class="lp-h2">Who we do our best work with</h2>
+      </div>
+      <div class="lp-fit" data-reveal>
         <div class="lp-fit__col lp-fit__col--good">
           <h3 class="lp-fit__h"><span class="lp-fit__badge lp-fit__badge--yes" aria-hidden="true">✓</span> A strong fit if you</h3>
           <ul>{c.fit.good.map((g) => <li>{g}</li>)}</ul>
@@ -398,54 +451,57 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
     </Section>
   )}
 
-  <!-- ── TESTIMONIALS — founder videos, then the performance reviews ────────── -->
-  <Section size="md" class="!bg-[var(--surface-c)]">
-    <span class="lp-eyebrow">What clients say</span>
-    {c.videos ? (
-      <>
-        <h2 class="lp-h2">{c.videos.heading}</h2>
-        {c.videos.lede && <p class="lp-lede">{c.videos.lede}</p>}
-        <div class="mt-[var(--space-6)]"><VideoTestimonials items={c.videos.items} /></div>
-        <div class="mt-[var(--space-7)]"><Testimonials variant="rail" filter={['Performance marketing']} /></div>
-      </>
-    ) : (
-      <>
-        <h2 class="lp-h2">What founders say</h2>
-        <div class="mt-[var(--space-5)]"><Testimonials variant="rail" /></div>
-      </>
-    )}
+  <!-- ── TESTIMONIALS (ink) — founder videos, then the performance reviews ──── -->
+  <Section register="ink" size="md" class="lp-voices">
+    <div class="lp-head2 lp-head2--center" data-reveal>
+      <span class="lp-eyebrow">What clients say</span>
+      {c.videos ? (
+        <>
+          <h2 class="lp-h2 mx-auto">{c.videos.heading}</h2>
+          {c.videos.lede && <p class="lp-lede mx-auto">{c.videos.lede}</p>}
+        </>
+      ) : (
+        <h2 class="lp-h2 mx-auto">What founders say</h2>
+      )}
+    </div>
+    {c.videos && <div class="mt-[var(--space-8)]" data-reveal><VideoTestimonials items={c.videos.items} /></div>}
+    <div class="mt-[var(--space-8)]" data-reveal><Testimonials variant="rail" filter={c.videos ? ['Performance marketing'] : undefined} /></div>
   </Section>
 
   <!-- ── FEE (no figure, §18) + FAQ (objections, not information) ───────────── -->
   <Section size="md">
-    {c.fee && (
-      <div class="lp-fee">
-        <h2 class="lp-fee__h">{c.fee.heading}</h2>
-        <ul class="lp-fee__list">
-          {c.fee.lines.map((l) => (
-            <li><span class="lp-fee__tick" aria-hidden="true"><Glyph name="scale" size={14} /></span><span>{l}</span></li>
-          ))}
-        </ul>
+    <div class="lp-faqgrid">
+      <div class="lp-faqgrid__side" data-reveal>
+        <span class="lp-eyebrow">Questions</span>
+        <h2 class="lp-h2">Straight answers before you book</h2>
+        {c.fee && (
+          <div class="lp-fee">
+            <h3 class="lp-fee__h">{c.fee.heading}</h3>
+            <ul class="lp-fee__list">
+              {c.fee.lines.map((l) => (
+                <li><span class="lp-tick" aria-hidden="true"><Glyph name="scale" size={14} /></span><span>{l}</span></li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
-    )}
-    <span class="lp-eyebrow">Questions</span>
-    <h2 class="lp-h2">Straight answers before you book</h2>
-    <div class="mt-[var(--space-5)] max-w-[62ch]"><FaqAccordion items={c.faqs} openFirst /></div>
+      <div class="lp-faqgrid__main" data-reveal><FaqAccordion items={c.faqs} openFirst /></div>
+    </div>
   </Section>
 
-  <!-- ── FINAL CTA + repeat form (no scroll-up needed on mobile) ────────────── -->
-  <Section register="ink" size="md" id="lead-bottom">
-    <div class="[&>*]:min-w-0 lp-final grid gap-[var(--space-7)] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:items-center">
-      <div>
+  <!-- ── FINAL CTA (ink) + repeat form ──────────────────────────────────────── -->
+  <Section register="ink" size="md" id="lead-bottom" class="lp-final">
+    <div class="lp-final__grid">
+      <div data-reveal>
         <h2 class="lp-final__h">{c.finalCta.heading}</h2>
         <p class="lp-final__b">{c.finalCta.body}</p>
         <ul class="lp-final__list">
-          {(c.finalBullets ?? c.hero.bullets ?? []).map((b) => (
-            <li><span class="lp-final__tick"><Glyph name="scale" size={15} /></span><span>{b}</span></li>
+          {bookBullets.map((b) => (
+            <li><span class="lp-tick"><Glyph name="scale" size={14} /></span><span>{b}</span></li>
           ))}
         </ul>
       </div>
-      <div class="lp-final__form">
+      <div class="lp-final__form" data-reveal>
         <LeadForm
           source={c.source}
           heading={c.finalCta.ctaLabel}
@@ -474,7 +530,7 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
   <footer class="lp-foot">
     <div class="lp-foot__in">
       <span class="lp-foot__brand">
-        <Image src={lockup} alt="Scaling Socials" height={24} width={Math.round(24 * (lockup.width / lockup.height))} densities={[1, 2]} loading="lazy" />
+        <Image src={lockupBlack} alt="Scaling Socials" height={22} width={Math.round(22 * (lockupBlack.width / lockupBlack.height))} densities={[1, 2]} loading="lazy" />
         <span>© {new Date().getFullYear()} {ORG.legalName}</span>
       </span>
       <nav class="lp-foot__nav" aria-label="Legal">
@@ -485,9 +541,9 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
     </div>
   </footer>
 
-  <!-- ── STICKY MOBILE CTA (always one tap from the form; hides while a form is on screen) ── -->
+  <!-- ── STICKY MOBILE CTA (hides while a form is on screen) ────────────────── -->
   <div class="lp-sticky" data-sticky>
-    <a href="#lead" class="lp-sticky__cta">{c.ctaLabel}</a>
+    <a href="#lead" class="lp-btn lp-sticky__cta">{c.ctaLabelSticky ?? c.ctaLabel}</a>
     {wa ? (
       <a href={wa} target="_blank" rel="noopener" class="lp-sticky__wa" aria-label="Message us on WhatsApp">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WA_PATH} /></svg>
@@ -500,15 +556,43 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
   <!-- ── PROOF LIGHTBOX (no library; a native <dialog>) ─────────────────────── -->
   <dialog class="lp-lightbox" data-lightbox>
     <button type="button" class="lp-lightbox__close" data-lightbox-close aria-label="Close">✕</button>
-    {/* No src attribute: an empty one resolves to the document URL. The script
-        sets src (largest srcset candidate) and alt when the lightbox opens. */}
     <img class="lp-lightbox__img" data-lightbox-img alt="" width="1600" height="600" />
   </dialog>
+
+  </div>
 
   <script>
     // All progressive enhancement, no library, CSP-safe. Re-runs on view
     // transitions; every binding is guarded so nothing doubles up.
     const init = () => {
+      // 0. Header: transparent over the ink hero, solid once scrolled.
+      const head = document.querySelector<HTMLElement>('[data-lp-head]');
+      const hero = document.getElementById('hero');
+      if (head && hero && !head.dataset.bound && 'IntersectionObserver' in window) {
+        head.dataset.bound = '1';
+        const sentinel = document.createElement('span');
+        sentinel.setAttribute('aria-hidden', 'true');
+        sentinel.className = 'lp-head__sentinel';
+        hero.prepend(sentinel);
+        new IntersectionObserver(([e]) => head.classList.toggle('is-solid', !e?.isIntersecting), { rootMargin: '-72px 0px 0px 0px' }).observe(sentinel);
+      }
+
+      // 0b. In-page anchors (#lead, #results, #case-…). The view-transition router
+      //     intercepts same-document hash clicks and, on this page, updates the
+      //     hash without scrolling. Scroll explicitly so every CTA lands on the form.
+      document.querySelectorAll<HTMLAnchorElement>('.lp a[href^="#"]').forEach((a) => {
+        if (a.dataset.anchorBound || a.dataset.caseOpen !== undefined) return;
+        a.dataset.anchorBound = '1';
+        a.addEventListener('click', (e) => {
+          const id = decodeURIComponent(a.getAttribute('href')!.slice(1));
+          const target = id && document.getElementById(id);
+          if (!target) return;
+          e.preventDefault();
+          history.replaceState(null, '', `#${id}`);
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
       // 1. Screenshots open full-size in a native <dialog>.
       const dlg = document.querySelector('dialog[data-lightbox]') as HTMLDialogElement | null;
       const big = dlg?.querySelector('[data-lightbox-img]') as HTMLImageElement | null;
@@ -555,8 +639,7 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
         });
       });
 
-      // 3. The sticky bar steps aside while either lead form is on screen, so it
-      //    never covers the form's own submit button.
+      // 3. The sticky bar steps aside while either lead form is on screen.
       const sticky = document.querySelector<HTMLElement>('[data-sticky]');
       if (sticky && !sticky.dataset.bound && 'IntersectionObserver' in window) {
         sticky.dataset.bound = '1';
@@ -573,86 +656,154 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
   </script>
 
   <style>
-    /* One accent, real values, dark/light via the register tokens — same design
-       system as the rest of the site, tuned for a single-goal ad page. */
-    :root { --lp-max: 1120px; }
-    .lp-eyebrow { display:inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight:600; letter-spacing:.02em; color: var(--accent-text); }
-    .lp-h2 { max-width: 26ch; font-size: var(--text-h2); font-weight: 700; letter-spacing:-0.01em; text-wrap: balance; }
-    .lp-lede { margin-top: var(--space-2); max-width: 60ch; font-size: var(--text-h4); line-height:1.5; color: var(--fg-muted); }
-    .lp-textlink { color: var(--accent-text); font-weight:600; text-decoration: underline; text-underline-offset: 3px; }
+    /* ── LP scope: softer geometry than the editorial site. Colours, spacing and
+          type still come from the semantic tokens. ───────────────────────────── */
+    .lp { --radius-card: 20px; --radius-button: 14px; --radius-input: 12px; --lp-max: var(--container); }
+    .lp :global([data-register]) { --radius-card: 20px; --radius-button: 14px; --radius-input: 12px; }
 
-    /* Header */
-    .lp-head { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--ground) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule-c); padding-top: env(safe-area-inset-top); }
-    .lp-head__in { display:flex; align-items:center; justify-content:space-between; gap: var(--space-3); max-width: var(--lp-max); margin:0 auto; padding: 0.6rem var(--space-3); min-height: 60px; }
-    .lp-brand { display:inline-flex; align-items:center; gap:0.55rem; min-height:44px; text-decoration:none; color: var(--fg); font-weight:700; }
-    .lp-brand img { display:block; height:30px; width:auto; }
-    .lp-head__cta { display:flex; align-items:center; gap: var(--space-2); }
-    .lp-tel { display:inline-flex; align-items:center; gap:0.4rem; min-height:44px; padding:0 0.4rem; color: var(--fg-muted); text-decoration:none; font-weight:600; font-size: var(--text-small); }
-    .lp-tel:hover { color: var(--fg); }
-    .lp-tel--icon { padding: 0; min-width: 44px; justify-content: center; color: var(--fg); }
+    .lp-eyebrow { display:inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight:700; letter-spacing:.06em; text-transform: none; color: var(--accent-text); }
+    .lp-h2 { max-width: 24ch; font-size: var(--text-h2); font-weight: 800; letter-spacing:-0.02em; line-height:1.08; text-wrap: balance; color: var(--fg); }
+    .lp-lede { margin-top: var(--space-3); max-width: 58ch; font-size: var(--text-h4); line-height:1.5; color: var(--fg-muted); text-wrap: pretty; }
+    .lp-head2 { max-width: 760px; }
+    .lp-head2--center { margin-inline:auto; text-align:center; }
+    .lp-head2--center .lp-h2, .lp-head2--center .lp-lede { margin-inline:auto; }
+    .lp-textlink { color: var(--accent-text); font-weight:600; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1.5px; }
+    .lp-band { background: linear-gradient(180deg, var(--surface-c), color-mix(in srgb, var(--surface-c) 40%, var(--ground))) !important; }
+    .lp-tick { display:inline-grid; place-items:center; width:24px; height:24px; flex:none; margin-top:1px; border-radius:8px; background: var(--accent-wash); color: var(--accent-graphic); }
+    .lp-tick--sm { width:20px; height:20px; border-radius:6px; }
 
-    /* Buttons — one punchy action colour on LP buttons only */
-    .lp-btn { display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding: 0 var(--space-5); border-radius: var(--radius-button); background: var(--cta); color: var(--cta-on); font-weight:700; font-size:1.02rem; text-decoration:none; box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--cta) 55%, transparent); transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out); }
-    .lp-btn:hover { transform: translateY(-1px); background: var(--cta-hover); }
-    .lp-btn--sm { min-height:44px; padding: 0 var(--space-4); font-size: var(--text-small); box-shadow:none; }
-    .lp-cta-row { margin-top: var(--space-6); }
-    .lp-hero__form :global(.ss-btn-primary), .lp-final__form :global(.ss-btn-primary) { background: var(--cta); color: var(--cta-on); }
-    .lp-hero__form :global(.ss-btn-primary):hover, .lp-final__form :global(.ss-btn-primary):hover { background: var(--cta-hover); }
+    /* ── Header ─────────────────────────────────────────────────────────── */
+    .lp-head { position: fixed; inset: 0 0 auto 0; z-index: 60; padding-top: env(safe-area-inset-top); transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); border-bottom:1px solid transparent; }
+    .lp-head__in { display:flex; align-items:center; justify-content:space-between; gap: var(--space-3); max-width: var(--lp-max); margin:0 auto; padding: 0.7rem var(--space-3); min-height: 64px; }
+    .lp-brand { display:inline-flex; align-items:center; min-height:44px; }
+    .lp-brand__img { display:block; height:28px; width:auto; }
+    .lp-brand__img--dark { display:none; }
+    .lp-head.is-solid { background: color-mix(in srgb, var(--color-ground-light) 86%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-color: var(--color-rule-light); box-shadow: 0 10px 30px -24px rgba(0,0,0,.35); }
+    .lp-head.is-solid .lp-brand__img--light { display:none; }
+    .lp-head.is-solid .lp-brand__img--dark { display:block; }
+    .lp-head__cta { display:flex; align-items:center; gap: var(--space-3); }
+    .lp-head__tel { display:none; align-items:center; gap:0.5rem; min-height:44px; color: var(--color-fg-dark); text-decoration:none; font-weight:600; font-size: var(--text-small); opacity:.9; transition: color var(--dur-base) var(--ease-out); }
+    .lp-head.is-solid .lp-head__tel { color: var(--color-fg-light); }
+    @media (min-width: 860px) { .lp-head__tel { display:inline-flex; } }
+    /* Over the ink hero the header button reads on the ink tokens; once solid it
+       reads on the paper tokens. Both states resolve from the same button rule. */
+    .lp-head .lp-btn--sm { --accent-fill: var(--color-accent-lift); --accent-hover: var(--color-accent-lift-hi); --accent-on: var(--color-black); }
+    .lp-head.is-solid .lp-btn--sm { --accent-fill: var(--color-accent); --accent-hover: var(--color-accent-deep); --accent-on: var(--color-white); }
+    .lp-head__sentinel { position:absolute; top:0; left:0; width:1px; height:1px; }
 
-    /* Hero */
-    .lp-hero { padding-top: var(--space-6) !important; padding-bottom: var(--space-8) !important; scroll-margin-top: 76px; }
-    .lp-h1 { margin-top: var(--space-2); font-size: clamp(2rem, 4.4vw, 3.15rem); line-height:1.05; font-weight:800; letter-spacing:-0.025em; text-wrap:balance; }
-    .lp-sub { margin-top: var(--space-3); max-width: 50ch; font-size: var(--text-h4); line-height:1.45; color: var(--fg-muted); }
-    .lp-bullets { margin-top: var(--space-5); display:flex; flex-direction:column; gap: var(--space-2); }
-    .lp-bullets li { display:flex; gap:0.6rem; align-items:flex-start; font-size: var(--text-body); font-weight:500; color: var(--fg); }
-    .lp-bullets__tick { display:grid; place-items:center; width:22px; height:22px; flex:none; margin-top:1px; border-radius:6px; background: var(--accent-wash); color: var(--accent-graphic); }
-    .lp-hero__cta { margin-top: var(--space-5); display:flex; flex-wrap:wrap; align-items:center; gap: var(--space-3) var(--space-4); }
+    /* ── Buttons: brand accent, soft gradient, calm shadow ───────────────── */
+    .lp-btn { position:relative; display:inline-flex; align-items:center; justify-content:center; gap:0.55rem; min-height:52px; padding: 0 var(--space-4); border-radius: var(--radius-button); background: linear-gradient(180deg, color-mix(in srgb, var(--accent-fill) 88%, var(--accent-on)) 0%, var(--accent-fill) 100%); color: var(--accent-on); font-weight:600; font-size: var(--text-small); letter-spacing:.005em; text-decoration:none; border:1px solid color-mix(in srgb, var(--accent-fill) 70%, var(--accent-on)); box-shadow: 0 10px 26px -14px color-mix(in srgb, var(--accent-fill) 55%, transparent); transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out); }
+    .lp-btn:hover { transform: translateY(-1px); background: var(--accent-hover); box-shadow: 0 16px 32px -14px color-mix(in srgb, var(--accent-fill) 60%, transparent); }
+    .lp-btn:active { transform: translateY(0); }
+    .lp-btn:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent-fill) 45%, transparent); outline-offset: 2px; }
+    .lp-btn--lg { min-height:56px; padding: 0 var(--space-5); font-size: var(--text-body); }
+    .lp-btn--sm { min-height:42px; padding: 0 var(--space-3); font-size: var(--text-small); box-shadow:none; white-space:nowrap; }
+    .lp-btn--ghost { background: color-mix(in srgb, var(--fg) 6%, transparent); color: var(--fg); border-color: color-mix(in srgb, var(--fg) 18%, transparent); box-shadow:none; }
+    .lp-btn--ghost:hover { background: color-mix(in srgb, var(--fg) 10%, transparent); box-shadow:none; }
+    .lp-btn--ghost svg { color:#25D366; }
+    .lp-cta-row { margin-top: var(--space-8); display:flex; justify-content:center; }
+
+    /* ── Hero (ink) ──────────────────────────────────────────────────────── */
+    .lp-hero { position:relative; overflow:hidden; padding-top: calc(var(--space-8) + 104px) !important; padding-bottom: calc(var(--space-12) + var(--space-8)) !important; scroll-margin-top: 76px; }
+    .lp-hero::before { content:''; position:absolute; inset:-20% -10% auto -10%; height: 90%; background:
+      radial-gradient(60% 55% at 22% 30%, color-mix(in srgb, var(--accent-graphic) 26%, transparent), transparent 70%),
+      radial-gradient(45% 45% at 85% 20%, color-mix(in srgb, var(--accent-graphic) 14%, transparent), transparent 70%);
+      pointer-events:none; }
+    .lp-hero::after { content:''; position:absolute; inset:0; background-image: linear-gradient(color-mix(in srgb, var(--fg) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--fg) 5%, transparent) 1px, transparent 1px); background-size: 48px 48px; -webkit-mask-image: radial-gradient(70% 60% at 50% 20%, #000 20%, transparent 100%); mask-image: radial-gradient(70% 60% at 50% 20%, #000 20%, transparent 100%); pointer-events:none; }
+    .lp-hero > :global(div) { position:relative; z-index:1; }
+    .lp-hero__grid { display:grid; grid-template-columns: minmax(0,1fr); gap: var(--space-8); align-items:center; }
+    .lp-hero__grid > * { min-width:0; }
+    @media (min-width: 1024px) { .lp-hero__grid { grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr); gap: var(--space-10); } }
+    .lp-chip { display:inline-flex; align-items:center; gap:0.5rem; max-width:100%; padding: 0.4rem 0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-radius:999px; border:1px solid color-mix(in srgb, var(--accent-graphic) 40%, transparent); background: color-mix(in srgb, var(--accent-graphic) 12%, transparent); color: var(--fg); font-size: var(--text-label); font-weight:600; letter-spacing:.02em; }
+    .lp-chip::before { content:''; width:6px; height:6px; border-radius:50%; background: var(--accent-graphic); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-graphic) 22%, transparent); }
+    .lp-h1 { margin-top: var(--space-4); font-size: clamp(2.35rem, 5.2vw, 4rem); line-height:1.02; font-weight:800; letter-spacing:-0.03em; text-wrap:balance; color: var(--fg); }
+    .lp-sub { margin-top: var(--space-4); max-width: 50ch; font-size: var(--text-h4); line-height:1.5; color: var(--fg-muted); text-wrap: pretty; }
+    .lp-bullets { margin-top: var(--space-4); display:flex; flex-direction:column; gap: var(--space-2); }
+    .lp-bullets li { display:flex; gap:0.6rem; align-items:flex-start; font-size: var(--text-body); color: var(--fg); }
+    .lp-bullets__tick { display:inline-grid; place-items:center; width:22px; height:22px; flex:none; margin-top:2px; border-radius:7px; background: var(--accent-wash); color: var(--accent-graphic); }
+    .lp-hero__cta { margin-top: var(--space-5); display:flex; flex-wrap:wrap; align-items:center; gap: var(--space-2) var(--space-3); }
     .lp-hero__cta .lp-btn { width:100%; }
-    @media (min-width: 480px) { .lp-hero__cta .lp-btn { width:auto; } }
-    /* From lg the form beside the copy IS the CTA — one accent action per view. */
-    @media (min-width: 1024px) { .lp-hero__cta { display:none; } }
-    .lp-walink { display:inline-flex; align-items:center; gap:0.45rem; min-height:44px; color: var(--fg); font-weight:600; font-size: var(--text-small); text-decoration:none; }
-    .lp-walink svg { color:#25D366; }
-    .lp-walink:hover { text-decoration: underline; text-underline-offset: 3px; }
-    .lp-micro { margin-top: var(--space-3); font-size: var(--text-small); font-weight:500; color: var(--fg); }
-    .lp-qual { margin-top: var(--space-2); font-size: var(--text-small); color: var(--fg-muted); }
-    .lp-stats { margin-top: var(--space-5); display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--space-3); padding-top: var(--space-4); border-top:1px solid var(--rule-c); }
-    .lp-stats__val { display:block; font-weight:800; line-height:1; font-size: clamp(1.25rem, 2.3vw, 1.9rem); color: var(--fg); }
-    .lp-stats__lbl { display:block; margin-top:0.35rem; font-size: var(--text-label); line-height:1.35; color: var(--fg-muted); }
-    .lp-trust { margin-top: var(--space-4); font-size: var(--text-small); color: var(--fg-muted); }
-    .lp-hero__form { position: relative; scroll-margin-top: 84px; }
-    @media (max-width: 1023px) { .lp-hero__form { margin-top: var(--space-2); } }
-    .lp-hero__form :global(.ss-leadform h3), .lp-final__form :global(.ss-leadform h3) { font-size: var(--text-h3); line-height: 1.15; }
+    @media (min-width: 560px) { .lp-hero__cta .lp-btn { width:auto; } }
+    .lp-micro { margin-top: var(--space-3); font-size: var(--text-small); color: var(--fg); opacity:.92; }
+    .lp-qual { margin-top: var(--space-1); font-size: var(--text-label); color: var(--fg-muted); }
 
-    /* Trust strip */
-    .lp-truststrip { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap: var(--space-4) var(--space-6); text-align:center; }
-    .lp-rating { font-size: var(--text-small); font-weight:600; color: var(--fg-muted); }
-    .lp-rating__stars { color: var(--fg); letter-spacing:0.06em; }
+    /* the framed Ads Manager view */
+    .lp-frame { position:relative; margin:0; border-radius: var(--radius-card); background: var(--color-ground-light); border:1px solid color-mix(in srgb, var(--fg) 14%, transparent); box-shadow: 0 40px 90px -40px rgba(0,0,0,.75), 0 0 0 1px color-mix(in srgb, var(--accent-graphic) 18%, transparent), 0 0 120px -30px color-mix(in srgb, var(--accent-graphic) 45%, transparent); overflow: visible; }
+    @media (min-width:1024px) { .lp-frame { transform: perspective(1600px) rotateY(-6deg) rotateX(2deg); } }
+    .lp-frame__bar { display:flex; align-items:center; gap:0.4rem; padding: 0.6rem 0.9rem; border-bottom:1px solid var(--color-rule-light); border-radius: var(--radius-card) var(--radius-card) 0 0; background: var(--color-surface-light); }
+    .lp-frame__dot { width:9px; height:9px; border-radius:50%; background: var(--color-rule-light); }
+    .lp-frame__url { margin-left: 0.5rem; font-size: var(--text-label); color: var(--color-muted-light); }
+    .lp-frame__img { display:block; width:100%; height:auto; border-radius: 0 0 var(--radius-card) var(--radius-card); }
+    .lp-frame__chip { position:absolute; right: -6px; bottom: -22px; display:flex; flex-direction:column; gap:0.15rem; padding: 0.7rem 0.95rem; border-radius: 14px; background: var(--color-ground-light); color: var(--color-fg-light); border:1px solid var(--color-rule-light); box-shadow: 0 24px 50px -24px rgba(0,0,0,.55); }
+    @media (min-width:1024px) { .lp-frame__chip { right: -28px; bottom: -26px; } }
+    .lp-frame__chip-l { font-size: var(--text-label); color: var(--color-muted-light); }
+    .lp-frame__chip-v { display:inline-flex; align-items:center; gap:0.45rem; font-weight:800; font-size: var(--text-h4); letter-spacing:-0.01em; color: var(--color-up); }
+    .lp-frame__chip-b { color: var(--color-muted-light); font-weight:600; }
+    .lp-frame__chip svg { color: var(--color-muted-light); }
+
+    /* proof strip along the hero floor */
+    .lp-strip { margin-top: var(--space-10); display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--space-4) var(--space-3); padding-top: var(--space-5); border-top:1px solid color-mix(in srgb, var(--fg) 14%, transparent); }
+    @media (min-width: 768px) { .lp-strip { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+    .lp-strip__val { display:block; font-weight:800; line-height:1; letter-spacing:-0.02em; font-size: clamp(1.6rem, 3vw, 2.2rem); color: var(--fg); }
+    .lp-strip__lbl { display:block; margin-top:0.4rem; font-size: var(--text-small); line-height:1.35; color: var(--fg-muted); }
+    .lp-strip__star { margin-left:0.25rem; font-size:0.6em; vertical-align: 0.25em; color: var(--accent-graphic); }
+    .lp-stats { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--space-3); }
+    .lp-stats__val { display:block; font-weight:800; line-height:1; font-size: clamp(1.4rem, 2.6vw, 2rem); color: var(--fg); }
+    .lp-stats__lbl { display:block; margin-top:0.35rem; font-size: var(--text-label); color: var(--fg-muted); }
+
+    /* ── Booking card (overlaps the hero) ────────────────────────────────── */
+    .lp-book { padding-top: 0 !important; padding-bottom: var(--space-8) !important; scroll-margin-top: 84px; }
+    .lp-book__card { position:relative; z-index:2; margin-top: calc(-1 * (var(--space-12) + var(--space-4))); display:grid; grid-template-columns: minmax(0,1fr); gap: var(--space-6); padding: var(--space-5); border-radius: calc(var(--radius-card) + 4px); background: var(--ground); border:1px solid var(--rule-c); box-shadow: 0 40px 80px -40px rgba(0,0,0,.35), 0 2px 0 0 color-mix(in srgb, var(--accent-fill) 8%, transparent) inset; }
+    @media (min-width: 900px) { .lp-book__card { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: var(--space-8); padding: var(--space-8); align-items:start; } }
+    .lp-book__h { font-size: var(--text-h3); font-weight:800; letter-spacing:-0.015em; line-height:1.15; color: var(--fg); text-wrap: balance; }
+    @media (min-width: 900px) { .lp-book__h { font-size: var(--text-h2); } }
+    .lp-book__sub { margin-top: var(--space-2); font-size: var(--text-body); color: var(--fg-muted); }
+    .lp-book__list { margin-top: var(--space-4); display:flex; flex-direction:column; gap: var(--space-2); }
+    .lp-book__list li { display:flex; gap:0.65rem; align-items:flex-start; font-size: var(--text-body); color: var(--fg); }
+    .lp-book__trust { margin-top: var(--space-5); padding-top: var(--space-4); border-top:1px solid var(--rule-c); }
+    .lp-book__copy, .lp-book__form { min-width:0; }
+    .lp-book__copy { display:none; }
+    @media (min-width: 900px) { .lp-book__copy { display:block; } }
+    /* the shared form loses its own card chrome inside the booking card */
+    .lp-book__form :global(.ss-leadform) { border:0; box-shadow:none; padding: 0; border-radius:0; background: transparent; }
+    @media (min-width: 900px) { .lp-book__form :global(.ss-leadform > div:first-of-type) { display:none; } }
+    .lp :global(.ss-leadform--compact .ss-input) { border-radius: var(--radius-input); border-width: 1px; padding: 0.85rem 1rem; box-shadow: none; background-color: var(--ground); }
+    .lp :global(.ss-leadform--compact .ss-input:hover) { border-color: color-mix(in srgb, var(--fg) 45%, var(--ground)); }
+    .lp :global(.ss-leadform .ss-btn-primary) { width:100%; min-height:54px; border-radius: var(--radius-button); background: linear-gradient(180deg, color-mix(in srgb, var(--accent-fill) 88%, var(--accent-on)), var(--accent-fill)); color: var(--accent-on); font-weight:600; font-size: var(--text-small); box-shadow: 0 10px 26px -14px color-mix(in srgb, var(--accent-fill) 55%, transparent); border:1px solid color-mix(in srgb, var(--accent-fill) 70%, var(--accent-on)); }
+    .lp :global(.ss-leadform .ss-btn-primary:hover) { background: var(--accent-hover); transform: translateY(-1px); }
+    /* step 2: primary full width, Back becomes a quiet text link underneath */
+    .lp :global(.ss-leadform .ss-lf-nav) { flex-direction: column-reverse; align-items: stretch; gap: var(--space-2); }
+    .lp :global(.ss-leadform .ss-btn-ghost) { align-self:center; padding: 0.4rem 0.8rem; font-size: var(--text-small); }
+    .lp :global(.ss-leadform .ss-turnstile:empty) { display:none; }
+
+    /* ── Logos ───────────────────────────────────────────────────────────── */
+    .lp-logos { padding-top: var(--space-4) !important; }
     .lp-niche { margin-top: var(--space-3); text-align:center; font-size: var(--text-label); color: var(--fg-muted); }
 
-    /* Problem — founder-voice quotes */
+    /* ── Problem — founder-voice quotes ──────────────────────────────────── */
     .lp-quotes { margin-top: var(--space-6); display:grid; gap: var(--space-3); grid-template-columns:1fr; }
     @media (min-width:640px){ .lp-quotes { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-    .lp-quote { border-left: 3px solid var(--accent-graphic); background: var(--surface-c); border-radius: 0 var(--radius-card) var(--radius-card) 0; padding: var(--space-4) var(--space-5); }
+    .lp-quote { position:relative; padding: var(--space-5) var(--space-5) var(--space-5) calc(var(--space-5) + 1.4rem); border-radius: var(--radius-card); background: var(--ground); border:1px solid var(--rule-c); box-shadow: 0 20px 40px -32px rgba(0,0,0,.25); }
+    .lp-quote__mark { position:absolute; left: var(--space-4); top: calc(var(--space-4) - 0.35rem); font-size: 3rem; line-height:1; font-weight:800; color: var(--accent-graphic); opacity:.5; }
     .lp-quote blockquote { font-size: var(--text-h4); line-height:1.4; font-weight:600; color: var(--fg); text-wrap: pretty; }
-    .lp-quotes__foot { margin-top: var(--space-5); display:flex; flex-wrap:wrap; align-items:baseline; gap: var(--space-2) var(--space-4); font-size: var(--text-body); color: var(--fg); }
+    .lp-quotes__foot { margin-top: var(--space-6); display:flex; flex-wrap:wrap; align-items:baseline; gap: var(--space-2) var(--space-4); font-size: var(--text-body); color: var(--fg); }
 
-    /* Results: poster grid + in-place panels */
-    .lp-proofposters { margin-top: var(--space-5); display:grid; gap: var(--space-4); grid-template-columns:1fr; }
+    /* ── Results: poster grid + in-place panels ──────────────────────────── */
+    .lp-proofposters { margin-top: var(--space-6); display:grid; gap: var(--space-4); grid-template-columns:1fr; }
     @media (min-width:640px){ .lp-proofposters { grid-template-columns: repeat(2, minmax(0,1fr)); } }
     @media (min-width:1024px){ .lp-proofposters { grid-template-columns: repeat(3, minmax(0,1fr)); } }
     .lp-case__open { display:block; height:100%; text-decoration:none; color:inherit; border-radius:18px; }
     .lp-case__open:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 3px; }
     .lp-case__panels { margin-top: var(--space-4); display:flex; flex-direction:column; gap: var(--space-2); }
-    .lp-case { border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); scroll-margin-top: 84px; }
-    .lp-case[open] { border-color: color-mix(in srgb, var(--accent-graphic) 40%, var(--rule-c)); }
+    .lp-case { border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); scroll-margin-top: 84px; transition: border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+    .lp-case[open] { border-color: color-mix(in srgb, var(--accent-graphic) 40%, var(--rule-c)); box-shadow: 0 30px 60px -40px rgba(0,0,0,.3); }
     .lp-case__sum { display:grid; grid-template-columns: minmax(0,1fr) auto; grid-template-areas: "chip toggle" "h toggle" "stat toggle"; align-items:center; gap: 0.2rem var(--space-3); padding: var(--space-4) var(--space-5); cursor:pointer; list-style:none; }
     .lp-case__sum::-webkit-details-marker { display:none; }
     @media (min-width:768px){ .lp-case__sum { grid-template-columns: minmax(0,1fr) auto auto; grid-template-areas: "chip stat toggle" "h stat toggle"; } }
     .lp-case__sum-chip { grid-area: chip; font-size: var(--text-label); font-weight:600; color: var(--fg-muted); }
     .lp-case__sum-h { grid-area: h; font-size: var(--text-h4); font-weight:700; color: var(--fg); line-height:1.25; }
     .lp-case__sum-stat { grid-area: stat; font-weight:800; font-size: var(--text-h4); color: var(--fg); white-space:nowrap; }
-    .lp-case__sum-toggle { grid-area: toggle; width:28px; height:28px; border-radius:50%; border:1px solid var(--rule-c); position:relative; }
+    .lp-case__sum-toggle { grid-area: toggle; width:32px; height:32px; border-radius:50%; border:1px solid var(--rule-c); position:relative; background: var(--surface-c); }
     .lp-case__sum-toggle::before, .lp-case__sum-toggle::after { content:''; position:absolute; left:50%; top:50%; width:12px; height:2px; background: var(--fg); transform: translate(-50%,-50%); transition: transform var(--dur-fast) var(--ease-out); }
     .lp-case__sum-toggle::after { transform: translate(-50%,-50%) rotate(90deg); }
     .lp-case[open] .lp-case__sum-toggle::after { transform: translate(-50%,-50%) rotate(0deg); }
@@ -676,109 +827,123 @@ const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2
     .lp-case__close { min-height:44px; padding:0 var(--space-3); border:0; background:transparent; color: var(--fg-muted); font-weight:600; font-size: var(--text-small); cursor:pointer; }
     .lp-case__close:hover { color: var(--fg); }
 
-    /* Cards (what you get) */
-    .lp-cards { margin-top: var(--space-6); display:grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    /* ── Cards (what you get) ────────────────────────────────────────────── */
+    .lp-cards { margin-top: var(--space-6); display:grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
     .lp-cards--2x2 { grid-template-columns:1fr; }
     @media (min-width:768px){ .lp-cards--2x2 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-    .lp-card { display:flex; flex-direction:column; gap: var(--space-2); border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-4); }
-    .lp-cards--2x2 .lp-card { background: color-mix(in srgb, var(--accent-wash) 55%, var(--ground)); border-color: color-mix(in srgb, var(--accent-graphic) 14%, var(--rule-c)); }
-    .lp-card__glyph { display:grid; place-items:center; width:42px; height:42px; border-radius: var(--radius-input); color: var(--accent-graphic); background: var(--accent-wash); border:1px solid color-mix(in srgb, var(--accent-graphic) 22%, transparent); }
-    .lp-card__title { font-size: var(--text-h4); font-weight:700; color: var(--fg); }
+    .lp-card { display:flex; flex-direction:column; gap: var(--space-2); border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-5); box-shadow: 0 24px 50px -40px rgba(0,0,0,.3); transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+    @media (hover:hover) { .lp-card:hover { transform: translateY(-3px); box-shadow: 0 30px 60px -36px rgba(0,0,0,.35); } }
+    .lp-card__glyph { display:grid; place-items:center; width:46px; height:46px; border-radius: 14px; color: var(--accent-graphic); background: var(--accent-wash); border:1px solid color-mix(in srgb, var(--accent-graphic) 18%, transparent); }
+    .lp-card__title { margin-top: var(--space-1); font-size: var(--text-h4); font-weight:700; color: var(--fg); }
     .lp-card__body { font-size: var(--text-small); line-height:1.55; color: var(--fg-muted); }
     .lp-card__list { margin-top: var(--space-3); display:flex; flex-direction:column; gap: var(--space-2); }
-    .lp-card__list li { display:flex; gap:0.5rem; align-items:flex-start; font-size: var(--text-small); color: var(--fg); }
-    .lp-card__tick { display:inline-flex; flex:none; margin-top:2px; color: var(--accent-graphic); }
+    .lp-card__list li { display:flex; gap:0.55rem; align-items:flex-start; font-size: var(--text-small); color: var(--fg); }
 
-    /* Why us (legacy card/pointer variants for the other LPs) */
+    /* ── Why us ──────────────────────────────────────────────────────────── */
+    .lp-table { margin-top: var(--space-6); border-radius: var(--radius-card); overflow:hidden; }
+    .lp-table :global(table) { background: var(--ground); }
     .lp-why { margin-top: var(--space-6); display:grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
     .lp-why__item { display:flex; gap: var(--space-3); align-items:flex-start; }
     .lp-pointers { margin-top: var(--space-6); display:grid; gap: var(--space-3); grid-template-columns:1fr; }
     @media (min-width:768px){ .lp-pointers { grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--space-3) var(--space-6); } }
     .lp-pointer { display:flex; gap: var(--space-3); align-items:flex-start; font-size: var(--text-body); color: var(--fg); }
-    .lp-pointer__tick { display:grid; place-items:center; width:24px; height:24px; flex:none; margin-top:1px; border-radius:6px; background: var(--accent-wash); color: var(--accent-graphic); }
 
-    /* Founder note */
-    .lp-note { margin-top: var(--space-7); display:flex; flex-direction:column; align-items:flex-start; gap: var(--space-4); max-width: 780px; padding-top: var(--space-6); border-top:1px solid var(--rule-c); }
-    @media (min-width:640px){ .lp-note { flex-direction:row; align-items:center; gap: var(--space-5); } }
-    .lp-note__photo2 { width:112px; height:112px; flex:none; border-radius:50%; object-fit:cover; border:1px solid var(--rule-c); }
-    .lp-note__q p { font-size: var(--text-h4); line-height:1.55; color: var(--fg); }
-    .lp-note__cite { display:block; margin-top: var(--space-3); font-weight:600; color: var(--fg-muted); font-style:normal; }
-    .lp-note__line { display:block; margin-top: 0.2rem; font-size: var(--text-small); color: var(--fg-muted); }
+    /* founder */
+    .lp-note { margin: var(--space-8) 0 0; display:grid; gap: var(--space-4); grid-template-columns: 1fr; align-items:center; max-width: 880px; padding: var(--space-6); border-radius: var(--radius-card); background: var(--ground); border:1px solid var(--rule-c); box-shadow: 0 30px 60px -44px rgba(0,0,0,.35); }
+    @media (min-width:700px){ .lp-note { grid-template-columns: 120px minmax(0,1fr); grid-template-areas: "photo quote" "photo cap"; column-gap: var(--space-6); } .lp-note__photo { grid-area: photo; } .lp-note__q { grid-area: quote; } .lp-note__cap { grid-area: cap; } }
+    .lp-note__photo { width:120px; height:120px; border-radius: 50%; object-fit:cover; border:3px solid var(--ground); box-shadow: 0 0 0 1px var(--rule-c), 0 14px 30px -18px rgba(0,0,0,.4); }
+    .lp-note__q p { font-size: var(--text-h4); line-height:1.5; color: var(--fg); text-wrap: pretty; }
+    .lp-note__cap { display:flex; flex-direction:column; gap:0.1rem; }
+    .lp-note__cite { font-weight:700; color: var(--fg); }
+    .lp-note__line { font-size: var(--text-small); color: var(--fg-muted); }
 
-    /* Who it's for / not for */
+    /* ── Fit ─────────────────────────────────────────────────────────────── */
     .lp-fit { margin-top: var(--space-6); display:grid; gap: var(--space-4); grid-template-columns:1fr; }
     @media (min-width:768px){ .lp-fit { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-    .lp-fit__col { border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-5); }
-    .lp-fit__col--good { border-color: color-mix(in srgb, var(--pos) 35%, var(--rule-c)); }
-    .lp-fit__col--bad { border-color: color-mix(in srgb, var(--neg) 30%, var(--rule-c)); }
-    .lp-fit__h { display:flex; align-items:center; gap:0.5rem; font-size: var(--text-h4); font-weight:700; margin-bottom: var(--space-3); }
-    .lp-fit__badge { display:grid; place-items:center; width:24px; height:24px; flex:none; border-radius:50%; font-size:13px; font-weight:700; }
-    .lp-fit__badge--yes { background: color-mix(in srgb, var(--pos) 18%, transparent); color: var(--pos); }
-    .lp-fit__badge--no { background: color-mix(in srgb, var(--neg) 16%, transparent); color: var(--neg); }
+    .lp-fit__col { position:relative; border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--ground); padding: var(--space-6); overflow:hidden; }
+    .lp-fit__col::before { content:''; position:absolute; inset:0 0 auto 0; height:4px; }
+    .lp-fit__col--good::before { background: var(--pos); }
+    .lp-fit__col--bad::before { background: color-mix(in srgb, var(--fg-muted) 60%, transparent); }
+    .lp-fit__h { display:flex; align-items:center; gap:0.6rem; font-size: var(--text-h4); font-weight:700; margin-bottom: var(--space-4); }
+    .lp-fit__badge { display:grid; place-items:center; width:28px; height:28px; flex:none; border-radius:50%; font-size:13px; font-weight:700; }
+    .lp-fit__badge--yes { background: color-mix(in srgb, var(--pos) 16%, transparent); color: var(--pos); }
+    .lp-fit__badge--no { background: color-mix(in srgb, var(--fg-muted) 16%, transparent); color: var(--fg-muted); }
     .lp-fit__col ul { display:flex; flex-direction:column; gap: var(--space-2); }
     .lp-fit__col li { position:relative; padding-left: var(--space-4); font-size: var(--text-body); color: var(--fg); }
-    .lp-fit__col li::before { content:''; position:absolute; left:0; top:0.62em; width:6px; height:6px; border-radius:50%; background: var(--fg-muted); }
-    .lp-fit__note { margin-top: var(--space-3); font-size: var(--text-small); color: var(--fg-muted); }
+    .lp-fit__col li::before { content:''; position:absolute; left:0; top:0.66em; width:6px; height:6px; border-radius:50%; background: var(--fg-muted); }
+    .lp-fit__note { margin-top: var(--space-4); font-size: var(--text-small); color: var(--fg-muted); }
 
-    /* Fee — scope, never a figure */
-    .lp-fee { margin-bottom: var(--space-7); max-width: 62ch; border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--surface-c); padding: var(--space-5); }
-    .lp-fee__h { font-size: var(--text-h3); font-weight:700; color: var(--fg); }
+    /* ── Voices (ink) ────────────────────────────────────────────────────── */
+    .lp-voices { position:relative; overflow:hidden; }
+    .lp-voices::before { content:''; position:absolute; inset:auto -10% -30% -10%; height:70%; background: radial-gradient(50% 60% at 50% 100%, color-mix(in srgb, var(--accent-graphic) 18%, transparent), transparent 70%); pointer-events:none; }
+    .lp-voices > :global(div) { position:relative; }
+
+    /* ── FAQ + fee ───────────────────────────────────────────────────────── */
+    .lp-faqgrid { display:grid; grid-template-columns: minmax(0,1fr); gap: var(--space-6); }
+    .lp-faqgrid > * { min-width:0; }
+    @media (min-width: 960px) { .lp-faqgrid { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: var(--space-10); align-items:start; } .lp-faqgrid__side { position: sticky; top: 96px; } }
+    .lp-fee { margin-top: var(--space-5); border:1px solid var(--rule-c); border-radius: var(--radius-card); background: var(--surface-c); padding: var(--space-5); }
+    .lp-fee__h { font-size: var(--text-h4); font-weight:700; color: var(--fg); }
     .lp-fee__list { margin-top: var(--space-3); display:flex; flex-direction:column; gap: var(--space-2); }
-    .lp-fee__list li { display:flex; gap:0.6rem; align-items:flex-start; font-size: var(--text-body); color: var(--fg); }
-    .lp-fee__tick { display:inline-flex; flex:none; margin-top:4px; color: var(--accent-graphic); }
+    .lp-fee__list li { display:flex; gap:0.6rem; align-items:flex-start; font-size: var(--text-small); color: var(--fg); }
 
-    /* Final CTA (ink register) */
-    .lp-final__h { max-width: 20ch; font-size: var(--text-h2); font-weight:800; letter-spacing:-0.015em; color: var(--fg); text-wrap: balance; }
-    .lp-final__b { margin-top: var(--space-3); max-width: 52ch; font-size: var(--text-h4); line-height:1.5; color: var(--fg-muted); }
+    /* ── Final CTA (ink) ─────────────────────────────────────────────────── */
+    .lp-final { position:relative; overflow:hidden; }
+    .lp-final::before { content:''; position:absolute; inset:-30% -10% auto -10%; height:80%; background: radial-gradient(50% 50% at 70% 30%, color-mix(in srgb, var(--accent-graphic) 20%, transparent), transparent 70%); pointer-events:none; }
+    .lp-final > :global(div) { position:relative; }
+    .lp-final__grid { display:grid; grid-template-columns: minmax(0,1fr); gap: var(--space-8); align-items:center; }
+    .lp-final__grid > * { min-width:0; }
+    @media (min-width:1024px){ .lp-final__grid { grid-template-columns: minmax(0,1fr) minmax(0,0.9fr); gap: var(--space-10); } }
+    .lp-final__h { max-width: 18ch; font-size: clamp(2rem, 4vw, 3rem); font-weight:800; letter-spacing:-0.025em; line-height:1.05; color: var(--fg); text-wrap: balance; }
+    .lp-final__b { margin-top: var(--space-3); max-width: 50ch; font-size: var(--text-h4); line-height:1.5; color: var(--fg-muted); }
     .lp-final__list { margin-top: var(--space-5); display:flex; flex-direction:column; gap: var(--space-2); }
     .lp-final__list li { display:flex; gap:0.6rem; align-items:flex-start; font-size: var(--text-body); color: var(--fg); }
-    .lp-final__tick { display:grid; place-items:center; width:22px; height:22px; flex:none; margin-top:1px; border-radius:6px; background: color-mix(in srgb, var(--accent-graphic) 22%, transparent); color: var(--accent-graphic); }
+    .lp-final__form :global(.ss-leadform) { background: var(--ground); border-color: color-mix(in srgb, var(--fg) 14%, transparent); box-shadow: 0 40px 80px -40px rgba(0,0,0,.8); padding: var(--space-6); }
 
-    /* WhatsApp secondary button (brand green) */
-    .lp-wa { display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-top: var(--space-3); min-height:48px; padding:0 var(--space-4); border-radius: var(--radius-button); border:1px solid #25D366; background: color-mix(in srgb, #25D366 8%, transparent); color: #0B6B39; font-weight:600; font-size: var(--text-small); text-decoration:none; }
-    .lp-wa:hover { background: color-mix(in srgb, #25D366 16%, transparent); }
+    /* ── WhatsApp secondary ──────────────────────────────────────────────── */
+    .lp-wa { display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-top: var(--space-3); min-height:48px; padding:0 var(--space-4); border-radius: var(--radius-button); border:1px solid color-mix(in srgb, #25D366 55%, transparent); background: color-mix(in srgb, #25D366 7%, transparent); color: var(--fg); font-weight:600; font-size: var(--text-small); text-decoration:none; }
+    .lp-wa:hover { background: color-mix(in srgb, #25D366 14%, transparent); }
     .lp-wa__icon { display:inline-flex; color:#25D366; }
-    .lp-wa--on-ink { color:#EDEDED; border-color: color-mix(in srgb, #25D366 70%, transparent); }
 
-    /* Footer */
-    .lp-foot { border-top:1px solid var(--rule-c); background: var(--ground); padding: var(--space-5) var(--space-3) calc(var(--space-6) + 72px); }
+    /* ── Footer ──────────────────────────────────────────────────────────── */
+    .lp-foot { border-top:1px solid var(--rule-c); background: var(--ground); padding: var(--space-6) var(--space-3) calc(var(--space-8) + 84px); }
     .lp-foot__in { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap: var(--space-3); max-width: var(--lp-max); margin:0 auto; font-size: var(--text-small); color: var(--fg-muted); }
     .lp-foot__brand { display:inline-flex; align-items:center; gap: var(--space-3); }
-    .lp-foot__brand img { display:block; height:24px; width:auto; }
+    .lp-foot__brand img { display:block; height:22px; width:auto; }
     .lp-foot__nav { display:flex; flex-wrap:wrap; gap: var(--space-4); }
     .lp-foot__nav a { color: var(--fg-muted); text-decoration:none; min-height:44px; display:inline-flex; align-items:center; }
     .lp-foot__nav a:hover { color: var(--fg); }
 
-    /* Sticky mobile CTA */
-    .lp-sticky { position: fixed; left:0; right:0; bottom:0; z-index: 50; display:flex; gap: var(--space-2); align-items:center; padding: 0.6rem var(--space-3) calc(0.6rem + env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--ground) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top:1px solid var(--rule-c); transition: transform var(--dur-base) var(--ease-out); }
-    .lp-sticky.is-hidden { transform: translateY(110%); }
-    .lp-sticky__call { display:grid; place-items:center; width:52px; height:52px; flex:none; border-radius: var(--radius-button); border:1px solid var(--fg-muted); color: var(--fg); text-decoration:none; }
-    .lp-sticky__cta { flex:1; display:inline-flex; align-items:center; justify-content:center; min-height:52px; border-radius: var(--radius-button); background: var(--cta); color: var(--cta-on); font-weight:700; text-decoration:none; text-align:center; padding: 0 var(--space-3); font-size: var(--text-small); }
-    .lp-sticky__cta:hover { background: var(--cta-hover); }
-    .lp-sticky__wa { display:grid; place-items:center; width:52px; height:52px; flex:none; border-radius: var(--radius-button); background:#25D366; color:#fff; text-decoration:none; }
-    @media (min-width: 768px) { .lp-sticky { display:none; } .lp-foot { padding-bottom: var(--space-6); } }
+    /* ── Sticky mobile CTA: a floating pill, not a full-width slab ───────── */
+    .lp-sticky { position: fixed; left: var(--space-2); right: var(--space-2); bottom: calc(var(--space-2) + env(safe-area-inset-bottom)); z-index: 50; display:flex; gap: var(--space-2); align-items:center; padding: 0.5rem; border-radius: calc(var(--radius-button) + 8px); background: color-mix(in srgb, var(--color-ground-light) 90%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border:1px solid var(--color-rule-light); box-shadow: 0 20px 50px -20px rgba(0,0,0,.45); transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out); }
+    .lp-sticky.is-hidden { transform: translateY(140%); opacity:0; }
+    .lp-sticky__cta { flex:1; min-height:50px; white-space:nowrap; --accent-fill: var(--color-accent); --accent-hover: var(--color-accent-deep); --accent-on: var(--color-white); }
+    .lp-sticky__wa, .lp-sticky__call { display:grid; place-items:center; width:50px; height:50px; flex:none; border-radius: var(--radius-button); text-decoration:none; }
+    .lp-sticky__wa { background:#25D366; color:#fff; }
+    .lp-sticky__call { border:1px solid var(--color-rule-light); color: var(--color-fg-light); }
+    @media (min-width: 768px) { .lp-sticky { display:none; } .lp-foot { padding-bottom: var(--space-8); } }
 
-    /* Lightbox */
+    /* ── Lightbox ────────────────────────────────────────────────────────── */
     .lp-lightbox { border:none; padding:0; background:transparent; max-width:min(1100px,94vw); max-height:90vh; }
-    .lp-lightbox::backdrop { background: color-mix(in srgb, #000 78%, transparent); }
+    .lp-lightbox::backdrop { background: color-mix(in srgb, #000 80%, transparent); }
     .lp-lightbox__img { display:block; width:100%; height:auto; border-radius: var(--radius-card); }
     .lp-lightbox__close { position:fixed; top:3vh; right:4vw; width:44px; height:44px; border-radius:50%; border:none; background:#fff; color:#000; font-size:18px; line-height:1; cursor:pointer; }
 
-    /* ── Sliders (CSS keyframes on a duplicated track; pause on hover/focus; a
-          static wrapped grid under reduced motion) ─────────────────────────── */
-    .lp-slider { overflow:hidden; }
-    .lp-slider__track { display:flex; gap: var(--space-3); width:max-content; animation: lpScroll 48s linear infinite; will-change: transform; }
+    /* ── Sliders ─────────────────────────────────────────────────────────── */
+    .lp-slider { overflow:hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+    .lp-slider__track { display:flex; gap: var(--space-3); width:max-content; animation: lpScroll 52s linear infinite; will-change: transform; }
     @media (hover: hover) { .lp-slider:hover .lp-slider__track { animation-play-state: paused; } }
     .lp-slider:focus-within .lp-slider__track { animation-play-state: paused; }
     @keyframes lpScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-    .lp-slider__cap { margin-top: var(--space-2); font-size: var(--text-label); color: var(--fg-muted); }
-    .lp-shot { flex:none; height:200px; border:1px solid var(--rule-c); border-radius: var(--radius-card); overflow:hidden; background: var(--ground); padding:0; cursor: zoom-in; }
+    .lp-slider__cap { margin-top: var(--space-3); text-align:center; font-size: var(--text-label); color: var(--fg-muted); }
+    .lp-shot { flex:none; height:200px; border:1px solid var(--rule-c); border-radius: var(--radius-card); overflow:hidden; background: var(--ground); padding:0; cursor: zoom-in; box-shadow: 0 20px 40px -30px rgba(0,0,0,.35); }
     .lp-shot img { height:100%; width:auto; max-width:none; display:block; }
     @media (min-width:768px){ .lp-shot { height:300px; } }
     .lp-shot:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 2px; }
 
     @media (prefers-reduced-motion: reduce) {
-      .lp-btn, .lp-sticky__cta, .lp-sticky, .lp-case__sum-toggle::before, .lp-case__sum-toggle::after { transition:none; }
+      .lp-btn, .lp-sticky, .lp-head, .lp-card, .lp-case, .lp-case__sum-toggle::before, .lp-case__sum-toggle::after { transition:none; }
+      .lp-frame { transform:none; }
       .lp-slider__track { animation:none; flex-wrap:wrap; width:auto; justify-content:center; }
       .lp-slider__track > [aria-hidden="true"] { display:none; }
     }

@@ -24,5 +24,7 @@ export const brandsPast10L = { value: '150+', label: 'brands scaled past ₹10 l
 export const brandsPast1Cr = { value: '50+', label: 'brands taken past ₹1 crore in cumulative sales' };
 /** Owner-confirmed 2026-09-15: public Google Business Profile review count. */
 export const googleReviews = { value: '100+', label: 'Google reviews' };
+/** Owner-confirmed 2026-09-16: current Google Business Profile average. */
+export const googleRating = { value: '4.2', label: 'on Google' };
 /** Owner-confirmed 2026-09-15: team size, Bangalore. */
 export const teamSize = { value: '20+', label: 'person team in Bangalore' };

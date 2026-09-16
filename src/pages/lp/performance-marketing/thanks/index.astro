@@ -9,19 +9,42 @@
  * those here (GA4/Meta do not dedupe gtag vs server hits). This page fires the
  * Google Ads conversion only, which is a separate system. It is guarded behind a
  * real conversion id so nothing fake ships until the owner provides one.
+ *
+ * Revamped 2026-09-16: ink confirmation band, a real timeline of what happens
+ * next, the WhatsApp micro-commitment, and one case study matched to the spend
+ * band the visitor picked (script picks; the first shows without JS).
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Meta from '@/components/seo/Meta.astro';
+import Section from '@/components/primitives/Section.astro';
 import Glyph from '@/components/graphics/Glyph.astro';
+import CaseStudyPoster from '@/components/blocks/CaseStudyPoster.astro';
 import { Image } from 'astro:assets';
-import lockup from '@/assets/brand/lockup-black.png';
+import lockupWhite from '@/assets/brand/lockup-white.png';
 import { ORG } from '@/lib/schema/entity';
 import { LANDING_BY_SLUG } from '@/lib/landings';
+import { CASE_STUDY_BY_SLUG, CASE_STUDY_KICKERS, INDEX_ORDER } from '@/lib/caseStudies';
 
 const c = LANDING_BY_SLUG['performance-marketing']!;
 const tel = ORG.telephone.replace(/[^+\d]/g, '');
 const waText = "Hi, I just booked a free account review, here's my latest Ads Manager screenshot";
 const wa = `https://wa.me/919606713608?text=${encodeURIComponent(waText)}`;
+const WA_PATH = 'M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.32-1.95 1.36-.5.05-1.14.24-3.84-.8-3.22-1.27-5.28-4.55-5.44-4.76-.16-.21-1.31-1.74-1.31-3.32s.83-2.36 1.12-2.68c.29-.32.63-.4.84-.4l.6.01c.19.01.45-.07.7.54.24.6.83 2.07.9 2.22.07.15.12.32.02.53-.1.21-.15.32-.29.5-.15.18-.31.4-.44.53-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.45.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.19-.29.39-.24.65-.15.27.1 1.7.8 1.99.95.29.15.48.22.55.34.07.13.07.72-.17 1.4z';
+
+// One case study per spend band. Under ₹60 K sees the launch-from-zero account,
+// the middle bands the turnaround, ₹5 L+ the mature account that broke its ceiling.
+const MATCH: { band: string; slug: string }[] = [
+  { band: 'Under ₹40 K', slug: 'wellness-brand-zero-to-scale' },
+  { band: '₹40–60 K', slug: 'wellness-brand-zero-to-scale' },
+  { band: '₹60 K–2 L', slug: 'womens-fashion-account-turnaround' },
+  { band: '₹2–5 L', slug: 'womens-fashion-account-turnaround' },
+  { band: '₹5 L+', slug: 'womenswear-breaking-the-ceiling' },
+];
+const studies = [...new Set(MATCH.map((m) => m.slug))]
+  .map((sl) => CASE_STUDY_BY_SLUG[sl])
+  .filter((s): s is NonNullable<typeof s> => !!s)
+  .map((study) => ({ study, colorIndex: (INDEX_ORDER as readonly string[]).indexOf(study.slug) % 7, kicker: CASE_STUDY_KICKERS[study.slug] ?? '' }));
+const matchJson = JSON.stringify(Object.fromEntries(MATCH.map((m) => [m.band, m.slug])));
 
 // TODO(owner): set the Google Ads conversion id + label to enable the conversion.
 // Leave empty and nothing fires (no fake id ships). Format: 'AW-XXXXXXXXXX/xxxxx'.
@@ -31,28 +54,57 @@ const GADS_CONVERSION = '';
 <BaseLayout bare noindex>
   <Meta slot="meta" title="Thank you — your review request is in | Scaling Socials" description="Your free account review request has been received. A real person at Scaling Socials messages you on WhatsApp within two working hours to fix a time." type="website" />
 
-  <main class="ty">
-    <div class="ty__card">
-      <span class="ty__brand"><Image src={lockup} alt="Scaling Socials" height={26} width={Math.round(26 * (lockup.width / lockup.height))} densities={[1, 2]} loading="eager" /></span>
-      <span class="ty__check" aria-hidden="true"><Glyph name="scale" size={26} /></span>
-      <h1 class="ty__h">Your review request is in.</h1>
-      <p class="ty__sub">Thanks — a real person at Scaling Socials messages you on WhatsApp within 2 working hours to fix a time. Here is exactly what happens next.</p>
-
-      <ol class="ty__steps">
-        {c.nextSteps?.map((s) => (
-          <li class="ty__step"><span class="ty__n display-type">{s.n}</span><span>{s.text}</span></li>
-        ))}
-      </ol>
-
-      <div class="ty__cta">
-        <a href={wa} target="_blank" rel="noopener" class="ty__wa">
-          <span class="ty__wa-i" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.32-1.95 1.36-.5.05-1.14.24-3.84-.8-3.22-1.27-5.28-4.55-5.44-4.76-.16-.21-1.31-1.74-1.31-3.32s.83-2.36 1.12-2.68c.29-.32.63-.4.84-.4l.6.01c.19.01.45-.07.7.54.24.6.83 2.07.9 2.22.07.15.12.32.02.53-.1.21-.15.32-.29.5-.15.18-.31.4-.44.53-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.45.29.15.46.12.63-.07.17-.19.73-.85.93-1.14.19-.29.39-.24.65-.15.27.1 1.7.8 1.99.95.29.15.48.22.55.34.07.13.07.72-.17 1.4z"/></svg></span>
-          Send your latest Ads Manager screenshot on WhatsApp
-        </a>
-        <a href={`tel:${tel}`} class="ty__tel">Or call {ORG.telephone}</a>
+  <div class="ty">
+    <Section register="ink" size="lg" class="ty-hero">
+      <div class="ty-hero__in">
+        <Image src={lockupWhite} alt="Scaling Socials" height={26} width={Math.round(26 * (lockupWhite.width / lockupWhite.height))} densities={[1, 2]} loading="eager" class="ty-hero__logo" />
+        <span class="ty-hero__check" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </span>
+        <h1 class="ty-hero__h">Your review request is in.</h1>
+        <p class="ty-hero__sub">A real person at Scaling Socials messages you on WhatsApp within 2 working hours to fix a time. Here is exactly what happens next.</p>
       </div>
-    </div>
-  </main>
+    </Section>
+
+    <Section size="sm" class="ty-body">
+      <div class="ty-card">
+        <ol class="ty-steps">
+          {c.nextSteps?.map((s, i) => (
+            <li class="ty-step">
+              <span class="ty-step__n display-type" data-num>{s.n}</span>
+              <span class="ty-step__t">{s.text}</span>
+              {i < (c.nextSteps?.length ?? 0) - 1 && <span class="ty-step__line" aria-hidden="true"></span>}
+            </li>
+          ))}
+        </ol>
+
+        <div class="ty-cta">
+          <p class="ty-cta__h">Make the call sharper</p>
+          <p class="ty-cta__b">Send your latest Ads Manager screenshot now and we come to the review with your account already read.</p>
+          <a href={wa} target="_blank" rel="noopener" class="ty-wa">
+            <span class="ty-wa__i" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d={WA_PATH} /></svg></span>
+            Send it on WhatsApp
+          </a>
+          <a href={`tel:${tel}`} class="ty-tel"><Glyph name="phone" size={16} /> Or call {ORG.telephone}</a>
+        </div>
+      </div>
+
+      <div class="ty-while" data-match={matchJson}>
+        <span class="ty-eyebrow">While you wait</span>
+        <h2 class="ty-h2">An account like yours, before and after</h2>
+        <ul class="ty-posters">
+          {studies.map((s, i) => (
+            <li class="ty-poster" data-study={s.study.slug} hidden={i > 0 ? true : undefined}>
+              <CaseStudyPoster study={s.study} colorIndex={s.colorIndex} kicker={s.kicker} link={false} readLabel="" />
+              <p class="ty-poster__line">{s.study.answer}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Section>
+
+    <footer class="ty-foot">© {new Date().getFullYear()} {ORG.legalName}</footer>
+  </div>
 
   {/* Google Ads conversion — fires once on this thank-you page only (never on a
      button click). Rendered only when the owner has set a real conversion id, so
@@ -61,21 +113,64 @@ const GADS_CONVERSION = '';
     <script is:inline set:html={`window.gtag&&window.gtag('event','conversion',{send_to:${JSON.stringify(GADS_CONVERSION)}});`} />
   )}
 
+  <script>
+    // Show the case study that matches the spend band the visitor chose
+    // (?spend=…). Without JS the first poster shows; nothing is hidden from view.
+    const init = () => {
+      const wrap = document.querySelector<HTMLElement>('.ty-while[data-match]');
+      if (!wrap || wrap.dataset.bound) return;
+      wrap.dataset.bound = '1';
+      let map: Record<string, string> = {};
+      try { map = JSON.parse(wrap.dataset.match || '{}'); } catch { /* keep default */ }
+      const spend = new URLSearchParams(location.search).get('spend') || '';
+      const slug = map[spend];
+      if (!slug) return;
+      const posters = wrap.querySelectorAll<HTMLElement>('[data-study]');
+      let found = false;
+      posters.forEach((p) => { const hit = p.dataset.study === slug; p.hidden = !hit; if (hit) found = true; });
+      if (!found) posters.forEach((p, i) => { p.hidden = i > 0; });
+    };
+    init();
+    document.addEventListener('astro:page-load', init);
+  </script>
+
   <style>
-    .ty { min-height: 100svh; min-height: 100vh; display: grid; place-items: center; padding: var(--space-6) var(--space-3); background: var(--surface-c); }
-    .ty__card { max-width: 620px; width: 100%; background: var(--ground); border: 1px solid var(--rule-c); border-radius: 18px; padding: var(--space-7) var(--space-5); text-align: center; box-shadow: 0 30px 70px -44px color-mix(in srgb, var(--accent-fill) 40%, transparent); }
-    .ty__brand { display: block; margin-bottom: var(--space-5); }
-    .ty__brand img { height: 26px; width: auto; display: inline-block; }
-    .ty__check { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: color-mix(in srgb, var(--pos) 16%, transparent); color: var(--pos); margin-bottom: var(--space-4); }
-    .ty__h { font-size: clamp(1.7rem, 3vw, 2.3rem); font-weight: 800; letter-spacing: -0.02em; }
-    .ty__sub { margin-top: var(--space-3); font-size: var(--text-h4); line-height: 1.5; color: var(--fg-muted); }
-    .ty__steps { margin-top: var(--space-6); display: flex; flex-direction: column; gap: var(--space-3); text-align: left; }
-    .ty__step { display: flex; gap: var(--space-3); align-items: flex-start; border: 1px solid var(--rule-c); border-radius: var(--radius-card); padding: var(--space-4); font-size: var(--text-small); color: var(--fg); }
-    .ty__n { font-weight: 800; font-size: var(--text-h4); line-height: 1; color: var(--accent-text); flex: none; }
-    .ty__cta { margin-top: var(--space-6); display: flex; flex-direction: column; gap: var(--space-3); align-items: center; }
-    .ty__wa { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 52px; padding: 0 var(--space-5); border-radius: var(--radius-button); background: #25D366; color: #fff; font-weight: 700; text-decoration: none; }
-    .ty__wa-i { display: inline-flex; }
-    .ty__tel { font-size: var(--text-small); color: var(--fg-muted); text-decoration: none; }
-    .ty__tel:hover { color: var(--fg); }
+    .ty { --radius-card: 20px; --radius-button: 14px; min-height: 100svh; background: var(--surface-c); }
+    .ty :global([data-register]) { --radius-card: 20px; --radius-button: 14px; }
+    .ty-hero { position:relative; overflow:hidden; text-align:center; padding-bottom: calc(var(--space-12) + var(--space-6)) !important; }
+    .ty-hero::before { content:''; position:absolute; inset:-30% -10% auto -10%; height:120%; background: radial-gradient(55% 55% at 50% 30%, color-mix(in srgb, var(--accent-graphic) 26%, transparent), transparent 70%); pointer-events:none; }
+    .ty-hero > :global(div) { position:relative; }
+    .ty-hero__in { max-width: 640px; margin:0 auto; display:flex; flex-direction:column; align-items:center; }
+    .ty-hero__logo { height:26px; width:auto; margin-bottom: var(--space-8); }
+    .ty-hero__check { display:grid; place-items:center; width:72px; height:72px; border-radius:50%; background: var(--pos); color: var(--color-black); box-shadow: 0 0 0 10px color-mix(in srgb, var(--pos) 18%, transparent), 0 20px 50px -20px color-mix(in srgb, var(--pos) 60%, transparent); }
+    .ty-hero__h { margin-top: var(--space-5); font-size: clamp(2rem, 5vw, 3.2rem); font-weight:800; letter-spacing:-0.025em; line-height:1.05; color: var(--fg); text-wrap: balance; }
+    .ty-hero__sub { margin-top: var(--space-3); font-size: var(--text-h4); line-height:1.5; color: var(--fg-muted); text-wrap: pretty; }
+
+    .ty-body { padding-top: 0 !important; }
+    .ty-card { position:relative; z-index:1; max-width: 760px; margin: calc(-1 * (var(--space-12) + var(--space-2))) auto 0; padding: var(--space-6); border-radius: var(--radius-card); background: var(--ground); border:1px solid var(--rule-c); box-shadow: 0 40px 80px -40px rgba(0,0,0,.35); }
+    @media (min-width: 700px) { .ty-card { padding: var(--space-8); } }
+    .ty-steps { display:flex; flex-direction:column; gap: var(--space-4); }
+    .ty-step { position:relative; display:grid; grid-template-columns: 44px minmax(0,1fr); gap: var(--space-3); align-items:start; }
+    .ty-step__n { display:grid; place-items:center; width:44px; height:44px; border-radius:50%; background: var(--accent-wash); color: var(--accent-text); font-weight:800; font-size: var(--text-small); }
+    .ty-step__t { padding-top: 0.6rem; font-size: var(--text-body); line-height:1.5; color: var(--fg); }
+    .ty-step__line { position:absolute; left:21px; top:48px; width:2px; height: calc(100% - 4px); background: var(--rule-c); }
+    .ty-cta { margin-top: var(--space-6); padding-top: var(--space-6); border-top:1px solid var(--rule-c); display:flex; flex-direction:column; align-items:flex-start; gap: var(--space-2); }
+    .ty-cta__h { font-size: var(--text-h4); font-weight:700; color: var(--fg); }
+    .ty-cta__b { font-size: var(--text-small); color: var(--fg-muted); max-width: 52ch; }
+    .ty-wa { margin-top: var(--space-2); display:inline-flex; align-items:center; justify-content:center; gap:0.6rem; min-height:54px; padding: 0 var(--space-5); border-radius: var(--radius-button); background:#25D366; color:#fff; font-weight:700; text-decoration:none; box-shadow: 0 14px 30px -14px rgba(37,211,102,.7); width:100%; }
+    @media (min-width: 560px) { .ty-wa { width:auto; } }
+    .ty-wa__i { display:inline-flex; }
+    .ty-tel { display:inline-flex; align-items:center; gap:0.4rem; min-height:44px; font-size: var(--text-small); color: var(--fg-muted); text-decoration:none; }
+    .ty-tel:hover { color: var(--fg); }
+
+    .ty-while { max-width: 760px; margin: var(--space-10) auto 0; }
+    .ty-eyebrow { display:inline-block; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight:700; letter-spacing:.06em; color: var(--accent-text); }
+    .ty-h2 { font-size: var(--text-h3); font-weight:800; letter-spacing:-0.015em; color: var(--fg); text-wrap: balance; }
+    .ty-posters { margin-top: var(--space-5); }
+    .ty-poster { display:grid; gap: var(--space-4); }
+    @media (min-width: 700px) { .ty-poster { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); align-items:center; } }
+    .ty-poster :global(.ss-cscard__read) { display:none; }
+    .ty-poster__line { font-size: var(--text-body); line-height:1.55; color: var(--fg-muted); }
+    .ty-foot { padding: var(--space-8) var(--space-3) var(--space-6); text-align:center; font-size: var(--text-label); color: var(--fg-muted); }
   </style>
 </BaseLayout>

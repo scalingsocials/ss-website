@@ -94,6 +94,8 @@ export interface LandingContent {
   /** Page CTA label (nav short + sticky + section buttons). */
   ctaLabel: string;
   ctaLabelShort: string;
+  /** Sticky mobile bar label (default: ctaLabel). Keep under ~20 chars so it never wraps. */
+  ctaLabelSticky?: string;
   hero: {
     eyebrow: string;
     h1: string;
@@ -222,9 +224,10 @@ export const LANDINGS: LandingContent[] = [
       'Performance marketing for D2C brands, run to your real margins. Creative made in-house, ad spend never marked up. Book a free 30-minute account review.',
     phoneCtaLabel: 'Call us',
     ctaLabel: CTA,
-    ctaLabelShort: 'Free account review',
+    ctaLabelShort: 'Book a review',
+    ctaLabelSticky: 'Book my free review',
     hero: {
-      eyebrow: 'Performance marketing for D2C and Shopify brands in India and the UAE',
+      eyebrow: 'Performance marketing for D2C and Shopify brands',
       h1: 'Scale Meta & Google ads without losing your margin',
       sub: `Your spend bought to your break-even ROAS, creative made in-house, and one weekly number you can take to your P&L. ${brandsServed.value} ecommerce brands, ${adSpendManaged.value} managed.`,
       micro: '30 minutes. Your account on screen. No deck, no pressure. You keep the plan.',

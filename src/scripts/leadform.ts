@@ -121,7 +121,9 @@ function initForm(form: HTMLFormElement): void {
     loadTurnstile(() => {
       if (turnstileEl.dataset.rendered) return;
       try {
-        (window as TurnstileWin).turnstile?.render(turnstileEl, { sitekey: turnstileEl.dataset.sitekey });
+        // interaction-only: the widget stays invisible unless Cloudflare actually needs
+        // a click, so the form never shows a dark "Success!" box mid-flow.
+        (window as TurnstileWin).turnstile?.render(turnstileEl, { sitekey: turnstileEl.dataset.sitekey, appearance: 'interaction-only', size: 'flexible' });
         turnstileEl.dataset.rendered = '1';
       } catch {
         /* ignore — server treats a missing token as unverified */
@@ -227,8 +229,13 @@ function initForm(form: HTMLFormElement): void {
   const validateStep = (n: number) => stepFields(n).map(validate).every(Boolean);
   const step1Filled = () => stepFields(1).every((el) => !el.required || el.value.trim() !== '');
 
+  // Validate on blur only once the visitor has actually typed in the field (or it
+  // has a value). Focusing step 2's first field and then tapping elsewhere used
+  // to flash "Required." before anyone had a chance to type.
   for (const el of form.querySelectorAll<FormEl>('input, select, textarea')) {
-    el.addEventListener('blur', () => validate(el));
+    el.addEventListener('input', () => { el.dataset.dirty = '1'; });
+    el.addEventListener('change', () => { el.dataset.dirty = '1'; });
+    el.addEventListener('blur', () => { if (el.dataset.dirty || el.value.trim()) validate(el); });
   }
 
   // Changing the dial code re-checks the number against the new country's rule,
