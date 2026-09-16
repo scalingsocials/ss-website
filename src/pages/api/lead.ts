@@ -144,6 +144,12 @@ function getEnv(locals: unknown) {
     // Override with LEAD_ALERT_FROM / LEAD_ALERT_TO env vars if needed.
     alertFrom: pick('LEAD_ALERT_FROM') ?? 'Scaling Socials <leads@scalingsocials.com>',
     alertTo: pick('LEAD_ALERT_TO') ?? 'support@scalingsocials.com',
+    // TeleCRM (owner's sales CRM). Both are secrets from the Cloudflare env; with
+    // either missing the push is skipped and logged, never faked (CLAUDE.md §17).
+    // Token: TeleCRM → Integrations → Website/API → create an "Async" token.
+    telecrmToken: pick('TELECRM_API_TOKEN'),
+    telecrmEnterprise: pick('TELECRM_ENTERPRISE_ID'),
+    telecrmBase: pick('TELECRM_API_BASE') ?? 'https://next-api.telecrm.in',
   };
 }
 
@@ -434,9 +440,22 @@ function warnUnscoredBudget(answers: Record<string, string>): void {
 }
 
 /**
- * Transparent lead score (0–60). Intent + contactability + deal size:
+ * Points for stated intent on the /lp/ forms: how soon they want to start and
+ * who is asking. Exact option strings from src/lib/landings.ts. An agency or
+ * freelancer enquiring on a D2C ad page is almost never a client, so it costs
+ * points rather than earning them.
+ */
+const START_POINTS: Record<string, number> = { 'This month': 8, 'In the next 30 days': 5, 'In 2 to 3 months': 2, 'Just exploring': 0 };
+const ROLE_POINTS: Record<string, number> = { 'Founder or owner': 4, 'Marketing lead': 2, 'Other': 0, 'Agency or freelancer': -8 };
+function intentPoints(answers: Record<string, string>): number {
+  return (START_POINTS[answers.start ?? ''] ?? 0) + (ROLE_POINTS[answers.role ?? ''] ?? 0);
+}
+
+/**
+ * Transparent lead score (0–72). Intent + contactability + deal size:
  *   audit CTA +15 · completed the form +10 · email +5 · phone +5 ·
- *   answered the qualifying questions +5 · budget/scale tier +0/+6/+12/+20.
+ *   answered the qualifying questions +5 · budget/scale tier +0/+6/+12/+20 ·
+ *   start date +0/+2/+5/+8 · role +4/+2/0/−8 (never below 0).
  */
 function scoreLead(lead: Lead): number {
   let s = 0;
@@ -446,7 +465,8 @@ function scoreLead(lead: Lead): number {
   if (lead.phone) s += 5;
   if (Object.keys(lead.answers).length) s += 5;
   s += budgetPoints(lead.answers);
-  return s;
+  s += intentPoints(lead.answers);
+  return Math.max(0, s);
 }
 
 /** Triage label from the score. */
@@ -464,6 +484,49 @@ function humanise(key: string): string {
 
 const escapeHtml = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+
+/**
+ * Push a completed enquiry into TeleCRM (Async "autoupdatelead" API).
+ *
+ *   POST https://next-api.telecrm.in/enterprise/{enterpriseId}/autoupdatelead
+ *   Authorization: Bearer <token>   { fields: {...}, actions: [] }
+ *
+ * TeleCRM matches on the phone (digits with country code, no "+") and creates
+ * or updates the lead. It processes ONLY field API names that exist in the
+ * workspace's Lead Fields — anything else is dropped silently — so the owner
+ * must create these custom fields in TeleCRM with exactly these API names:
+ *   source, website, ad_spend, platforms, start, role, lead_score, lead_temp,
+ *   page, utm_source, utm_medium, utm_campaign, utm_content, utm_term, gclid,
+ *   fbclid, lead_id. (name, phone, email are built in.)
+ * The API is fire-and-forget (no lead data in the response); a 2xx means
+ * accepted. 18,000 req/hour, far above anything this site produces.
+ */
+async function sendTeleCrmLead(base: string, enterpriseId: string, token: string, lead: Lead): Promise<number> {
+  const score = scoreLead(lead);
+  const fields: Record<string, string | number> = {
+    phone: (lead.phone || '').replace(/[^\d]/g, ''),
+    name: lead.name || lead.company || 'Website enquiry',
+    source: lead.source,
+    lead_id: lead.lead_id,
+    lead_score: score,
+    lead_temp: temperature(score).label,
+  };
+  if (lead.email) fields.email = lead.email;
+  if (lead.website) fields.website = lead.website;
+  if (lead.page) fields.page = lead.page;
+  for (const [k, v] of Object.entries(lead.answers)) if (v) fields[k] = v;
+  for (const k of ATTRIBUTION) if (lead[k]) fields[k] = String(lead[k]);
+  const res = await fetch(`${base.replace(/\/$/, '')}/enterprise/${encodeURIComponent(enterpriseId)}/autoupdatelead`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ fields, actions: [] }),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`telecrm ${res.status}: ${detail.slice(0, 300)}`);
+  }
+  return res.status;
+}
 
 /** Upsert one lead row via PostgREST (merge on the unique lead_id). */
 async function upsertLead(url: string, key: string, lead: Lead, turnstile: TurnstileResult): Promise<void> {
@@ -652,6 +715,21 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
       console.log('[lead] meta capi', r.events_received ?? 0, 'received', r.fbtrace_id ?? '');
     } catch (e) {
       console.error('[lead] meta capi failed', (e as Error).message);
+    }
+  }
+
+  // TeleCRM (best-effort). Completed enquiries with a phone number only — the
+  // CRM keys on phone, and a partial without one has nothing to dial.
+  if (lead.status === 'complete' && !isSubscribe && lead.phone) {
+    if (env.telecrmToken && env.telecrmEnterprise) {
+      try {
+        const status = await sendTeleCrmLead(env.telecrmBase, env.telecrmEnterprise, env.telecrmToken, lead);
+        console.log('[lead] telecrm accepted', status, lead.lead_id);
+      } catch (e) {
+        console.error('[lead] telecrm failed', (e as Error).message);
+      }
+    } else {
+      console.log('[lead] telecrm skipped (TELECRM_API_TOKEN / TELECRM_ENTERPRISE_ID not set)');
     }
   }
 

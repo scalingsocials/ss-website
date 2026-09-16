@@ -249,18 +249,22 @@ export const LANDINGS: LandingContent[] = [
     trustLine: 'Trusted by D2C & ecommerce brands across India and the UAE',
     nicheLine: "Women's wear, kidswear, jewellery, maternity, crafts, beauty and home",
     replyPromise: REPLY,
-    // Step 1 = two taps, no typing (qualification first). Step 2 = who you are.
+    // Step 1 = three taps, no typing (qualification first: spend, platforms,
+    // start date). Step 2 = who you are; the brand website is required so every
+    // lead can be looked up before the call, and role filters agencies fishing.
     // Email is not asked on the LP: a founder on a phone gives a WhatsApp number
     // far more readily, and WhatsApp is how the follow-up happens anyway.
     form: {
       step1: [
         { name: 'ad_spend', label: 'Monthly ad spend', type: 'select', required: true, options: ['Under ₹40 K', '₹40–60 K', '₹60 K–2 L', '₹2–5 L', '₹5 L+'] },
         { name: 'platforms', label: 'Where you run ads today', type: 'select', required: true, options: ['Meta only', 'Google only', 'Meta and Google', 'Not running yet'] },
+        { name: 'start', label: 'When do you want to start?', type: 'select', required: true, options: ['This month', 'In the next 30 days', 'In 2 to 3 months', 'Just exploring'] },
       ],
       step2: [
         { name: 'name', label: 'Your name', type: 'text', required: true, autocomplete: 'name' },
         { name: 'phone', label: 'WhatsApp number', type: 'tel', required: true, autocomplete: 'tel', placeholder: '50 123 4567' },
-        { name: 'website', label: 'Brand website or Instagram', type: 'text', required: false, autocomplete: 'url', placeholder: 'yourbrand.com or @handle' },
+        { name: 'website', label: 'Brand website or Instagram', type: 'text', required: true, autocomplete: 'url', placeholder: 'yourbrand.com or @handle' },
+        { name: 'role', label: 'Your role', type: 'select', required: true, options: ['Founder or owner', 'Marketing lead', 'Agency or freelancer', 'Other'] },
       ],
       showMessage: false,
       redirect: '/lp/performance-marketing/thanks/',

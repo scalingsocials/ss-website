@@ -147,6 +147,15 @@ Deploy runbook: **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)**.
   gate — approve a ≤25 s cut or an explicit gate exception; (2) the page now promises a
   WhatsApp reply "within 2 working hours" — staff it or change `REPLY` in
   `src/lib/landings.ts`; (3) Google Ads conversion id on the thanks page still empty.
+- **TeleCRM hookup (code shipped 2026-09-16, needs owner keys).** `/api/lead` pushes every
+  completed enquiry to TeleCRM's Async `autoupdatelead` API once two Cloudflare env vars
+  exist: `TELECRM_API_TOKEN` (TeleCRM → Integrations → Website/API → create an **Async**
+  token; shown once) and `TELECRM_ENTERPRISE_ID` (workspace settings). Then redeploy (env
+  vars only bind on a new deployment). In TeleCRM → Lead Fields, create custom fields with
+  these exact API names or they are dropped: `source, website, ad_spend, platforms, start,
+  role, lead_score, lead_temp, page, utm_source, utm_medium, utm_campaign, utm_content,
+  utm_term, gclid, fbclid, lead_id`. Test with one form submit; the Worker log prints
+  `telecrm accepted 2xx` or the error body.
 - ✅ **Homepage v2 visual pass** (2026-09-12) — transparent over-hero header with white
   logo, interactive "live dashboard" hero graphic, illustrated pastel service cards
   (per-service inline SVG, CSP-safe via `data-hue` + hashed CSS), 3-up mobile hero
