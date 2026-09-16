@@ -493,20 +493,35 @@ const escapeHtml = (s: string) =>
  *   POST {base}/enterprise/{enterpriseId}/autoupdatelead
  *   Authorization: Bearer <token>   { fields: {...}, actions: [...] }
  *
- * Owner directive (2026-09-16): map ONLY phone, name and email onto lead
- * fields (all built in — no custom fields to create) and put everything else
- * — brand website, the qualifying answers, score, source, attribution — into
- * one note on the lead. TeleCRM matches on the phone (digits with country
- * code, no "+") and creates or updates the lead. The API is fire-and-forget
- * (a 2xx means accepted); 18,000 req/hour.
+ * Field mapping (owner-supplied TeleCRM API names, 2026-09-16):
+ *   phone, email, name + customer_name (the person), brand_name (when a form
+ *   collects a brand), and the brand link split by shape — an @handle or an
+ *   instagram.com URL goes to instagram_link, anything else to website_link.
+ * Everything else — the qualifying answers, score, source, page, attribution —
+ * goes into one note on the lead. TeleCRM matches on the phone (digits with
+ * country code, no "+") and creates or updates the lead. The API is
+ * fire-and-forget (a 2xx means accepted); 18,000 req/hour.
  */
+/** "@brand" / "instagram.com/brand" → instagram_link; anything else → website_link. */
+function splitBrandLink(raw: string): { instagram_link?: string; website_link?: string } {
+  const v = raw.trim();
+  if (!v) return {};
+  const handle = v.match(/^@([A-Za-z0-9._]{1,30})$/);
+  if (handle) return { instagram_link: `https://www.instagram.com/${handle[1]}/` };
+  if (/instagram\.com\//i.test(v)) return { instagram_link: /^https?:\/\//i.test(v) ? v : `https://${v}` };
+  return { website_link: /^https?:\/\//i.test(v) ? v : `https://${v}` };
+}
 async function sendTeleCrmLead(base: string, enterpriseId: string, token: string, noteType: string, lead: Lead): Promise<number> {
   const score = scoreLead(lead);
+  const person = lead.name || lead.company || 'Website enquiry';
   const fields: Record<string, string> = {
     phone: (lead.phone || '').replace(/[^\d]/g, ''),
-    name: lead.name || lead.company || 'Website enquiry',
+    name: person,
+    customer_name: person,
   };
   if (lead.email) fields.email = lead.email;
+  if (lead.company) fields.brand_name = lead.company;
+  if (lead.website) Object.assign(fields, splitBrandLink(lead.website));
 
   const lines: string[] = [`Website enquiry — ${lead.source}${lead.page ? ` (${lead.page})` : ''}`];
   if (lead.website) lines.push(`Brand website / Instagram: ${lead.website}`);

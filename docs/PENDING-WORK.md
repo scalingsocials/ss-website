@@ -151,9 +151,10 @@ Deploy runbook: **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)**.
   completed enquiry to TeleCRM's Async `autoupdatelead` API once two Cloudflare env vars
   exist: `TELECRM_API_TOKEN` (TeleCRM → Integrations → Website/API → create an **Async**
   token; shown once) and `TELECRM_ENTERPRISE_ID` (workspace settings). Then redeploy (env
-  vars only bind on a new deployment). Mapping (owner directive): phone, name and email go
-  to the built-in lead fields; brand website, every qualifying answer, lead score, source and
-  UTM/click ids go into ONE note on the lead (`SYSTEM_NOTE`; override with
+  vars only bind on a new deployment). Mapping (owner-supplied API names): `phone`, `email`,
+  `name` + `customer_name`, `brand_name` (when collected), and the brand link split by shape —
+  `instagram_link` for an @handle / instagram.com URL, else `website_link`; every qualifying
+  answer, lead score, source and UTM/click ids go into ONE note on the lead (`SYSTEM_NOTE`; override with
   `TELECRM_NOTE_TYPE` if the workspace rejects it). No custom lead fields to create. Test
   with one form submit; the Worker log prints `telecrm accepted 2xx` or the error body.
 - ✅ **Homepage v2 visual pass** (2026-09-12) — transparent over-hero header with white
