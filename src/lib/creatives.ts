@@ -20,6 +20,13 @@
  * Glow" is the one inferred from the supplied filename alone (no wordmark on the
  * creative), so confirm it before relying on it.
  *
+ * Added 2026-09-16, the ten creatives that had been sitting here as "WhatsApp
+ * Image 2026-09-03 …" files: they are finished ad creatives that were simply
+ * shared over WhatsApp, and the screenshot filter below had been hiding them.
+ * Renamed to the brand printed on each: PixieThreads (x2), Zozuzi (x2), Crostyl
+ * (x2), Namak, Nakhroo, Luxeraa. "creative 31" carries no wordmark, so it is
+ * left unbranded like the other "creative N" files.
+ *
  * Client ad VIDEOS are not here — they are reels in /public/creatives/reels/,
  * listed in src/lib/reels.ts and shown by ReelWall.
  */
@@ -66,7 +73,9 @@ const label = (raw: string) =>
     .join(' ');
 
 export const CREATIVES: Creative[] = Object.entries(files)
-  // Skip raw WhatsApp screenshots — not portfolio-ready.
+  // Skip files still named as raw WhatsApp exports. Check before assuming they
+  // are screenshots: the ten here on 2026-09-16 turned out to be finished
+  // creatives and were renamed by brand instead.
   .filter(([path]) => !/\/WhatsApp /i.test(path))
   .map(([path, mod]) => {
     const raw = path.split('/').pop()!.replace(/\.\w+$/, '');
