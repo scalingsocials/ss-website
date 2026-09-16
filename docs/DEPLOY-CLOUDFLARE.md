@@ -120,14 +120,37 @@ Pages project → **Custom domains → Set up a domain → `scalingsocials.com`*
   edge rules.
 
 ### 5c. Non-www canonical + www → apex 301
-`astro.config` sets non-www as canonical. Enforce it with a redirect that works on
-either DNS path — add `public/_redirects`:
+
+`astro.config` sets non-www as canonical. Enforce it with a **Redirect Rule in the
+Cloudflare dashboard** — NOT in `public/_redirects`.
+
+> **This cannot be done in `_redirects`.** Cloudflare Pages matches the PATH only;
+> its docs list domain-level redirects (`host/*  host/...`) as explicitly
+> unsupported. A line like
+> `https://www.scalingsocials.com/*  https://scalingsocials.com/:splat  301`
+> is Netlify syntax, left over from the original Netlify plan. On Pages it parses
+> but never fires, so the redirect silently does not exist. Verified against
+> Cloudflare's Pages redirect docs, 2026-09-16.
+
+Both `scalingsocials.com` and `www.scalingsocials.com` are attached as custom
+domains in 5a, so Pages serves both and the rule is what collapses them:
+
+1. Cloudflare dashboard → the `scalingsocials.com` zone → **Rules → Redirect Rules
+   → Create rule**.
+2. **If** — Custom filter expression: `Hostname` `equals` `www.scalingsocials.com`.
+3. **Then** — Dynamic redirect, expression:
+   `concat("https://scalingsocials.com", http.request.uri.path)`
+4. Status **301**, and tick **Preserve query string**.
+
+Single Redirect Rules are available on the free plan. This needs the zone to be on
+Cloudflare, which the nameserver move in 5b does anyway.
+
+**Verify after cutover** (a rule that does not fire looks identical to no rule):
 
 ```
-https://www.scalingsocials.com/*  https://scalingsocials.com/:splat  301
+curl -sI https://www.scalingsocials.com/audit/ | grep -iE "^HTTP|^location"
+# expect: HTTP/2 301  +  location: https://scalingsocials.com/audit/
 ```
-
-(If DNS is on Cloudflare you can instead use a Redirect Rule in the dashboard.)
 
 ### 5d. Old-site 301s
 Add the WordPress → new-site redirect map to the same `public/_redirects`, built from

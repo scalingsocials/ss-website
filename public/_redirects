@@ -1,3 +1,9 @@
+# NOTE: no www → apex rule belongs in this file. Cloudflare Pages matches the
+# PATH only and lists domain-level redirects as unsupported, so a line such as
+# "https://www.scalingsocials.com/*  https://scalingsocials.com/:splat  301"
+# (Netlify syntax) parses here but never fires. The canonical host is enforced by
+# a Redirect Rule in the Cloudflare dashboard — see DEPLOY-CLOUDFLARE.md §5c.
+
 # Scaling Socials — legacy WordPress → new URL redirects
 # Generated from docs/spec/redirect-map.csv (curated from the
 # Screaming Frog crawl 2026-09-02 + GSC). Cloudflare Pages _redirects.
