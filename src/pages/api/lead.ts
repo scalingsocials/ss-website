@@ -150,6 +150,8 @@ function getEnv(locals: unknown) {
     telecrmToken: pick('TELECRM_API_TOKEN'),
     telecrmEnterprise: pick('TELECRM_ENTERPRISE_ID'),
     telecrmBase: pick('TELECRM_API_BASE') ?? 'https://next-api.telecrm.in',
+    // Note action type (TeleCRM docs: SYSTEM_NOTE). Overridable if the workspace differs.
+    telecrmNoteType: pick('TELECRM_NOTE_TYPE') ?? 'SYSTEM_NOTE',
   };
 }
 
@@ -488,38 +490,38 @@ const escapeHtml = (s: string) =>
 /**
  * Push a completed enquiry into TeleCRM (Async "autoupdatelead" API).
  *
- *   POST https://next-api.telecrm.in/enterprise/{enterpriseId}/autoupdatelead
- *   Authorization: Bearer <token>   { fields: {...}, actions: [] }
+ *   POST {base}/enterprise/{enterpriseId}/autoupdatelead
+ *   Authorization: Bearer <token>   { fields: {...}, actions: [...] }
  *
- * TeleCRM matches on the phone (digits with country code, no "+") and creates
- * or updates the lead. It processes ONLY field API names that exist in the
- * workspace's Lead Fields — anything else is dropped silently — so the owner
- * must create these custom fields in TeleCRM with exactly these API names:
- *   source, website, ad_spend, platforms, start, role, lead_score, lead_temp,
- *   page, utm_source, utm_medium, utm_campaign, utm_content, utm_term, gclid,
- *   fbclid, lead_id. (name, phone, email are built in.)
- * The API is fire-and-forget (no lead data in the response); a 2xx means
- * accepted. 18,000 req/hour, far above anything this site produces.
+ * Owner directive (2026-09-16): map ONLY phone, name and email onto lead
+ * fields (all built in — no custom fields to create) and put everything else
+ * — brand website, the qualifying answers, score, source, attribution — into
+ * one note on the lead. TeleCRM matches on the phone (digits with country
+ * code, no "+") and creates or updates the lead. The API is fire-and-forget
+ * (a 2xx means accepted); 18,000 req/hour.
  */
-async function sendTeleCrmLead(base: string, enterpriseId: string, token: string, lead: Lead): Promise<number> {
+async function sendTeleCrmLead(base: string, enterpriseId: string, token: string, noteType: string, lead: Lead): Promise<number> {
   const score = scoreLead(lead);
-  const fields: Record<string, string | number> = {
+  const fields: Record<string, string> = {
     phone: (lead.phone || '').replace(/[^\d]/g, ''),
     name: lead.name || lead.company || 'Website enquiry',
-    source: lead.source,
-    lead_id: lead.lead_id,
-    lead_score: score,
-    lead_temp: temperature(score).label,
   };
   if (lead.email) fields.email = lead.email;
-  if (lead.website) fields.website = lead.website;
-  if (lead.page) fields.page = lead.page;
-  for (const [k, v] of Object.entries(lead.answers)) if (v) fields[k] = v;
-  for (const k of ATTRIBUTION) if (lead[k]) fields[k] = String(lead[k]);
+
+  const lines: string[] = [`Website enquiry — ${lead.source}${lead.page ? ` (${lead.page})` : ''}`];
+  if (lead.website) lines.push(`Brand website / Instagram: ${lead.website}`);
+  if (lead.company) lines.push(`Brand: ${lead.company}`);
+  for (const [k, v] of Object.entries(lead.answers)) if (v) lines.push(`${humanise(k)}: ${v}`);
+  if (lead.message) lines.push(`Message: ${lead.message}`);
+  lines.push(`Lead score: ${score} (${temperature(score).label})`);
+  const attrib = ATTRIBUTION.filter((k) => lead[k]).map((k) => `${k}=${lead[k]}`);
+  if (attrib.length) lines.push(`Attribution: ${attrib.join(' · ')}`);
+  lines.push(`Lead id: ${lead.lead_id}`);
+
   const res = await fetch(`${base.replace(/\/$/, '')}/enterprise/${encodeURIComponent(enterpriseId)}/autoupdatelead`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ fields, actions: [] }),
+    body: JSON.stringify({ fields, actions: [{ type: noteType, text: lines.join('\n') }] }),
   });
   if (!res.ok) {
     const detail = await res.text().catch(() => '');
@@ -723,7 +725,7 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   if (lead.status === 'complete' && !isSubscribe && lead.phone) {
     if (env.telecrmToken && env.telecrmEnterprise) {
       try {
-        const status = await sendTeleCrmLead(env.telecrmBase, env.telecrmEnterprise, env.telecrmToken, lead);
+        const status = await sendTeleCrmLead(env.telecrmBase, env.telecrmEnterprise, env.telecrmToken, env.telecrmNoteType, lead);
         console.log('[lead] telecrm accepted', status, lead.lead_id);
       } catch (e) {
         console.error('[lead] telecrm failed', (e as Error).message);
