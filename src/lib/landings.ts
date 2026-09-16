@@ -250,8 +250,9 @@ export const LANDINGS: LandingContent[] = [
     nicheLine: "Women's wear, kidswear, jewellery, maternity, crafts, beauty and home",
     replyPromise: REPLY,
     // Step 1 = three taps, no typing (qualification first: spend, platforms,
-    // start date). Step 2 = who you are; the brand website is required so every
-    // lead can be looked up before the call, and role filters agencies fishing.
+    // start date). Step 2 = who you are (name, WhatsApp, email); the brand
+    // website is required so every lead can be looked up before the call, and
+    // role filters agencies fishing.
     // Email is not asked on the LP: a founder on a phone gives a WhatsApp number
     // far more readily, and WhatsApp is how the follow-up happens anyway.
     form: {
@@ -263,6 +264,7 @@ export const LANDINGS: LandingContent[] = [
       step2: [
         { name: 'name', label: 'Your name', type: 'text', required: true, autocomplete: 'name' },
         { name: 'phone', label: 'WhatsApp number', type: 'tel', required: true, autocomplete: 'tel', placeholder: '50 123 4567' },
+        { name: 'email', label: 'Email', type: 'email', required: true, autocomplete: 'email' },
         { name: 'website', label: 'Brand website or Instagram', type: 'text', required: true, autocomplete: 'url', placeholder: 'yourbrand.com or @handle' },
         { name: 'role', label: 'Your role', type: 'select', required: true, options: ['Founder or owner', 'Marketing lead', 'Agency or freelancer', 'Other'] },
       ],
