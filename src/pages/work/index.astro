@@ -7,19 +7,18 @@ import Meta from '@/components/seo/Meta.astro';
 import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import CreativeWall from '@/components/blocks/CreativeWall.astro';
+import ReelWall from '@/components/blocks/ReelWall.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import { base, webPage, breadcrumbs } from '@/lib/schema';
 
 const url = '/work/';
 const title = 'Creative Gallery: Our D2C Ad Creative | Scaling Socials';
-// Describes what this page actually SHOWS. The previous wording promised
-// "statics and video", but src/lib/creatives.ts globs images only — the supplied
-// videos are 14-118MB against a 1.5MB per-clip budget (08 §8) and are gitignored
-// until they are compressed, so no video ships. Restore the video wording here
-// and in the body when the compressed clips land (PENDING §B).
+// Describes what this page actually SHOWS: stills from src/lib/creatives.ts and,
+// since 2026-09-16, the compressed client reels from src/lib/reels.ts (8 s,
+// muted, under the 1.5MB per-clip budget, 08 §8).
 const description =
-  'Real ad creative Scaling Socials produced in-house for D2C brands in India and the UAE — the statics that ran, not mockups. The portfolio nobody else shows.';
-const modified = '2026-09-04';
+  'Real ad creative Scaling Socials made in-house for D2C brands in India and the UAE — statics and reels that ran, not mockups. The portfolio nobody else shows.';
+const modified = '2026-09-16';
 
 const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }), breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Work', url }])];
 ---
@@ -36,14 +35,17 @@ const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb
       pipeline needs. Most agencies describe their creative; this is ours.
     </p>
     <p class="mt-[var(--space-4)] mb-[var(--space-8)] max-w-[62ch] text-body leading-[1.6] text-[var(--fg-muted)]">
-      Every image below is an ad that actually ran on a client account. Nothing here is a mockup or a
+      Every reel and image below is an ad that actually ran on a client account. Nothing here is a mockup or a
       concept deck. Creative is the biggest lever on Meta today, which is why we cut it ourselves
       rather than briefing it out: a new batch goes live each week, the losers are capped early, and
       budget concentrates behind whatever holds attention longest. The
       <a href="/case-studies/" class="underline">case studies</a> show what that did to the numbers;
-      this page is what it looked like. Video from these accounts is being compressed for the web and
-      will join the wall — until then, these are the statics.
+      this page is what it looked like.
     </p>
+    {/* Reels first, then statics — the same order as the social media page. */}
+    <h2 class="mb-[var(--space-3)] text-h4 font-semibold text-[var(--fg)]">Reels</h2>
+    <ReelWall />
+    <h2 class="mb-[var(--space-3)] mt-[var(--space-8)] text-h4 font-semibold text-[var(--fg)]">Statics</h2>
     <CreativeWall variant="grid" />
   </Section>
 
