@@ -20,7 +20,7 @@ import { LANDING_BY_SLUG } from '@/lib/landings';
 
 const c = LANDING_BY_SLUG['performance-marketing']!;
 const tel = ORG.telephone.replace(/[^+\d]/g, '');
-const waText = "Hi, I just booked a strategy call, here's my latest Ads Manager screenshot";
+const waText = "Hi, I just booked a free account review, here's my latest Ads Manager screenshot";
 const wa = `https://wa.me/919606713608?text=${encodeURIComponent(waText)}`;
 
 // TODO(owner): set the Google Ads conversion id + label to enable the conversion.
@@ -29,14 +29,14 @@ const GADS_CONVERSION = '';
 ---
 
 <BaseLayout bare noindex>
-  <Meta slot="meta" title="Thank you — your call request is in | Scaling Socials" description="Your free strategy call request has been received. A real person at Scaling Socials replies within one working day to fix a time and comes prepared." type="website" />
+  <Meta slot="meta" title="Thank you — your review request is in | Scaling Socials" description="Your free account review request has been received. A real person at Scaling Socials messages you on WhatsApp within two working hours to fix a time." type="website" />
 
   <main class="ty">
     <div class="ty__card">
       <span class="ty__brand"><Image src={lockup} alt="Scaling Socials" height={26} width={Math.round(26 * (lockup.width / lockup.height))} densities={[1, 2]} loading="eager" /></span>
       <span class="ty__check" aria-hidden="true"><Glyph name="scale" size={26} /></span>
-      <h1 class="ty__h">Your call request is in.</h1>
-      <p class="ty__sub">Thanks — a real person at Scaling Socials will be in touch within one working day to fix a time. Here is exactly what happens next.</p>
+      <h1 class="ty__h">Your review request is in.</h1>
+      <p class="ty__sub">Thanks — a real person at Scaling Socials messages you on WhatsApp within 2 working hours to fix a time. Here is exactly what happens next.</p>
 
       <ol class="ty__steps">
         {c.nextSteps?.map((s) => (

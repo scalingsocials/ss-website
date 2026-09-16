@@ -22,3 +22,7 @@ export const adSpendManaged = { value: '₹10 Cr+', label: 'Ad spend managed' };
 export const brandsServed = { value: '400+', label: 'D2C and ecommerce brands' };
 export const brandsPast10L = { value: '150+', label: 'brands scaled past ₹10 lakh in monthly revenue' };
 export const brandsPast1Cr = { value: '50+', label: 'brands taken past ₹1 crore in cumulative sales' };
+/** Owner-confirmed 2026-09-15: public Google Business Profile review count. */
+export const googleReviews = { value: '100+', label: 'Google reviews' };
+/** Owner-confirmed 2026-09-15: team size, Bangalore. */
+export const teamSize = { value: '20+', label: 'person team in Bangalore' };

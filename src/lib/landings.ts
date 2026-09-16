@@ -7,13 +7,19 @@
  * Copy is sharper and more benefit-led than the indexable service pages, but every
  * number is real — proof Deltas and totals are derived from CASE_STUDIES so they
  * can never drift, and no metric is invented for services without one (§15).
+ *
+ * Rebuilt 2026-09-15 against the conversion teardown: outcome-led hero with the
+ * CTA in the first phone screen, the problem section moved up, results that
+ * expand in place (no exits), real Ads Manager screenshots, founder video
+ * testimonials, a fair comparison table, and a fee section with no figure (§18).
  */
 import type { Field } from '@/lib/formFields';
 import type { Faq } from '@/lib/services';
+import type { VideoItem } from '@/lib/videoTestimonials';
 import { SERVICE_BY_SLUG } from '@/lib/services';
 import { CASE_STUDY_BY_SLUG, CASE_STUDY_TOTALS } from '@/lib/caseStudies';
 import { INDUSTRIES } from '@/lib/industries';
-import { brandsServed } from '@/data/proofStats';
+import { brandsServed, adSpendManaged, brandsPast10L, googleReviews, teamSize } from '@/data/proofStats';
 
 export interface LandingProof {
   metric: string;
@@ -43,7 +49,7 @@ export interface LandingWhatsApp {
   text: string; // pre-filled message
 }
 
-/** "What happens next" three-step strip. */
+/** "What happens next" three-step strip (thank-you page). */
 export interface LandingStep {
   n: string;
   text: string;
@@ -76,17 +82,27 @@ export interface LandingSegment {
   glyph: string;
   title: string;
   body: string;
-  /**
-   * The vertical's documented proof, in whichever shape that account actually
-   * has. A transformed account carries a before→after; a mature retainer carries
-   * a floor that held — inventing a Delta for the second kind is exactly the
-   * drift caseStudies.ts forbids. A vertical with no documented paid account
-   * carries `note` and no figure at all.
-   */
+  /** A transformed account carries a before→after; a mature retainer carries the
+   *  floor that held; a vertical with no documented paid account carries `note`. */
   proof?:
     | { kind: 'delta'; metric: string; before: string; after: string; period: string }
     | { kind: 'held'; metric: string; value: string; period: string };
   note?: string;
+}
+
+/** "Sound familiar?" — founder-voice pain quotes + the pivot into proof. */
+export interface LandingProblem {
+  heading: string;
+  quotes: string[];
+  pivot: string;
+}
+
+/** Freelancer / large agency / us decision table (ComparisonTable props). */
+export interface LandingWhyTable {
+  columns: string[];
+  rows: string[][];
+  highlightCol: number;
+  caption?: string;
 }
 
 export interface LandingContent {
@@ -103,16 +119,27 @@ export interface LandingContent {
     eyebrow: string;
     h1: string;
     sub: string;
-    bullets: string[];
-    /** One muted qualifier line under the bullets. */
+    /** Feature bullets under the sub (web LP). The perf LP omits them so the
+     *  CTA lands in the first phone screen. */
+    bullets?: string[];
+    /** One muted qualifier line under the CTA. */
     qualifier?: string;
-    stats: { value: string; label: string }[];
+    /** Micro-copy under the hero CTA ("30 minutes · no deck …"). */
+    micro?: string;
+    /** Proof strip / stat tiles. */
+    stats?: { value: string; label: string }[];
     formHeading: string;
     formSub: string;
     submitLabel: string;
+    /** Step-1 button label (default "Next"). */
+    nextLabel?: string;
     questions: Field[];
   };
   trustLine: string;
+  /** One-line niche list under the logo wall. */
+  nicheLine?: string;
+  /** Reply promise shown under both forms and on the thank-you page. */
+  replyPromise?: string;
   /** LP-scoped form overrides (keeps the shared LeadForm untouched elsewhere). */
   form?: {
     step1?: Field[];
@@ -122,8 +149,10 @@ export interface LandingContent {
   };
   /** WhatsApp secondary CTA (under forms + sticky bar). */
   whatsapp?: LandingWhatsApp;
-  /** "What happens next" strip after the hero form. */
+  /** "What happens next" strip (thank-you page). */
   nextSteps?: LandingStep[];
+  /** Pain section, rendered right after the trust strip. */
+  problem?: LandingProblem;
   /** Case-study slugs to show as poster cards in the proof section (reuses the
    *  existing CaseStudyPoster with the full study detail). */
   proofStudies?: string[];
@@ -132,23 +161,28 @@ export interface LandingContent {
   segments?: { eyebrow: string; heading: string; sub: string; items: LandingSegment[] };
   /** Show the real team photo mosaic (answers "who is actually on my account"). */
   teamStrip?: boolean;
+  /** Lede under the results heading. */
+  proofLede?: string;
+  /** Caption under the Ads Manager screenshot row. */
+  proofCaption?: string;
   showcase?: boolean;
   benefits: { eyebrow: string; heading: string; sub: string; items: LandingCard[] };
+  processHeading?: string;
   process: { title: string; body: string }[];
-  /** Why-us: either explained cards (points) or a plain pointer list. */
-  why: { eyebrow: string; heading: string; points?: LandingCard[]; pointers?: string[] };
+  /** Why-us: a comparison table (perf LP), explained cards (points) or a plain pointer list. */
+  why: { eyebrow: string; heading: string; table?: LandingWhyTable; points?: LandingCard[]; pointers?: string[] };
   /** Optional "strong fit / not a fit" columns after why-us. */
   fit?: LandingFit;
   /** Optional labelled sample-audit block before the final CTA. */
   sampleAudit?: LandingSampleAudit;
-  /** "Where you're starting from" cards. */
-  startingFrom?: { title: string; body: string }[];
-  /** "Getting started" timeline (rendered with the ProcessSteps component). */
-  gettingStarted?: { title: string; body: string }[];
-  /** A short founder note (photo + quote). */
-  founderNote?: { quote: string; attribution: string; photo?: string };
+  /** A short founder note (photo + quote + one factual line). */
+  founderNote?: { quote: string; attribution: string; line?: string; photo?: string };
   /** Show the in-house creative slider (reads /public/lp/creatives/). */
   creatives?: boolean;
+  /** Founder video testimonials (perf LP). */
+  videos?: { heading: string; lede?: string; items: VideoItem[] };
+  /** "How the fee works" — scope lines, never a figure (CLAUDE.md §18). */
+  fee?: { heading: string; lines: string[] };
   faqs: Faq[];
   /** Optional distinct bullets for the bottom CTA (else reuses hero bullets). */
   finalBullets?: string[];
@@ -168,8 +202,8 @@ const proofFrom = (slug: string): LandingProof => {
 // ── "Who we work best with" ───────────────────────────────────────────────────
 // One card per real vertical, in INDUSTRIES order. The proof line is the anchor
 // case study's own Delta, so the card can never state a figure the case study
-// does not. Beauty & cosmetics has no documented paid account yet, so it carries
-// the category line and no proof — never a borrowed or invented number (§15).
+// does not. A vertical with no documented paid account carries the category
+// line and no proof — never a borrowed or invented number (§15).
 const SEGMENT_GLYPH: Record<string, string> = {
   'fashion-apparel': 'spark',
   'kids-baby': 'handshake',
@@ -205,14 +239,33 @@ const faqsByKeyword = (slug: string, keys: string[]): Faq[] => {
 // pricing is published anywhere, per CLAUDE.md §18).
 const MIN_SPEND_FAQ: Faq = {
   q: 'What monthly ad spend do you work with?',
-  a: "A ₹40–60 K monthly testing budget is where we start most brands, enough for Meta and Google to learn and for us to find angles that clear your break-even ROAS before scaling. From there we run accounts all the way up to large monthly budgets, so this is a floor, not a ceiling. If you're below ₹40 K today, book the call anyway and we'll tell you what to fix on the store first so the money works when you're ready.",
+  a: "A ₹40–60 K monthly testing budget is where we start most brands, enough for Meta and Google to learn and for us to find angles that clear your break-even ROAS before scaling. From there we run accounts all the way up to large monthly budgets, so this is a floor, not a ceiling. If you're below ₹40 K today, book the review anyway and we'll tell you what to fix on the store first so the money works when you're ready.",
 };
 
-// "What happens on the strategy call?" (Task 1e).
-const CALL_FAQ: Faq = {
-  q: 'What happens on the strategy call?',
-  a: "We open your Ads Manager and store with you, show you where spend is leaking and what we'd change first, and tell you honestly whether we're the right fit. No deck, no pressure.",
-};
+// The offer is a free account review (owner, 2026-09-15) — one name everywhere:
+// ads, hero, buttons, form, thank-you page.
+const OFFER = 'free account review';
+const CTA = 'Book my free account review';
+const REPLY = 'No spam. We reply on WhatsApp within 2 working hours.';
+
+/** Founder videos encoded to /public/lp/testimonials/ (540×954, mp4 + webm,
+ *  each under the 1.5 MB per-video budget the perf gate enforces). A third,
+ *  1:45 testimonial is held in raw-media/encoded until the owner OKs a cut or
+ *  an explicit exception — it cannot fit the budget at any watchable quality. */
+const VIDEOS: VideoItem[] = (
+  [
+    { n: 1, duration: '0:12' },
+    { n: 2, duration: '0:25' },
+  ] as const
+).map(({ n, duration }) => ({
+  mp4: `/lp/testimonials/testimonial-${n}.mp4`,
+  webm: `/lp/testimonials/testimonial-${n}.webm`,
+  poster: `/lp/testimonials/testimonial-${n}.webp`,
+  label: 'Founder, D2C brand we run ads for',
+  duration,
+  width: 540,
+  height: 954,
+}));
 
 export const LANDINGS: LandingContent[] = [
   {
@@ -221,155 +274,180 @@ export const LANDINGS: LandingContent[] = [
     source: 'lp-performance-marketing',
     title: 'Scale Meta & Google Ads Profitably | Scaling Socials',
     description:
-      'Performance marketing for D2C & ecommerce, managed to your real margins. Creative made in-house, ad spend never marked up. Book a free 30-min strategy call.',
+      'Performance marketing for D2C brands, run to your real margins. Creative made in-house, ad spend never marked up. Book a free 30-minute account review.',
     phoneCtaLabel: 'Call us',
-    ctaLabel: 'Book my free strategy call',
-    ctaLabelShort: 'Book a call',
+    ctaLabel: CTA,
+    ctaLabelShort: 'Free account review',
     hero: {
-      eyebrow: 'Performance marketing for D2C & ecommerce',
-      h1: 'Scale Meta & Google ads that actually turn a profit',
-      sub: 'We buy media against your break-even ROAS, produce the ad creative in-house, and scale only what clears your margin. Your ad spend stays yours — paid straight to the platforms, never marked up.',
-      bullets: [
-        'Media, creative & CRO on one senior team',
-        'Ad spend paid straight to the platforms — never marked up',
-        `${brandsServed.value} ecommerce brands worked with across India and the UAE`,
-      ],
-      qualifier: 'Best fit for brands ready to put at least ₹40–60 K a month into testing.',
-      // "400+" is a worked-with count across services (owner to confirm it is
-      // defensible on the call). The other two are true, derived from the seven
-      // documented case studies (CASE_STUDY_TOTALS).
+      eyebrow: 'Performance marketing for D2C and Shopify brands in India and the UAE',
+      h1: 'Scale Meta & Google ads without losing your margin',
+      sub: `Your spend bought to your break-even ROAS, creative made in-house, and one weekly number you can take to your P&L. ${brandsServed.value} ecommerce brands, ${adSpendManaged.value} managed.`,
+      micro: '30 minutes. Your account on screen. No deck, no pressure. You keep the plan.',
+      qualifier: 'Best fit for brands ready to put ₹40–60 K a month into testing.',
+      // All three owner-confirmed aggregates from proofStats.ts. The ₹2.77 Cr
+      // documented-account total moves to the results section, next to the
+      // seven accounts it describes, so it no longer argues with the brand count.
       stats: [
-        { value: brandsServed.value, label: 'Ecommerce brands worked with' },
-        { value: CASE_STUDY_TOTALS.roas, label: 'Average ROAS, documented ad accounts' },
-        { value: CASE_STUDY_TOTALS.revenue, label: 'Tracked revenue driven' },
+        { value: brandsServed.value, label: 'ecommerce brands' },
+        { value: adSpendManaged.value, label: 'ad spend managed' },
+        { value: brandsPast10L.value, label: 'brands past ₹10 L a month' },
       ],
-      formHeading: 'Book your free strategy call',
-      formSub: "30 minutes. We look at your account live and tell you what we'd change first.",
-      submitLabel: 'Book my call',
+      formHeading: 'Book your free account review',
+      formSub: '30 minutes. Your account on screen. You keep the plan.',
+      submitLabel: CTA,
+      nextLabel: 'Continue to book my review',
       questions: perf.formQuestions,
     },
     trustLine: 'Trusted by D2C & ecommerce brands across India and the UAE',
+    nicheLine: "Women's wear, kidswear, jewellery, maternity, crafts, beauty and home",
+    replyPromise: REPLY,
+    // Step 1 = two taps, no typing (qualification first). Step 2 = who you are.
+    // Email is not asked on the LP: a founder on a phone gives a WhatsApp number
+    // far more readily, and WhatsApp is how the follow-up happens anyway.
     form: {
       step1: [
-        { name: 'name', label: 'Full name', type: 'text', required: true, autocomplete: 'name' },
-        { name: 'email', label: 'Email', type: 'email', required: true, autocomplete: 'email' },
-        { name: 'phone', label: 'Phone or WhatsApp', type: 'tel', required: true, autocomplete: 'tel', placeholder: '50 123 4567' },
+        { name: 'ad_spend', label: 'Monthly ad spend', type: 'select', required: true, options: ['Under ₹40 K', '₹40–60 K', '₹60 K–2 L', '₹2–5 L', '₹5 L+'] },
+        { name: 'platforms', label: 'Where you run ads today', type: 'select', required: true, options: ['Meta only', 'Google only', 'Meta and Google', 'Not running yet'] },
       ],
       step2: [
-        { name: 'website', label: 'Website or Instagram URL', type: 'text', required: false, autocomplete: 'url', placeholder: 'yourbrand.com or @handle' },
-        { name: 'ad_spend', label: 'Monthly ad spend', type: 'select', required: false, options: ['Under ₹40 K', '₹40–60 K', '₹60 K–2 L', '₹2–5 L', '₹5 L+'] },
+        { name: 'name', label: 'Your name', type: 'text', required: true, autocomplete: 'name' },
+        { name: 'phone', label: 'WhatsApp number', type: 'tel', required: true, autocomplete: 'tel', placeholder: '50 123 4567' },
+        { name: 'website', label: 'Brand website or Instagram', type: 'text', required: false, autocomplete: 'url', placeholder: 'yourbrand.com or @handle' },
       ],
       showMessage: false,
       redirect: '/lp/performance-marketing/thanks/',
     },
-    whatsapp: { number: '919606713608', text: "Hi, I'd like a free strategy call for my brand" },
+    whatsapp: { number: '919606713608', text: `Hi, I'd like a ${OFFER} for my brand` },
     nextSteps: [
-      { n: '01', text: 'We reply the same day, or the next working day, to fix a time.' },
+      { n: '01', text: 'We message you on WhatsApp within 2 working hours to fix a time.' },
       { n: '02', text: 'Send us read-only access before the call so we come prepared.' },
       { n: '03', text: '30 minutes, your account on screen, a clear first-30-days plan.' },
     ],
-    creatives: true,
-    teamStrip: true,
-    segments: {
-      eyebrow: 'Who we work best with',
-      heading: 'Five D2C categories we run every day',
-      sub: 'We are not a generalist agency with an ecommerce page. Where a category has a documented account, that account\u2019s own numbers are on the card — read straight from the client\u2019s Ads Manager, never rounded up.',
-      items: SEGMENTS,
+    problem: {
+      heading: "Most D2C brands aren't losing on product. They're losing on ads.",
+      quotes: [
+        "ROAS was 4x last year. It's under 2x now and nobody can tell me why.",
+        'My agency sends a PDF full of impressions. I want to know if I made money.',
+        'Every time we push spend, profit disappears.',
+        "Creatives die in a week and there's no one to make the next batch.",
+      ],
+      pivot: 'Whichever one it is, the review is the same 30 minutes. Here is what it has done for accounts like yours.',
     },
+    creatives: true,
     proofStudies: ['womens-fashion-account-turnaround', 'wellness-brand-zero-to-scale', 'womenswear-breaking-the-ceiling'],
     proof: [
       proofFrom('womens-fashion-account-turnaround'),
       proofFrom('wellness-brand-zero-to-scale'),
       proofFrom('womenswear-breaking-the-ceiling'),
     ],
+    proofLede: `Every figure is from the client's own Meta Ads Manager, anonymised by niche. Across the ${CASE_STUDY_TOTALS.accounts} accounts we document: ${CASE_STUDY_TOTALS.revenue} revenue on ${CASE_STUDY_TOTALS.spend} spend, ${CASE_STUDY_TOTALS.roas} average.`,
+    proofCaption: 'Live Meta Ads Manager views from four client accounts, account names hidden. Tap to enlarge.',
     benefits: {
       eyebrow: 'What you get',
-      heading: 'One team on media, creative and the store — not a lone buyer',
-      sub: 'Everything that actually moves a paid account, run by senior people against your P&L.',
+      heading: 'Media, creative and the store, under one roof',
+      sub: 'Everything that moves a paid account, run by senior people against your P&L.',
       items: [
-        { glyph: 'target', title: 'Meta & Instagram ads', body: 'Full-funnel buying across every campaign type Meta offers, run against your margin.', list: [
-          'Prospecting, retargeting and retention structures',
-          'Advantage+ Shopping, manual and hybrid — whichever wins your account',
-          'Catalog / DPA for your full range',
-          'Weekly creative refresh so fatigue never sets in',
-          'Daily budget moves against break-even ROAS',
+        { glyph: 'target', title: 'Meta & Instagram ads', body: 'Full-funnel buying, run against your margin.', list: [
+          'Prospecting, retargeting and retention, structured to your margin',
+          'Advantage+, manual or hybrid, whichever wins your account',
+          'Budget moved daily against break-even ROAS',
         ] },
         { glyph: 'search', title: 'Google Search, Shopping & PMax', body: 'Built around buying intent, not impression share.', list: [
-          'Brand and non-brand Search',
-          'Standard Shopping and Performance Max with proper feed structure',
-          'YouTube and Demand Gen when the funnel needs it',
-          'Negative keyword and placement hygiene, weekly',
-          'Merchant Center and feed optimisation',
+          'Brand and non-brand Search built on buying intent',
+          'Shopping and Performance Max with a clean feed',
+          'Negatives and placements cleaned weekly',
         ] },
         { glyph: 'spark', title: 'Ad creative, made in-house', body: 'You send raw footage; we send back ads that get tested every week.', list: [
-          'UGC-style and founder-led video edits',
-          'Statics, carousels and catalog overlays',
+          'UGC-style and founder-led edits from your footage',
           'Hook, angle and offer variations for every winner',
-          'Landing-page-matched creative',
           'A creative scorecard every week',
         ] },
-        { glyph: 'funnel', title: 'Conversion rate optimisation', body: "More clicks won't fix a leaking store.", list: [
-          'Product page and landing page fixes',
-          'Checkout and cart drop-off analysis',
-          'Offer, bundle and AOV testing',
-          'Speed and mobile UX passes',
-          'Tracking and pixel/CAPI setup done properly',
+        { glyph: 'funnel', title: 'Store & tracking', body: "More clicks won't fix a leaking store.", list: [
+          'Product page, cart and checkout fixes',
+          'Pixel and CAPI set up properly',
+          'A weekly report you can read in two minutes',
         ] },
       ],
     },
-    // Offer is a call now, so the first phase is an "account review" on the LP
-    // (the only allowed use of that phrase) — the service page keeps "Audit".
-    process: perf.process.map((s) => (s.title === 'Audit' ? { ...s, title: 'Account review' } : s)),
+    teamStrip: true,
+    segments: {
+      eyebrow: 'Who we work best with',
+      heading: 'Five D2C categories we run every day',
+      sub: 'Where a category has a documented account, that account\u2019s own numbers are on the card, read straight from the client\u2019s Ads Manager, never rounded up.',
+      items: SEGMENTS,
+    },
+    processHeading: 'What working with us actually looks like',
+    // One dated timeline (the old "how it works" + "10 days" strips, merged).
+    process: [
+      { title: 'Review, day 0', body: 'Your account on screen, your break-even ROAS with the maths shown, and a first-30-days plan. Yours whether you sign or not.' },
+      { title: 'Set up, days 1 to 3', body: 'Read-only access, tracking and CAPI check, margins confirmed, a brief for your first footage.' },
+      { title: 'Build, days 4 to 10', body: 'First creative batch cut, campaigns structured, live by day 10. Weekly report from week one.' },
+      { title: 'Test, days 10 to 60', body: 'Angles and audiences tested against your real margin. You hear what is losing before you ask.' },
+      { title: 'Scale, month 2 on', body: 'Winners get budget, losers get cut, Google added when Meta demand needs capturing.' },
+    ],
     why: {
-      eyebrow: 'Why brands switch to us',
-      heading: 'The difference you feel in the P&L',
-      pointers: [
-        "We buy to your break-even ROAS, not the platform's flattering one",
-        'Your spend goes straight to Meta and Google — we never mark it up',
-        'Media, creative and CRO on one team, so nobody blames the other',
-        'Winners get budget, losers get cut, every week',
-        "No lock-in. Stay because it's working",
-        'You talk to the people running your account, not an account manager',
-      ],
+      eyebrow: 'The decision you are actually making',
+      heading: 'Freelancer, big agency, or us',
+      table: {
+        columns: ['', 'Freelancer', 'Large agency', 'Scaling Socials'],
+        highlightCol: 3,
+        caption: 'Kept fair on purpose. A freelancer is the right call under ₹40 K a month; a large agency is the right call for brand campaigns in crores.',
+        rows: [
+          ['Who runs the account', 'One person, when available', 'An account manager relays to a junior buyer', 'The senior buyer you meet on the review call'],
+          ['Creative', 'Usually yours to supply finished', 'Separate studio, separate invoice', 'Cut in-house from your raw footage, weekly'],
+          ['Reporting', 'Ad hoc', 'Monthly deck', 'Weekly number against your break-even ROAS'],
+          ['Ad spend', 'Paid direct', 'Often marked up or bundled', 'Paid direct to Meta and Google, never marked up'],
+          ['Contract', 'None', '6 to 12 month lock-in', 'No lock-in, month to month'],
+          ['Store and CRO', 'Not usually', 'Separate team', 'Same team fixes the product page'],
+          ['Best when', 'Spend under ₹40 K a month', 'Spend in crores, brand campaigns', '₹40 K to ₹50 L a month and margin matters'],
+        ],
+      },
     },
     founderNote: {
       quote: "Every account here is run the way I would run my own money: to your margins, not a vanity ROAS. My team and I are in the numbers every week, and if something is not working you will hear it from us straight. That is the standard we built Scaling Socials on, and it is on every account we take.",
       attribution: 'Jamal Khan, Co-founder',
+      line: `A ${teamSize.value} ${teamSize.label}, on your account every week.`,
       photo: '/lp/founders.jpg',
     },
     fit: {
       good: [
-        'Are already selling online with steady revenue and want to reach the next level',
-        'Own the decision and can move fast',
-        'Can put at least ₹40–60 K a month into the testing phase',
-        'Can shoot raw footage for us every month — creative is half the work',
-        'Care about profit and contribution margin, not just a ROAS number',
+        'Already sell online with steady revenue and want the next level',
+        'Can put ₹40–60 K a month into the testing phase',
+        'Can shoot raw footage for us every month',
+        'Care about contribution margin, not just a ROAS number',
+        'Own the decision and can move in days',
       ],
       bad: [
+        'Are spending under ₹40 K a month on ads',
         "Want a fixed ROAS promised before we've seen the account",
-        "Aren't able to invest in creative yet",
         'Are still validating whether people want the product',
+        'Are choosing on the lowest fee',
       ],
-      note: "If that's where you are today, book the call anyway. We'll tell you what to fix first so the money works when you're ready.",
+      note: "If that's you today, book the review anyway. We'll tell you what to fix first so the money works when you're ready.",
     },
-    startingFrom: [
-      { title: 'Running ads in-house and stuck', body: "You've hit a ceiling. Spend goes up, ROAS goes down, and nobody has time to make new creative." },
-      { title: 'Running it yourself and out of time', body: "You're the founder, the media buyer and everything else. It works, but there aren't enough hours to test and scale it properly." },
-      { title: 'Working with a freelancer', body: "Campaigns run, but there's no plan to scale, no creative pipeline, and no one accountable when it dips." },
-      { title: 'Already with an agency, not seeing growth', body: "Reports look fine, the P&L doesn't. The team keeps changing and you're never sure who's actually on your account." },
-    ],
-    gettingStarted: [
-      { title: 'Day 0 — Strategy call', body: 'Your account on screen, first-30-days plan agreed.' },
-      { title: 'Day 1–3 — Access & review', body: 'Read-only access, tracking check, margins and break-even ROAS confirmed.' },
-      { title: 'Day 4–7 — Creative & build', body: 'First batch of ads cut from your footage, campaigns structured.' },
-      { title: 'Day 8–10 — Live', body: 'Testing starts. Weekly report from week one.' },
-    ],
+    videos: {
+      heading: 'What founders say after 90 days',
+      lede: `Clients in their own words. Plus ${googleReviews.value} five-star ${googleReviews.label}.`,
+      items: VIDEOS,
+    },
+    fee: {
+      heading: 'How the fee works',
+      lines: [
+        'Scoped to your ad spend and creative volume, quoted on the review call',
+        'Ad spend is paid by you, direct to Meta and Google, never marked up',
+        'No lock-in. Month to month; stay because it is working',
+        'Minimum recommended testing budget: ₹40–60 K a month in ad spend',
+      ],
+    },
     faqs: [
+      { q: 'Is there a lock-in contract?', a: "No. Month to month from day one. The first 60 to 90 days is a testing cycle and we'll ask you to judge us on that, but nothing binds you to it. Brands stay because the weekly number is going the right way, not because a contract says so." },
+      { q: 'Who actually runs my account?', a: 'The senior buyer you meet on the review call. No account manager relaying messages to a junior. Media, creative and store fixes sit on the same small team, so nobody blames the other.' },
+      { q: 'What does the weekly report look like, and will I understand it?', a: "One page: spend, revenue, blended and platform ROAS against your break-even, what we changed and why, and what we're testing next. Numbers you can take straight to your P&L, not a deck of impressions." },
       MIN_SPEND_FAQ,
-      CALL_FAQ,
-      { q: 'What ROAS can you promise?', a: "None, and be careful with anyone who does. A fixed ROAS promise is a guess dressed up as a number. We target your break-even ROAS, which your margins set, and scale whatever clears it. We'll show you the maths on the call." },
-      { q: 'Do you make the ad creative?', a: 'Yes, we edit and produce it in-house. You supply the raw footage and product shots against a brief we give you; we cut the statics and video-led ads and run them through a structured testing pipeline. Creative is the single biggest lever in paid today, so it sits at the centre of the engagement.' },
-      { q: 'How soon do we see results?', a: 'You leave the strategy call with a first-30-days plan. Real account changes need a testing cycle to read cleanly, usually 30 to 60 days, before we put weight behind what is working. We will not pour spend into unproven creative just to hand you an early number.' },
+      { q: 'Do you make the ad creative, or do I?', a: 'We edit and produce it in-house. You supply the raw footage and product shots against a brief we give you; we cut the statics and video-led ads and run them through a structured testing pipeline. Creative is the single biggest lever in paid today, so it sits at the centre of the engagement.' },
+      { q: 'How soon will I see results?', a: 'You leave the review with a first-30-days plan. Real account changes need a testing cycle to read cleanly, usually 30 to 60 days, before we put weight behind what is working. We will not pour spend into unproven creative just to hand you an early number.' },
+      { q: 'Do you work with Dubai and GCC brands?', a: 'Yes. We run Meta and Google for brands selling in the UAE and the wider GCC, from our team in Bangalore. Same review, same weekly reporting, budgets and reporting in AED where you need it.' },
+      { q: 'My ad account is restricted or has a bad history. Can you still help?', a: 'Usually. We start by reading the account history and the reasons behind the restriction, fix the policy or tracking problems that caused it, and appeal with a clean setup. If the account cannot be recovered we tell you on the review and plan a fresh structure instead.' },
     ],
     finalBullets: [
       'Where your spend is leaking and why',
@@ -377,9 +455,9 @@ export const LANDINGS: LandingContent[] = [
       "What we'd change in the first 30 days",
     ],
     finalCta: {
-      heading: 'Find out what is leaking money',
-      body: 'Book a 30-minute call. We look at your ad accounts and store with you and show you what we would change first — you leave with a plan either way.',
-      ctaLabel: 'Book your free strategy call',
+      heading: "Find out what's leaking in your ad account",
+      body: 'Free 30-minute review. You leave with your break-even ROAS, the three biggest fixes and a first-30-days plan. No pitch deck.',
+      ctaLabel: 'Book your free account review',
     },
   },
   {

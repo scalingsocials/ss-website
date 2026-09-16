@@ -1,0 +1,142 @@
+---
+/**
+ * VideoTestimonials — short founder videos, portrait, click-to-play.
+ *
+ * These are NOT ambient videos, so the 08 §media autoplay rules (muted, 8s,
+ * 1.5MB) don't apply: nothing plays until the visitor taps, sound stays on,
+ * `preload="none"` means the page downloads only the poster until then. Each
+ * item ships .webm + .mp4 with an explicit poster and dimensions (no CLS).
+ *
+ * The media sources are attached by script, not in the HTML. Playwright's
+ * WebKit (the check:browsers gate, no media backend on Windows) never finishes
+ * resource selection for a <video> with <source> children, so the page's load
+ * event never fires and the gate times out. Without JS the poster still renders
+ * (rule 1: content visible); videos on this site load via script by design
+ * (CLAUDE.md rule 2). The overlay play button starts playback, hands over to
+ * the native controls, and pauses any other testimonial that is playing.
+ * Assets live in /public/lp/testimonials/ (encoded by ffmpeg, 540px wide, each
+ * under the perf gate's 1.5 MB per-video budget).
+ */
+import type { VideoItem } from '@/lib/videoTestimonials';
+export type { VideoItem };
+
+export interface Props {
+  items: VideoItem[];
+  class?: string;
+}
+const { items, class: className = '' } = Astro.props;
+---
+
+<ul class:list={['ss-vt', className]} data-vt-list>
+  {items.map((v, i) => (
+    <li class="ss-vt__item">
+      <div class="ss-vt__frame" data-vt>
+        <video
+          class="ss-vt__video"
+          preload="none"
+          playsinline
+          controls
+          poster={v.poster}
+          width={v.width}
+          height={v.height}
+          aria-label={`${v.label}, ${v.duration}`}
+          data-mp4={v.mp4}
+          data-webm={v.webm}
+        ></video>
+        <button type="button" class="ss-vt__play" data-vt-play aria-label={`Play ${v.label.toLowerCase()} ${i + 1}`}>
+          <span class="ss-vt__play-ico" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z" /></svg>
+          </span>
+          <span class="ss-vt__dur" aria-hidden="true">{v.duration}</span>
+        </button>
+      </div>
+      <p class="ss-vt__cap">{v.label}</p>
+    </li>
+  ))}
+</ul>
+
+<script>
+  const init = () => {
+    const frames = Array.from(document.querySelectorAll<HTMLElement>('[data-vt]'));
+    const videos = frames.map((f) => f.querySelector<HTMLVideoElement>('video')).filter((v): v is HTMLVideoElement => !!v);
+    for (const f of frames) {
+      if (f.dataset.ready) continue;
+      f.dataset.ready = '1';
+      const vid = f.querySelector<HTMLVideoElement>('video');
+      const btn = f.querySelector<HTMLButtonElement>('[data-vt-play]');
+      if (!vid || !btn) continue;
+      // Attach sources only AFTER the window load event (see header note) —
+      // doing it at script time still blocks `load` in WebKit's media-less build.
+      const attach = () => {
+        if (vid.dataset.attached) return;
+        vid.dataset.attached = '1';
+        for (const [key, type] of [['webm', 'video/webm'], ['mp4', 'video/mp4']] as const) {
+          const src = vid.dataset[key];
+          if (!src) continue;
+          const el = document.createElement('source');
+          el.src = src;
+          el.type = type;
+          vid.appendChild(el);
+        }
+      };
+      if (document.readyState === 'complete') attach();
+      else window.addEventListener('load', attach, { once: true });
+      btn.addEventListener('click', () => {
+        attach();
+        for (const other of videos) if (other !== vid && !other.paused) other.pause();
+        vid.play().catch(() => {});
+      });
+      vid.addEventListener('play', () => {
+        f.classList.add('is-playing');
+        for (const other of videos) if (other !== vid && !other.paused) other.pause();
+      });
+      vid.addEventListener('pause', () => { if (vid.currentTime === 0 || vid.ended) f.classList.remove('is-playing'); });
+      vid.addEventListener('ended', () => f.classList.remove('is-playing'));
+    }
+  };
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  /* Fixed-max columns: portrait video must not stretch to fill a wide row. */
+  .ss-vt { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 300px)); }
+  .ss-vt__item { display: flex; flex-direction: column; gap: var(--space-2); }
+  .ss-vt__frame {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 540 / 954;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: var(--surface-c);
+    border: 1px solid var(--rule-c);
+  }
+  /* Phones: a full-height portrait video is taller than the screen. Cap it and
+     let the poster crop, so the section is scannable rather than one video per
+     screen. */
+  @media (max-width: 639px) {
+    .ss-vt__frame { aspect-ratio: 4 / 5; }
+  }
+  .ss-vt__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; background: #000; }
+  .ss-vt__play {
+    position: absolute; inset: 0;
+    display: grid; place-items: center; align-content: center; gap: var(--space-2);
+    background: linear-gradient(180deg, transparent 55%, color-mix(in srgb, #000 55%, transparent));
+    color: #fff; border: 0; cursor: pointer; padding: 0;
+    /* leave the native control bar reachable underneath */
+    bottom: 48px;
+  }
+  .ss-vt__play-ico {
+    display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%;
+    background: color-mix(in srgb, #fff 92%, transparent); color: #000;
+    box-shadow: 0 12px 30px -12px rgba(0,0,0,.6);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .ss-vt__play:hover .ss-vt__play-ico { transform: scale(1.06); }
+  .ss-vt__play:focus-visible { outline: 3px solid var(--accent-text); outline-offset: -3px; }
+  .ss-vt__dur { font-size: var(--text-label); font-weight: 600; letter-spacing: .02em; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+  .is-playing .ss-vt__play { display: none; }
+  .ss-vt__cap { font-size: var(--text-small); color: var(--fg-muted); }
+  @media (prefers-reduced-motion: reduce) { .ss-vt__play-ico { transition: none; } }
+</style>

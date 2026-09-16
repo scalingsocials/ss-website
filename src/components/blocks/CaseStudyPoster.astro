@@ -23,10 +23,17 @@ export interface Props {
   colorIndex: number;
   /** Optional one-line kicker under the headline (CASE_STUDY_KICKERS). */
   kicker?: string;
+  /** Render as a link to the case-study page (default). The ad LPs pass false
+   *  so the poster becomes a plain block the page can expand in place — a
+   *  one-goal LP must not hand the visitor the whole site. */
+  link?: boolean;
+  /** Label for the foot action (default "Read"). */
+  readLabel?: string;
   class?: string;
 }
 
-const { study, colorIndex, kicker = '', class: className = '' } = Astro.props;
+const { study, colorIndex, kicker = '', link = true, readLabel = 'Read', class: className = '' } = Astro.props;
+const Tag = link ? 'a' : 'span';
 const arch = ARCHETYPES[study.archetype].label;
 // The single hero number: a real before→after `after`, else a held value, else
 // the first headline stat — never invented.
@@ -34,8 +41,8 @@ const bigStat = study.delta ? study.delta.after : study.held ? study.held.value 
 const ci = ((colorIndex % 7) + 7) % 7;
 ---
 
-<a
-  href={`/case-studies/${study.slug}/`}
+<Tag
+  href={link ? `/case-studies/${study.slug}/` : undefined}
   class:list={['ss-cscard group no-underline', `ss-cscard--c${ci}`, className]}
 >
   <!-- chart recoloured to the card's own foreground: texture, not a chart box -->
@@ -47,10 +54,10 @@ const ci = ((colorIndex % 7) + 7) % 7;
     <span class="ss-cscard__stat display-type" data-num>{bigStat}</span>
     <span class="ss-cscard__foot" data-num>
       <span class="ss-cscard__meta">{study.channels} · {study.period}</span>
-      <span class="ss-cscard__read">Read<svg class="ss-cscard__go" width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="ss-cscard__read">{readLabel}<svg class="ss-cscard__go" width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
     </span>
   </div>
-</a>
+</Tag>
 
 <style>
   /* Editorial poster card: a solid colour, big headline, the big stat as hero,

@@ -1,0 +1,28 @@
+---
+/**
+ * /lp/performance-marketing/switch/ — "switching agency" hero variant of the
+ * performance LP. NOINDEX. Same page, form and tracking; only the hero message
+ * changes so the headline echoes the ad that sent the click.
+ */
+import LandingLayout from '@/layouts/LandingLayout.astro';
+import { LANDING_BY_SLUG } from '@/lib/landings';
+import type { LandingContent } from '@/lib/landings';
+
+const base = LANDING_BY_SLUG['performance-marketing']!;
+const content: LandingContent = {
+  ...base,
+  slug: 'performance-marketing-switch',
+  url: '/lp/performance-marketing/switch/',
+  source: 'lp-performance-marketing-switch',
+  title: 'Switching Ad Agency? Free Account Review | Scaling Socials',
+  description:
+    'Your agency sends reports; you want revenue. One senior team on media, creative and your store, judged on profit. Book a free 30-minute account review.',
+  hero: {
+    ...base.hero,
+    h1: 'Your agency sends reports. You want revenue.',
+    sub: 'One senior team on media, creative and your store, judged on profit, not impressions. See the account we took from 1.75x to 3.94x in one quarter.',
+  },
+};
+---
+
+<LandingLayout content={content} />

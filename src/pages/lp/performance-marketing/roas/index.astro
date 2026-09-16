@@ -1,0 +1,29 @@
+---
+/**
+ * /lp/performance-marketing/roas/ — pain-led hero variant of the performance LP
+ * for "ROAS dropped" ad angles. NOINDEX. Same page, same form, same tracking
+ * source suffix so each ad set gets its own conversion rate; only the hero
+ * message changes (message match, teardown §hero).
+ */
+import LandingLayout from '@/layouts/LandingLayout.astro';
+import { LANDING_BY_SLUG } from '@/lib/landings';
+import type { LandingContent } from '@/lib/landings';
+
+const base = LANDING_BY_SLUG['performance-marketing']!;
+const content: LandingContent = {
+  ...base,
+  slug: 'performance-marketing-roas',
+  url: '/lp/performance-marketing/roas/',
+  source: 'lp-performance-marketing-roas',
+  title: 'ROAS Dropped? Free Ad Account Review | Scaling Socials',
+  description:
+    "Your ROAS fell and nobody can say why. Book a free 30-minute account review: we open your Ads Manager with you and show the three fixes, hire us or not.",
+  hero: {
+    ...base.hero,
+    h1: "ROAS was 4x. Now it's under 2x and nobody can tell you why.",
+    sub: 'Book a 30-minute review. We open your Ads Manager with you and show you the three things leaking money, whether or not you hire us.',
+  },
+};
+---
+
+<LandingLayout content={content} />

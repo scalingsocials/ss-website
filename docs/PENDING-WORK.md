@@ -138,6 +138,15 @@ Deploy runbook: **[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md)**.
 - ✅ **/lp/ ad landing pages** (2026-09-11) — conversion-first `LandingLayout` (noindex)
   live for performance marketing + web development (sticky mobile CTA, real proof,
   deduped GA4/Meta events). Add more per campaign from the same template.
+- ✅ **Perf LP rebuilt to the conversion teardown** (2026-09-15) — outcome hero with the
+  CTA in the first phone screen, spend-first two-step form (no email), problem quotes
+  moved up, case studies expand in place (no exits), four real Ads Manager screenshots,
+  two founder videos, comparison table, fee-without-a-figure, 8-objection FAQ, hero
+  variants at `/lp/performance-marketing/roas/` and `/switch/`. **Owner follow-ups:**
+  (1) the third testimonial (1:45, in `../raw-media/`) exceeds the 1.5 MB per-video
+  gate — approve a ≤25 s cut or an explicit gate exception; (2) the page now promises a
+  WhatsApp reply "within 2 working hours" — staff it or change `REPLY` in
+  `src/lib/landings.ts`; (3) Google Ads conversion id on the thanks page still empty.
 - ✅ **Homepage v2 visual pass** (2026-09-12) — transparent over-hero header with white
   logo, interactive "live dashboard" hero graphic, illustrated pastel service cards
   (per-service inline SVG, CSP-safe via `data-hue` + hashed CSS), 3-up mobile hero
