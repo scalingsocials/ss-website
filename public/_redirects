@@ -50,6 +50,15 @@
 /%e2%82%b91-million-in-90-days/  /case-studies/indo-western-launch-90-days/  301
 /%e2%82%b944-3-million-in-90-days/  /case-studies/  301
 /thank_you/  /thank-you/  301
+# Old Yoast / WordPress sitemap URLs, still on file in Search Console after the
+# 2026-09-17 cutover — send them to the Astro sitemap index instead of a 404.
+/sitemap_index.xml  /sitemap-index.xml  301
+/sitemap.xml  /sitemap-index.xml  301
+/wp-sitemap.xml  /sitemap-index.xml  301
+/post-sitemap.xml  /sitemap-index.xml  301
+/page-sitemap.xml  /sitemap-index.xml  301
+/category-sitemap.xml  /sitemap-index.xml  301
+/author-sitemap.xml  /sitemap-index.xml  301
 /category/blog/  /blog/  301
 
 # Indexed on the old WordPress site and returning 200 there today, but missing
