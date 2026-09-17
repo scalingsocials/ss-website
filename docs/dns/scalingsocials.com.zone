@@ -1,0 +1,48 @@
+; scalingsocials.com: all 28 DNS records, pulled 2026-09-17 straight from the
+; authoritative nameserver (ns-cloud-c1.googledomains.com), which is what
+; Squarespace serves. Squarespace has no zone export, so this file is the export.
+;
+; Import: Cloudflare -> scalingsocials.com -> DNS -> Records -> Import and Export
+;         -> Import DNS records -> choose this file -> UNTICK "Proxy imported
+;         DNS records" (mail, DKIM and the Lovable apps must stay DNS-only).
+;
+; The @ and www A records still point at Hostinger on purpose: the site keeps
+; working the moment nameservers flip. Pages replaces them when the custom
+; domains are attached (runbook Step 5a).
+;
+;   Web (Hostinger, until cutover) ...... @, www
+;   Lovable apps ......................... careers, crm, invoice + _lovable.* TXT
+;   Google Workspace mail ................ MX x5, SPF, google._domainkey, _dmarc
+;   Google site verification ............. yyla2z6wspxu CNAME
+;   Mailgun .............................. mg MX x2, mg SPF, mx._domainkey.mg, email.mg
+;   Resend / Amazon SES .................. resend._domainkey, send, send.updates
+;   lemlist tracking ..................... trail CNAME
+$ORIGIN scalingsocials.com.
+@	1800	IN	A	193.203.185.224
+www	1800	IN	A	193.203.185.224
+careers	14400	IN	A	185.158.133.1
+crm	14400	IN	A	185.158.133.1
+invoice	14400	IN	A	185.158.133.1
+@	1800	IN	MX	5 alt2.aspmx.l.google.com.
+@	1800	IN	MX	1 aspmx.l.google.com.
+@	1800	IN	MX	10 alt3.aspmx.l.google.com.
+@	1800	IN	MX	10 alt4.aspmx.l.google.com.
+@	1800	IN	MX	5 alt1.aspmx.l.google.com.
+@	1800	IN	TXT	"v=spf1 include:_spf.google.com ~all"
+_lovable.careers	1800	IN	TXT	"lovable_verify=448903db761c8e681d774ce737cde64939e3ed4c405c735d2cd650f7ef86b20a"
+_lovable.crm	1800	IN	TXT	"lovable_verify=d067d83d4976a9681e22ee29707f2cb198d8de7d1e80f1c6dfca69c4ea214e35"
+_lovable.invoice	1800	IN	TXT	"lovable_verify=f4c887ef04476f95ef2b514ddc38626a67122545b88903eb3cf92c8db24a3ec2"
+email.mg	1800	IN	CNAME	mailgun.org.
+mg	1800	IN	MX	10 mxb.mailgun.org.
+mg	1800	IN	MX	10 mxa.mailgun.org.
+mg	1800	IN	TXT	"v=spf1 include:mailgun.org ~all"
+mx._domainkey.mg	1800	IN	TXT	"k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDhKtSYv6a5xQwKA2E3YCs1cTiGE8d1dBKRUEImEXC3CwtcBNQQsYes+dazLwGoQjMyBKjndptbExM9kaDCa0C8q6LQzQQ/sIH5VUoM+mVJRwgcuWUxBOk6yjhDP5ctyoe94Dscgi6n1d4HG3TqltXLZFVT oH/e9zXyvxR8iaLaWQIDAQAB"
+trail	1800	IN	CNAME	custom.lemlist.com.
+google._domainkey	1800	IN	TXT	"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjjV+8+nRucbMVuKjdZT/n8S8KJ1cXcpJ41WXxk2moPnrmKL4EKcmGXXC7eBX8hChvatLkh9o3QBtAIVYUajruSABRBJeXJ5TKK0MzYv1BXOMw747fWfJtiVz6A6iLKEHvUG16w/CW2x" "6TGT2DCSPXos6upY2UyWmictdinTwfDFuxINUTxsrM/tjbupk10fLEtpJQ3yv5cGcmP8ynVYJXn5TYkATlGwDY6H2KtKUlCSD8/Wmd+fSuBDsrU6w8stTeqBZ+TPqU0oB8rmGk23LD9cI9YTkHtk/+vZCiiE+WzWmwapUyrpotAmjcBD2Nvc2D/TvtgtVvWiwhnGHRMbT" "dQIDAQAB"
+yyla2z6wspxu	1800	IN	CNAME	gv-57vbptn3n774g4.dv.googlehosted.com.
+send.updates	1800	IN	MX	10 feedback-smtp.ap-northeast-1.amazonses.com.
+send.updates	1800	IN	TXT	"v=spf1 include:amazonses.com ~all"
+resend._domainkey	1800	IN	TXT	"p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDCex7HE5OYQ8gKihJEKx+VhaadpezuIA0aX9z65k4CfhSMLo9FOQRxh/fqjfHgpN3vi4WnFnJtrrz9QXx69CsqjnBDXjkc8gFiubtQNZvna2ut0a9FhNUhnUVKwSuBt7kJAsoxeZuKlO/o99uY0p9UKXtWWsJ9d+1IpQZWnWf7PQIDAQAB"
+send	1800	IN	MX	10 feedback-smtp.ap-northeast-1.amazonses.com.
+send	1800	IN	TXT	"v=spf1 include:amazonses.com ~all"
+_dmarc	1800	IN	TXT	"v=DMARC1; p=quarantine; rua=mailto:maaz@scalingsocials.com; pct=90; sp=none"
