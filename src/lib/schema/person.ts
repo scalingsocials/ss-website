@@ -10,6 +10,7 @@ import { ORG_ID, personId, type SchemaNode } from './ids';
 export interface PersonInput {
   slug: string; // 'jamal-khan'
   name: string;
+  alternateName?: string;
   jobTitle?: string;
   linkedin?: string;
   image?: string; // absolute URL
@@ -23,6 +24,7 @@ export function person(input: PersonInput): SchemaNode {
     name: input.name,
     worksFor: { '@id': ORG_ID },
   };
+  if (input.alternateName) node.alternateName = input.alternateName;
   if (input.jobTitle) node.jobTitle = input.jobTitle;
   if (input.image) node.image = input.image;
   if (input.description) node.description = input.description;

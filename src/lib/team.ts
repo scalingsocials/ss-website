@@ -16,6 +16,13 @@ import khushal from '@/assets/founders/khushal-sharma.jpg';
 export interface Partner {
   slug: string;
   name: string;
+  /**
+   * Full name as it appears on LinkedIn, when it differs from the display name.
+   * Schema-only (Person.alternateName) so search and AI engines join the site
+   * profile to the LinkedIn one; the page keeps the display name. Never the LLP
+   * registry form (11 §1).
+   */
+  alternateName?: string;
   role: string;
   focus: string;
   linkedin: string;
@@ -28,6 +35,7 @@ export const PARTNERS: Partner[] = [
     slug: 'tayeb-khan',
     photo: tayeb,
     name: 'Tayeb Khan',
+    alternateName: 'Tayeb Mohammed Khan',
     role: 'Co-founder',
     focus: 'Web development and finance',
     linkedin: 'https://www.linkedin.com/in/tayebmohammedkhan/',
@@ -37,6 +45,7 @@ export const PARTNERS: Partner[] = [
     slug: 'jamal-khan',
     photo: jamal,
     name: 'Jamal Khan',
+    alternateName: 'Jamal Mohammed Khan',
     role: 'Co-founder',
     focus: 'Paid media',
     linkedin: 'https://www.linkedin.com/in/jamal-mohammed-khan-4555001b2/',

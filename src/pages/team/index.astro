@@ -24,7 +24,7 @@ const nodes = [
   ...base(),
   webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }),
   breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Team', url }]),
-  ...PARTNERS.map((p) => person({ slug: p.slug, name: p.name, jobTitle: p.role, linkedin: p.linkedin, description: p.bio })),
+  ...PARTNERS.map((p) => person({ slug: p.slug, name: p.name, alternateName: p.alternateName, jobTitle: p.role, linkedin: p.linkedin, description: p.bio })),
 ];
 ---
 

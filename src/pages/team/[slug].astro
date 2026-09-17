@@ -43,7 +43,7 @@ const modified = '2026-09-11';
 
 const nodes = [
   ...base(),
-  person({ slug: p.slug, name: p.name, jobTitle: `${p.role} — ${p.focus}`, linkedin: p.linkedin, description: p.bio }),
+  person({ slug: p.slug, name: p.name, alternateName: p.alternateName, jobTitle: `${p.role} — ${p.focus}`, linkedin: p.linkedin, description: p.bio }),
   webPage({ url, name: title, description, hasBreadcrumb: true, dateModified: modified }),
   breadcrumbs(url, [{ name: 'Home', url: '/' }, { name: 'Team', url: '/team/' }, { name: p.name, url }]),
 ];

@@ -22,6 +22,7 @@ function founders(): SchemaNode[] {
     '@type': 'Person',
     '@id': personId(p.slug),
     name: p.name,
+    ...(p.alternateName ? { alternateName: p.alternateName } : {}),
     jobTitle: p.role,
     url: `${SITE}/team/${p.slug}/`,
     sameAs: [p.linkedin].filter(Boolean),
