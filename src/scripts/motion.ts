@@ -233,7 +233,7 @@ function setupPage(): void {
     if (form) {
       if (!form.id) form.id = 'lead-form';
       sticky.href = `#${form.id}`;
-      const label = form.getAttribute('aria-label');
+      const label = form.dataset.ctaLabel || form.getAttribute('aria-label');
       const text = sticky.querySelector('[data-sticky-label]');
       if (label && text) text.textContent = label;
       sticky.addEventListener('click', (e) => {

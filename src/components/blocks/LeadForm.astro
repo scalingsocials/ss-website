@@ -45,6 +45,10 @@ export interface Props {
   nextLabel?: string;
   /** Footnote under the form (default: the site-wide reply promise). */
   footnote?: string;
+  /** Label for the site-wide floating CTA on this page (it scrolls to this
+   *  form). Defaults to `heading`; set it when the heading does not read as a
+   *  button, e.g. "Send us your brand" on /contact/. */
+  ctaLabel?: string;
   class?: string;
 }
 
@@ -62,6 +66,7 @@ const {
   elevated = false,
   headingLevel,
   redirect,
+  ctaLabel,
   nextLabel = 'Next',
   footnote = 'No spam. We reply within one working day.',
   class: className = '',
@@ -117,6 +122,7 @@ const gap = compact ? 'gap-[var(--space-2)]' : 'gap-[var(--space-3)]';
   class:list={['ss-leadform flex flex-col gap-[var(--space-4)] rounded-[var(--radius-card)] border border-[var(--rule-c)] bg-[var(--ground)] p-[var(--space-5)]', elevated && 'ss-leadform--elevated', compact && 'ss-leadform--compact', className]}
   novalidate
   data-redirect={redirect}
+  data-cta-label={ctaLabel}
   aria-label={heading}
 >
   <input type="hidden" name="lead_id" value="" />
