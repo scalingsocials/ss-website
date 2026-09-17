@@ -316,18 +316,26 @@ const statsLayout = stats.length === 4 ? 'hero__stats--4' : 'hero__stats--3';
     .hero__line--4 { animation-delay: 0.36s; }
     .hero__line--6 { animation-delay: 0.48s; }
     .hero__line--5 { animation-delay: 0.28s; transform: translateY(24px) scale(0.98); }
+    /* The <h1> is the LCP element (CLAUDE.md §4), and Chrome skips text painted at
+       opacity 0 when picking it, which handed LCP to the header logo and pushed it
+       to 3.9s on mobile. The title therefore rises in but is visible from its first
+       paint; only the lines below it fade. */
+    .hero__title .hero__line { opacity: 1; animation-name: heroRise; }
     .hero__line-path { animation: draw 1.3s var(--ease-out) 0.5s forwards; }
     .hero__area { animation: fadeIn 0.8s ease 1.2s forwards; }
     .hero__annotlabel { animation: chipIn 0.5s var(--ease-out) 1.4s forwards; }
-    .hero__live-pt { transform-box: fill-box; transform-origin: center; animation: fadeIn 0.4s ease 1.5s forwards, pulse 2.4s var(--ease-out) 1.5s infinite; }
+    /* transform + opacity only, so the pulse stays on the compositor (animating the
+       SVG `r` attribute is not composited and was flagged by Lighthouse). */
+    .hero__live-pt { transform-box: fill-box; transform-origin: center; animation: pulse 2.4s var(--ease-out) 1.5s infinite; }
     .hero__cardglow { animation: glowDrift 9s ease-in-out infinite alternate; }
     @keyframes heroIn { to { opacity: 1; transform: none; } }
+    @keyframes heroRise { to { transform: none; } }
     @keyframes draw { to { stroke-dashoffset: 0; } }
     @keyframes fadeIn { to { opacity: 1; } }
     @keyframes chipIn { from { opacity: 0; transform: translateY(8px) scale(0.96); } to { opacity: 1; transform: none; } }
     @keyframes pulse {
-      0%, 100% { r: 4.5; opacity: 1; }
-      50% { r: 6.5; opacity: 0.55; }
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.45); opacity: 0.55; }
     }
     @keyframes glowDrift {
       from { transform: translate3d(-3%, -2%, 0) scale(1); opacity: 0.6; }
