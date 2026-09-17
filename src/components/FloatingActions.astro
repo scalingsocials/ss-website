@@ -7,11 +7,12 @@
  *  1. WhatsApp — always visible on every page, so anyone can reach us in one tap.
  *     It's an <a href="https://wa.me/…"> (plain navigation → no CSP concern). The
  *     number is derived from the single source of truth (entity.ts), never typed.
- *  2. Growth-plan CTA — carries `data-sticky-cta`; motion.ts reveals it once the
- *     hero scrolls out of view. Only the homepage has a `.hero`, so elsewhere it
- *     stays hidden. It floats ABOVE WhatsApp and reserves no space when hidden,
- *     so it never leaves a gap. This replaces the old full-width mobile bar, which
- *     read as distracting on phones.
+ *  2. Audit CTA — carries `data-sticky-cta`; motion.ts reveals it on every page
+ *     once the first section scrolls away. On a page with its own lead form it
+ *     takes that form's label and scrolls to it (hiding while the form is on
+ *     screen); otherwise it links to /audit/. It floats ABOVE WhatsApp and
+ *     reserves no space when hidden, so it never leaves a gap. This replaces the
+ *     old full-width mobile bar, which read as distracting on phones.
  *
  * COLOUR NOTE: the WhatsApp button uses WhatsApp's own brand green (#25D366) — a
  * deliberate, contained exception to the token rule (CLAUDE.md §5), the same way a
@@ -32,7 +33,7 @@ const waHref = `https://wa.me/${waNumber}?text=${waText}`;
     <svg class="ss-fab__cta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M13 3 5 13h5l-1 8 8-10h-5l1-8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
     </svg>
-    <span>Get a free audit</span>
+    <span data-sticky-label>Get a free audit</span>
   </a>
 
   <!-- WhatsApp — always available, every page. -->

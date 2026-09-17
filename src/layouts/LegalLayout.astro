@@ -24,11 +24,12 @@ export interface Props {
   description: string;
   heading: string;
   updated: string; // human date
+  /** ISO date matching `updated`, for schema + sitemap lastmod. */
+  modified?: string;
   intro?: string;
   toc: TocItem[];
 }
-const { url, title, description, heading, updated, intro, toc } = Astro.props;
-const modified = '2026-09-04';
+const { url, title, description, heading, updated, intro, toc, modified = '2026-09-04' } = Astro.props;
 
 const nodes = [
   ...base(),

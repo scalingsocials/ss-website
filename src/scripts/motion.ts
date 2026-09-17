@@ -219,18 +219,46 @@ function setupPage(): void {
   }
 
   // --- sticky mini-CTA -------------------------------------------------------
-  const sticky = document.querySelector<El>('[data-sticky-cta]');
-  const hero = document.querySelector<El>('.hero');
+  // Every page except the /lp/ ones (they render `bare`, without this cluster).
+  // Where the page has its own lead form, the pill takes that form's label
+  // ("Get a free Meta ads review") and scrolls to it; elsewhere it stays
+  // "Get a free audit" → /audit/, as rendered. It shows once the page's first
+  // section has scrolled away and hides again while the form itself is on
+  // screen, so it never covers the form it points to.
+  const sticky = document.querySelector<HTMLAnchorElement>('[data-sticky-cta]');
+  const hero = document.querySelector<El>('main > section, main .hero');
   if (sticky && hero && hasIO && !sticky.dataset.bound) {
     sticky.dataset.bound = '1';
-    const sio = new IntersectionObserver(
-      (entries) => sticky.classList.toggle('is-visible', !entries[0]!.isIntersecting),
-      { threshold: 0 }
-    );
-    sio.observe(hero);
-  } else if (sticky && !hero) {
-    // Not on the homepage — keep it hidden.
-    sticky.classList.remove('is-visible');
+    const form = document.querySelector<HTMLFormElement>('main form[data-lead-form]');
+    if (form) {
+      if (!form.id) form.id = 'lead-form';
+      sticky.href = `#${form.id}`;
+      const label = form.getAttribute('aria-label');
+      const text = sticky.querySelector('[data-sticky-label]');
+      if (label && text) text.textContent = label;
+      sticky.addEventListener('click', (e) => {
+        e.preventDefault();
+        form.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+        // Focus the first field on mouse/trackpad only — on a phone it would
+        // throw the keyboard up over the form the visitor has not read yet.
+        if (window.matchMedia('(pointer: fine)').matches) {
+          form.querySelector<HTMLInputElement>('input:not([type=hidden]):not([tabindex="-1"])')?.focus({ preventScroll: true });
+        }
+      });
+    }
+    let pastHero = false;
+    let formOnScreen = false;
+    const sync = () => sticky.classList.toggle('is-visible', pastHero && !formOnScreen);
+    new IntersectionObserver((entries) => {
+      pastHero = !entries[0]!.isIntersecting;
+      sync();
+    }).observe(hero);
+    if (form) {
+      new IntersectionObserver((entries) => {
+        formOnScreen = entries[0]!.isIntersecting;
+        sync();
+      }, { threshold: 0.25 }).observe(form);
+    }
   }
 
   // --- hero live panel: cursor tilt + crosshair (progressive enhancement) ----
