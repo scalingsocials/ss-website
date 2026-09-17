@@ -8,7 +8,25 @@
  * and never reaches schema (CLAUDE.md entity rules), so we read `address`.
  */
 import { ORG } from './entity';
-import { ORG_ID, SITE, type SchemaNode } from './ids';
+import { ORG_ID, SITE, personId, type SchemaNode } from './ids';
+import { PARTNERS } from '@/lib/team';
+
+/**
+ * The four co-founders, from team.ts — the same names, @ids and LinkedIn the
+ * /team/ pages publish. entity.ts used to carry its own list and it drifted
+ * ("Maaz", "Kushal Sharma", "Jamal Mohammed Khan"), so Google saw two spellings
+ * of each person. One source now.
+ */
+function founders(): SchemaNode[] {
+  return PARTNERS.map((p) => ({
+    '@type': 'Person',
+    '@id': personId(p.slug),
+    name: p.name,
+    jobTitle: p.role,
+    url: `${SITE}/team/${p.slug}/`,
+    sameAs: [p.linkedin].filter(Boolean),
+  }));
+}
 
 function postalAddress(): SchemaNode {
   const a = ORG.address;
@@ -38,7 +56,7 @@ export function organization(): SchemaNode {
     },
     image: ORG.logo,
     foundingDate: ORG.foundingDate,
-    founder: ORG.founders.map((f) => ({ '@type': 'Person', name: f.name, jobTitle: f.jobTitle })),
+    founder: founders(),
     numberOfEmployees: { '@type': 'QuantitativeValue', value: ORG.numberOfEmployees },
     email: ORG.email,
     telephone: ORG.telephone,
@@ -78,6 +96,6 @@ export function professionalService(): SchemaNode {
       closes: h.closes,
     })),
     sameAs: ORG.sameAs.filter(Boolean),
-    founder: ORG.founders.map((f) => ({ '@type': 'Person', name: f.name })),
+    founder: founders(),
   };
 }

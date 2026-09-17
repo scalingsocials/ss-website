@@ -6,7 +6,7 @@
  * match the dates rendered on the page (03 §0 AEO, §3.9). Breadcrumb is linked
  * by @id when present.
  */
-import { ORG_ID, WEBSITE_ID, abs, webPageId, breadcrumbId, primaryImageId, type SchemaNode } from './ids';
+import { ORG_ID, WEBSITE_ID, abs, isoDateTime, webPageId, breadcrumbId, primaryImageId, type SchemaNode } from './ids';
 
 export interface WebPageInput {
   url: string;
@@ -33,8 +33,8 @@ export function webPage(input: WebPageInput): SchemaNode {
     publisher: { '@id': ORG_ID },
   };
   if (input.description) node.description = input.description;
-  if (input.datePublished) node.datePublished = input.datePublished;
-  if (input.dateModified) node.dateModified = input.dateModified;
+  if (input.datePublished) node.datePublished = isoDateTime(input.datePublished);
+  if (input.dateModified) node.dateModified = isoDateTime(input.dateModified);
   if (input.aboutId) node.about = { '@id': input.aboutId };
   if (input.hasBreadcrumb) node.breadcrumb = { '@id': breadcrumbId(input.url) };
   if (input.primaryImage) {

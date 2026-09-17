@@ -38,3 +38,15 @@ export const webAppId = (url: string) => `${abs(url)}#webapp`;
 export const definedTermSetId = (url: string) => `${abs(url)}#termset`;
 export const definedTermId = (url: string, slug: string) => `${abs(url)}#term-${slug}`;
 export const personId = (slug: string) => `${SITE}/team/#${slug}`;
+
+/**
+ * Schema dates as full ISO 8601 datetimes. Pages store plain 'YYYY-MM-DD' (that is
+ * what they display), but Google's Rich Results Test flags a date without a time
+ * and zone as invalid for Article dates. Midnight IST keeps the calendar day the
+ * page shows. Values that already carry a time pass through unchanged.
+ */
+export function isoDateTime(d: string): string;
+export function isoDateTime(d: string | undefined): string | undefined;
+export function isoDateTime(d: string | undefined): string | undefined {
+  return d && /^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T00:00:00+05:30` : d;
+}

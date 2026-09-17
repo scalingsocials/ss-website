@@ -8,7 +8,7 @@
  * never a fabricated benchmark (CLAUDE.md §9).
  */
 import { ORG } from './entity';
-import { ORG_ID, abs, datasetId, type SchemaNode } from './ids';
+import { ORG_ID, abs, datasetId, isoDateTime, type SchemaNode } from './ids';
 
 export interface DatasetInput {
   url: string;
@@ -30,8 +30,8 @@ export function dataset(input: DatasetInput): SchemaNode {
     name: input.name,
     description: input.description,
     url: abs(input.url),
-    datePublished: input.datePublished,
-    dateModified: input.dateModified ?? input.datePublished,
+    datePublished: isoDateTime(input.datePublished),
+    dateModified: isoDateTime(input.dateModified ?? input.datePublished),
     creator: { '@id': ORG_ID },
     publisher: { '@id': ORG_ID },
     license: 'https://creativecommons.org/licenses/by/4.0/',

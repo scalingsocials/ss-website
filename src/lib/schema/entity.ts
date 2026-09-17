@@ -30,13 +30,9 @@ export const ORG = {
   // Structured fields get 2021 only.
   foundingDate: '2021',
 
-  // People — all four partners. Each needs a Person entry on /team/.
-  founders: [
-    { name: 'Tayeb Khan', jobTitle: 'Co-founder', linkedin: '' },   // TODO
-    { name: 'Jamal Mohammed Khan', jobTitle: 'Co-founder', linkedin: '' }, // TODO
-    { name: 'Maaz', jobTitle: 'Co-founder', linkedin: '' },          // TODO: full name
-    { name: 'Kushal Sharma', jobTitle: 'Co-founder', linkedin: '' }, // TODO
-  ],
+  // People — the four co-founders live in src/lib/team.ts (names, LinkedIn,
+  // bios, photos). organization.ts reads them from there; do not add a second
+  // list here, it drifted once already.
 
   numberOfEmployees: 20,
 

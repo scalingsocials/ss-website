@@ -5,7 +5,8 @@
  * dateModified that MUST match the visible dates on the page (03 §3.9). Recency
  * is a heavy weighting factor for AI Overviews and LLM retrieval.
  */
-import { ORG_ID, abs, articleId, personId, type SchemaNode } from './ids';
+import { ORG } from './entity';
+import { ORG_ID, abs, articleId, isoDateTime, personId, type SchemaNode } from './ids';
 
 export interface ArticleInput {
   url: string;
@@ -32,13 +33,15 @@ export function article(input: ArticleInput): SchemaNode {
     '@id': articleId(input.url),
     headline: input.headline,
     url: abs(input.url),
-    datePublished: input.datePublished,
-    dateModified: input.dateModified ?? input.datePublished,
+    datePublished: isoDateTime(input.datePublished),
+    dateModified: isoDateTime(input.dateModified ?? input.datePublished),
     author,
     publisher: { '@id': ORG_ID },
     mainEntityOfPage: abs(input.url),
+    // Google lists `image` as recommended for Article. Pages without their own
+    // image fall back to the logo — the same image their OG card already uses.
+    image: input.image ?? ORG.logo,
   };
   if (input.description) node.description = input.description;
-  if (input.image) node.image = input.image;
   return node;
 }
