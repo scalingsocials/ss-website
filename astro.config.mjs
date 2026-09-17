@@ -68,14 +68,15 @@ export default defineConfig({
         // google-analytics.com: GA4 beacons (some fall back to image pixels).
         // google-analytics.com: GA4 beacons; facebook.com: Meta Pixel <img> beacons;
         // clarity.ms + c.bing.com: Microsoft Clarity uploads.
-        "img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com https://*.clarity.ms https://c.bing.com https://stats.g.doubleclick.net",
+        "img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com https://*.clarity.ms https://c.bing.com",
         "font-src 'self'",
         // GA4 → *.google-analytics.com (incl. regionN); Meta Pixel → facebook.com;
-        // Clarity → *.clarity.ms + c.bing.com. stats.g.doubleclick.net: GA4 Google
-        // Signals, also in img-src (it was blocked on the live site — PageSpeed
-        // console, 2026-09-17). Scripts: gtag from googletagmanager, fbevents from
-        // connect.facebook.net, Clarity tag from *.clarity.ms.
-        "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com https://www.facebook.com https://connect.facebook.net https://*.clarity.ms https://c.bing.com https://stats.g.doubleclick.net",
+        // Clarity → *.clarity.ms + c.bing.com. stats.g.doubleclick.net (GA4 Google
+        // Signals) is deliberately NOT allowed: the owner turned Signals off
+        // (2026-09-11), so a blocked request there is expected. Scripts: gtag from
+        // googletagmanager, fbevents from connect.facebook.net, Clarity tag from
+        // *.clarity.ms.
+        "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com https://www.facebook.com https://connect.facebook.net https://*.clarity.ms https://c.bing.com",
         "frame-src https://challenges.cloudflare.com",
       ],
       scriptDirective: { resources: ["'self'", 'https://challenges.cloudflare.com', 'https://www.googletagmanager.com', 'https://connect.facebook.net', 'https://*.clarity.ms'] },
