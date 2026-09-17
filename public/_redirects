@@ -43,6 +43,12 @@
 #   this one deliberately stays on the hub, where all seven results are listed.
 /%E2%82%B944-3-million-in-90-days/  /case-studies/  301
 /₹44-3-million-in-90-days/  /case-studies/  301
+# Lower-case percent-encoding too: the old Yoast sitemap lists these URLs as
+# %e2%82%b9, and Pages matches the encoded path case-sensitively, so only the
+# upper-case lines above fired when checked live on 2026-09-17.
+/%e2%82%b91-4-million-in-3-months/  /case-studies/gifting-brand-new-concept-launch/  301
+/%e2%82%b91-million-in-90-days/  /case-studies/indo-western-launch-90-days/  301
+/%e2%82%b944-3-million-in-90-days/  /case-studies/  301
 /thank_you/  /thank-you/  301
 /category/blog/  /blog/  301
 
