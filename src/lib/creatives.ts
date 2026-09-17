@@ -25,7 +25,8 @@
  * shared over WhatsApp, and the screenshot filter below had been hiding them.
  * Renamed to the brand printed on each: PixieThreads (x2), Zozuzi (x2), Crostyl
  * (x2), Namak, Nakhroo, Luxeraa. "creative 31" carries no wordmark, so it is
- * left unbranded like the other "creative N" files.
+ * left unbranded like the other "creative N" files. Namak was taken back out
+ * of the gallery at the owner's request on 2026-09-17.
  *
  * Client ad VIDEOS are not here — they are reels in /public/creatives/reels/,
  * listed in src/lib/reels.ts and shown by ReelWall.

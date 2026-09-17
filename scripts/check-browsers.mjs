@@ -160,13 +160,44 @@ const OVERFLOW_PROBE = () => {
   }
   offenders.sort((a, b) => b.depth - a.depth);
 
+  // Controls whose label does not fit their own box. The page-edge test above
+  // cannot see this: a button can sit well inside the viewport while its text
+  // runs out of both sides of it. That is exactly how the service-page hero CTAs
+  // shipped broken on iPhone (2026-09-17) with this gate green — a nowrap label
+  // 183px wide in a 163px button. Buttons and pill links only (short boxes);
+  // tall link-cards legitimately let artwork bleed to their edges.
+  const cramped = [];
+  for (const el of document.querySelectorAll('a, button')) {
+    const r = el.getBoundingClientRect();
+    if (!r.width || !r.height || r.height > 90) continue;
+    const cs = getComputedStyle(el);
+    if (cs.visibility === 'hidden' || !/(flex|grid|block)/.test(cs.display)) continue;
+    const padR = parseFloat(cs.paddingRight) || 0;
+    const padL = parseFloat(cs.paddingLeft) || 0;
+    const spills = el.scrollWidth > el.clientWidth + 1;
+    // Content pushed into the padding without overflowing (the iOS flex-gap
+    // bug on the floating CTA) counts too.
+    const intoPadding = [...el.children].some((c) => {
+      const cr = c.getBoundingClientRect();
+      return cr.width > 0 && (cr.right > r.right - padR + 1 || cr.left < r.left + padL - 1);
+    });
+    if (!spills && !intoPadding) continue;
+    cramped.push({
+      text: el.innerText.trim().replace(/\s+/g, ' ').slice(0, 40),
+      w: Math.round(r.width),
+      needs: el.scrollWidth,
+    });
+  }
+
   // `clipped` distinguishes the two shapes in the report: a scrollbar the user
   // can drag, vs content silently cut off. Both fail; they read differently.
   const rootClips = CONTAINS.test(getComputedStyle(document.documentElement).overflowX)
     || CONTAINS.test(getComputedStyle(document.body).overflowX);
   return {
     docW, scrollW,
-    overflow: offenders.length > 0,
+    overflow: offenders.length > 0 || cramped.length > 0,
+    cramped: cramped.slice(0, 8),
+    edge: offenders.length > 0,
     clipped: rootClips,
     widest: offenders.reduce((m, o) => Math.max(m, o.right), 0),
     offenders: offenders.slice(0, 8),
@@ -205,16 +236,25 @@ const run = async () => {
         }
         // allow reveal transforms to settle (a mid-animation transform can
         // legitimately extend past the edge, then land back inside)
+        // The floating CTA only appears after the hero scrolls away; show it so
+        // its label is measured too.
+        await page.evaluate(() => document.querySelector('.ss-fab__cta')?.classList.add('is-visible'));
         await page.waitForTimeout(450);
         const res = await page.evaluate(OVERFLOW_PROBE);
         if (res.overflow) {
           failures.push({ engine: name, vp: vp.label, w: vp.w, path, res });
-          const how = res.clipped
-            ? `content CLIPPED at ${res.widest}px inside a ${res.docW}px viewport (root overflow-x hides it — no scrollbar, pixels still lost)`
-            : `content reaches ${res.widest}px in a ${res.docW}px viewport (scrollW ${res.scrollW})`;
-          console.error(`✗ ${name} ${vp.label}(${vp.w}) ${path} — ${how}`);
-          res.offenders.forEach((o) =>
-            console.error(`     <${o.tag} class="${o.cls}"> left=${o.left} right=${o.right} w=${o.w}`));
+          if (res.edge) {
+            const how = res.clipped
+              ? `content CLIPPED at ${res.widest}px inside a ${res.docW}px viewport (root overflow-x hides it — no scrollbar, pixels still lost)`
+              : `content reaches ${res.widest}px in a ${res.docW}px viewport (scrollW ${res.scrollW})`;
+            console.error(`✗ ${name} ${vp.label}(${vp.w}) ${path} — ${how}`);
+            res.offenders.forEach((o) =>
+              console.error(`     <${o.tag} class="${o.cls}"> left=${o.left} right=${o.right} w=${o.w}`));
+          }
+          if (res.cramped.length) {
+            console.error(`✗ ${name} ${vp.label}(${vp.w}) ${path} — button label does not fit its button`);
+            res.cramped.forEach((c) => console.error(`     "${c.text}" box=${c.w}px needs=${c.needs}px`));
+          }
         } else {
           console.log(`✓ ${name} ${vp.label}(${vp.w}) ${path}`);
         }

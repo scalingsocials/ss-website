@@ -335,15 +335,8 @@
      hold one line inside a half-width phone column, so here it may wrap and
      drops a size. Equal grid cells keep the pair aligned either way. */
   .ss-inkhero__cta > * { width: 100%; }
-  @media (max-width: 600px) {
-    .ss-inkhero__cta a {
-      white-space: normal;
-      text-align: center;
-      font-size: var(--text-small);
-      line-height: 1.25;
-      padding-inline: var(--space-2);
-    }
-  }
+  /* The phone-width override for these buttons lives at the END of this file,
+     outside @layer base — see the note there. */
 
   /* The lead form as a glass card. On ink the form's own --ground is near-black,
      so without this it is a black card on a black hero separated by a hairline.
@@ -605,5 +598,22 @@
   .js-reveal [data-reveal].is-visible {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* Hero CTA pair on phones — deliberately UNLAYERED. Button.astro applies
+   Tailwind utilities (whitespace-nowrap, text-body, px-*), which live in
+   @layer utilities and therefore beat anything in @layer base regardless of
+   specificity. When this rule sat inside @layer base it never applied: on a
+   390px phone "Get a free Meta ads review" stayed one 183px line inside a 163px
+   button and ran out of both sides (found on iPhone, 2026-09-17). Unlayered
+   author CSS outranks every layer, so this now wins. */
+@media (max-width: 600px) {
+  .ss-inkhero__cta a {
+    white-space: normal;
+    text-align: center;
+    font-size: var(--text-small);
+    line-height: 1.25;
+    padding-inline: var(--space-2);
   }
 }

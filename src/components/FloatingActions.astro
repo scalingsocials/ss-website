@@ -134,7 +134,12 @@ const waHref = `https://wa.me/${waNumber}?text=${waText}`;
     bottom: calc(100% + var(--space-2));
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    /* No `gap` and an explicit max-content width: this pill is absolutely
+       positioned inside a 56px-wide cluster, so its width is shrink-to-fit, and
+       iOS Safari left the flex gap out of that measurement — the pill came out
+       8px short and "audit" ran into the right padding (and past the edge on
+       /contact/). The icon's margin is always counted. */
+    width: max-content;
     height: 52px;
     padding: 0 1.15rem;
     border-radius: 999px;
@@ -179,5 +184,5 @@ const waHref = `https://wa.me/${waNumber}?text=${waText}`;
     outline: 2px solid var(--accent-fill);
     outline-offset: 3px;
   }
-  .ss-fab__cta-icon { flex: 0 0 auto; }
+  .ss-fab__cta-icon { flex: 0 0 auto; margin-right: 0.5rem; }
 </style>
