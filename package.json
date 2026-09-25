@@ -18,7 +18,8 @@
     "lh": "lhci autorun",
     "check:csp": "node scripts/check-csp.mjs",
     "check:glyphs": "node scripts/check-glyphs.mjs",
-    "indexnow": "node scripts/ping-indexnow.mjs"
+    "indexnow": "node scripts/ping-indexnow.mjs",
+    "gsc": "node scripts/gsc-report.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.0.0",

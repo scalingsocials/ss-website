@@ -18,7 +18,13 @@ import { readFile, writeFile } from 'node:fs/promises';
 import http from 'node:http';
 
 const CREDS = new URL('../.ga-creds.json', import.meta.url);
-const SCOPE = 'https://www.googleapis.com/auth/analytics.readonly';
+// Both APIs in one consent: GA4 reporting + Search Console (ga-report.mjs /
+// gsc-report.mjs). Re-run this script after adding a scope — an existing
+// refresh_token keeps only the scopes it was granted.
+const SCOPE = [
+  'https://www.googleapis.com/auth/analytics.readonly',
+  'https://www.googleapis.com/auth/webmasters.readonly',
+].join(' ');
 const PORT = 5858;
 const REDIRECT = `http://localhost:${PORT}`;
 
