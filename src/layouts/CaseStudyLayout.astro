@@ -27,8 +27,10 @@ import NumberedSteps from '@/components/casestudy/NumberedSteps.astro';
 import BeforeAfter from '@/components/casestudy/BeforeAfter.astro';
 import PullQuote from '@/components/casestudy/PullQuote.astro';
 import RelatedRow from '@/components/casestudy/RelatedRow.astro';
+import { Image } from 'astro:assets';
 import { ARCHETYPES, CASE_STUDIES_ORDERED, type CaseStudy } from '@/lib/caseStudies';
-import { base, caseStudy, webPage, breadcrumbs, articleId } from '@/lib/schema';
+import { PARTNER_BY_SLUG } from '@/lib/team';
+import { base, caseStudy, webPage, breadcrumbs, articleId, person } from '@/lib/schema';
 
 export interface Props {
   study: CaseStudy;
@@ -39,6 +41,13 @@ const url = `/case-studies/${s.slug}/`;
 const published = '2026-09-05';
 const publishedLabel = 'September 2026';
 const arch = ARCHETYPES[s.archetype];
+/**
+ * Byline. Every study here is an ad account, so the named author is the
+ * co-founder who runs paid media (owner-confirmed, 2026-10-06). Blog posts and
+ * guides already carry one; a named person with a verifiable profile is what
+ * both Google and the answer engines read as expertise.
+ */
+const author = PARTNER_BY_SLUG['jamal-khan']!;
 const related = CASE_STUDIES_ORDERED.filter((c) => c.slug !== s.slug).slice(0, 3);
 
 const nodes = [
@@ -51,7 +60,9 @@ const nodes = [
     dateModified: published,
     clientName: s.niche,
     category: s.niche,
+    authorSlug: author.slug,
   }),
+  person({ slug: author.slug, name: author.name, alternateName: author.alternateName, jobTitle: author.role, linkedin: author.linkedin, description: author.bio }),
   webPage({ url, name: s.title, description: s.answer, aboutId: articleId(url), hasBreadcrumb: true, dateModified: published }),
   breadcrumbs(url, [
     { name: 'Home', url: '/' },
@@ -87,9 +98,28 @@ const nodes = [
           <span class="ss-eyebrow">{s.niche} · {arch.label}</span>
           <h1 class="max-w-[18ch]">{s.headline}</h1>
           <AnswerBlock class="mt-[var(--space-4)]">{s.answer}</AnswerBlock>
-          <p class="mt-[var(--space-4)] text-label text-[var(--fg-muted)]" data-num>
-            {s.channels} · {s.period} · Published <time datetime={published}>{publishedLabel}</time>
-          </p>
+          <div class="mt-[var(--space-5)] flex flex-wrap items-center gap-[var(--space-3)]">
+            <Image
+              src={author.photo}
+              alt={`${author.name}, ${author.role} at Scaling Socials`}
+              width={44}
+              height={44}
+              widths={[44, 88]}
+              sizes="44px"
+              loading="eager"
+              class="h-[44px] w-[44px] rounded-full bg-[var(--surface-c)] object-cover object-top"
+            />
+            <div class="flex flex-col">
+              <span class="text-small font-semibold text-[var(--fg)]">
+                <a href={`/team/${author.slug}/`} class="text-[var(--fg)] no-underline">{author.name}</a>
+                <span class="font-normal text-[var(--fg-muted)]"> · {author.focus}</span>
+              </span>
+              <span class="text-label text-[var(--fg-muted)]" data-num>
+                {s.channels} · {s.period} · Published <time datetime={published}>{publishedLabel}</time>
+              </span>
+            </div>
+            <a href={author.linkedin} rel="author noopener" target="_blank" class="text-label font-medium text-[var(--accent-text)] no-underline">LinkedIn</a>
+          </div>
           <div class="mt-[var(--space-6)] flex flex-wrap gap-[var(--space-2)]">
             <Button href="/audit/" variant="primary">Get a free audit</Button>
             <Button href="/case-studies/" variant="secondary">All case studies</Button>
