@@ -65,7 +65,7 @@ export const SERVICES: ServiceContent[] = [
     eyebrow: 'Performance marketing',
     title: 'Performance Marketing Agency in Bangalore | Scaling Socials',
     description:
-      'Scaling Socials runs Meta and Google Ads for D2C and ecommerce brands in India and the UAE, managed to your real P&L, with ad creative produced in-house.',
+      'Scaling Socials runs Meta and Google Ads for D2C and ecommerce brands in India and the UAE, managed to your real P&L, with creative made in-house.',
     h1: 'Performance marketing agency in Bangalore',
     answer:
       'Scaling Socials is a Bangalore performance marketing agency that runs Meta and Google Ads for D2C and ecommerce brands across India and the UAE. We buy media against your real P&L, not the ROAS a platform reports back to itself. Your ad spend stays separate and is never marked up by us.',

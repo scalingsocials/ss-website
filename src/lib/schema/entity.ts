@@ -98,6 +98,8 @@ export const ORG = {
     'https://www.linkedin.com/company/scaling-socials/',
     'https://www.instagram.com/scalingsocialsofficial/',
     'https://www.facebook.com/scalingsocials/',
+    // Verified live 2026-10-06 (found via Bing while tracing an AI referral).
+    'https://www.shopify.com/partners/directory/partner/scaling-socials-media-llp',
     // TODO — add once claimed/corrected (see ss-nap-checklist.xlsx):
     // Google Business Profile share URL
     // https://www.justdial.com/... (existing listing)

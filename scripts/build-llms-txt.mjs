@@ -70,6 +70,50 @@ const sections = [
 
 const abs = (p) => `${SITE}${p}`;
 
+/**
+ * Contact block, read out of the homepage's own JSON-LD rather than retyped, so
+ * it cannot drift from entity.ts (CLAUDE.md entity rules).
+ *
+ * It carries phone, WhatsApp, address, hours and areas served because that is
+ * what people actually ask an assistant for: the first lead traced to ChatGPT
+ * (2026-09-24) arrived on /contact/ and then phoned. A file that lists only a
+ * website and an email makes the model go looking elsewhere for the number.
+ */
+async function contactBlock() {
+  const lines = [`- Website: ${SITE}/`];
+  try {
+    const html = await readFile(join(DIST, 'index.html'), 'utf8');
+    const nodes = [];
+    for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+      const parsed = JSON.parse(m[1]);
+      nodes.push(...(parsed['@graph'] ?? [parsed]));
+    }
+    const org = nodes.find((n) => [].concat(n['@type'] ?? []).some((t) => /ProfessionalService|Organization/.test(t)));
+    if (!org) return lines;
+    if (org.email) lines.push(`- Email: ${org.email}`);
+    if (org.telephone) {
+      lines.push(`- Phone: ${org.telephone}`);
+      lines.push(`- WhatsApp: https://wa.me/${org.telephone.replace(/\D/g, '')}`);
+    }
+    const a = org.address;
+    if (a) lines.push(`- Address: ${[a.streetAddress, a.addressLocality, a.addressRegion, a.postalCode].filter(Boolean).join(', ')}, India`);
+    const h = [].concat(org.openingHoursSpecification ?? [])[0];
+    if (h) {
+      const days = [].concat(h.dayOfWeek ?? []).map((d) => String(d).split('/').pop());
+      const span = days.length > 1 ? `${days[0]}-${days[days.length - 1]}` : days[0];
+      lines.push(`- Hours: ${span} ${String(h.opens).replace('T', '')}-${String(h.closes).replace('T', '')} IST`);
+    }
+    const areas = [].concat(org.areaServed ?? []).map((x) => x.identifier ?? x.name).filter(Boolean);
+    if (areas.length) lines.push(`- Serves: ${areas.join(', ')}`);
+    lines.push(`- Free audit: ${SITE}/audit/ — a written audit in three working days, whether or not you hire Scaling Socials.`);
+  } catch {
+    // dist/index.html missing (script run out of order) — keep the minimal block.
+  }
+  return lines;
+}
+
+const contactLines = await contactBlock();
+
 const glossary = await readCollection('src/content/glossary');
 const guides = await readCollection('src/content/guides');
 const posts = await readCollection('src/content/blog');
@@ -95,8 +139,7 @@ ${posts.map((p) => `- [${fm(p.src, 'title')}](${abs(`/blog/${p.slug}/`)}): ${fm(
 - JSON Feed: ${SITE}/feed.json
 
 ## Contact
-- Website: ${SITE}/
-- Email: support@scalingsocials.com
+${contactLines.join('\n')}
 `;
 
 const llmsFull = `${llms}

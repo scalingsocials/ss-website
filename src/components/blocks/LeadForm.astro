@@ -21,6 +21,18 @@ export interface Props {
   submitLabel?: string;
   /** Service-specific step-2 questions. Their names are prefixed q_ on submit. */
   questions?: Field[];
+  /**
+   * Append "How did you hear about us?" as the last step-2 question. On by
+   * default; the /lp/ forms pass false, since a campaign landing page already
+   * knows its source from the UTMs and every extra field costs conversions.
+   *
+   * Why it exists: an AI assistant sends people who then phone or type the URL,
+   * so the visit arrives as "direct" — the first ChatGPT-sourced lead
+   * (2026-09-24) was invisible in analytics until we traced it by hand. The
+   * answer rides along in `answers` (q_heard_from), so it reaches the alert
+   * email and the TeleCRM note with no schema change.
+   */
+  hearAbout?: boolean;
   /** Pre-selected "service you're interested in" dropdown (service pages). */
   service?: { options: string[]; value: string };
   /** Override the default step-1 fields (name/email/phone). */
@@ -58,6 +70,7 @@ const {
   subheading = 'A written audit in three working days, whether or not you hire us.',
   submitLabel = 'Get my free audit',
   questions = [],
+  hearAbout = true,
   service,
   step1Fields,
   step2Lead: step2LeadProp,
@@ -107,7 +120,28 @@ const serviceField: Field | null = service
 const field = (f: Field, prefix = '') => ({ ...f, key: `${prefix}${f.name}` });
 const s1 = step1.map((f) => field(f));
 const s2lead = step2Lead.map((f) => field(f));
-const s2 = questions.map((f) => field(f, 'q_'));
+// "How did you hear about us?" closes the attribution gap analytics cannot:
+// AI assistants, word of mouth and offline conversations all land as "direct".
+// Optional on purpose — a required field here would cost more leads than the
+// answer is worth.
+const HEARD_FROM: Field = {
+  name: 'heard_from',
+  label: 'How did you hear about us?',
+  type: 'select',
+  required: false,
+  options: [
+    'Google search',
+    'ChatGPT or another AI assistant',
+    'Instagram or Facebook',
+    'LinkedIn',
+    'Saw an ad',
+    'Referred by someone',
+    'Met the team / event',
+    'Somewhere else',
+  ],
+};
+
+const s2 = [...questions, ...(hearAbout ? [HEARD_FROM] : [])].map((f) => field(f, 'q_'));
 
 // Elevated (service-hero) forms use the compact, placeholder-driven look.
 const compact = elevated;

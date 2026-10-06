@@ -24,7 +24,7 @@ export const CLUSTERS: Cluster[] = [
   {
     slug: 'google-ads', url: '/google-ads-agency-bangalore/', name: 'Google Ads', parentSlug: 'performance-marketing', parentName: 'Performance marketing', parentUrl: '/performance-marketing-agency-bangalore/',
     title: 'Google Ads Agency in Bangalore for D2C | Scaling Socials',
-    description: 'Scaling Socials runs Google Ads for D2C brands in Bangalore: Search, Shopping, Performance Max and ecommerce PPC built around buying intent and your margin.',
+    description: 'Scaling Socials runs Google Ads for D2C brands in Bangalore: Search, Shopping and Performance Max, built around buying intent and your margin.',
     h1: 'Google Ads agency in Bangalore',
     answer: 'Scaling Socials runs Google Ads for D2C and ecommerce brands in India and the UAE, across Search, Shopping, Performance Max and catalogue-led ecommerce PPC. We build around real buying intent and your margin, and run Google alongside Meta so the demand you create and the demand you capture compound instead of competing.',
     sections: [
@@ -114,7 +114,7 @@ export const CLUSTERS: Cluster[] = [
   {
     slug: 'shopify-store-migration', url: '/shopify-store-migration-services/', name: 'Shopify store migration', parentSlug: 'shopify-development', parentName: 'Shopify development', parentUrl: '/shopify-development-company-bangalore/',
     title: 'Shopify Store Migration Services | Scaling Socials',
-    description: 'Scaling Socials migrates stores to Shopify from WooCommerce, Wix and Magento without losing SEO, URLs or order history: a planned, rankings-safe migration.',
+    description: 'Scaling Socials migrates stores to Shopify from WooCommerce, Wix and Magento without losing SEO, URLs or order history. A rankings-safe migration.',
     h1: 'Shopify store migration services',
     answer: 'Scaling Socials migrates D2C stores to Shopify from WooCommerce, Wix, Magento and others without losing SEO, URLs or order history. Losing rankings in a migration is avoidable, so we plan the redirect map and data transfer up front, which means you keep your traffic and gain Shopify. It is scoped to your catalogue and the platform you are moving from.',
     sections: [

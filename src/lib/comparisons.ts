@@ -172,7 +172,7 @@ export const COMPARISONS: VsContent[] = [
       ],
     },
     fit: [
-      'Scaling Socials builds and migrates stores on both, and we give an honest recommendation rather than a default. For most D2C brands we build on Shopify: a store’s job is to turn expensive traffic into orders, and Shopify’s speed baseline and low maintenance protect both conversion and your team’s time. We migrate from WooCommerce, Wix or Magento without losing SEO, URLs or order history.',
+      ['Scaling Socials builds and migrates stores on both, and we give an honest recommendation rather than a default. For most D2C brands we build on Shopify: a store’s job is to turn expensive traffic into orders, and Shopify’s speed baseline and low maintenance protect both conversion and your team’s time. ', { text: 'We migrate from WooCommerce, Wix or Magento', href: '/shopify-store-migration-services/' }, ' without losing SEO, URLs or order history, and tune the result for ', { text: 'speed on Indian mobile networks', href: '/shopify-speed-optimisation-services/' }, '.'],
       ['Where a brand genuinely needs custom backend logic beyond what Shopify does, we will say so — and either build it properly or point you to the ', { text: 'web-and-app route', href: '/web-development-company-bangalore/' }, '. We build for revenue per session, not for whichever platform is easiest to sell.'],
     ],
     faqs: [
@@ -225,6 +225,7 @@ export const COMPARISONS: VsContent[] = [
     fit: [
       ['Scaling Socials treats this as a per-account decision, not a belief. We ', { text: 'reach for Advantage+ where it genuinely beats a manual structure', href: '/meta-ads-agency-india/' }, ' and go manual where the control earns its keep — and we let spend, measured against your break-even ROAS, decide, not opinions in the room.'],
       'What does not change either way is the creative. On Meta today the creative is the single biggest lever, so whichever structure runs, we produce video-led ads and statics in-house and run them through a weekly testing pipeline. Automation with weak creative just overspends faster.',
+      ['The same question comes up one platform over, where Performance Max asks for the same trust. We answer it the same way in ', { text: 'Google Ads', href: '/google-ads-agency-bangalore/' }, ': test it against a manual structure on the same window, and keep whichever clears your margin.'],
     ],
     faqs: [
       { q: 'Is Advantage+ better than manual campaigns?', a: 'Neither is universally better. Advantage+ tends to win on broad-appeal catalogues fed with strong creative; manual wins where tight targeting or complex funnels need control. We run both and let performance against your margin decide the mix.' },
@@ -276,7 +277,7 @@ export const COMPARISONS: VsContent[] = [
     },
     fit: [
       ['Scaling Socials runs both, on one team and one number, so they are not quietly working against each other. Paid buys demand today while ', { text: 'SEO compounds for tomorrow', href: '/ecommerce-seo-services/' }, ' — and each sharpens the other: the queries that convert in paid tell us what to rank for, and organic landing pages give paid somewhere better to send traffic.'],
-      'If you have to start with one, we will say which from your situation, not our preference. Need sales now? Start with performance. Sitting on real search demand with room to wait? Start building SEO. Most brands with product-market fit should be running both before long.',
+      ['If you have to start with one, we will say which from your situation, not our preference. Need sales now? Start with performance. Sitting on real search demand with room to wait? Start building SEO — beginning with a ', { text: 'technical audit', href: '/technical-seo-audit-services/' }, ' so the fixes come in the right order, and with ', { text: 'answer engine optimisation', href: '/answer-engine-optimisation-services/' }, ' if buyers are already asking AI assistants for recommendations. Brands selling to a city rather than a country should start with ', { text: 'local SEO', href: '/local-seo-services-bangalore/' }, ' instead. Most brands with product-market fit should be running both before long.'],
     ],
     faqs: [
       { q: 'Should I do SEO or paid ads first?', a: 'If you need revenue this month, start with performance marketing — it works in weeks. If you have product-market fit and can wait a couple of quarters, SEO builds a compounding asset. Most brands end up running both; we will tell you where to start.' },
