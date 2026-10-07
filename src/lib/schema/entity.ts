@@ -103,8 +103,12 @@ export const ORG = {
     // Clutch profile created 2026-10-07. Reviews are what make it rank; the
     // listing itself is here so search and answer engines tie it to this entity.
     'https://clutch.co/profile/scaling-socials-media-llp',
+    // Google Business Profile, by place CID (0xa6dee7a4a9de40a2 → decimal).
+    // The owner's share link and the long /maps/place/ URL both carry session
+    // and tracking parameters; the cid form is the stable one for the listing
+    // that holds the 4.2 rating from 113 reviews.
+    'https://maps.google.com/?cid=12024302749536370850',
     // TODO — add once claimed/corrected (see ss-nap-checklist.xlsx):
-    // Google Business Profile share URL
     // https://www.justdial.com/... (existing listing)
     // https://www.zoominfo.com/c/scaling-socials/1314166081
     // https://www.zipleaf.in/Companies/Scaling-Socials
