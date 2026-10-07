@@ -108,8 +108,11 @@ export const ORG = {
     // and tracking parameters; the cid form is the stable one for the listing
     // that holds the 4.2 rating from 113 reviews.
     'https://maps.google.com/?cid=12024302749536370850',
+    // Justdial, claimed, owner-confirmed 2026-10-07. Perplexity already quotes
+    // this listing's rating when asked about Scaling Socials, so it belongs in
+    // the entity graph even though its own copy needs tidying.
+    'https://www.justdial.com/Bangalore/Scaling-Socials-Next-Vasan-Eye-Care-Hrbr-Layout/080PXX80-XX80-230401101148-W1Y8_BZDET',
     // TODO — add once claimed/corrected (see ss-nap-checklist.xlsx):
-    // https://www.justdial.com/... (existing listing)
     // https://www.zoominfo.com/c/scaling-socials/1314166081
     // https://www.zipleaf.in/Companies/Scaling-Socials
     // https://trends.builtwith.com/agency/Scaling-Socials
