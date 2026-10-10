@@ -8,6 +8,8 @@ import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import CreativeWall from '@/components/blocks/CreativeWall.astro';
 import ReelWall from '@/components/blocks/ReelWall.astro';
+import AdsProof from '@/components/blocks/AdsProof.astro';
+import SiteShowcase from '@/components/blocks/SiteShowcase.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import { base, webPage, breadcrumbs } from '@/lib/schema';
 
@@ -47,6 +49,22 @@ const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb
     <ReelWall />
     <h2 class="mb-[var(--space-3)] mt-[var(--space-8)] text-h4 font-semibold text-[var(--fg)]">Statics</h2>
     <CreativeWall variant="grid" />
+  </Section>
+
+  {/* The creative above is what ran; this is what it returned. Screenshots of
+      Meta's own totals row, so the claim and its evidence are the same object. */}
+  <Section size="lg">
+    <AdsProof heading="Straight from Ads Manager" />
+    <p class="mt-[var(--space-3)] max-w-[62ch] text-small text-[var(--fg-muted)]">
+      Twelve live client accounts, read off Meta's own totals row. Account and campaign names are
+      hidden, and the windows differ by account — these are each account's own totals, not a blended
+      agency average. The <a href="/case-studies/" class="underline">case studies</a> break seven of
+      them down month by month, worst month included.
+    </p>
+  </Section>
+
+  <Section size="lg" class="!bg-[var(--surface-c)]">
+    <SiteShowcase heading="Stores and sites we've built" />
   </Section>
 
   <Section register="ink" size="md">

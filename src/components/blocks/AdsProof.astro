@@ -1,0 +1,126 @@
+---
+/**
+ * AdsProof — Meta Ads Manager totals rows from twelve live client accounts.
+ *
+ * The point of this block is that the number and its evidence are the same
+ * object: each caption repeats what the totals row in the image already says,
+ * so there is nothing to take on trust and nothing that can drift (CLAUDE.md
+ * §10). Account and campaign names are cropped or hidden in the screenshots —
+ * the accounts stay anonymous, exactly as the case studies do.
+ *
+ * Screenshots are wide (1600px, ~65KB each), so every one is lazy-loaded and
+ * sized down per column; none of them is ever the LCP element.
+ */
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { AD_ACCOUNTS } from '@/lib/adsProof';
+
+export interface Props {
+  heading?: string;
+  /** Show only the first N accounts (service pages take a sample). */
+  limit?: number;
+  class?: string;
+}
+const { heading, limit, class: className = '' } = Astro.props;
+
+const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/ads-manager/account-*.webp', { eager: true });
+const byN = Object.fromEntries(
+  Object.entries(files).map(([p, m]) => [Number(p.match(/account-(\d+)\.webp$/)![1]), m.default])
+);
+
+const accounts = AD_ACCOUNTS.filter((a) => byN[a.n]).slice(0, limit ?? AD_ACCOUNTS.length);
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/**
+ * A full-size copy of each shot, linked from the caption: in a two-column grid
+ * the totals row is readable but the per-campaign rows are not, and the whole
+ * point of the block is that a sceptical founder can check the numbers.
+ * getImage() emits it through the same pipeline, so the file is referenced in
+ * the HTML and survives prune-orphan-assets.
+ */
+const full = Object.fromEntries(
+  await Promise.all(
+    accounts.map(async (a) => [a.n, (await getImage({ src: byN[a.n]!, width: 1600, format: 'webp' })).src] as const)
+  )
+);
+---
+
+{accounts.length > 0 && (
+  <div class:list={['ss-ads', className]}>
+    {heading && <h2 class="mb-[var(--space-3)] max-w-[26ch] text-h2 font-semibold">{heading}</h2>}
+    <ul class="ss-ads__grid">
+      {accounts.map((a) => (
+        <li class="ss-ads__item">
+          <figure class="ss-ads__fig">
+            <Image
+              src={byN[a.n]!}
+              alt={`Meta Ads Manager totals row for an anonymised client account: ${a.roas} average purchase ROAS on ${a.revenue} of purchase value`}
+              width={byN[a.n]!.width}
+              height={byN[a.n]!.height}
+              widths={[560, 1120]}
+              sizes="(max-width: 860px) 92vw, 46vw"
+              loading="lazy"
+              decoding="async"
+              class="ss-ads__img"
+            />
+            <figcaption class="ss-ads__cap">
+              <span class="ss-ads__roas" data-num>{a.roas}x</span>
+              <span class="ss-ads__rev" data-num>{a.revenue} purchase value</span>
+              <a href={full[a.n]} target="_blank" rel="noopener" class="ss-ads__full">
+                Account {pad(a.n)}, full size
+              </a>
+            </figcaption>
+          </figure>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
+<style>
+  .ss-ads__grid {
+    display: grid;
+    gap: var(--space-3);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  @media (min-width: 860px) {
+    .ss-ads__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  .ss-ads__fig {
+    margin: 0;
+    border: 1px solid var(--rule-c);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: var(--surface-c);
+  }
+  .ss-ads__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid var(--rule-c);
+  }
+  .ss-ads__cap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem var(--space-2);
+    padding: 0.7rem var(--space-3);
+    background: var(--ground);
+  }
+  .ss-ads__roas {
+    font-size: var(--text-h4);
+    font-weight: 700;
+    color: var(--accent-text);
+  }
+  .ss-ads__rev { font-size: var(--text-small); color: var(--fg); }
+  .ss-ads__full {
+    margin-left: auto;
+    font-size: var(--text-label);
+    color: var(--accent-text);
+    text-decoration: none;
+  }
+  .ss-ads__full:hover,
+  .ss-ads__full:focus-visible { text-decoration: underline; text-underline-offset: 2px; }
+</style>

@@ -26,12 +26,15 @@
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import { CLIENT_SITES, type ClientSite } from '@/lib/sites';
 
 export interface Props {
   heading?: string;
+  /** Show only the Shopify stores, or only the custom builds. Default: all. */
+  kind?: ClientSite['kind'];
   class?: string;
 }
-const { heading = 'The look, on real stores', class: className = '' } = Astro.props;
+const { heading = 'The look, on real stores', kind, class: className = '' } = Astro.props;
 
 const desktops = import.meta.glob<{ default: ImageMetadata }>('/src/assets/sites/*-desktop.webp', { eager: true });
 const mobiles = import.meta.glob<{ default: ImageMetadata }>('/src/assets/sites/*-mobile.webp', { eager: true });
@@ -53,8 +56,12 @@ const d = byName(desktops);
 const m = byName(mobiles);
 
 const sites = Object.keys(d)
+  .filter((name) => !kind || CLIENT_SITES[name]?.kind === kind)
   .sort()
-  .map((name) => ({ name, label: title(name), desktop: d[name]!, mobile: m[name] }));
+  .map((name) => {
+    const meta = CLIENT_SITES[name];
+    return { name, label: meta?.label ?? title(name), sector: meta?.sector, url: meta?.url, desktop: d[name]!, mobile: m[name] };
+  });
 
 // Rendered twice for the desktop marquee: the second copy is what scrolls into
 // view as the first leaves, so the loop has no visible jump. It is aria-hidden
@@ -101,7 +108,22 @@ const loop = [...sites.map((s) => ({ ...s, dup: false })), ...sites.map((s) => (
                   class="ss-frame__mobile"
                 />
               )}
-              <figcaption class="ss-frame__cap">{s.label}</figcaption>
+              <figcaption class="ss-frame__cap">
+                {s.url ? (
+                  <a
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener"
+                    class="ss-frame__link"
+                    tabindex={s.dup ? -1 : undefined}
+                  >
+                    <span class="ss-frame__brand">{s.label}</span>
+                    {s.sector && <span class="ss-frame__sector">{s.sector}</span>}
+                  </a>
+                ) : (
+                  <span class="ss-frame__brand">{s.label}</span>
+                )}
+              </figcaption>
             </figure>
           </li>
         ))}
@@ -214,5 +236,33 @@ const loop = [...sites.map((s) => ({ ...s, dup: false })), ...sites.map((s) => (
     font-size: var(--text-small);
     font-weight: 600;
     color: var(--fg);
+  }
+  /* The caption is the link target rather than the whole card: a card-sized hit
+     area inside a horizontally scrolling rail swallows swipes on touch. */
+  .ss-frame__link {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+    color: inherit;
+    text-decoration: none;
+  }
+  .ss-frame__link:hover .ss-frame__brand,
+  .ss-frame__link:focus-visible .ss-frame__brand {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  /* The arrow marks it as leaving the site without adding it to the link text
+     (CLAUDE.md voice bans a glued-on arrow in button labels; this is a visual
+     affordance on a brand name, and it is aria-hidden). */
+  .ss-frame__brand::after {
+    content: ' ↗';
+    color: var(--accent-text);
+  }
+  .ss-frame__sector {
+    font-weight: 400;
+    font-size: var(--text-label);
+    color: var(--fg-muted);
+    text-align: right;
   }
 </style>
