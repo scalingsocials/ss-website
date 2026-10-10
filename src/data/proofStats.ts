@@ -28,3 +28,9 @@ export const googleReviews = { value: '100+', label: 'Google reviews' };
 export const googleRating = { value: '4.2', label: 'on Google' };
 /** Owner-confirmed 2026-09-15: team size, Bangalore. */
 export const teamSize = { value: '20+', label: 'person team in Bangalore' };
+/**
+ * Owner-confirmed 2026-10-10: websites and stores built, all platforms. The
+ * showcase shows sixteen of them, so any page saying "twelve stores" must say
+ * what that is twelve OF, or it reads as the whole book of work.
+ */
+export const sitesBuilt = { value: '350+', label: 'websites and stores built' };
