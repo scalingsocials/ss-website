@@ -21,6 +21,7 @@ import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
 import NotForYouBlock from '@/components/blocks/NotForYouBlock.astro';
 import DotField from '@/components/graphics/DotField.astro';
 import Glyph from '@/components/graphics/Glyph.astro';
+import AdsProof from '@/components/blocks/AdsProof.astro';
 import { SERVICE_BY_SLUG } from '@/lib/services';
 import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
 import { adSpendManaged, brandsServed, brandsPast10L, brandsPast1Cr } from '@/data/proofStats';
@@ -423,7 +424,22 @@ const nodes = [
     </ul>
   </Section>
 
-  <Section size="md">
+  {/* The page argues a method; this is the method's output, in Meta's own
+      interface. Sits before the FAQ so the evidence lands while the claims are
+      still fresh. */}
+  <Section size="lg">
+    <span class="ss-eyebrow">Proof</span>
+    <AdsProof heading="Straight from Ads Manager" />
+    <p class="mt-[var(--space-3)] max-w-[62ch] text-small text-[var(--fg-muted)]">
+      Twelve live client accounts, read off Meta's own totals row. Account and campaign names are
+      hidden, and the reporting window differs by account — each figure is that account's own total,
+      not a blended agency average. The
+      <a href="/case-studies/" class="underline">case studies</a> break seven of them down month by
+      month, worst month included.
+    </p>
+  </Section>
+
+  <Section size="md" class="!bg-[var(--surface-c)]">
     {/* Heading and a standing offer on the left, the accordion on the right.
         The accordion alone used 58% of the container and left ~500px empty. */}
     <div class="ma-faq">

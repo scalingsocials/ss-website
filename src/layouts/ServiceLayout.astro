@@ -17,6 +17,7 @@ import Button from '@/components/primitives/Button.astro';
 import LeadForm from '@/components/blocks/LeadForm.astro';
 import LogoWall from '@/components/blocks/LogoWall.astro';
 import SiteShowcase from '@/components/blocks/SiteShowcase.astro';
+import AdsProof from '@/components/blocks/AdsProof.astro';
 import CreativeWall from '@/components/blocks/CreativeWall.astro';
 import ReelWall from '@/components/blocks/ReelWall.astro';
 import ProcessSteps from '@/components/blocks/ProcessSteps.astro';
@@ -131,10 +132,32 @@ const nodes = [
     <LogoWall heading="Brands we work with" />
   </Section>
 
+  {/* Each page shows only its own work: Shopify stores on the Shopify page,
+      sites built from scratch on the web page. Mixing them made a CSR
+      consultancy and a real-estate launch sit under "Shopify" (owner,
+      2026-10-10). */}
   {(svc.slug === 'shopify-development' || svc.slug === 'web-development') && (
     <Section size="md">
       <span class="ss-eyebrow">Recent work</span>
-      <SiteShowcase heading="Stores and sites we've built" />
+      <SiteShowcase
+        kind={svc.slug === 'shopify-development' ? 'shopify' : 'web'}
+        heading={svc.slug === 'shopify-development' ? "Stores we've built on Shopify" : "Sites we've built from scratch"}
+      />
+    </Section>
+  )}
+
+  {/* A sample of the account screenshots, not all twelve: the full wall lives
+      on the Meta Ads page, which is where someone comparing ad agencies lands. */}
+  {svc.slug === 'performance-marketing' && (
+    <Section size="md">
+      <span class="ss-eyebrow">Proof</span>
+      <AdsProof heading="Straight from Ads Manager" limit={4} />
+      <p class="mt-[var(--space-3)] max-w-[62ch] text-small text-[var(--fg-muted)]">
+        Four of twelve live client accounts, read off Meta's own totals row.
+        <a href="/meta-ads-agency-india/" class="underline">See all twelve</a>, or read the
+        <a href="/case-studies/" class="underline">case studies</a> for seven accounts broken down
+        month by month, worst month included.
+      </p>
     </Section>
   )}
 

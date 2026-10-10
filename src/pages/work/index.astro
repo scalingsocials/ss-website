@@ -8,8 +8,6 @@ import SchemaGraph from '@/components/seo/SchemaGraph.astro';
 import Section from '@/components/primitives/Section.astro';
 import CreativeWall from '@/components/blocks/CreativeWall.astro';
 import ReelWall from '@/components/blocks/ReelWall.astro';
-import AdsProof from '@/components/blocks/AdsProof.astro';
-import SiteShowcase from '@/components/blocks/SiteShowcase.astro';
 import CtaBand from '@/components/blocks/CtaBand.astro';
 import { base, webPage, breadcrumbs } from '@/lib/schema';
 
@@ -51,20 +49,19 @@ const nodes = [...base(), webPage({ url, name: title, description, hasBreadcrumb
     <CreativeWall variant="grid" />
   </Section>
 
-  {/* The creative above is what ran; this is what it returned. Screenshots of
-      Meta's own totals row, so the claim and its evidence are the same object. */}
-  <Section size="lg">
-    <AdsProof heading="Straight from Ads Manager" />
-    <p class="mt-[var(--space-3)] max-w-[62ch] text-small text-[var(--fg-muted)]">
-      Twelve live client accounts, read off Meta's own totals row. Account and campaign names are
-      hidden, and the windows differ by account — these are each account's own totals, not a blended
-      agency average. The <a href="/case-studies/" class="underline">case studies</a> break seven of
-      them down month by month, worst month included.
+  {/* Creative only on this page. The account screenshots live on the Meta Ads
+      page and the stores on the Shopify and web pages, beside the service each
+      one proves — three kinds of proof stacked here read as clutter (owner,
+      2026-10-10). */}
+  <Section size="md">
+    <p class="max-w-[62ch] text-body leading-[1.6] text-[var(--fg-muted)]">
+      Creative is one kind of proof. For what these ads returned, see the
+      <a href="/meta-ads-agency-india/" class="underline">account screenshots on the Meta Ads page</a>
+      and the <a href="/case-studies/" class="underline">case studies</a>, which break seven accounts
+      down month by month. The stores and sites we build sit on the
+      <a href="/shopify-development-company-bangalore/" class="underline">Shopify</a> and
+      <a href="/web-development-company-bangalore/" class="underline">web development</a> pages.
     </p>
-  </Section>
-
-  <Section size="lg" class="!bg-[var(--surface-c)]">
-    <SiteShowcase heading="Stores and sites we've built" />
   </Section>
 
   <Section register="ink" size="md">
