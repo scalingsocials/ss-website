@@ -142,6 +142,11 @@ const nodes = [
       <SiteShowcase
         kind={svc.slug === 'shopify-development' ? 'shopify' : 'web'}
         heading={svc.slug === 'shopify-development' ? "Stores we've built on Shopify" : "Sites we've built from scratch"}
+        answer={
+          svc.slug === 'shopify-development'
+            ? 'Scaling Socials has built these twelve Shopify stores for D2C brands in India and the UAE — fashion, jewellery, home décor, kidswear and books. Every one is live, and each card links to the store.'
+            : 'Scaling Socials built these four sites from scratch for businesses outside ecommerce — a CSR consultancy, a homeware brand, a metal crafts exporter and a real-estate launch. Every one is live, and each card links to the site.'
+        }
       />
     </Section>
   )}
@@ -151,9 +156,13 @@ const nodes = [
   {svc.slug === 'performance-marketing' && (
     <Section size="md">
       <span class="ss-eyebrow">Proof</span>
-      <AdsProof heading="Straight from Ads Manager" limit={4} />
+      <AdsProof
+        heading="Straight from Ads Manager"
+        answer="Scaling Socials buys media in the client's own ad account, and these four screenshots are the totals rows from live accounts in Meta Ads Manager — purchase ROAS and purchase value, as the platform reports them."
+        limit={4}
+      />
       <p class="mt-[var(--space-3)] max-w-[62ch] text-small text-[var(--fg-muted)]">
-        Four of twelve live client accounts, read off Meta's own totals row.
+        Account and campaign names are hidden, and the reporting window differs by account.
         <a href="/meta-ads-agency-india/" class="underline">See all twelve</a>, or read the
         <a href="/case-studies/" class="underline">case studies</a> for seven accounts broken down
         month by month, worst month included.

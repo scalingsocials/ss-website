@@ -30,11 +30,17 @@ import { CLIENT_SITES, type ClientSite } from '@/lib/sites';
 
 export interface Props {
   heading?: string;
+  /**
+   * One self-contained sentence stating what the wall proves, answer-first and
+   * naming Scaling Socials (CLAUDE.md §13), so it survives being quoted away
+   * from the page.
+   */
+  answer?: string;
   /** Show only the Shopify stores, or only the custom builds. Default: all. */
   kind?: ClientSite['kind'];
   class?: string;
 }
-const { heading = 'The look, on real stores', kind, class: className = '' } = Astro.props;
+const { heading = 'The look, on real stores', answer, kind, class: className = '' } = Astro.props;
 
 const desktops = import.meta.glob<{ default: ImageMetadata }>('/src/assets/sites/*-desktop.webp', { eager: true });
 const mobiles = import.meta.glob<{ default: ImageMetadata }>('/src/assets/sites/*-mobile.webp', { eager: true });
@@ -75,7 +81,8 @@ const loop = [...sites.map((s) => ({ ...s, dup: false })), ...sites.map((s) => (
     {/* Callers that already print their own section heading above this block
         (LandingLayout does) pass heading="" to suppress it. Rendering the tag
         regardless shipped an empty <h2> straight under a real one. */}
-    {heading && <h2 class="mb-[var(--space-5)] max-w-[24ch] text-h2 font-semibold">{heading}</h2>}
+    {heading && <h2 class="mb-[var(--space-3)] max-w-[24ch] text-h2 font-semibold">{heading}</h2>}
+    {answer && <p class="ss-shots__answer">{answer}</p>}
     <div class="ss-shots__rail">
       <ul class="ss-shots__track">
         {loop.map((s) => (
@@ -133,6 +140,13 @@ const loop = [...sites.map((s) => ({ ...s, dup: false })), ...sites.map((s) => (
 )}
 
 <style>
+  .ss-shots__answer {
+    max-width: 62ch;
+    margin-bottom: var(--space-5);
+    font-size: var(--text-h4);
+    line-height: 1.5;
+    color: var(--fg);
+  }
   .ss-shots__rail {
     overflow-x: auto;
     scroll-snap-type: x proximity;
