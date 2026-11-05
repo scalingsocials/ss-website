@@ -1,0 +1,23 @@
+---
+/**
+ * /lp/performance-marketing-uae/thanks/ — post-submit confirmation for the UAE
+ * perf LP. NOINDEX. Same layout as the India thank-you page, with AED proof, a
+ * WhatsApp button and no phone number shown.
+ */
+import LandingThanksLayout from '@/layouts/LandingThanksLayout.astro';
+import { LANDING_BY_SLUG } from '@/lib/landings';
+
+const c = LANDING_BY_SLUG['performance-marketing-uae']!;
+
+// AED bands mapped like the India ones (AED 10K ≈ ₹2.6 L): under the minimum
+// sees the launch-from-zero account, the middle the turnaround, AED 50K+ the
+// mature account that broke its ceiling.
+const MATCH = [
+  { band: 'Under AED 10K', slug: 'wellness-brand-zero-to-scale' },
+  { band: 'AED 10K – AED 20K', slug: 'womens-fashion-account-turnaround' },
+  { band: 'AED 20K – AED 50K', slug: 'womens-fashion-account-turnaround' },
+  { band: 'AED 50K – AED 100K', slug: 'womenswear-breaking-the-ceiling' },
+  { band: 'AED 100K+', slug: 'womenswear-breaking-the-ceiling' },
+];
+---
+<LandingThanksLayout content={c} match={MATCH} waText="Hi, I just booked a free account review for my UAE brand, here's my latest Ads Manager screenshot [UAE-LP]" />

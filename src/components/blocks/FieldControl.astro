@@ -9,11 +9,8 @@
  * service-page hero forms. Otherwise labels sit above the control.
  */
 import type { Field } from '@/lib/formFields';
-import { PRIMARY, REST } from '@/lib/countries';
+import { PRIMARY as SITE_PRIMARY, COUNTRIES } from '@/lib/countries';
 import { DEFAULT_ISO } from '@/lib/phone';
-// The country shown before any JS runs. Server-rendered so the closed control
-// is never blank and never disagrees with the <select>'s own selected option.
-const DEF = PRIMARY.find((c) => c.iso === DEFAULT_ISO) ?? PRIMARY[0]!;
 
 export interface Props {
   field: Field;
@@ -27,6 +24,17 @@ const inputType: 'text' | 'email' | 'tel' | 'url' =
 const isSel = (o: string) => f.defaultValue !== undefined && o === f.defaultValue;
 const ph = f.placeholder ?? f.label;
 
+// Pinned dial codes: the site default (India, UAE) unless the field pins its
+// own list, in which case the first pinned country is the default.
+const PRIMARY = f.pinned
+  ? f.pinned.map((iso) => COUNTRIES.find((c) => c.iso === iso)).filter((c): c is NonNullable<typeof c> => !!c)
+  : SITE_PRIMARY;
+const REST = COUNTRIES.filter((c) => !PRIMARY.some((p) => p.iso === c.iso));
+const defaultIso = f.pinned ? PRIMARY[0]!.iso : DEFAULT_ISO;
+// The country shown before any JS runs. Server-rendered so the closed control
+// is never blank and never disagrees with the <select>'s own selected option.
+const DEF = PRIMARY.find((c) => c.iso === defaultIso) ?? PRIMARY[0]!;
+
 // Every `tel` field becomes a dial-code select + local number, so the rule is
 // the same on all five forms without touching each one. The select submits as
 // `<name>_cc`; /api/lead composes the two into E.164 and validates per country.
@@ -34,7 +42,7 @@ const ph = f.placeholder ?? f.label;
 // upgrades the default to match the visitor's timezone.
 const isPhone = inputType === 'tel';
 const ccName = `${name}_cc`;
-const defaultExample = '96067 13608';
+const defaultExample = defaultIso === 'AE' ? '50 123 4567' : '96067 13608';
 ---
 <label class="ss-fc flex flex-col gap-[0.3rem]">
   {/* Compact fields carry `aria-label` on the control itself (below), so an
@@ -74,6 +82,7 @@ const defaultExample = '96067 13608';
         <select
           name={ccName}
           data-phone-cc
+          data-cc-pinned={f.pinned ? f.pinned.join(' ') : undefined}
           class="ss-phone__cc"
           aria-label="Country dialling code"
         >
@@ -88,7 +97,7 @@ const defaultExample = '96067 13608';
               tell a visitor which markets we sell into, which a phone field has
               no business announcing. A disabled rule separates them instead. */}
           {PRIMARY.map((c) => (
-            <option value={c.iso} data-dial={c.dial} data-flag={c.flag} selected={c.iso === DEFAULT_ISO}>
+            <option value={c.iso} data-dial={c.dial} data-flag={c.flag} selected={c.iso === defaultIso}>
               {c.flag} {c.dial} {c.name}
             </option>
           ))}

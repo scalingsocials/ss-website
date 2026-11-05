@@ -50,6 +50,7 @@ const PAGES = [
   '/blog/what-realistic-roas-looks-like/',       // prose
   '/terms/',                                      // legal
   '/lp/performance-marketing/',                  // LandingLayout (ad LP)
+  '/lp/performance-marketing-uae/',              // LandingLayout (UAE ad LP, no hero screenshot)
   '/lp/web-development/',                         // LandingLayout (ad LP, showcase)
   '/team/jamal-khan/',                           // author page
   '/industries/',                                // industries hub
