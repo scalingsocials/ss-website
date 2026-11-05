@@ -324,6 +324,7 @@ async function sendGa4Lead(
           engagement_time_msec: 1,
           lead_source: lead.source,
           lead_score: scoreLead(lead),
+          ...(lead.answers.region ? { lead_region: lead.answers.region } : {}),
           page_location: lead.page ? `https://scalingsocials.com${lead.page}` : undefined,
           ...(debug ? { debug_mode: true } : {}),
         },
@@ -379,7 +380,13 @@ async function sendMetaLead(
         action_source: 'website',
         event_source_url: lead.page ? `https://scalingsocials.com${lead.page}` : undefined,
         user_data,
-        custom_data: { lead_source: lead.source, lead_score: scoreLead(lead) },
+        custom_data: {
+          lead_source: lead.source,
+          lead_score: scoreLead(lead),
+          // Same region parameter the browser Pixel sends (UAE LP), so both
+          // halves of the deduped Lead carry it.
+          ...(lead.answers.region ? { region: lead.answers.region } : {}),
+        },
       },
     ],
   };
@@ -403,6 +410,9 @@ async function sendMetaLead(
  *   A. /audit/ + /contact/ "Monthly budget"      src/pages/{audit,contact}/index.astro
  *   B. service-page "Monthly ad spend"           src/lib/services.ts
  *   C. /lp/ "Monthly ad spend" (spaced units)    src/lib/landings.ts
+ *   C2. UAE /lp/ "Monthly ad spend (AED)"         src/lib/landings.ts
+ *       (AED 10K ≈ ₹2.6 L, so AED 10–20K sits with ₹2–5 L and AED 20K+ with ₹5 L+;
+ *       "Under AED 10K" is below the UAE minimum and scores zero.)
  *   D. "Monthly online revenue"                  src/lib/services.ts
  *   E. "Monthly sessions"                        src/lib/services.ts
  * Sets A and C were missing entirely until 2026-09-12, so no lead from /audit/
@@ -411,15 +421,15 @@ async function sendMetaLead(
  * next set of options cannot drift out of this list silently.
  */
 const BUDGET_TIERS: [points: number, options: string[]][] = [
-  [20, ['₹3L+', '₹5L+', '₹5 L+', 'Over ₹1Cr', 'Over 100k']],
-  [12, ['₹3–5L', '₹2–5 L', '₹20L–1Cr', '20k–100k']],
+  [20, ['₹3L+', '₹5L+', '₹5 L+', 'Over ₹1Cr', 'Over 100k', 'AED 20K – AED 50K', 'AED 50K – AED 100K', 'AED 100K+']],
+  [12, ['₹3–5L', '₹2–5 L', '₹20L–1Cr', '20k–100k', 'AED 10K – AED 20K']],
   [6, ['₹1–3L', '₹60 K–2 L', '₹5–20L', '5k–20k']],
   [2, ['₹50k–1L', '₹40–60 K']],
 ];
 // Everything else is a deliberate zero, not an oversight: the bottom tier of
 // each set, plus the "haven't started" answers.
 const BUDGET_ZERO = [
-  'Under ₹50k', 'Under ₹1L', 'Under ₹5L', 'Under ₹40 K', 'Under 5k',
+  'Under ₹50k', 'Under ₹1L', 'Under ₹5L', 'Under ₹40 K', 'Under 5k', 'Under AED 10K',
   'Not running ads yet', 'Not sure yet', 'Not running yet', '',
 ];
 
@@ -436,7 +446,7 @@ function warnUnscoredBudget(answers: Record<string, string>): void {
   const known = new Set([...BUDGET_TIERS.flatMap(([, o]) => o), ...BUDGET_ZERO]);
   for (const [k, v] of Object.entries(answers)) {
     // Only complain about budget-shaped answers, not free text.
-    if (!/₹|\bk\b|Cr\b/i.test(v) || known.has(v)) continue;
+    if (!/₹|AED|\bk\b|Cr\b/i.test(v) || known.has(v)) continue;
     console.error(`[lead] budget option "${v}" (${k}) matches no scoring tier — update BUDGET_TIERS`);
   }
 }

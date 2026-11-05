@@ -34,3 +34,13 @@ export const teamSize = { value: '20+', label: 'person team in Bangalore' };
  * what that is twelve OF, or it reads as the whole book of work.
  */
 export const sitesBuilt = { value: '350+', label: 'websites and stores built' };
+
+/**
+ * AED versions for the UAE landing page (/lp/performance-marketing-uae/),
+ * converted at AED 1 = ₹25.7 (owner brief, 5 Nov 2026) and rounded. Kept here,
+ * beside the INR originals, so the two can only change together.
+ *   ₹10 Cr+ ÷ 25.7 ≈ AED 3.89M → "AED 3.9M+"
+ *   ₹10 L  ÷ 25.7 ≈ AED 38.9K  → "AED 39K"
+ */
+export const adSpendManagedAed = { value: 'AED 3.9M+', label: 'ad spend managed' };
+export const brandsPast10LAed = { value: brandsPast10L.value, label: 'brands past AED 39K a month' };

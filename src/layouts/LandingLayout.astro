@@ -46,6 +46,7 @@ import { googleReviews, googleRating } from '@/data/proofStats';
 import { ORG } from '@/lib/schema/entity';
 import { base, service, webPage, breadcrumbs, faqPage, serviceId } from '@/lib/schema';
 import type { LandingContent } from '@/lib/landings';
+import { convertDeep } from '@/lib/money';
 
 export interface Props {
   content: LandingContent;
@@ -55,6 +56,14 @@ const url = c.url;
 const tel = ORG.telephone.replace(/[^+\d]/g, '');
 const wa = c.whatsapp ? `https://wa.me/${c.whatsapp.number}?text=${encodeURIComponent(c.whatsapp.text)}` : null;
 const reply = c.replyPromise ?? 'No spam. We reply within one working day.';
+// Regional LP (UAE): every WhatsApp link carries the market so analytics.ts can
+// fire the Contact event, and both forms post the market as hidden answers.
+const waAttrs: Record<string, string> = c.region ? { 'data-wa-region': c.region.code } : {};
+const hiddenAnswers: Record<string, string> = c.region ? { region: c.region.code, currency: c.region.currency } : {};
+const waFormLabel = c.waFormLabel ?? 'Prefer WhatsApp? Message us';
+// AED pages show the same documented accounts with every rupee figure converted
+// (and a note under the grid that says so).
+const toLocal = <T,>(v: T): T => (c.region?.currency === 'AED' ? convertDeep(v) : v);
 
 // Real Ads Manager screenshots (owner-supplied 2026-09-15, brand names hidden),
 // optimised by astro:assets. Nothing renders if the folder is empty — no
@@ -64,14 +73,14 @@ const shotFiles = import.meta.glob<{ default: ImageMetadata }>('/src/assets/lp/p
 const proofShots: ImageMetadata[] = c.proof
   ? Object.keys(shotFiles).sort().map((k) => shotFiles[k]!.default)
   : [];
-const heroShot = proofShots.length ? proofShots[proofShots.length - 1] : null;
+const heroShot = proofShots.length && c.heroShot !== false ? proofShots[proofShots.length - 1] : null;
 
 // Proof row = the existing case-study poster cards (full detail), by slug. The
 // same study object feeds the expand-in-place panel, so nothing can drift.
 const proofPosters = (c.proofStudies ?? [])
   .map((sl) => {
     const study = CASE_STUDY_BY_SLUG[sl];
-    return study ? { study, colorIndex: (INDEX_ORDER as readonly string[]).indexOf(sl) % 7, kicker: CASE_STUDY_KICKERS[sl] ?? '' } : null;
+    return study ? { study: toLocal(study), colorIndex: (INDEX_ORDER as readonly string[]).indexOf(sl) % 7, kicker: toLocal(CASE_STUDY_KICKERS[sl] ?? '') } : null;
   })
   .filter((x): x is NonNullable<typeof x> => x !== null);
 // The floating delta on the hero frame: the first featured study's real before→after.
@@ -110,9 +119,17 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
         <Image src={lockupBlack} alt="Scaling Socials" height={28} width={Math.round(28 * (lockupBlack.width / lockupBlack.height))} densities={[1, 2]} loading="eager" class="lp-brand__img lp-brand__img--dark" aria-hidden="true" />
       </span>
       <div class="lp-head__cta">
-        <a href={`tel:${tel}`} class="lp-head__tel" aria-label={`${c.phoneCtaLabel} ${ORG.telephone}`}>
-          <Glyph name="phone" size={18} /><span>{ORG.telephone}</span>
-        </a>
+        {c.hidePhone ? (
+          wa && (
+            <a href={wa} target="_blank" rel="noopener" class="lp-head__wa" aria-label="Chat on WhatsApp" {...waAttrs}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WA_PATH} /></svg>
+            </a>
+          )
+        ) : (
+          <a href={`tel:${tel}`} class="lp-head__tel" aria-label={`${c.phoneCtaLabel} ${ORG.telephone}`}>
+            <Glyph name="phone" size={18} /><span>{ORG.telephone}</span>
+          </a>
+        )}
         <a href="#lead" class="lp-btn lp-btn--sm">{c.ctaLabelShort}</a>
       </div>
     </div>
@@ -137,7 +154,7 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
         <div class="lp-hero__cta">
           <a href="#lead" class="lp-btn lp-btn--lg">{c.ctaLabel}</a>
           {wa && (
-            <a href={wa} target="_blank" rel="noopener" class="lp-btn lp-btn--ghost">
+            <a href={wa} target="_blank" rel="noopener" class="lp-btn lp-btn--ghost" {...waAttrs}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WA_PATH} /></svg>
               Chat on WhatsApp
             </a>
@@ -168,6 +185,9 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
               {c.hero.stats.map((s) => (
                 <li><span class="lp-stats__val display-type" data-num>{s.value}</span><span class="lp-stats__lbl">{s.label}</span></li>
               ))}
+              {c.proof && (
+                <li><span class="lp-stats__val display-type" data-num>{googleRating.value}<span class="lp-strip__star" aria-hidden="true">★</span></span><span class="lp-stats__lbl">{googleRating.label}, {googleReviews.value} reviews</span></li>
+              )}
             </ul>
           )}
         </div>
@@ -216,12 +236,13 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
           step2Lead={c.form?.step2}
           showMessage={c.form?.showMessage ?? true}
           redirect={c.form?.redirect}
+          hidden={hiddenAnswers}
           elevated
         />
         {wa && (
-          <a href={wa} target="_blank" rel="noopener" class="lp-wa">
+          <a href={wa} target="_blank" rel="noopener" class="lp-wa" {...waAttrs}>
             <span class="lp-wa__icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d={WA_PATH} /></svg></span>
-            Prefer WhatsApp? Message us
+            {waFormLabel}
           </a>
         )}
       </div>
@@ -271,6 +292,8 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
           </li>
         ))}
       </ul>
+
+      {c.proofNote && <p class="lp-proofnote" data-reveal>{c.proofNote}</p>}
 
       <div class="lp-case__panels">
         {proofPosters.map((pp) => (
@@ -516,12 +539,13 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
           step2Lead={c.form?.step2}
           showMessage={c.form?.showMessage ?? true}
           redirect={c.form?.redirect}
+          hidden={hiddenAnswers}
           elevated
         />
         {wa && (
-          <a href={wa} target="_blank" rel="noopener" class="lp-wa lp-wa--on-ink">
+          <a href={wa} target="_blank" rel="noopener" class="lp-wa lp-wa--on-ink" {...waAttrs}>
             <span class="lp-wa__icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d={WA_PATH} /></svg></span>
-            Prefer WhatsApp? Message us
+            {waFormLabel}
           </a>
         )}
       </div>
@@ -534,11 +558,16 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
       <span class="lp-foot__brand">
         <Image src={lockupBlack} alt="Scaling Socials" height={22} width={Math.round(22 * (lockupBlack.width / lockupBlack.height))} densities={[1, 2]} loading="lazy" />
         <span>© {new Date().getFullYear()} {ORG.legalName}</span>
+        {c.footerLine && <span>{c.footerLine}</span>}
       </span>
       <nav class="lp-foot__nav" aria-label="Legal">
         <a href="/privacy/">Privacy</a>
         <a href="/terms/">Terms</a>
-        <a href={`tel:${tel}`}>{ORG.telephone}</a>
+        {c.hidePhone ? (
+          wa && <a href={wa} target="_blank" rel="noopener" {...waAttrs}>Chat on WhatsApp</a>
+        ) : (
+          <a href={`tel:${tel}`}>{ORG.telephone}</a>
+        )}
       </nav>
     </div>
   </footer>
@@ -547,7 +576,7 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
   <div class="lp-sticky" data-sticky>
     <a href="#lead" class="lp-btn lp-sticky__cta">{c.ctaLabelSticky ?? c.ctaLabel}</a>
     {wa ? (
-      <a href={wa} target="_blank" rel="noopener" class="lp-sticky__wa" aria-label="Message us on WhatsApp">
+      <a href={wa} target="_blank" rel="noopener" class="lp-sticky__wa" aria-label="Message us on WhatsApp" {...waAttrs}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WA_PATH} /></svg>
       </a>
     ) : (
@@ -687,6 +716,10 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
     .lp-head__tel { display:none; align-items:center; gap:0.5rem; min-height:44px; color: var(--color-fg-dark); text-decoration:none; font-weight:600; font-size: var(--text-small); opacity:.9; transition: color var(--dur-base) var(--ease-out); }
     .lp-head.is-solid .lp-head__tel { color: var(--color-fg-light); }
     @media (min-width: 860px) { .lp-head__tel { display:inline-flex; } }
+    /* WhatsApp icon button (no-phone LPs): visible at every width, since it
+       replaces the number as the header's second contact path. */
+    .lp-head__wa { display:inline-grid; place-items:center; width:44px; height:44px; border-radius: var(--radius-button); border:1px solid color-mix(in srgb, currentColor 30%, transparent); color: var(--color-fg-dark); text-decoration:none; transition: color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
+    .lp-head.is-solid .lp-head__wa { color: var(--color-fg-light); }
     /* Over the ink hero the header button reads on the ink tokens; once solid it
        reads on the paper tokens. Both states resolve from the same button rule. */
     .lp-head .lp-btn--sm { --accent-fill: var(--color-accent-lift); --accent-hover: var(--color-accent-lift-hi); --accent-on: var(--color-black); }
@@ -716,8 +749,8 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
     .lp-hero__grid { display:grid; grid-template-columns: minmax(0,1fr); gap: var(--space-8); align-items:center; }
     .lp-hero__grid > * { min-width:0; }
     @media (min-width: 1024px) { .lp-hero__grid { grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr); gap: var(--space-10); } }
-    .lp-chip { display:inline-flex; align-items:center; gap:0.5rem; max-width:100%; padding: 0.4rem 0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-radius:999px; border:1px solid color-mix(in srgb, var(--accent-graphic) 40%, transparent); background: color-mix(in srgb, var(--accent-graphic) 12%, transparent); color: var(--fg); font-size: var(--text-label); font-weight:600; letter-spacing:.02em; }
-    .lp-chip::before { content:''; width:6px; height:6px; border-radius:50%; background: var(--accent-graphic); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-graphic) 22%, transparent); }
+    .lp-chip { display:inline-flex; align-items:center; gap:0.5rem; max-width:100%; padding: 0.4rem 0.85rem; border-radius:999px; text-wrap:balance; border:1px solid color-mix(in srgb, var(--accent-graphic) 40%, transparent); background: color-mix(in srgb, var(--accent-graphic) 12%, transparent); color: var(--fg); font-size: var(--text-label); font-weight:600; letter-spacing:.02em; }
+    .lp-chip::before { content:''; flex:none; width:6px; height:6px; border-radius:50%; background: var(--accent-graphic); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-graphic) 22%, transparent); }
     .lp-h1 { margin-top: var(--space-4); font-size: clamp(2.35rem, 5.2vw, 4rem); line-height:1.02; font-weight:800; letter-spacing:-0.03em; text-wrap:balance; color: var(--fg); }
     .lp-sub { margin-top: var(--space-4); max-width: 50ch; font-size: var(--text-h4); line-height:1.5; color: var(--fg-muted); text-wrap: pretty; }
     .lp-bullets { margin-top: var(--space-4); display:flex; flex-direction:column; gap: var(--space-2); }
@@ -750,6 +783,8 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
     .lp-strip__lbl { display:block; margin-top:0.4rem; font-size: var(--text-small); line-height:1.35; color: var(--fg-muted); }
     .lp-strip__star { margin-left:0.25rem; font-size:0.6em; vertical-align: 0.25em; color: var(--accent-graphic); }
     .lp-stats { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--space-3); }
+    /* Four tiles (stats + Google rating, no hero screenshot) sit 2×2, not 3+1. */
+    .lp-stats:has(> li:nth-child(4)) { grid-template-columns: repeat(2, minmax(0,1fr)); row-gap: var(--space-5); }
     .lp-stats__val { display:block; font-weight:800; line-height:1; font-size: clamp(1.4rem, 2.6vw, 2rem); color: var(--fg); }
     .lp-stats__lbl { display:block; margin-top:0.35rem; font-size: var(--text-label); color: var(--fg-muted); }
 
@@ -910,7 +945,7 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
     /* ── Footer ──────────────────────────────────────────────────────────── */
     .lp-foot { border-top:1px solid var(--rule-c); background: var(--ground); padding: var(--space-6) var(--space-3) calc(var(--space-8) + 84px); }
     .lp-foot__in { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap: var(--space-3); max-width: var(--lp-max); margin:0 auto; font-size: var(--text-small); color: var(--fg-muted); }
-    .lp-foot__brand { display:inline-flex; align-items:center; gap: var(--space-3); }
+    .lp-foot__brand { display:inline-flex; flex-wrap:wrap; align-items:center; gap: var(--space-1) var(--space-3); }
     .lp-foot__brand img { display:block; height:22px; width:auto; }
     .lp-foot__nav { display:flex; flex-wrap:wrap; gap: var(--space-4); }
     .lp-foot__nav a { color: var(--fg-muted); text-decoration:none; min-height:44px; display:inline-flex; align-items:center; }
@@ -937,6 +972,7 @@ const bookBullets = c.finalBullets ?? c.hero.bullets ?? [];
     @media (hover: hover) { .lp-slider:hover .lp-slider__track { animation-play-state: paused; } }
     .lp-slider:focus-within .lp-slider__track { animation-play-state: paused; }
     @keyframes lpScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .lp-proofnote { margin-top: var(--space-3); font-size: var(--text-label); color: var(--fg-muted); }
     .lp-slider__cap { margin-top: var(--space-3); text-align:center; font-size: var(--text-label); color: var(--fg-muted); }
     .lp-shot { flex:none; height:200px; border:1px solid var(--rule-c); border-radius: var(--radius-card); overflow:hidden; background: var(--ground); padding:0; cursor: zoom-in; box-shadow: 0 20px 40px -30px rgba(0,0,0,.35); }
     .lp-shot img { height:100%; width:auto; max-width:none; display:block; }

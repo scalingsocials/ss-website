@@ -78,7 +78,33 @@ function pageView(): void {
   lastLoc = location.href;
 }
 
+/**
+ * WhatsApp contact clicks on a regional landing page (owner brief, UAE LP:
+ * "every WhatsApp button fires a Contact event"). Only links that carry
+ * data-wa-region are tracked, so the core funnel elsewhere is unchanged.
+ *
+ * GA4: `contact` with method + region. Meta: the STANDARD `Contact` event with
+ * a `region` parameter rather than a custom `Contact_UAE` name — a standard
+ * event can be optimised on directly, and a custom conversion filtered on
+ * region=UAE gives the UAE campaign its own signal. One delegated listener,
+ * bound once, survives view transitions.
+ */
+type FbqWin = Window & { fbq?: (...args: unknown[]) => void; __ssWaBound?: boolean };
+function bindWhatsApp(): void {
+  const w = window as GtagWin & FbqWin;
+  if (w.__ssWaBound) return;
+  w.__ssWaBound = true;
+  document.addEventListener('click', (e) => {
+    const a = (e.target as Element | null)?.closest?.<HTMLAnchorElement>('a[data-wa-region]');
+    if (!a) return;
+    const region = a.dataset.waRegion || '';
+    w.gtag?.('event', 'contact', { method: 'whatsapp', region, page: location.pathname });
+    w.fbq?.('track', 'Contact', { method: 'whatsapp', region });
+  });
+}
+
 boot();
+bindWhatsApp();
 // astro:page-load fires on the initial load AND after every view transition, so
 // this is the one page_view per rendered page (boot() stays idempotent).
 document.addEventListener('astro:page-load', () => {

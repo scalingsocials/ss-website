@@ -14,4 +14,9 @@ export interface Field {
   optgroups?: { label: string; options: string[] }[];
   /** Pre-selected value for a select (renders that option `selected`). */
   defaultValue?: string;
+  /** tel only: ISO codes pinned above the rule in the dial-code list, in this
+   *  order. The first is the default country, and the geo/timezone hint may
+   *  only move the default to another pinned country (UAE LP: AE first, then
+   *  the GCC, then India). Default ['IN', 'AE'] with India preselected. */
+  pinned?: string[];
 }

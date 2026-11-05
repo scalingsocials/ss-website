@@ -182,6 +182,11 @@ function initForm(form: HTMLFormElement): void {
     for (const sel of form.querySelectorAll<HTMLSelectElement>('[data-phone-cc]')) {
       if (sel.dataset.touched) continue;
       if (!Array.from(sel.options).some((o) => o.value === iso)) continue;
+      // A field that pins its own countries (UAE LP) keeps its default unless
+      // the hint is another pinned country — an India IP on the UAE page is
+      // usually the team testing, not a lead whose code should flip to +91.
+      const pinned = sel.dataset.ccPinned?.split(' ');
+      if (pinned && !pinned.includes(iso)) continue;
       sel.value = iso;
       syncCc(sel);
     }
@@ -295,6 +300,12 @@ function initForm(form: HTMLFormElement): void {
     }).catch(() => {});
   };
 
+  // Market tag (UAE LP posts q_region=UAE). Rides on the Meta events as a
+  // custom parameter so a UAE campaign can optimise on UAE leads only, without
+  // a second event name that would break Pixel + CAPI dedup on `Lead`.
+  const region = form.querySelector<HTMLInputElement>('input[name="q_region"]')?.value || '';
+  const regionParam = region ? { region } : {};
+
   form.querySelector<HTMLButtonElement>('[data-next]')?.addEventListener('click', () => {
     if (!validateStep(1)) return;
     if (!partialSent) {
@@ -303,7 +314,7 @@ function initForm(form: HTMLFormElement): void {
       // (a lost form_start to an ad-blocker doesn't matter); the real conversion,
       // generate_lead, is sent reliably server-side. See analytics-event-plan.
       (window as GtagWin).gtag?.('event', 'form_start', { form_source: source, page: location.pathname });
-      (window as FbqWin).fbq?.('trackCustom', 'FormStart', { form_source: source });
+      (window as FbqWin).fbq?.('trackCustom', 'FormStart', { form_source: source, ...regionParam });
       partialSent = true;
     }
     show(2);
@@ -337,7 +348,7 @@ function initForm(form: HTMLFormElement): void {
         // Browser Pixel Lead — best-effort; the server CAPI fires the same event
         // with this event_id, so Meta dedupes if both arrive. eventID is the
         // dedup key (note the capitalisation fbq expects).
-        (window as FbqWin).fbq?.('track', 'Lead', { source }, { eventID: eventId });
+        (window as FbqWin).fbq?.('track', 'Lead', { source, ...regionParam }, { eventID: eventId });
         location.assign(redirectTo());
         return;
       }

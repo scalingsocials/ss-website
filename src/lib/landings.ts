@@ -18,7 +18,8 @@ import type { Faq } from '@/lib/services';
 import type { VideoItem } from '@/lib/videoTestimonials';
 import { SERVICE_BY_SLUG } from '@/lib/services';
 import { CASE_STUDY_BY_SLUG, CASE_STUDY_TOTALS } from '@/lib/caseStudies';
-import { brandsServed, adSpendManaged, brandsPast10L, googleReviews, teamSize } from '@/data/proofStats';
+import { brandsServed, adSpendManaged, brandsPast10L, googleReviews, teamSize, adSpendManagedAed, brandsPast10LAed } from '@/data/proofStats';
+import { convertText, RATE_NOTE } from '@/lib/money';
 
 export interface LandingProof {
   metric: string;
@@ -84,6 +85,15 @@ export interface LandingWhyTable {
   caption?: string;
 }
 
+/** Market a landing page is built for. Drives the hidden CRM fields
+ *  (q_region / q_currency, so the lead arrives tagged), the region parameter on
+ *  the Meta Lead + Contact events and the GA4 generate_lead hit, and the AED
+ *  conversion of the documented case studies. */
+export interface LandingRegion {
+  code: 'UAE';
+  currency: 'AED';
+}
+
 export interface LandingContent {
   slug: string;
   url: string;
@@ -91,7 +101,21 @@ export interface LandingContent {
   title: string;
   description: string;
   phoneCtaLabel: string;
-  /** Page CTA label (nav short + sticky + section buttons). */
+  /** Set for a non-India market: tags leads, converts proof figures to AED. */
+  region?: LandingRegion;
+  /** Hide every visible phone number (header, footer, thank-you page). The
+   *  WhatsApp button becomes the only contact path (UAE LP: a +91 number is a
+   *  trust leak to a Dubai founder, and there is no +971 line yet). */
+  hidePhone?: boolean;
+  /** Show the Ads Manager screenshot in the hero (default true). Off on the UAE
+   *  LP: the screenshots are INR accounts and a ₹ column is the first "this
+   *  isn't for me" moment for a Dubai founder. The proof slider further down
+   *  still shows them, captioned honestly. */
+  heroShot?: boolean;
+  /** One factual line in the slim footer, after the legal name. */
+  footerLine?: string;
+  /** Label of the WhatsApp link under each form. */
+  waFormLabel?: string;  /** Page CTA label (nav short + sticky + section buttons). */
   ctaLabel: string;
   ctaLabelShort: string;
   /** Sticky mobile bar label (default: ctaLabel). Keep under ~20 chars so it never wraps. */
@@ -142,6 +166,8 @@ export interface LandingContent {
   proofLede?: string;
   /** Caption under the Ads Manager screenshot row. */
   proofCaption?: string;
+  /** One honest line under the case-study posters (e.g. the conversion rate). */
+  proofNote?: string;
   showcase?: boolean;
   benefits: { eyebrow: string; heading: string; sub: string; items: LandingCard[] };
   processHeading?: string;
@@ -229,7 +255,7 @@ export const LANDINGS: LandingContent[] = [
     hero: {
       eyebrow: 'Performance marketing for D2C and Shopify brands',
       h1: 'Scale Meta & Google ads without losing your margin',
-      sub: `Your spend bought to your break-even ROAS, creative made in-house, and one weekly number you can take to your P&L. ${brandsServed.value} ecommerce brands, ${adSpendManaged.value} managed.`,
+      sub: `Your spend run against your break-even ROAS, creative made in-house, and one weekly number you can take to your P&L. ${brandsServed.value} ecommerce brands, ${adSpendManaged.value} managed.`,
       micro: '30 minutes. Your account on screen. No deck, no pressure. You keep the plan.',
       qualifier: 'Best fit for brands ready to put ₹40–60 K a month into testing.',
       // All three owner-confirmed aggregates from proofStats.ts. The ₹2.77 Cr
@@ -469,6 +495,206 @@ export const LANDINGS: LandingContent[] = [
     },
   },
 ];
+
+// ── UAE performance LP ───────────────────────────────────────────────────────
+// /lp/performance-marketing-uae/ — the India perf LP, same sections in the same
+// order, with the owner's UAE swaps (brief, 5 Nov 2026): no phone number
+// anywhere (WhatsApp is the only contact path), AED throughout at AED 1 = ₹25.7,
+// COD returns and VAT in the ROAS maths, Dubai-agency comparison, Bangalore
+// framed as 1.5 hours ahead of Dubai. Separate URL, no geo-redirect; NOINDEX
+// like every /lp/ page, so it never competes with the India page in search.
+//
+// Deliberately NOT on the page until the owner confirms (CLAUDE.md §15/§18):
+//   - any agency fee figure (the brief's "AED 10–20K+ retainer" row and the
+//     "AED 15K a month" quote) — §18 bars fee figures anywhere on the site;
+//   - Tabby/Tamara checkout events, Arabic edits, VAT handling, payment methods,
+//     and "UAE accounts since [year]" — unconfirmed claims;
+//   - a UAE case study or testimonial — none exists yet, so the India accounts
+//     show converted, and labelled as India accounts.
+const PERF_IN = LANDINGS.find((l) => l.slug === 'performance-marketing')!;
+const UAE_MIN = 'AED 10K';
+const UAE_REPLY = 'No spam. We reply on WhatsApp within 2 working hours, Mon–Fri, 9am–7pm Dubai time.';
+const UAE_SPEND_FAQ: Faq = {
+  q: 'What monthly ad spend do you work with?',
+  a: `${UAE_MIN} a month in ad spend is where we start most UAE brands: enough for Meta and Google to learn and for us to find angles that clear your break-even ROAS before scaling. It is a floor, not a ceiling; we run accounts well beyond it. If you are below ${UAE_MIN} today, book the review anyway and we will tell you what to fix on the store first, so the money works when you are ready.`,
+};
+const faqIn = (key: string): Faq => {
+  const f = PERF_IN.faqs.find((x) => x.q.toLowerCase().includes(key.toLowerCase()));
+  if (!f) throw new Error(`landings: India LP has no FAQ matching "${key}"`);
+  return f;
+};
+
+LANDINGS.push({
+  ...PERF_IN,
+  slug: 'performance-marketing-uae',
+  url: '/lp/performance-marketing-uae/',
+  source: 'lp-performance-marketing-uae',
+  // Brief asked for "Scale Meta & Google Ads Profitably in the UAE | Scaling Socials"
+  // (63 chars); the SEO gate caps titles at 60 (03 §2).
+  title: 'Profitable Meta & Google Ads in the UAE | Scaling Socials',
+  description:
+    'Meta and Google ads for UAE D2C brands, run to break-even ROAS with COD returns and VAT in the maths. Quoted in AED. Book a free 30-minute account review.',
+  region: { code: 'UAE', currency: 'AED' },
+  hidePhone: true,
+  heroShot: false,
+  footerLine: 'Bangalore, India. Serving UAE and GCC brands.',
+  waFormLabel: 'Prefer WhatsApp? Start a chat',
+  hero: {
+    ...PERF_IN.hero,
+    eyebrow: 'Performance marketing for D2C & Shopify brands in the UAE',
+    // A/B variant to test: "Scale Meta & Google ads in the UAE without losing your margin"
+    h1: 'Scale Meta & Google ads without losing your margin',
+    sub: `Your spend run against your break-even ROAS, with COD returns and VAT in the maths, creative made in-house, and one weekly number you can take to your P&L. ${brandsServed.value} ecommerce brands, ${adSpendManagedAed.value} in ad spend managed.`,
+    qualifier: `Best fit for brands ready to put ${UAE_MIN}+ a month into testing.`,
+    stats: [
+      { value: brandsServed.value, label: 'ecommerce brands across India and the GCC' },
+      { value: adSpendManagedAed.value, label: adSpendManagedAed.label },
+      { value: brandsPast10LAed.value, label: brandsPast10LAed.label },
+    ],
+  },
+  trustLine: 'Trusted by D2C & ecommerce brands across the UAE, GCC and India',
+  nicheLine: 'Modest wear, abayas, fragrance, jewellery, beauty, kidswear and home',
+  replyPromise: UAE_REPLY,
+  form: {
+    ...PERF_IN.form,
+    step1: [
+      { name: 'ad_spend', label: 'Monthly ad spend (AED)', type: 'select', required: true, options: ['Under AED 10K', 'AED 10K – AED 20K', 'AED 20K – AED 50K', 'AED 50K – AED 100K', 'AED 100K+'] },
+      { name: 'platforms', label: 'Where you run ads today', type: 'select', required: true, options: ['Meta only', 'Google only', 'Meta and Google', 'TikTok / Snap as well', 'Not running yet'] },
+      { name: 'start', label: 'When do you want to start?', type: 'select', required: true, options: ['This month', 'In the next 30 days', 'In 2 to 3 months', 'Just exploring'] },
+    ],
+    step2: (PERF_IN.form?.step2 ?? []).map((f) =>
+      f.type === 'tel' ? { ...f, placeholder: '50 123 4567', pinned: ['AE', 'SA', 'QA', 'KW', 'BH', 'OM', 'IN'] } : f,
+    ),
+    redirect: '/lp/performance-marketing-uae/thanks/',
+  },
+  // The +91 number is only seen inside the chat, once they have decided to
+  // talk. Swap to a +971 line here later without touching the page. The
+  // trailing tag tells the BDE which page the chat came from.
+  whatsapp: { number: '919606713608', text: 'Hi, I run a D2C brand in the UAE and want a free account review [UAE-LP]' },
+  nextSteps: [
+    { n: '01', text: 'We message you on WhatsApp within 2 working hours (Mon–Fri, 9am–7pm Dubai time) to fix a time.' },
+    { n: '02', text: 'Send us read-only access before the call so we come prepared.' },
+    { n: '03', text: '30 minutes in Dubai working hours, your account on screen, a clear first-30-days plan.' },
+  ],
+  problem: {
+    ...PERF_IN.problem!,
+    quotes: [
+      "ROAS was 4x last year. It's under 2x now and nobody can tell me why.",
+      'My agency sends a PDF full of impressions. I want to know if I made money.',
+      'ROAS looks fine on the dashboard, then 30% of orders come back as COD returns.',
+      "The Dubai agency wanted a monthly retainer signed before they'd even look at the account.",
+    ],
+  },
+  proofLede: `Every figure is from the client's own Meta Ads Manager, anonymised by niche. Across the ${CASE_STUDY_TOTALS.accounts} accounts we document: ${convertText(CASE_STUDY_TOTALS.revenue)} revenue on ${convertText(CASE_STUDY_TOTALS.spend)} spend, ${CASE_STUDY_TOTALS.roas} average.`,
+  proofNote: `India accounts, anonymised by niche. ${RATE_NOTE}`,
+  proofCaption: 'Live Meta Ads Manager views from four India client accounts, shown in ₹ as recorded, account names hidden. Tap to enlarge.',
+  benefits: {
+    ...PERF_IN.benefits,
+    items: PERF_IN.benefits.items.map((it) => {
+      if (it.title === 'Meta & Instagram ads') {
+        return { ...it, list: (it.list ?? []).map((li) => (li === 'Budget moved daily against break-even ROAS' ? 'Budget moved daily against break-even ROAS, net of returns and VAT' : li)) };
+      }
+      if (it.title === 'Store & tracking') {
+        return { ...it, list: ['Product page, cart and checkout fixes', 'COD vs prepaid split tracked separately, so ROAS reflects what you actually keep', 'Pixel and CAPI set up properly', 'A weekly report you can read in two minutes'] };
+      }
+      return it;
+    }),
+  },
+  process: PERF_IN.process.map((p, i) =>
+    i === 0 ? { ...p, body: 'On a call in Dubai hours: your account on screen, your break-even ROAS with the maths shown, COD returns and VAT included, and a first-30-days plan. Yours whether you sign or not.' } : p,
+  ),
+  why: {
+    ...PERF_IN.why,
+    heading: 'Freelancer, Dubai agency, or us',
+    table: {
+      columns: ['', 'Freelancer', 'Dubai agency', 'Scaling Socials'],
+      highlightCol: 3,
+      caption: `Kept fair on purpose. A freelancer is the right call under ${UAE_MIN} a month; a large Dubai agency is the right call for brand campaigns in the millions.`,
+      rows: [
+        ['Who runs the account', 'One person, when available', 'An account manager relays to a junior buyer', 'The senior buyer you meet on the review call'],
+        ['Creative', 'Yours to supply finished', 'Separate studio, separate invoice', 'Cut in-house from your raw footage, weekly'],
+        ['Reporting', 'Ad hoc', 'Monthly deck', 'Weekly number against your break-even ROAS, net of COD returns'],
+        ['Ad spend', 'Paid direct', 'Often marked up or bundled', 'Paid direct to Meta and Google, never marked up'],
+        ['Contract', 'None', '6 to 12 month lock-in', 'No lock-in, month to month'],
+        ['Store and CRO', 'Not usually', 'Separate team', 'Same team fixes the product page'],
+        // No fee figures in any column (CLAUDE.md §18), including competitors'.
+        ['Fee', 'Usually the lowest', 'A fixed monthly retainer, set before anyone opens the account', 'Scoped to your spend, quoted in AED on the review call'],
+        ['Best when', `Spend under ${UAE_MIN} a month`, 'Spend in the millions, brand campaigns', `${UAE_MIN} to AED 500K a month and margin matters`],
+      ],
+    },
+  },
+  founderNote: {
+    ...PERF_IN.founderNote!,
+    line: `A ${teamSize.value} ${teamSize.label}, 1.5 hours ahead of Dubai, on your account every week.`,
+  },
+  fit: {
+    good: [
+      'Already sell online in the UAE or GCC with steady revenue',
+      `Can put ${UAE_MIN}+ a month into the testing phase`,
+      'Can shoot raw footage for us every month',
+      'Care about contribution margin after COD returns, not just a ROAS number',
+      'Own the decision and can move in days',
+    ],
+    bad: [
+      `Are spending under ${UAE_MIN} a month on ads`,
+      "Want a fixed ROAS promised before we've seen the account",
+      'Are still validating whether people want the product',
+      'Are choosing on the lowest fee',
+    ],
+    note: PERF_IN.fit?.note,
+  },
+  fee: {
+    heading: 'How the fee works',
+    lines: [
+      'Scoped to your ad spend and creative volume, quoted in AED on the review call',
+      'Ad spend is paid by you, direct to Meta and Google, never marked up',
+      'No lock-in. Month to month',
+      `Minimum recommended testing budget: ${UAE_MIN} a month in ad spend`,
+      'Invoiced in AED',
+    ],
+  },
+  faqs: [
+    faqIn('lock-in'),
+    faqIn('who actually runs'),
+    {
+      q: 'What does the weekly report look like, and will I understand it?',
+      a: "One page: spend, revenue, blended and platform ROAS against your break-even, net of COD returns, what we changed and why, and what we're testing next. Numbers you can take straight to your P&L, not a deck of impressions.",
+    },
+    UAE_SPEND_FAQ,
+    {
+      q: 'Do you have a team in Dubai?',
+      a: 'No. Our buyers and creative team are in Bangalore, 1.5 hours ahead of Dubai. Calls happen in your working hours, Monday to Friday, and WhatsApp replies come within 2 working hours. The senior buyer you meet on the review call is the one who runs your account.',
+    },
+    {
+      q: 'How do you handle COD returns in the ROAS maths?',
+      a: 'We track COD and prepaid orders separately and set your break-even ROAS on delivered revenue, not ordered revenue, with your return rate, delivery cost and 5% VAT in the calculation. If a third of COD orders come back, the target moves to cover it, so a good-looking dashboard cannot hide a losing month.',
+    },
+    {
+      q: 'Do you run TikTok or Snapchat ads?',
+      a: "Meta and Google only. If TikTok or Snapchat is a big channel for you, we'll say so on the review call and you should factor that in.",
+    },
+    {
+      q: 'Do you also work with KSA and the wider GCC?',
+      a: 'Yes. We run Meta and Google for brands selling across the UAE and the wider GCC, from the same team, with the same review and the same weekly report.',
+    },
+    faqIn('creative'),
+    faqIn('how soon'),
+    {
+      q: 'How do I pay?',
+      a: 'We quote and invoice in AED. Your ad spend is billed by Meta and Google directly to you, never through us, so it is never marked up.',
+    },
+    faqIn('restricted'),
+  ],
+  finalBullets: [
+    'Where your spend is leaking and why',
+    'Your break-even ROAS, with the maths shown, including COD return rate, delivery cost and 5% VAT',
+    "What we'd change in the first 30 days",
+  ],
+  finalCta: {
+    ...PERF_IN.finalCta,
+    body: 'Free 30-minute review. You leave with your break-even ROAS, net of COD returns, the three biggest fixes and a first-30-days plan. No pitch deck.',
+  },
+});
 
 export const LANDING_BY_SLUG: Record<string, LandingContent> = Object.fromEntries(
   LANDINGS.map((l) => [l.slug, l]),
